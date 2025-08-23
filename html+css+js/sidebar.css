@@ -1,0 +1,503 @@
+/* ============================================
+   SIDEBAR.CSS
+   Stili specifici per la sidebar e navigazione
+   ============================================ */
+
+/* ============================================
+   SIDEBAR CONTAINER
+   ============================================ */
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    z-index: 1001;
+}
+
+/* ============================================
+   SIDEBAR HEADER
+   ============================================ */
+.sidebar-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    transition: padding 0.3s ease;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   SIDEBAR NAVIGATION
+   ============================================ */
+.sidebar-nav {
+    flex: 1;
+    padding: 24px 16px;
+    overflow-y: auto;
+    transition: padding 0.3s ease;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: gap 0.3s ease;
+}
+
+.nav-item {
+    width: 100%;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 16px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.nav-link.active {
+    background: var(--accent-primary);
+    color: white;
+    font-weight: 600;
+}
+
+.nav-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 16px;
+    transition: margin 0.3s ease;
+}
+
+.nav-text {
+    font-size: 16px;
+}
+
+/* ============================================
+   SIDEBAR FOOTER
+   ============================================ */
+.sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    transition: padding 0.3s ease;
+}
+
+.footer-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 8px;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-btn,
+.fullscreen-btn,
+.info-btn {
+    width: auto;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 8px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.theme-toggle-btn,
+.fullscreen-btn {
+    width: 40px;
+}
+
+.theme-toggle-btn:hover,
+.fullscreen-btn:hover,
+.info-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.info-btn span {
+    font-size: 13px;
+}
+
+.theme-toggle-btn {
+    position: relative;
+}
+
+.theme-icon {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.theme-icon.sun-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.theme-icon.moon-icon {
+    opacity: 0;
+    transform: rotate(180deg);
+}
+
+body.dark-theme .theme-icon.sun-icon {
+    opacity: 0;
+    transform: rotate(-180deg);
+}
+
+body.dark-theme .theme-icon.moon-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* Correzione per l'allineamento dei pulsanti nel footer */
+.footer-controls .info-btn {
+    margin-left: auto;
+}
+
+/* ============================================
+   MODALE INFO
+   ============================================ */
+.info-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.info-modal.show {
+    opacity: 1;
+}
+
+.info-modal-content {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf5 100%);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.info-modal .modal-header {
+    border-bottom-color: rgba(30, 64, 175, 0.2);
+}
+
+.info-modal .modal-title {
+    color: #1e40af;
+}
+
+.info-logo-container,
+.info-title,
+.info-subtitle,
+.info-card {
+    opacity: 0;
+}
+
+.info-logo-container {
+    margin-bottom: 2rem;
+}
+
+.info-logo {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.2);
+}
+
+.info-logo svg {
+    width: 80px !important;
+    height: 80px !important;
+    color: white !important;
+    stroke: white !important;
+    fill: none !important;
+    stroke-width: 2.5 !important;
+}
+
+.info-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 1rem;
+}
+
+.info-subtitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+.info-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    text-decoration: none;
+    color: #1e40af;
+    transition: all 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.info-card-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    color: #1e40af;
+}
+
+.info-card-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.info-card .heart-icon {
+    width: 16px;
+    height: 16px;
+    margin: 0 3px;
+    color: #f97316;
+    vertical-align: middle;
+}
+
+/* Tema scuro standardizzato per Modale Info */
+body.dark-theme .info-modal-content {
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-lg);
+}
+
+body.dark-theme .info-modal .modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+body.dark-theme .info-modal .modal-title {
+    color: var(--text-primary);
+}
+
+body.dark-theme .info-title {
+    color: var(--text-primary);
+}
+
+body.dark-theme .info-subtitle {
+    color: var(--text-secondary);
+}
+
+body.dark-theme .info-card {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+body.dark-theme .info-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+body.dark-theme .info-card-icon {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   MOBILE MENU BUTTON
+   ============================================ */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1003;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+/* ============================================
+   SIDEBAR CONTRATTA (per schermi < 1400px)
+   ============================================ */
+@media (max-width: 1400px) {
+    /* Nascondi l'header del logo */
+    .sidebar-header {
+        display: none;
+    }
+
+    /* 1. Riduci la larghezza della sidebar */
+    .sidebar {
+        width: 88px;
+    }
+
+    /* 2. Nascondi tutti i testi */
+    .logo-text,
+    .nav-text,
+    .info-btn span {
+        display: none;
+    }
+
+    /* 3. Centra le icone di navigazione */
+    .nav-link {
+        justify-content: center;
+    }
+    .nav-icon {
+        margin-right: 0;
+    }
+
+    /* 4. Riduci il padding verticale tra i link di navigazione */
+    .sidebar-nav {
+        padding: 24px 12px;
+    }
+    .nav-list {
+        gap: 4px;
+    }
+
+    /* 5. Riorganizza i pulsanti del footer in colonna */
+    .sidebar-footer {
+        padding: 8px 16px;
+    }
+    .footer-controls {
+        flex-direction: column;
+        gap: 8px;
+        background: transparent;
+        border: none;
+    }
+    .footer-controls .info-btn {
+        margin-left: 0; /* Annulla la regola che spingeva i pulsanti a destra */
+    }
+    .info-btn {
+        width: 40px; /* Rende il pulsante Progetto della stessa larghezza degli altri */
+    }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 260px;
+    }
+    
+    .sidebar-header {
+        padding: 20px;
+    }
+    
+    .logo-text {
+        font-size: 20px;
+    }
+    
+    .nav-link {
+        padding: 10px 14px;
+    }
+    
+    .nav-text {
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,395 @@
+/* ============================================
+   GESTIONE-PREZZI.CSS
+   Stili specifici per la sezione Gestione Prezzi
+   ============================================ */
+
+/* ============================================
+   LAYOUT GENERALE E HEADER
+   ============================================ */
+
+#gestione-prezzi-content .floating-toolbar {
+    justify-content: center;
+}
+
+.prices-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.prices-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.prices-date {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background-color: var(--bg-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+/* ============================================
+   GRIGLIE PREZZI (APPLICATI E CONCORRENZA)
+   ============================================ */
+
+.dual-card-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.price-unified-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.price-columns-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.price-columns-container.competition-columns {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px 24px;
+}
+
+.price-column-unified {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.price-column-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ============================================
+   ELEMENTI PREZZO INDIVIDUALI
+   ============================================ */
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color-light);
+    transition: all 0.2s ease;
+}
+
+.price-item:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Nasconde AdBlue in Iperself mantenendo lo spazio per l'allineamento */
+.price-item.invisible-price {
+    visibility: hidden;
+}
+
+.price-item.disabled-price {
+    opacity: 0.6;
+    background-color: transparent;
+}
+
+.price-product-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.price-value,
+.adblue-editable-input {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-align: right; /* Allinea a destra tutti i valori */
+}
+
+.adblue-editable-input {
+    width: 70px !important;
+    height: auto;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.adblue-editable-input:hover {
+    border-color: var(--border-color);
+    background-color: var(--bg-primary);
+}
+
+.adblue-editable-input::placeholder {
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+.price-value.price-zero {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.no-prices-message {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px 20px;
+    font-style: italic;
+    font-size: 16px;
+}
+
+/* ============================================
+   DIVISORE CONCORRENZA
+   ============================================ */
+
+.competition-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border-color);
+    margin: 48px 0 36px 0; /* Gap aumentati */
+    position: relative;
+}
+
+.competition-divider::before {
+    content: 'DIFFERENZE PREZZI';
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    transform: translateX(-50%);
+    background: var(--bg-primary);
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   STILI DIFFERENZE PREZZI
+   ============================================ */
+
+/* Elemento differenza prezzi */
+.price-item.price-difference {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color-light);
+}
+
+.price-item.price-difference:hover {
+    background-color: var(--bg-secondary);
+}
+
+/* Colori delle differenze */
+.price-value.diff-positive {
+    color: var(--accent-success) !important; /* Verde per differenze positive */
+    font-weight: 700;
+}
+
+.price-value.diff-negative {
+    color: var(--accent-danger) !important; /* Rosso per differenze negative */
+    font-weight: 700;
+}
+
+.price-value.diff-neutral {
+    color: var(--text-muted) !important; /* Grigio per neutro */
+    font-weight: 500;
+}
+
+/* ============================================
+   TABELLA STORICO PREZZI - ARROTONDATA
+   ============================================ */
+
+/* Contenitore della tabella arrotondato */
+.history-list-container {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-sm) !important;
+    margin-top: 24px !important;
+}
+
+.history-list-container .history-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+.history-list-container .history-table thead th {
+    background-color: var(--accent-primary) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    padding: 14px 16px !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    border: none !important;
+}
+
+.history-list-container .history-table tbody td {
+    padding: 14px 16px !important;
+    text-align: center !important;
+    font-size: 0.95rem !important;
+    color: var(--text-secondary) !important;
+    border-bottom: 1px solid var(--border-color-light) !important;
+    border-left: none !important;
+    border-right: none !important;
+    vertical-align: middle !important;
+}
+
+.history-list-container .history-table thead th:first-child,
+.history-list-container .history-table tbody td:first-child {
+    text-align: left !important;
+}
+
+.history-list-container .history-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.history-list-container .history-table tbody tr:hover {
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* ============================================
+   FILTRI STORICO PREZZI
+   ============================================ */
+
+/* Menu a discesa per i filtri dello storico */
+.filter-select {
+    height: 40px;
+    min-width: 120px;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239498AC' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    transition: all 0.2s ease;
+}
+
+/* Pulsante stampa standardizzato per la toolbar dello storico */
+#print-history-btn {
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   STILE MODALE NUOVO LISTINO PREZZI
+   ============================================ */
+
+/* Layout e dimensioni generali del modale */
+#new-price-modal .modal-content {
+    max-width: 480px; /* Ridotto per ottimizzare lo spazio */
+}
+
+#new-price-modal .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Stile e centratura del gruppo data */
+.price-date-group {
+    align-items: center;
+    gap: 12px;
+}
+
+.price-date-group input {
+    max-width: 180px;
+    text-align: center;
+}
+
+/* Griglia per i 4 prezzi (ottimizzata per la nuova larghezza) */
+.price-input-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 150px); /* Ridotto per adattarsi alla nuova larghezza */
+    gap: 20px 20px; /* Ridotto gap orizzontale */
+    justify-content: center;
+}
+
+.price-input-grid .form-group {
+    text-align: center;
+}
+
+.price-input-grid .form-group input {
+    text-align: center;
+}
+
+/* Stile del footer con il divisore */
+#new-price-modal .modal-footer {
+    border-top: 1px solid var(--border-color);
+    margin-top: 16px;
+    padding-top: 24px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .dual-card-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .prices-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .price-columns-container,
+    .price-columns-container.competition-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-select {
+        min-width: 100%;
+    }
+    
+    /* Gap divisore concorrenza ridotti per mobile */
+    .competition-divider {
+        margin: 36px 0 28px 0;
+    }
+    
+    .competition-divider::before {
+        font-size: 11px;
+        padding: 0 8px;
+    }
+    
+    /* Modale listino ridotto per mobile */
+    #new-price-modal .modal-content {
+        max-width: 95%;
+    }
+    
+    .price-input-grid {
+        grid-template-columns: repeat(2, 140px);
+        gap: 18px;
+    }
+}

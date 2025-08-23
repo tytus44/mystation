@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyStation</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="stile.css">
+    
+    <link rel="stylesheet" href="sidebar.css">
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="anagrafica.css">
+    <link rel="stylesheet" href="calendario.css">
+    <link rel="stylesheet" href="amministrazione.css">
+    <link rel="stylesheet" href="registro.css">
+    <link rel="stylesheet" href="gestione-prezzi.css">
+    <link rel="stylesheet" href="concorrenza.css">
+    <link rel="stylesheet" href="virtualstation.css">
+    <link rel="stylesheet" href="statistiche.css">
+
+    <link rel="stylesheet" href="animazioni.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isoWeek.js"></script>
+</head>
+
+<body>
+    <div class="app">
+        
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"><i data-lucide="bolt"></i></div>
+                    <div class="logo-text">MyStation</div>
+                </div>
+            </div>
+<nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" data-page="home">
+                            <i data-lucide="home" class="nav-icon"></i>
+                            <span class="nav-text">Home</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="anagrafica">
+                            <i data-lucide="user-round-search" class="nav-icon"></i>
+                            <span class="nav-text">Anagrafica</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="calendario">
+                            <i data-lucide="calendar-days" class="nav-icon"></i>
+                            <span class="nav-text">Calendario</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="amministrazione">
+                            <i data-lucide="handshake" class="nav-icon"></i>
+                            <span class="nav-text">Amministrazione</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="registro">
+                            <i data-lucide="truck" class="nav-icon"></i>
+                            <span class="nav-text">Registro di carico</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="gestione-prezzi">
+                            <i data-lucide="euro" class="nav-icon"></i>
+                            <span class="nav-text">Gestione prezzi</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="virtualstation">
+                            <i data-lucide="monitor-dot" class="nav-icon"></i>
+                            <span class="nav-text">VirtualStation</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-page="statistiche">
+                            <i data-lucide="pie-chart" class="nav-icon"></i>
+                            <span class="nav-text">Statistiche</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+<div class="sidebar-footer">
+                <div class="footer-controls">
+                    <button class="theme-toggle-btn" id="theme-toggle">
+                        <i data-lucide="sun" class="theme-icon sun-icon"></i>
+                        <i data-lucide="moon" class="theme-icon moon-icon"></i>
+                    </button>
+                    <button class="info-btn" id="info-toggle" title="Informazioni">
+                        <i data-lucide="info"></i>
+                        <span>Progetto</span>
+                    </button>
+                    <button class="fullscreen-btn" id="fullscreen-toggle" title="Schermo intero">
+                        <i data-lucide="maximize" class="maximize-icon"></i>
+                        <i data-lucide="minimize" class="minimize-icon" style="display: none;"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content" id="main-content">
+            <header class="page-header">
+                <h1 class="page-title" id="page-title">Home</h1>
+                <p class="page-subtitle" id="page-subtitle">Contenuto della sezione Home.</p>
+            </header>
+
+            <div id="home-content" class="page-section">
+                <div class="content-section">
+                    <div class="section-content">Benvenuto in MyStation.</div>
+                </div>
+            </div>
+
+            <div id="anagrafica-content" class="page-section" style="display:none;">
+                <div class="floating-toolbar space-between">
+                    <div class="toolbar-group-left">
+                        <div class="search-container">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" class="search-input" id="search-input" placeholder="Cerca contatti...">
+                            <button class="clear-search" id="clear-search-btn" style="display:none;"><i data-lucide="circle-x"></i></button>
+                        </div>
+                        <div class="category-filters">
+                            <button class="toolbar-btn category-filter-btn" data-category="clienti" title="Clienti">
+                                <i data-lucide="users"></i>
+                            </button>
+                            <button class="toolbar-btn category-filter-btn" data-category="autisti" title="Autisti">
+                                <i data-lucide="truck"></i>
+                            </button>
+                            <button class="toolbar-btn category-filter-btn" data-category="enilive" title="Enilive">
+                                <i data-lucide="fuel"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn success" id="new-contact-btn" title="Nuovo contatto">
+                            <i data-lucide="user-plus"></i>
+                            <span>Nuovo Contatto</span>
+                        </button>
+                        <button class="toolbar-btn" id="import-vcf-btn" title="Importa"><i data-lucide="file-input"></i></button>
+                        <button class="toolbar-btn" id="export-vcf-btn" title="Esporta"><i data-lucide="file-output"></i></button>
+                        <button class="toolbar-btn" id="print-contacts-btn" title="Stampa"><i data-lucide="printer"></i></button>
+                        <button class="toolbar-btn danger" id="delete-all-btn" title="Elimina rubrica">
+                            <i data-lucide="trash-2"></i>
+                            <span>Elimina</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="content-section">
+                    <div class="contacts-grid" id="contacts-grid"></div>
+                </div>
+            </div>
+
+            <div id="calendario-content" class="page-section" style="display:none;">
+                <div class="floating-toolbar" style="justify-content: center;">
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn success" id="new-appointment-btn-toolbar" title="Nuovo appuntamento">
+                            <i data-lucide="plus"></i>
+                            <span>Nuovo Appuntamento</span>
+                        </button>
+                        <button class="toolbar-btn" id="import-calendar-btn" title="Importa">
+                            <i data-lucide="file-input"></i>
+                            <span>Importa</span>
+                        </button>
+                        <button class="toolbar-btn" id="export-calendar-btn" title="Esporta">
+                            <i data-lucide="file-output"></i>
+                            <span>Esporta</span>
+                        </button>
+                        <button class="toolbar-btn" id="print-calendar-btn" title="Stampa">
+                            <i data-lucide="printer"></i>
+                            <span>Stampa</span>
+                        </button>
+                        <button class="toolbar-btn danger" id="delete-all-calendar-btn" title="Elimina calendario">
+                            <i data-lucide="calendar-x"></i>
+                            <span>Elimina Tutto</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="calendar-layout">
+                    <div class="calendar-container">
+                        <div class="calendar-internal-header">
+                            <div class="calendar-navigation">
+                                <button class="calendar-nav-btn" id="prev-month-btn" title="Mese precedente">
+                                    <i data-lucide="chevron-left"></i>
+                                </button>
+                                <button class="calendar-nav-btn" id="next-month-btn" title="Mese successivo">
+                                    <i data-lucide="chevron-right"></i>
+                                </button>
+                                <button class="toolbar-btn" id="today-btn" title="Oggi">
+                                    <i data-lucide="calendar-check"></i>
+                                    <span>Oggi</span>
+                                </button>
+                            </div>
+                            <h3 class="calendar-month-title" id="calendar-title">Gennaio 2025</h3>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid"></div>
+                    </div>
+
+                    <div class="appointments-container">
+                        <div class="appointments-header">
+                            <div class="tab-container" id="appointments-tabs">
+                                <button class="tab-btn active" data-view="day">Giorno</button>
+                                <button class="tab-btn" data-view="week">Settimana</button>
+                                <button class="tab-btn" data-view="month">Mese</button>
+                                <button class="tab-btn" data-view="all">Tutti</button>
+                            </div>
+                        </div>
+                        <div class="appointments-content" id="appointments-content">
+                            <div class="selected-date-info" id="selected-date-info">
+                                <h3 id="selected-date-title">Oggi</h3>
+                                <p id="selected-date-subtitle">Seleziona un giorno</p>
+                            </div>
+                            <div class="appointments-list" id="appointments-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="amministrazione-content" class="page-section" style="display:none;">
+                 <div class="floating-toolbar space-between">
+                    <div class="toolbar-group-left">
+                        <div class="search-container">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" class="search-input" id="search-client-input" placeholder="Cerca cliente...">
+                            <button class="clear-search" id="clear-client-search-btn" style="display:none;"><i data-lucide="circle-x"></i></button>
+                        </div>
+                        <button class="toolbar-btn" id="show-hide-clients-btn" title="Mostra/Nascondi schede">
+                            <i data-lucide="eye"></i>
+                        </button>
+                        <button class="toolbar-btn" id="filter-credit-btn" title="Filtra Clienti a Credito">
+                            <i data-lucide="thumbs-up"></i>
+                        </button>
+                        <button class="toolbar-btn" id="filter-debt-btn" title="Filtra Clienti a Debito">
+                            <i data-lucide="thumbs-down"></i>
+                        </button>
+                    </div>
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn success" id="new-client-btn" title="Nuovo cliente">
+                            <i data-lucide="user-plus"></i>
+                            <span>Nuovo</span>
+                        </button>
+                        <button class="toolbar-btn" id="import-clients-btn" title="Importa"><i data-lucide="file-input"></i></button>
+                        <button class="toolbar-btn" id="export-clients-btn" title="Esporta"><i data-lucide="file-output"></i></button>
+                        <button class="toolbar-btn" id="print-clients-btn" title="Stampa"><i data-lucide="printer"></i></button>
+                    </div>
+                </div>
+
+                <div class="registro-summary admin-summary">
+                    <div class="summary-row">
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="users"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label">Posizioni</div>
+                                <div class="summary-value" id="summary-total-clients">0</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="scale"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label">Saldo Netto</div>
+                                <div class="summary-value" id="summary-net-balance">€ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="trending-up"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label">Esposizione Maggiore</div>
+                                <div class="summary-value" id="summary-highest-debt-amount">€ 0,00</div>
+                                <div class="summary-sub-value" id="summary-highest-debt-name">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="clients-grid" id="clients-grid"></div>
+                </div>
+            </div>
+
+            <div id="registro-content" class="page-section" style="display:none;">
+                <div class="floating-toolbar">
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn success" id="new-load-btn"><i data-lucide="plus"></i> Nuova Consegna</button>
+                        <button class="toolbar-btn" id="import-registro-btn"><i data-lucide="file-input"></i> Importa</button>
+                        <button class="toolbar-btn" id="export-registro-btn"><i data-lucide="file-output"></i> Esporta</button>
+                        <button class="toolbar-btn" id="print-registro-btn"><i data-lucide="printer"></i> Stampa</button>
+                        <button class="toolbar-btn danger" id="reset-year-btn"><i data-lucide="calendar-x-2"></i> Reset</button>
+                    </div>
+                </div>
+                
+                <div class="summary-table-container" id="summary-table-container"></div>
+                <div class="registro-summary" id="registro-summary"></div>
+                
+                <div class="content-section">
+                    <div class="prices-header">
+                        <h2 class="prices-title">Storico Carico Carburanti</h2>
+                        <div class="toolbar-group-left">
+                            <div class="tab-container" id="registro-period-tabs">
+                                <button class="tab-btn active" data-period="anno">Anno</button>
+                                <button class="tab-btn" data-period="mese">Mese</button>
+                                <button class="tab-btn" data-period="trimestre">Trimestre</button>
+                                <button class="tab-btn" data-period="semestre">Semestre</button>
+                            </div>
+                            <select class="filter-select" id="registro-value-filter"></select>
+                            <button class="toolbar-btn" id="print-registro-table-btn" title="Stampa Tabella">
+                                <i data-lucide="printer"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history-list-container" id="registro-table-container"></div>
+                </div>
+            </div>
+
+            <div id="virtualstation-content" class="page-section" style="display:none;">
+                <div class="floating-toolbar">
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn success" id="new-turn-btn"><i data-lucide="plus"></i> Nuovo Turno</button>
+                        <button class="toolbar-btn" id="edit-table-btn"><i data-lucide="edit"></i> Modifica</button>
+                        <button class="toolbar-btn" id="import-turns-btn"><i data-lucide="file-input"></i> Importa</button>
+                        <button class="toolbar-btn" id="export-turns-btn"><i data-lucide="file-output"></i> Esporta</button>
+                        <button class="toolbar-btn" id="print-turns-table-btn"><i data-lucide="printer"></i> Stampa</button>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="prices-header">
+                        <h2 class="prices-title">Storico Turni</h2>
+                    </div>
+                    <div class="history-list-container" id="turns-history-container"></div>
+                </div>
+            </div>
+
+            <div id="gestione-prezzi-content" class="page-section" style="display:none;">
+                <div class="floating-toolbar">
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn success" id="new-price-list-btn">
+                            <i data-lucide="bell-ring"></i>
+                            <span>Nuovo Listino</span>
+                        </button>
+                        <button class="toolbar-btn" id="competition-btn">
+                            <i data-lucide="frown"></i>
+                            <span>Concorrenza</span>
+                        </button>
+                        <button class="toolbar-btn" id="import-prices-btn"><i data-lucide="file-input"></i> Importa</button>
+                        <button class="toolbar-btn" id="export-prices-btn"><i data-lucide="file-output"></i> Esporta</button>
+                        <button class="toolbar-btn" id="print-report-btn"><i data-lucide="printer"></i> Stampa</button>
+                    </div>
+                </div>
+
+                <div id="printable-report-area">
+                    <div class="dual-card-container">
+                        <div class="content-section">
+                            <div class="prices-header">
+                                <h2 class="prices-title">Prezzi Applicati</h2>
+                                <span class="prices-date" id="applied-prices-date">Nessun listino impostato</span>
+                            </div>
+                            <div class="prices-grid-unified" id="prices-grid-display"></div>
+                        </div>
+                        <div class="content-section">
+                            <div class="prices-header">
+                                <h2 class="prices-title">Prezzi Concorrenza</h2>
+                            </div>
+                            <div class="prices-grid-unified" id="competition-grid-display"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="prices-header">
+                        <h2 class="prices-title">Storico Variazioni Prezzi</h2>
+                        <div class="toolbar-group-left">
+                            <div class="tab-container" id="period-tabs">
+                                <button class="tab-btn active" data-period="anno">Anno</button>
+                                <button class="tab-btn" data-period="mese">Mese</button>
+                                <button class="tab-btn" data-period="trimestre">Trimestre</button>
+                                <button class="tab-btn" data-period="semestre">Semestre</button>
+                            </div>
+                            <select class="filter-select" id="price-history-value-filter"></select>
+                            <button class="toolbar-btn" id="print-history-btn" title="Stampa Storico">
+                                <i data-lucide="printer"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history-list-container" id="price-history-container"></div>
+                </div>
+            </div>
+
+            <div id="statistiche-content" class="page-section" style="display:none;">
+                <div class="floating-toolbar space-between">
+                    <div class="toolbar-group-left">
+                        <div class="tab-container" id="stats-period-tabs">
+                            <button class="tab-btn active" data-period="giornata">Oggi</button>
+                            <button class="tab-btn" data-period="settimana">Settimana</button>
+                            <button class="tab-btn" data-period="mese">Mese</button>
+                            <button class="tab-btn" data-period="trimestre">Trimestre</button>
+                            <button class="tab-btn" data-period="semestre">Semestre</button>
+                            <button class="tab-btn" data-period="anno">Anno</button>
+                        </div>
+                        <select class="filter-select" id="stats-value-filter"></select>
+                    </div>
+                    <div class="toolbar-buttons">
+                        <button class="toolbar-btn" id="import-stats-btn" title="Importa dati"><i data-lucide="file-input"></i></button>
+                        <button class="toolbar-btn" id="export-stats-btn" title="Esporta dati"><i data-lucide="file-output"></i></button>
+                        <button class="toolbar-btn" id="print-stats-btn" title="Stampa report"><i data-lucide="printer"></i></button>
+                    </div>
+                </div>
+                <div class="registro-summary" id="stats-summary">
+                    <div class="summary-row">
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="wallet"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label">Fatturato</div>
+                                <div class="summary-value" id="stats-total-revenue">€ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="fuel"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label">Litri Erogati</div>
+                                <div class="summary-value" id="stats-total-liters">0</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="users"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label">Servito</div>
+                                <div class="summary-value" id="stats-servito-ratio">0%</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon"><i data-lucide="droplet"></i></div>
+                            <div class="summary-content">
+                                <div class="summary-label" id="stats-top-product-label">Prodotto Top</div>
+                                <div class="summary-value" id="stats-top-product">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px;">
+                    <div class="content-section">
+                        <h3 class="summary-table-title">VENDITE PER PRODOTTO</h3>
+                        <canvas id="product-sales-chart"></canvas>
+                    </div>
+                    <div class="content-section">
+                         <h3 class="summary-table-title">MODALITÀ DI SERVIZIO</h3>
+                        <canvas id="service-mode-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="content-section" style="margin-top: 24px;">
+                    <h3 class="summary-table-title">ANDAMENTO VENDITE (LITRI)</h3>
+                    <div style="height: 400px; position: relative;">
+                         <canvas id="sales-trend-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <input type="file" id="vcf-file-input" accept=".vcf" style="display: none;">
+    <input type="file" id="clients-file-input" accept=".json" style="display: none;">
+    <input type="file" id="registro-file-input" accept=".json" style="display: none;">
+    <input type="file" id="prices-file-input" accept=".json" style="display: none;">
+    <input type="file" id="turns-file-input" accept=".json" style="display: none;">
+    <input type="file" id="calendar-file-input" accept=".json" style="display: none;">
+
+    <div id="custom-alert-box" class="custom-alert"></div>
+
+    <div id="new-contact-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nuovo Contatto</h2>
+                <span class="close-btn" id="close-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="contact-name" placeholder="Nome Completo" required>
+                <input type="text" id="contact-org" placeholder="Organizzazione">
+                <input type="tel" id="contact-tel" placeholder="Telefono">
+                <input type="email" id="contact-email" placeholder="Email">
+                <input type="text" id="contact-notes" placeholder="Note">
+                
+                <div class="category-selection">
+                    <label class="category-label">Categoria:</label>
+                    <div class="category-options">
+                        <label class="category-option"><input type="radio" name="contact-category" value="clienti" checked><span class="category-name" data-category="clienti">Clienti</span></label>
+                        <label class="category-option"><input type="radio" name="contact-category" value="autisti"><span class="category-name" data-category="autisti">Autisti</span></label>
+                        <label class="category-option"><input type="radio" name="contact-category" value="enilive"><span class="category-name" data-category="enilive">Enilive</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn success" id="save-contact-btn"><i data-lucide="save"></i> Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-contact-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Modifica Contatto</h2>
+                <span class="close-btn" id="close-edit-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="edit-contact-name" placeholder="Nome Completo" required>
+                <input type="text" id="edit-contact-org" placeholder="Organizzazione">
+                <input type="tel" id="edit-contact-tel" placeholder="Telefono">
+                <input type="email" id="edit-contact-email" placeholder="Email">
+                <input type="text" id="edit-contact-notes" placeholder="Note">
+                
+                <div class="category-selection">
+                    <label class="category-label">Categoria:</label>
+                    <div class="category-options">
+                        <label class="category-option"><input type="radio" name="edit-contact-category" value="clienti"><span class="category-name" data-category="clienti">Clienti</span></label>
+                        <label class="category-option"><input type="radio" name="edit-contact-category" value="autisti"><span class="category-name" data-category="autisti">Autisti</span></label>
+                        <label class="category-option"><input type="radio" name="edit-contact-category" value="enilive"><span class="category-name" data-category="enilive">Enilive</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn danger" id="delete-contact-btn" style="margin-right: auto;"><i data-lucide="trash-2"></i> Elimina</button>
+                <button class="toolbar-btn success" id="save-edit-contact-btn"><i data-lucide="save"></i> Salva Modifiche</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-client-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nuovo Cliente</h2>
+                <span class="close-btn" id="close-client-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="client-name-input" placeholder="Nome Cliente" required>
+                <input type="text" id="client-initial-balance" placeholder="Saldo iniziale (credito)" pattern="[0-9,]*">
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn success" id="save-client-btn"><i data-lucide="save"></i> Salva Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content modal-content-medium">
+            <div class="modal-header">
+                <div class="modal-title"><span id="client-name-header"></span></div>
+                <span class="close-btn" id="close-transaction-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="client-balance-display">
+                <span class="balance-label">Saldo attuale:</span>
+                <span id="client-balance-header" class="balance-amount"></span>
+            </div>
+            <div class="modal-body">
+                <div class="transaction-form-inline">
+                    <input type="text" id="transaction-date" placeholder="GG/MM/AAAA" class="date-input-text">
+                    <input type="text" id="transaction-description" placeholder="Descrizione (default: Carburante)" class="description-input">
+                    <input type="text" id="transaction-amount" placeholder="Importo (€)" class="amount-input">
+                    <button class="btn-confirm-transaction" id="confirm-transaction-btn" title="Aggiungi addebito"><i data-lucide="plus"></i></button>
+                </div>
+            </div>
+            <div class="modal-footer transaction-actions-compact">
+                <button class="toolbar-btn success" id="pay-full-btn"><i data-lucide="check-circle"></i><span>Salda</span></button>
+                <button class="toolbar-btn" id="pay-partial-btn"><i data-lucide="coins"></i><span>Acconto</span></button>
+                <button class="toolbar-btn" id="print-transaction-btn"><i data-lucide="printer"></i><span>Stampa</span></button>
+                <button class="toolbar-btn" id="view-history-btn"><i data-lucide="history"></i><span>Storico</span></button>
+                <button class="toolbar-btn danger" id="delete-client-btn"><i data-lucide="trash-2"></i><span>Elimina</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal">
+        <div class="modal-content modal-content-xlarge">
+            <div class="modal-header">
+                <h2 class="modal-title">Storico - <span id="history-client-name"></span></h2>
+                <span class="close-btn" id="close-history-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th><th>Tipo</th><th>Azioni</th></tr></thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-load-modal" class="modal">
+        <div class="modal-content modal-content-medium">
+            <div class="modal-header">
+                <h2 class="modal-title">Nuova Consegna</h2>
+                <span class="close-btn" id="close-load-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid-2">
+                    <div class="form-group"><label for="load-date">Data *</label><input type="text" id="load-date" placeholder="GG/MM/AAAA" required></div>
+                    <div class="form-group"><label for="load-driver">Autista *</label><input type="text" id="load-driver" placeholder="Nome autista" required></div>
+                </div>
+                <div class="product-grid">
+                    <div class="form-group"><label for="load-benzina">Benzina (L)</label><input type="number" id="load-benzina" placeholder="0" min="0"></div>
+                    <div class="form-group"><label for="load-gasolio">Gasolio (L)</label><input type="number" id="load-gasolio" placeholder="0" min="0"></div>
+                    <div class="form-group"><label for="load-diesel">Diesel+ (L)</label><input type="number" id="load-diesel" placeholder="0" min="0"></div>
+                    <div class="form-group"><label for="load-hvolution">Hvolution (L)</label><input type="number" id="load-hvolution" placeholder="0" min="0"></div>
+                    <div class="form-group"><label for="load-diff-benzina">Diff. Benzina</label><input type="number" id="load-diff-benzina" placeholder="0"></div>
+                    <div class="form-group"><label for="load-diff-gasolio">Diff. Gasolio</label><input type="number" id="load-diff-gasolio" placeholder="0"></div>
+                    <div class="form-group"><label for="load-diff-diesel">Diff. Diesel+</label><input type="number" id="load-diff-diesel" placeholder="0"></div>
+                    <div class="form-group"><label for="load-diff-hvolution">Diff. Hvolution</label><input type="number" id="load-diff-hvolution" placeholder="0"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn success" id="save-load-btn"><i data-lucide="save"></i> Salva Consegna</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-turn-modal" class="modal">
+        <div class="modal-content modal-content-large">
+            <form id="new-turn-form">
+                <div class="modal-header">
+                    <h2 class="modal-title">Nuovo Turno</h2>
+                    <span class="close-btn" id="close-turn-modal-btn"><i data-lucide="x"></i></span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-grid-3">
+                        <div class="form-group"><label for="turn-shift">Turno *</label><input type="text" id="turn-shift" name="shift" placeholder="Es. Mattina, 1, A..." required></div>
+                        <div class="form-group"><label for="turn-date">Data</label><input type="text" id="turn-date" name="date" readonly></div>
+                        <div class="form-group"><label for="turn-time">Orario</label><input type="text" id="turn-time" name="time" readonly></div>
+                    </div>
+                    <h3 class="group-title">IPERSELF</h3>
+                    <div class="product-inputs-grid iperself">
+                        <div class="form-group"><label>Gasolio</label><input type="number" name="iperself-gasolio" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>Diesel+</label><input type="number" name="iperself-diesel" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>Benzina</label><input type="number" name="iperself-benzina" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>Hvolution</label><input type="number" name="iperself-hvolution" placeholder="0" min="0" step="any"></div>
+                    </div>
+                    <h3 class="group-title">SERVITO</h3>
+                    <div class="product-inputs-grid servito">
+                        <div class="form-group"><label>Gasolio</label><input type="number" name="servito-gasolio" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>Diesel+</label><input type="number" name="servito-diesel" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>AdBlue</label><input type="number" name="servito-adblue" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>Benzina</label><input type="number" name="servito-benzina" placeholder="0" min="0" step="any"></div>
+                        <div class="form-group"><label>Hvolution</label><input type="number" name="servito-hvolution" placeholder="0" min="0" step="any"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="toolbar-btn danger" id="cancel-turn-btn"><i data-lucide="x"></i> Annulla</button>
+                    <button type="submit" class="toolbar-btn success" id="save-turn-btn"><i data-lucide="check"></i> Conferma</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-turn-modal" class="modal">
+        <div class="modal-content modal-content-large">
+            <form id="edit-turn-form">
+                <div class="modal-header">
+                    <h2 class="modal-title">Modifica Turno</h2>
+                    <span class="close-btn" id="close-edit-turn-modal-btn"><i data-lucide="x"></i></span>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-turn-id" name="id">
+                    <div class="form-grid-3">
+                        <div class="form-group"><label for="edit-turn-shift">Turno *</label><input type="text" id="edit-turn-shift" name="shift" required></div>
+                        <div class="form-group"><label for="edit-turn-date">Data</label><input type="text" id="edit-turn-date" name="date"></div>
+                        <div class="form-group"><label for="edit-turn-time">Orario</label><input type="text" id="edit-turn-time" name="time"></div>
+                    </div>
+                     <div class="product-group">
+                        <h3 class="group-title">IPERSELF</h3>
+                        <div class="product-inputs-grid iperself">
+                            <div class="form-group"><label>Gasolio</label><input type="number" id="edit-turn-iperself-gasolio" name="iperself-gasolio" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>Diesel+</label><input type="number" id="edit-turn-iperself-diesel" name="iperself-diesel" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>Benzina</label><input type="number" id="edit-turn-iperself-benzina" name="iperself-benzina" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>Hvolution</label><input type="number" id="edit-turn-iperself-hvolution" name="iperself-hvolution" placeholder="0" min="0" step="any"></div>
+                        </div>
+                    </div>
+                    <div class="product-group">
+                        <h3 class="group-title">SERVITO</h3>
+                        <div class="product-inputs-grid servito">
+                            <div class="form-group"><label>Gasolio</label><input type="number" id="edit-turn-servito-gasolio" name="servito-gasolio" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>Diesel+</label><input type="number" id="edit-turn-servito-diesel" name="servito-diesel" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>AdBlue</label><input type="number" id="edit-turn-servito-adblue" name="servito-adblue" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>Benzina</label><input type="number" id="edit-turn-servito-benzina" name="servito-benzina" placeholder="0" min="0" step="any"></div>
+                            <div class="form-group"><label>Hvolution</label><input type="number" id="edit-turn-servito-hvolution" name="servito-hvolution" placeholder="0" min="0" step="any"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="toolbar-btn danger" id="delete-edit-turn-btn"><i data-lucide="trash-2"></i> Elimina</button>
+                    <button type="button" class="toolbar-btn" id="cancel-edit-turn-btn"><i data-lucide="x"></i> Annulla</button>
+                    <button type="submit" class="toolbar-btn success" id="save-edit-turn-btn"><i data-lucide="save"></i> Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="new-price-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nuovo Listino Prezzi</h2>
+                <span class="close-btn" id="close-price-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group price-date-group">
+                    <label for="price-date">Data validità *</label>
+                    <input type="text" id="price-date" placeholder="GG/MM/AAAA" required>
+                </div>
+                <div class="price-input-grid">
+                    <div class="form-group"><label for="price-benzina">Benzina (€)</label><input type="text" id="price-benzina" placeholder="0.000"></div>
+                    <div class="form-group"><label for="price-diesel">Diesel+ (€)</label><input type="text" id="price-diesel" placeholder="0.000"></div>
+                    <div class="form-group"><label for="price-gasolio">Gasolio (€)</label><input type="text" id="price-gasolio" placeholder="0.000"></div>
+                    <div class="form-group"><label for="price-hvolution">Hvolution (€)</label><input type="text" id="price-hvolution" placeholder="0.000"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn success" id="save-price-btn"><i data-lucide="save"></i> Salva Listino</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="competition-modal" class="modal">
+        <div class="modal-content modal-content-medium">
+            <div class="modal-header">
+                <h2 class="modal-title">Prezzi Concorrenza</h2>
+                <span class="close-btn" id="close-competition-modal-btn"><i data-lucide="x"></i></span>
+            </div>
+            <div class="modal-body">
+                <div class="competition-grid">
+                    <div class="competition-column">
+                        <h3 class="competition-column-title">MyOil</h3>
+                        <div class="form-group"><label for="comp-myoil-benzina">Benzina (€)</label><input type="text" id="comp-myoil-benzina" placeholder="0.000"></div>
+                        <div class="form-group"><label for="comp-myoil-gasolio">Gasolio (€)</label><input type="text" id="comp-myoil-gasolio" placeholder="0.000"></div>
+                    </div>
+                    <div class="competition-column">
+                        <h3 class="competition-column-title">Esso</h3>
+                        <div class="form-group"><label for="comp-esso-benzina">Benzina (€)</label><input type="text" id="comp-esso-benzina" placeholder="0.000"></div>
+                        <div class="form-group"><label for="comp-esso-gasolio">Gasolio (€)</label><input type="text" id="comp-esso-gasolio" placeholder="0.000"></div>
+                    </div>
+                    <div class="competition-column">
+                        <h3 class="competition-column-title">Q8</h3>
+                        <div class="form-group"><label for="comp-q8-benzina">Benzina (€)</label><input type="text" id="comp-q8-benzina" placeholder="0.000"></div>
+                        <div class="form-group"><label for="comp-q8-gasolio">Gasolio (€)</label><input type="text" id="comp-q8-gasolio" placeholder="0.000"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="toolbar-btn success" id="save-competition-btn"><i data-lucide="save"></i> Salva Dati</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-appointment-modal" class="modal">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h2 class="modal-title">Nuovo Appuntamento</h2>
+                    <span class="close-btn"><i data-lucide="x"></i></span>
+                </div>
+                <div class="modal-body">
+                    <div class="appointment-form-grid">
+                        <div class="form-group form-group-span-2"><label for="appointment-title">Titolo *</label><input type="text" id="appointment-title" required></div>
+                        <div class="form-group"><label for="appointment-start-date">Data Inizio *</label><input type="text" id="appointment-start-date" required></div>
+                        <div class="form-group"><label for="appointment-end-date">Data Fine *</label><input type="text" id="appointment-end-date" required></div>
+                        <div class="form-group-compound form-group-span-2">
+                            <div class="form-group"><label>Ora Inizio</label><div class="time-inputs-container"><input type="text" id="appointment-start-hour" maxlength="2"><span>:</span><input type="text" id="appointment-start-minute" maxlength="2"></div></div>
+                            <div class="form-group"><label>Ora Fine</label><div class="time-inputs-container"><input type="text" id="appointment-end-hour" maxlength="2"><span>:</span><input type="text" id="appointment-end-minute" maxlength="2"></div></div>
+                            <div class="form-group"><label for="appointment-all-day">Tutto il giorno</label><div class="custom-checkbox-container"><input type="checkbox" id="appointment-all-day" class="all-day-checkbox"><label for="appointment-all-day" class="checkbox-visual"></label></div></div>
+                        </div>
+                        <div class="form-group form-group-span-2"><label for="appointment-description">Descrizione</label><textarea id="appointment-description" rows="3"></textarea></div>
+                        <div class="form-group form-group-span-2">
+                            <label class="recurrence-label">Ricorrenza</label>
+                            <div class="recurrence-options">
+                                <label><input type="radio" name="appointment-recurrence" value="none" checked><span>Nessuna</span></label>
+                                <label><input type="radio" name="appointment-recurrence" value="daily"><span>Giornaliera</span></label>
+                                <label><input type="radio" name="appointment-recurrence" value="weekly"><span>Settimanale</span></label>
+                                <label><input type="radio" name="appointment-recurrence" value="monthly"><span>Mensile</span></label>
+                                <label><input type="radio" name="appointment-recurrence" value="yearly"><span>Annuale</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="toolbar-btn danger cancel-btn" id="cancel-appointment-btn"><i data-lucide="x"></i><span>Annulla</span></button>
+                    <button type="button" class="toolbar-btn success" id="save-appointment-btn"><i data-lucide="save"></i><span>Salva Appuntamento</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-appointment-modal" class="modal">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h2 class="modal-title">Modifica Appuntamento</h2>
+                    <span class="close-btn"><i data-lucide="x"></i></span>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-appointment-id">
+                    <div class="appointment-form-grid">
+                        <div class="form-group form-group-span-2"><label for="edit-appointment-title">Titolo *</label><input type="text" id="edit-appointment-title" required></div>
+                        <div class="form-group"><label for="edit-appointment-start-date">Data Inizio *</label><input type="text" id="edit-appointment-start-date" required></div>
+                        <div class="form-group"><label for="edit-appointment-end-date">Data Fine *</label><input type="text" id="edit-appointment-end-date" required></div>
+                        <div class="form-group-compound form-group-span-2">
+                            <div class="form-group"><label>Ora Inizio</label><div class="time-inputs-container"><input type="text" id="edit-appointment-start-hour" maxlength="2"><span>:</span><input type="text" id="edit-appointment-start-minute" maxlength="2"></div></div>
+                            <div class="form-group"><label>Ora Fine</label><div class="time-inputs-container"><input type="text" id="edit-appointment-end-hour" maxlength="2"><span>:</span><input type="text" id="edit-appointment-end-minute" maxlength="2"></div></div>
+                            <div class="form-group"><label for="edit-appointment-all-day">Tutto il giorno</label><div class="custom-checkbox-container"><input type="checkbox" id="edit-appointment-all-day" class="all-day-checkbox"><label for="edit-appointment-all-day" class="checkbox-visual"></label></div></div>
+                        </div>
+                        <div class="form-group form-group-span-2"><label for="edit-appointment-description">Descrizione</label><textarea id="edit-appointment-description" rows="3"></textarea></div>
+                         <div class="form-group form-group-span-2">
+                            <label class="recurrence-label">Ricorrenza</label>
+                            <div class="recurrence-options">
+                                <label><input type="radio" name="edit-appointment-recurrence" value="none" checked><span>Nessuna</span></label>
+                                <label><input type="radio" name="edit-appointment-recurrence" value="daily"><span>Giornaliera</span></label>
+                                <label><input type="radio" name="edit-appointment-recurrence" value="weekly"><span>Settimanale</span></label>
+                                <label><input type="radio" name="edit-appointment-recurrence" value="monthly"><span>Mensile</span></label>
+                                <label><input type="radio" name="edit-appointment-recurrence" value="yearly"><span>Annuale</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="toolbar-btn danger" id="delete-appointment-btn" style="margin-right: auto;"><i data-lucide="trash-2"></i><span>Elimina</span></button>
+                    <button type="button" class="toolbar-btn danger cancel-btn" id="cancel-edit-appointment-btn"><i data-lucide="x"></i><span>Annulla</span></button>
+                    <button type="button" class="toolbar-btn success" id="save-edit-appointment-btn"><i data-lucide="save"></i><span>Salva Modifiche</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="info-modal" id="info-modal">
+        <div class="info-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Informazioni</h2>
+                <span class="close-btn" id="info-modal-close"><i data-lucide="x"></i></span>
+            </div>
+            <div class="info-logo-container">
+                <div class="info-logo"><i data-lucide="bolt"></i></div>
+            </div>
+            <h1 class="info-title">MyStation</h1>
+            <p class="info-subtitle">MyStation è un'applicazione web pensata per la gestione completa di una stazione di servizio. Permette di centralizzare e monitorare anagrafiche, calendario, amministrazione, registro di carico, prezzi e statistiche di vendita, con funzioni di stampa ed esportazione.</p>
+            <div class="info-cards">
+                <a href="https://github.com/tytus44/MyStation" target="_blank" class="info-card">
+                    <i data-lucide="github" class="info-card-icon"></i>
+                    <div class="info-card-text">Progetto su GitHub</div>
+                </a>
+                <div class="info-card">
+                    <i data-lucide="braces" class="info-card-icon"></i>
+                    <div class="info-card-text">Sviluppato con <i data-lucide="heart" class="heart-icon"></i> da NeRO</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script defer src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="memoria.js"></script>
+    <script defer src="sidebar.js"></script>
+    <script defer src="anagrafica.js"></script>
+    <script defer src="calendario.js"></script>
+    <script defer src="amministrazione.js"></script>
+    <script defer src="registro.js"></script>
+    <script defer src="virtualstation.js"></script>
+    <script defer src="gestione-prezzi.js"></script>
+    <script defer src="concorrenza.js"></script>
+    <script defer src="statistiche.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
