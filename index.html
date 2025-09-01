@@ -32,7 +32,6 @@
             width: 1rem; 
             height: 1rem; 
         }
-        /* Hide number input spinners */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
           -webkit-appearance: none; 
@@ -41,7 +40,6 @@
         input[type=number] {
           -moz-appearance: textfield;
         }
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -67,7 +65,7 @@
         [x-cloak] { display: none !important; }
     </style>
 
-<script>
+    <script>
         function dashboardApp() { 
             const IPERSELF_EXTRA_MARKUP = 0.005;
             const SERVITO_MARKUP = 0.210;
@@ -100,7 +98,6 @@
             ];
 
             return { 
-                // Proprietà esistenti
                 title: 'MyStation', 
                 activeSection: 'home', 
                 isMobileMenuOpen: false, 
@@ -156,7 +153,6 @@
                 isStatsMonthDropdownOpen: false,
                 MONTH_NAMES: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
 
-                // NUOVA FUNZIONE: Salva i dati nel localStorage
                 saveState() {
                     const state = {
                         registryEntries: this.registryEntries,
@@ -175,7 +171,6 @@
                     localStorage.setItem('myStationDashboardState', JSON.stringify(state));
                 },
 
-                // NUOVA FUNZIONE: Carica i dati dal localStorage
                 loadState() {
                     const savedState = localStorage.getItem('myStationDashboardState');
                     if (savedState) {
@@ -201,9 +196,7 @@
                 },
                 
                 init() { 
-                    // Carica i dati salvati all'avvio
                     this.loadState();
-
                     this.resetNewEntry();
                     this.resetNewPriceList();
                     this.resetNewCompetitorPrices();
@@ -211,17 +204,12 @@
                     this.resetNewTransaction();
                     this.resetNewTurno();
                     this.resetNewActivity();
-
-                    // Applica il tema (chiaro/scuro) dopo averlo caricato
                     this.updateTheme();
-
                     document.addEventListener('fullscreenchange', () => { this.isFullscreen = !!document.fullscreenElement; });
-                    
                     const today = new Date();
                     this.month = today.getMonth();
                     this.year = today.getFullYear();
                     this.getDays();
-                    
                     this.$watch('registryEntries', () => this.$nextTick(() => lucide.createIcons()));
                     this.$watch('priceHistory', () => this.$nextTick(() => lucide.createIcons()));
                     this.$watch('filteredClients', () => this.$nextTick(() => lucide.createIcons()));
@@ -230,14 +218,11 @@
                     this.$watch('activities', () => this.$nextTick(() => lucide.createIcons()));
                     this.$watch('contacts', () => this.$nextTick(() => lucide.createIcons()));
                     this.$watch('contactLabels', () => this.$nextTick(() => lucide.createIcons()));
-
                     this.$nextTick(() => lucide.createIcons());
-                    
                     let litriChartInstance, rapportoChartInstance, andamentoChartInstance;
                     const createCharts = () => {
                         const color = this.isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
                         Chart.defaults.color = color;
-
                         const ctxLitri = document.getElementById('litriChart').getContext('2d');
                         litriChartInstance = new Chart(ctxLitri, { type: 'bar', data: { labels: [], datasets: [{ label: 'Litri Venduti', data: [], backgroundColor: '#3b82f6' }] }, options: { responsive: true, maintainAspectRatio: false }});
                         const ctxRapporto = document.getElementById('rapportoChart').getContext('2d');
@@ -246,7 +231,6 @@
                         andamentoChartInstance = new Chart(ctxAndamento, { type: 'line', data: { labels: [], datasets: [{ label: 'Litri Totali', data: [], borderColor: '#10b981', tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false } });
                     };
                     createCharts();
-
                     this.$watch('statsData', (newData) => {
                         if (!litriChartInstance || !newData) return;
                         const prodottiLabels = Object.keys(newData.breakdownProdotti).map(p => p.charAt(0).toUpperCase() + p.slice(1).replace('Plus', '+'));
@@ -260,7 +244,6 @@
                         andamentoChartInstance.data.datasets[0].data = newData.andamentoVendite.data;
                         andamentoChartInstance.update();
                     });
-                    
                     this.$watch('isDarkMode', () => {
                         const color = this.isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
                         Chart.defaults.color = color;
@@ -275,83 +258,28 @@
                 showNotification(message) { this.notificationMessage = message; this.isNotificationModalOpen = true; },
                 showConfirmation(message, callback) { this.confirmationMessage = message; this.confirmationCallback = callback; this.isConfirmationModalOpen = true; },
                 confirmAction() { if (this.confirmationCallback) { this.confirmationCallback(); } this.isConfirmationModalOpen = false; },
-
-                updateTheme() { document.documentElement.classList.toggle('dark', this.isDarkMode); this.saveState(); }, // Salva lo stato quando il tema cambia
+                updateTheme() { document.documentElement.classList.toggle('dark', this.isDarkMode); this.saveState(); },
                 toggleFullscreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch((err) => { this.showNotification(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`); }); } else if (document.exitFullscreen) { document.exitFullscreen(); } },
-
-                get summaryTotals() {
-                    // ... (codice invariato)
-                    if (!this.registryEntries || !this.summary || !this.summary.previousYear) { return { items: [], grandTotal: { carico: 0, differenza: 0, previousYear: 0, contabile: 0 } }; }
-                    const products = ['benzina', 'gasolio', 'dieselPlus', 'hvolution'];
-                    const totals = { benzina: {carico:0, differenza:0}, gasolio: {carico:0, differenza:0}, dieselPlus: {carico:0, differenza:0}, hvolution: {carico:0, differenza:0} };
-                    this.registryEntries.forEach(entry => { products.forEach(product => { totals[product].carico += entry[product]?.carico || 0; totals[product].differenza += entry[product]?.differenza || 0; }); });
-                    const summaryData = { items: [], grandTotal: { carico: 0, differenza: 0, previousYear: 0, contabile: 0 }};
-                    products.forEach(product => {
-                        const prevYear = this.summary.previousYear[product] || 0;
-                        const contabile = totals[product].carico + totals[product].differenza + prevYear;
-                        summaryData.items.push({ name: product.charAt(0).toUpperCase() + product.slice(1).replace('Plus', '+'), key: product, carico: totals[product].carico, differenza: totals[product].differenza, previousYear: prevYear, contabile: contabile });
-                        summaryData.grandTotal.carico += totals[product].carico;
-                        summaryData.grandTotal.differenza += totals[product].differenza;
-                        summaryData.grandTotal.previousYear += prevYear;
-                        summaryData.grandTotal.contabile += contabile;
-                    });
-                    return summaryData;
-                },
-                get topProduct() {
-                    // ... (codice invariato)
-                    const items = this.summaryTotals.items; if (!items || items.length === 0) return { name: '-', amount: 0 };
-                    const top = items.reduce((prev, current) => (prev.carico > current.carico) ? prev : current);
-                    return { name: top.name, amount: top.carico };
-                },
-                get topDriver() {
-                    // ... (codice invariato)
-                    if (!this.registryEntries || this.registryEntries.length === 0) return { name: '-', deliveries: 0 };
-                    const driverCounts = this.registryEntries.reduce((acc, entry) => { acc[entry.autistaName] = (acc[entry.autistaName] || 0) + 1; return acc; }, {});
-                    const topDriverName = Object.keys(driverCounts).reduce((a, b) => driverCounts[a] > driverCounts[b] ? a : b, '');
-                    return { name: topDriverName, deliveries: driverCounts[topDriverName] };
-                },
-                
-                get priceDifferences() {
-                    // ... (codice invariato)
-                     if (!this.recommendedPrices || !this.competitorPrices) return null;
-                    const iperselfBenzina = this.recommendedPrices.benzina + IPERSELF_EXTRA_MARKUP;
-                    const iperselfGasolio = this.recommendedPrices.gasolio + IPERSELF_EXTRA_MARKUP;
-                    return {
-                        myoil: { benzina: this.competitorPrices.myoil.benzina - iperselfBenzina, gasolio: this.competitorPrices.myoil.gasolio - iperselfGasolio },
-                        esso: { benzina: this.competitorPrices.esso.benzina - iperselfBenzina, gasolio: this.competitorPrices.esso.gasolio - iperselfGasolio },
-                        q8: { benzina: this.competitorPrices.q8.benzina - iperselfBenzina, gasolio: this.competitorPrices.q8.gasolio - iperselfGasolio }
-                    };
-                },
-
-                get filteredRegistryEntries() {
-                    // ... (codice invariato)
-                     if (!this.searchQuery) return this.registryEntries;
-                    return this.registryEntries.filter(entry => {
-                        const searchLower = this.searchQuery.toLowerCase();
-                        return entry.autistaName.toLowerCase().includes(searchLower) || this.formatDate(entry.date).includes(this.searchQuery);
-                    });
-                },
-
+                get summaryTotals() { if (!this.registryEntries || !this.summary || !this.summary.previousYear) { return { items: [], grandTotal: { carico: 0, differenza: 0, previousYear: 0, contabile: 0 } }; } const products = ['benzina', 'gasolio', 'dieselPlus', 'hvolution']; const totals = { benzina: {carico:0, differenza:0}, gasolio: {carico:0, differenza:0}, dieselPlus: {carico:0, differenza:0}, hvolution: {carico:0, differenza:0} }; this.registryEntries.forEach(entry => { products.forEach(product => { totals[product].carico += entry[product]?.carico || 0; totals[product].differenza += entry[product]?.differenza || 0; }); }); const summaryData = { items: [], grandTotal: { carico: 0, differenza: 0, previousYear: 0, contabile: 0 }}; products.forEach(product => { const prevYear = this.summary.previousYear[product] || 0; const contabile = totals[product].carico + totals[product].differenza + prevYear; summaryData.items.push({ name: product.charAt(0).toUpperCase() + product.slice(1).replace('Plus', '+'), key: product, carico: totals[product].carico, differenza: totals[product].differenza, previousYear: prevYear, contabile: contabile }); summaryData.grandTotal.carico += totals[product].carico; summaryData.grandTotal.differenza += totals[product].differenza; summaryData.grandTotal.previousYear += prevYear; summaryData.grandTotal.contabile += contabile; }); return summaryData; },
+                get topProduct() { const items = this.summaryTotals.items; if (!items || items.length === 0) return { name: '-', amount: 0 }; const top = items.reduce((prev, current) => (prev.carico > current.carico) ? prev : current); return { name: top.name, amount: top.carico }; },
+                get topDriver() { if (!this.registryEntries || this.registryEntries.length === 0) return { name: '-', deliveries: 0 }; const driverCounts = this.registryEntries.reduce((acc, entry) => { acc[entry.autistaName] = (acc[entry.autistaName] || 0) + 1; return acc; }, {}); const topDriverName = Object.keys(driverCounts).reduce((a, b) => driverCounts[a] > driverCounts[b] ? a : b, ''); return { name: topDriverName, deliveries: driverCounts[topDriverName] }; },
+                get priceDifferences() { if (!this.recommendedPrices || !this.competitorPrices) return null; const iperselfBenzina = this.recommendedPrices.benzina + IPERSELF_EXTRA_MARKUP; const iperselfGasolio = this.recommendedPrices.gasolio + IPERSELF_EXTRA_MARKUP; return { myoil: { benzina: this.competitorPrices.myoil.benzina - iperselfBenzina, gasolio: this.competitorPrices.myoil.gasolio - iperselfGasolio }, esso: { benzina: this.competitorPrices.esso.benzina - iperselfBenzina, gasolio: this.competitorPrices.esso.gasolio - iperselfGasolio }, q8: { benzina: this.competitorPrices.q8.benzina - iperselfBenzina, gasolio: this.competitorPrices.q8.gasolio - iperselfGasolio } }; },
+                get filteredRegistryEntries() { if (!this.searchQuery) return this.registryEntries; return this.registryEntries.filter(entry => { const searchLower = this.searchQuery.toLowerCase(); return (entry.autistaName || '').toLowerCase().includes(searchLower) || (this.formatDate(entry.date) || '').toLowerCase().includes(searchLower); }); },
                 formatPrice(value) { if (value === null || value === undefined || value === 0) return '-'; return value.toLocaleString('it-IT', { minimumFractionDigits: 3, maximumFractionDigits: 3 }); },
                 formatDifference(value) { if (value === null || value === undefined || !isFinite(value)) return '-'; const sign = value > 0 ? '+' : ''; return sign + value.toLocaleString('it-IT', { minimumFractionDigits: 3, maximumFractionDigits: 3 }); },
                 getDifferenceClass(value) { if (value === null || value === undefined || !isFinite(value)) return 'text-gray-500 dark:text-gray-400'; if (value < 0) return 'text-green-600 dark:text-green-400'; if (value > 0) return 'text-red-600 dark:text-red-400'; return 'text-gray-500 dark:text-gray-400'; },
-                
-                // Funzione corretta
                 formatDate(dateString) { if (!dateString || typeof dateString !== 'string' || !dateString.includes('-')) return '-'; const parts = dateString.split('-'); if (parts.length === 3 && parts[0].length === 4) { const [year, month, day] = parts; return `${day}/${month}/${year}`; } return dateString; },
-                
                 toDisplayDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}-${month}-${year}`; },
                 fromDisplayDate(displayDate) { if (!displayDate) return ''; const parts = displayDate.split('-'); if (parts.length === 3 && parts[0].length === 2) { return `${parts[2]}-${parts[1]}-${parts[0]}`; } return displayDate; },
                 formatCarico(value) { if (!value || value === 0) return '-'; return value.toLocaleString('it-IT'); },
                 formatCaricoDifferenza(value) { if (value === 0 || value === null || value === undefined) return '-'; return value.toString(); },
                 getCaricoDifferenceClass(value) { if (value < 0) return 'text-red-600 dark:text-red-400'; if (value > 0) return 'text-green-600 dark:text-green-400'; return 'text-gray-500 dark:text-gray-400'; },
-
                 resetNewEntry() { this.newEntry = { id: '', date: this.toDisplayDate(toLocalDateString(new Date())), autistaName: '', benzina: { carico: null, differenza: null }, gasolio: { carico: null, differenza: null }, dieselPlus: { carico: null, differenza: null }, hvolution: { carico: null, differenza: null }}; },
                 openNuovoCaricoModal() { this.editingEntry = null; this.resetNewEntry(); this.isNuovoCaricoModalOpen = true; },
                 editEntry(entry) { this.editingEntry = entry; this.newEntry = JSON.parse(JSON.stringify(entry)); this.newEntry.date = this.toDisplayDate(entry.date); this.isNuovoCaricoModalOpen = true; },
                 closeNuovoCaricoModal() { this.isNuovoCaricoModalOpen = false; this.editingEntry = null; },
                 saveNewEntry() { if (!this.newEntry.autistaName.trim()) { this.showNotification('Per favore, inserisci il nome dell\'autista.'); return; } this.newEntry.date = this.fromDisplayDate(this.newEntry.date); if (this.editingEntry) { const index = this.registryEntries.findIndex(e => e.id === this.editingEntry.id); if (index !== -1) this.registryEntries[index] = this.newEntry; } else { this.newEntry.id = Math.random().toString(36).substring(2); this.registryEntries.unshift(this.newEntry); } this.registryEntries.sort((a, b) => new Date(b.date) - new Date(a.date)); this.closeNuovoCaricoModal(); this.showNotification('Carico salvato con successo!'); this.saveState(); },
                 deleteEntry(entryToDelete) { this.showConfirmation('Sei sicuro di voler eliminare questo carico?', () => { this.registryEntries = this.registryEntries.filter(e => e.id !== entryToDelete.id); this.showNotification('Carico eliminato.'); this.saveState(); }); },
-
                 resetNewPriceList() { this.newPriceList = { id: '', date: formatDisplayDate(toLocalDateString(new Date())), annotazioni: '', benzina: null, dieselPlus: null, gasolio: null, hvolution: null }; },
                 openNuovoListinoModal() { this.editingPrice = null; this.resetNewPriceList(); this.isNuovoListinoModalOpen = true; },
                 editPrice(price) { this.editingPrice = price; this.newPriceList = JSON.parse(JSON.stringify(price)); this.newPriceList.date = formatDisplayDate(price.date); this.isNuovoListinoModalOpen = true; },
@@ -364,7 +292,6 @@
                 saveCompetitorPrices() { this.newCompetitorPrices.date = toLocalDateString(parseItalianDate(this.newCompetitorPrices.date)); this.competitorPrices = JSON.parse(JSON.stringify(this.newCompetitorPrices)); this.closeConcorrenzaModal(); this.showNotification('Prezzi concorrenza salvati!'); this.saveState(); },
                 getIperselfPrice(product) { if (!this.recommendedPrices) return 0; return this.recommendedPrices[product] + IPERSELF_EXTRA_MARKUP; },
                 getServitoPrice(product) { if (!this.recommendedPrices) return 0; return this.recommendedPrices[product] + SERVITO_MARKUP + SERVITO_EXTRA_MARKUP; },
-
                 resetNewClient() { this.newClient = { id: '', name: '', balance: null, transactions: [] }; },
                 openNewClientModal() { this.editingClient = null; this.resetNewClient(); this.isNuovoClienteModalOpen = true; },
                 editClient(client) { this.editingClient = client; this.newClient = JSON.parse(JSON.stringify(client)); this.isNuovoClienteModalOpen = true; },
@@ -388,7 +315,6 @@
                 get filteredClients() { let filtered = this.clients; if (this.adminFilter === 'credit') { filtered = filtered.filter(c => c.balance > 0); } else if (this.adminFilter === 'debit') { filtered = filtered.filter(c => c.balance < 0); } if (this.adminSearchQuery) { const searchLower = this.adminSearchQuery.toLowerCase(); filtered = filtered.filter(c => c.name.toLowerCase().includes(searchLower)); } return filtered; },
                 formatCurrency(value) { if (value === null || value === undefined) return '€ 0,00'; return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value); },
                 getClientBalanceClass(balance) { if (balance > 0) return 'text-green-600 dark:text-green-400'; if (balance < 0) return 'text-red-600 dark:text-red-400'; return 'text-gray-500 dark:text-gray-400'; },
-
                 resetNewTurno() { this.newTurno = { id: '', date: formatDisplayDate(toLocalDateString(new Date())), turno: '', iperself: { gasolio: null, dieselPlus: null, benzina: null, hvolution: null }, servito: { gasolio: null, dieselPlus: null, adblue: null, benzina: null, hvolution: null }}; },
                 openNuovoTurnoModal() { this.editingTurno = null; this.resetNewTurno(); this.isNuovoTurnoModalOpen = true; },
                 closeNuovoTurnoModal() { this.isNuovoTurnoModalOpen = false; this.editingTurno = null; },
@@ -396,62 +322,10 @@
                 editTurno(turno) { this.editingTurno = turno; this.newTurno = JSON.parse(JSON.stringify(turno)); this.newTurno.date = formatDisplayDate(turno.date); this.isNuovoTurnoModalOpen = true; },
                 deleteTurno(turnoToDelete) { this.showConfirmation('Sei sicuro di voler eliminare questo turno?', () => { this.turni = this.turni.filter(t => t.id !== turnoToDelete.id); this.showNotification('Turno eliminato.'); this.saveState(); }); },
                 getTurnoTotal(turno, product) { return (turno.iperself[product] || 0) + (turno.servito[product] || 0); },
-
                 statsFilter: 'giorno', statsDate: toLocalDateString(new Date()), statsYear: new Date().getFullYear(),
                 statsMonth: new Date().getMonth(), statsPeriod: { trimestre: 1, semestre: 1 },
-                
-                get filteredTurni() {
-                    // ... (codice invariato)
-                    if (!this.turni || this.turni.length === 0) return [];
-                    const currentYear = this.statsYear;
-                    return this.turni.filter(turno => {
-                        const turnoDate = new Date(turno.date);
-                        switch (this.statsFilter) {
-                            case 'giorno': return turno.date === this.statsDate;
-                            case 'settimana':
-                                const today = new Date(); today.setHours(23, 59, 59, 999);
-                                const weekAgo = new Date(); weekAgo.setDate(today.getDate() - 7); weekAgo.setHours(0, 0, 0, 0);
-                                return turnoDate >= weekAgo && turnoDate <= today;
-                            case 'mese': return turnoDate.getFullYear() === currentYear && turnoDate.getMonth() === this.statsMonth;
-                            case 'trimestre':
-                                const trimestreStartMonth = (this.statsPeriod.trimestre - 1) * 3; const trimestreEndMonth = trimestreStartMonth + 2;
-                                return turnoDate.getFullYear() === currentYear && turnoDate.getMonth() >= trimestreStartMonth && turnoDate.getMonth() <= trimestreEndMonth;
-                            case 'semestre':
-                                const semestreStartMonth = (this.statsPeriod.semestre - 1) * 6; const semestreEndMonth = semestreStartMonth + 5;
-                                return turnoDate.getFullYear() === currentYear && turnoDate.getMonth() >= semestreStartMonth && turnoDate.getMonth() <= semestreEndMonth;
-                            case 'anno': return turnoDate.getFullYear() === currentYear;
-                            default: return false;
-                        }
-                    });
-                },
-
-                get statsData() {
-                    // ... (codice invariato)
-                    const data = { litriTotali: 0, fatturato: 0, percentualeServito: 0, prodottoPiuVenduto: { nome: '-', litri: 0 }, breakdownProdotti: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 }, iperselfVsServito: { iperself: 0, servito: 0 }, andamentoVendite: { labels: [], data: [] } };
-                    if (!this.filteredTurni.length) { return data; }
-                    const prodotti = ['benzina', 'gasolio', 'dieselPlus', 'hvolution', 'adblue'];
-                    const litriPerProdotto = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 };
-                    const venditeGiornaliere = {};
-                    this.filteredTurni.forEach(turno => {
-                        let turnoIperself = 0; let turnoServito = 0; const turnoDateStr = turno.date;
-                        prodotti.forEach(p => {
-                            const litriIperself = parseFloat(turno.iperself[p]) || 0; const litriServito = parseFloat(turno.servito[p]) || 0;
-                            litriPerProdotto[p] += litriIperself + litriServito; turnoIperself += litriIperself; turnoServito += litriServito;
-                            if (this.recommendedPrices) { const prezzoIperself = p === 'adblue' ? 0 : this.getIperselfPrice(p) || 0; const prezzoServito = p === 'adblue' ? (this.adbluePrice || 0) : this.getServitoPrice(p) || 0; data.fatturato += (litriIperself * prezzoIperself) + (litriServito * prezzoServito); }
-                        });
-                        data.iperselfVsServito.iperself += turnoIperself; data.iperselfVsServito.servito += turnoServito;
-                        const litriTurno = turnoIperself + turnoServito; venditeGiornaliere[turnoDateStr] = (venditeGiornaliere[turnoDateStr] || 0) + litriTurno;
-                    });
-                    data.litriTotali = data.iperselfVsServito.iperself + data.iperselfVsServito.servito;
-                    if (data.litriTotali > 0) { data.percentualeServito = (data.iperselfVsServito.servito / data.litriTotali) * 100; }
-                    let maxLitri = 0;
-                    for (const prodotto in litriPerProdotto) { if (litriPerProdotto[prodotto] > maxLitri) { maxLitri = litriPerProdotto[prodotto]; data.prodottoPiuVenduto = { nome: prodotto.charAt(0).toUpperCase() + prodotto.slice(1).replace('Plus', '+'), litri: maxLitri }; } }
-                    data.breakdownProdotti = litriPerProdotto;
-                    const sortedDates = Object.keys(venditeGiornaliere).sort((a,b) => new Date(a) - new Date(b));
-                    sortedDates.forEach(date => { data.andamentoVendite.labels.push(this.formatDate(date)); data.andamentoVendite.data.push(venditeGiornaliere[date]); });
-                    return data;
-                },
-
+                get filteredTurni() { if (!this.turni || this.turni.length === 0) return []; const currentYear = this.statsYear; return this.turni.filter(turno => { const turnoDate = new Date(turno.date); switch (this.statsFilter) { case 'giorno': return turno.date === this.statsDate; case 'settimana': const today = new Date(); today.setHours(23, 59, 59, 999); const weekAgo = new Date(); weekAgo.setDate(today.getDate() - 7); weekAgo.setHours(0, 0, 0, 0); return turnoDate >= weekAgo && turnoDate <= today; case 'mese': return turnoDate.getFullYear() === currentYear && turnoDate.getMonth() === this.statsMonth; case 'trimestre': const trimestreStartMonth = (this.statsPeriod.trimestre - 1) * 3; const trimestreEndMonth = trimestreStartMonth + 2; return turnoDate.getFullYear() === currentYear && turnoDate.getMonth() >= trimestreStartMonth && turnoDate.getMonth() <= trimestreEndMonth; case 'semestre': const semestreStartMonth = (this.statsPeriod.semestre - 1) * 6; const semestreEndMonth = semestreStartMonth + 5; return turnoDate.getFullYear() === currentYear && turnoDate.getMonth() >= semestreStartMonth && turnoDate.getMonth() <= semestreEndMonth; case 'anno': return turnoDate.getFullYear() === currentYear; default: return false; } }); },
+                get statsData() { const data = { litriTotali: 0, fatturato: 0, percentualeServito: 0, prodottoPiuVenduto: { nome: '-', litri: 0 }, breakdownProdotti: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 }, iperselfVsServito: { iperself: 0, servito: 0 }, andamentoVendite: { labels: [], data: [] } }; if (!this.filteredTurni.length) { return data; } const prodotti = ['benzina', 'gasolio', 'dieselPlus', 'hvolution', 'adblue']; const litriPerProdotto = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 }; const venditeGiornaliere = {}; this.filteredTurni.forEach(turno => { let turnoIperself = 0; let turnoServito = 0; const turnoDateStr = turno.date; prodotti.forEach(p => { const litriIperself = parseFloat(turno.iperself[p]) || 0; const litriServito = parseFloat(turno.servito[p]) || 0; litriPerProdotto[p] += litriIperself + litriServito; turnoIperself += litriIperself; turnoServito += litriServito; if (this.recommendedPrices) { const prezzoIperself = p === 'adblue' ? 0 : this.getIperselfPrice(p) || 0; const prezzoServito = p === 'adblue' ? (this.adbluePrice || 0) : this.getServitoPrice(p) || 0; data.fatturato += (litriIperself * prezzoIperself) + (litriServito * prezzoServito); } }); data.iperselfVsServito.iperself += turnoIperself; data.iperselfVsServito.servito += turnoServito; const litriTurno = turnoIperself + turnoServito; venditeGiornaliere[turnoDateStr] = (venditeGiornaliere[turnoDateStr] || 0) + litriTurno; }); data.litriTotali = data.iperselfVsServito.iperself + data.iperselfVsServito.servito; if (data.litriTotali > 0) { data.percentualeServito = (data.iperselfVsServito.servito / data.litriTotali) * 100; } let maxLitri = 0; for (const prodotto in litriPerProdotto) { if (litriPerProdotto[prodotto] > maxLitri) { maxLitri = litriPerProdotto[prodotto]; data.prodottoPiuVenduto = { nome: prodotto.charAt(0).toUpperCase() + prodotto.slice(1).replace('Plus', '+'), litri: maxLitri }; } } data.breakdownProdotti = litriPerProdotto; const sortedDates = Object.keys(venditeGiornaliere).sort((a,b) => new Date(a) - new Date(b)); sortedDates.forEach(date => { data.andamentoVendite.labels.push(this.formatDate(date)); data.andamentoVendite.data.push(venditeGiornaliere[date]); }); return data; },
                 resetNewActivity() { this.newActivity = { id: '', date: this.selectedDate, time: '09:00', duration: 30, title: '', content: '', type: 'appuntamento', priority: 'Normale', deadline: '', scadenzaType: 'personale' }; },
                 openNuovaAttivitaModal() { this.resetNewActivity(); this.isNuovaAttivitaModalOpen = true; },
                 closeNuovaAttivitaModal() { this.isNuovaAttivitaModalOpen = false; },
@@ -470,7 +344,6 @@
                 isHoliday(day) { const date = this.getDateForDay(day); const dateStr = toLocalDateString(date); const dayOfWeek = date.getDay(); return HOLIDAYS.includes(dateStr) || dayOfWeek === 0; },
                 hasActivity(day) { const d = toLocalDateString(this.getDateForDay(day)); return this.activities.some(act => act.date === d); },
                 selectDate(day) { this.selectedDate = toLocalDateString(this.getDateForDay(day)); },
-
                 resetNewContact() { this.newContact = { id: '', firstName: '', lastName: '', phone: '', organization: '', email: '', notes: '', labels: [] }; },
                 openNewContactModal() { this.editingContact = null; this.resetNewContact(); this.isNewContactModalOpen = true; },
                 editContact(contact) { this.editingContact = contact; this.newContact = JSON.parse(JSON.stringify(contact)); this.isNewContactModalOpen = true; },
@@ -480,88 +353,71 @@
                 deleteClient(clientToDelete) { this.showConfirmation('Sei sicuro di voler eliminare questo cliente? Tutte le transazioni verranno perse.', () => { this.clients = this.clients.filter(c => c.id !== clientToDelete.id); this.closeNewClientModal(); this.showNotification('Cliente eliminato.'); this.saveState(); }); },
                 editActivity(activity) { this.newActivity = JSON.parse(JSON.stringify(activity)); this.activityType = activity.type; this.selectedDate = activity.date; this.isNuovaAttivitaModalOpen = true; },
                 deleteActivity(activityToDelete) { this.showConfirmation('Sei sicuro di voler eliminare questa attività?', () => { this.activities = this.activities.filter(a => a.id !== activityToDelete.id); this.showNotification('Attività eliminata.'); this.saveState(); }); },
-                get filteredContacts() { const searchLower = this.contactSearchQuery.toLowerCase(); let filtered = this.contacts.filter(contact => (contact.firstName.toLowerCase().includes(searchLower) || contact.lastName.toLowerCase().includes(searchLower) || contact.phone.toLowerCase().includes(searchLower) || contact.email.toLowerCase().includes(searchLower) || contact.organization.toLowerCase().includes(searchLower))); if (this.contactFilter !== 'all') { filtered = filtered.filter(contact => contact.labels.includes(this.contactFilter)); } return filtered; },
+                
+                get filteredContacts() {
+                    const searchLower = this.contactSearchQuery.toLowerCase();
+                    let filtered = this.contacts.filter(contact =>
+                        (contact.firstName || '').toLowerCase().includes(searchLower) ||
+                        (contact.lastName || '').toLowerCase().includes(searchLower) ||
+                        (contact.phone || '').toLowerCase().includes(searchLower) ||
+                        (contact.email || '').toLowerCase().includes(searchLower) ||
+                        (contact.organization || '').toLowerCase().includes(searchLower)
+                    );
+                    if (this.contactFilter !== 'all') {
+                        filtered = filtered.filter(contact => contact.labels.includes(this.contactFilter));
+                    }
+                    return filtered;
+                },
+
+                get searchPlaceholder() {
+                    switch (this.activeSection) {
+                        case 'amministrazione': return 'Cerca cliente...';
+                        case 'anagrafica': return 'Cerca contatto...';
+                        case 'registro': case 'home': default: return 'Cerca nel registro...';
+                    }
+                },
+
+                get currentSearchQuery() {
+                    switch (this.activeSection) {
+                        case 'amministrazione': return this.adminSearchQuery;
+                        case 'anagrafica': return this.contactSearchQuery;
+                        default: return this.searchQuery;
+                    }
+                },
+                set currentSearchQuery(value) {
+                    switch (this.activeSection) {
+                        case 'amministrazione': this.adminSearchQuery = value; break;
+                        case 'anagrafica': this.contactSearchQuery = value; break;
+                        default: this.searchQuery = value; break;
+                    }
+                },
+
                 openGestisciEtichetteModal() { this.newLabel = { name: '', color: '#3b82f6' }; this.isGestisciEtichetteModalOpen = true; },
                 closeGestisciEtichetteModal() { this.isGestisciEtichetteModalOpen = false; },
                 saveNewLabel() { if (!this.newLabel.name.trim()) { this.showNotification('Il nome dell\'etichetta è obbligatorio.'); return; } if (this.contactLabels.length >= 5) { this.showNotification('Hai raggiunto il limite massimo di 5 etichette.'); return; } this.contactLabels.push({ id: this.newLabel.name.toLowerCase().replace(/\s/g, ''), name: this.newLabel.name, color: this.newLabel.color }); this.newLabel = { name: '', color: '#3b82f6' }; this.$nextTick(() => lucide.createIcons()); this.saveState(); },
                 deleteLabel(labelId) { this.showConfirmation('Sei sicuro di voler eliminare questa etichetta? Verrà rimossa da tutti i contatti.', () => { this.contacts = this.contacts.map(contact => ({ ...contact, labels: contact.labels.filter(label => label !== labelId) })); this.contactLabels = this.contactLabels.filter(label => label.id !== labelId); this.showNotification('Etichetta eliminata.'); this.saveState(); }); },
                 toggleLabel(labelId) { const index = this.newContact.labels.indexOf(labelId); if (index === -1) { this.newContact.labels.push(labelId); } else { this.newContact.labels.splice(index, 1); } },
                 getLabelColor(labelId) { return this.contactLabels.find(label => label.id === labelId)?.color || ''; },
-
                 menuItems: [ { id: 'home', label: 'Home', icon: 'home' }, { id: 'anagrafica', label: 'Anagrafica', icon: 'users' }, { id: 'calendario', label: 'Calendario', icon: 'calendar' }, { id: 'amministrazione', label: 'Amministrazione', icon: 'shield' }, { id: 'registro', label: 'Registro di carico', icon: 'clipboard-list' }, { id: 'prezzi', label: 'Gestione prezzi', icon: 'euro' }, { id: 'virtual', label: 'VirtualStation', icon: 'monitor' }, { id: 'statistiche', label: 'Statistiche', icon: 'bar-chart' } ],
                 handleFileUpload(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const jsonData = JSON.parse(e.target.result); this.importSectionData(jsonData); } catch (error) { this.showNotification('Errore: il file selezionato non è un JSON valido.'); console.error("Errore nel parsing del JSON:", error); } }; reader.readAsText(file); event.target.value = null; },
-
-                // Funzione di importazione aggiornata
                 importSectionData(jsonData) {
                     switch(this.activeSection) {
-                        case 'registro':
-                            // ... (logica invariata)
-                            if (jsonData.registryEntries && Array.isArray(jsonData.registryEntries)) { this.registryEntries = jsonData.registryEntries.map(entry => { let normalizedDate = entry.date; if (entry.date && typeof entry.date === 'string') { if (entry.date.includes('-') && entry.date.length === 10) { const parts = entry.date.split('-'); if (parts[0].length === 2) { normalizedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; } } } return { id: entry.id || Math.random().toString(36).substring(2), date: normalizedDate, autistaName: entry.autistaName || '', benzina: { carico: parseInt(entry.benzina?.carico) || 0, differenza: parseInt(entry.benzina?.differenza) || 0 }, gasolio: { carico: parseInt(entry.gasolio?.carico) || 0, differenza: parseInt(entry.gasolio?.differenza) || 0 }, dieselPlus: { carico: parseInt(entry.dieselPlus?.carico) || 0, differenza: parseInt(entry.dieselPlus?.differenza) || 0 }, hvolution: { carico: parseInt(entry.hvolution?.carico) || 0, differenza: parseInt(entry.hvolution?.differenza) || 0 } }; }); this.registryEntries.sort((a, b) => new Date(b.date) - new Date(a.date)); this.showNotification(`File importato! Caricati ${this.registryEntries.length} record.`); } else { this.showNotification('Errore: formato file non valido per Registro di carico.'); }
-                            break;
-                        case 'prezzi':
-                            // ... (logica invariata)
-                            if (jsonData.priceHistory && Array.isArray(jsonData.priceHistory)) { this.priceHistory = jsonData.priceHistory; if (jsonData.competitorPrices) this.competitorPrices = jsonData.competitorPrices; if (jsonData.adbluePrice) this.adbluePrice = jsonData.adbluePrice; this.showNotification(`Prezzi importati! Caricati ${this.priceHistory.length} listini.`); } else { this.showNotification('Errore: formato file non valido per Gestione prezzi.'); }
-                            break;
-                        case 'amministrazione':
-                             // ... (logica invariata)
-                            if (jsonData.clients && Array.isArray(jsonData.clients)) { this.clients = jsonData.clients; this.showNotification(`Amministrazione importata! Caricati ${this.clients.length} clienti.`); } else { this.showNotification('Errore: formato file non valido per Amministrazione.'); }
-                            break;
-                        case 'anagrafica':
-                            // Logica di importazione modificata
-                            if (jsonData.contacts && Array.isArray(jsonData.contacts)) {
-                                this.contacts = jsonData.contacts.map(contact => {
-                                    return {
-                                        id: contact.id || Math.random().toString(36).substring(2),
-                                        firstName: contact.firstName || contact.nome || '',
-                                        lastName: contact.lastName || contact.cognome || '',
-                                        phone: contact.phone || contact.telefono || '',
-                                        organization: contact.organization || contact.azienda || contact.organizzazione || '',
-                                        email: '', notes: '', labels: []
-                                    };
-                                });
-                                this.showNotification(`Anagrafica importata! Caricati ${this.contacts.length} contatti.`);
-                                this.$nextTick(() => lucide.createIcons());
-                            } else {
-                                this.showNotification('Errore: formato file non valido per Anagrafica.');
-                            }
-                            break;
-                        case 'calendario':
-                            // ... (logica invariata)
-                            if (jsonData.activities && Array.isArray(jsonData.activities)) { this.activities = jsonData.activities.map(activity => ({ ...activity, id: activity.id || Math.random().toString(36).substring(2) })); this.showNotification(`Calendario importato! Caricate ${this.activities.length} attività.`); } else { this.showNotification('Errore: formato file non valido per Calendario.'); }
-                            break;
-                        case 'virtual':
-                            // ... (logica invariata)
-                            if (jsonData.turni && Array.isArray(jsonData.turni)) { this.turni = jsonData.turni; this.showNotification(`VirtualStation importata! Caricati ${this.turni.length} turni.`); } else { this.showNotification('Errore: formato file non valido per VirtualStation.'); }
-                            break;
-                        default:
-                            this.showNotification('Impossibile importare dati per questa sezione.');
+                        case 'registro': if (jsonData.registryEntries && Array.isArray(jsonData.registryEntries)) { this.registryEntries = jsonData.registryEntries.map(entry => { let normalizedDate = entry.date; if (entry.date && typeof entry.date === 'string') { if (entry.date.includes('-') && entry.date.length === 10) { const parts = entry.date.split('-'); if (parts[0].length === 2) { normalizedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; } } } return { id: entry.id || Math.random().toString(36).substring(2), date: normalizedDate, autistaName: entry.autistaName || '', benzina: { carico: parseInt(entry.benzina?.carico) || 0, differenza: parseInt(entry.benzina?.differenza) || 0 }, gasolio: { carico: parseInt(entry.gasolio?.carico) || 0, differenza: parseInt(entry.gasolio?.differenza) || 0 }, dieselPlus: { carico: parseInt(entry.dieselPlus?.carico) || 0, differenza: parseInt(entry.dieselPlus?.differenza) || 0 }, hvolution: { carico: parseInt(entry.hvolution?.carico) || 0, differenza: parseInt(entry.hvolution?.differenza) || 0 } }; }); this.registryEntries.sort((a, b) => new Date(b.date) - new Date(a.date)); this.showNotification(`File importato! Caricati ${this.registryEntries.length} record.`); } else { this.showNotification('Errore: formato file non valido per Registro di carico.'); } break;
+                        case 'prezzi': if (jsonData.priceHistory && Array.isArray(jsonData.priceHistory)) { this.priceHistory = jsonData.priceHistory; if (jsonData.competitorPrices) this.competitorPrices = jsonData.competitorPrices; if (jsonData.adbluePrice) this.adbluePrice = jsonData.adbluePrice; this.showNotification(`Prezzi importati! Caricati ${this.priceHistory.length} listini.`); } else { this.showNotification('Errore: formato file non valido per Gestione prezzi.'); } break;
+                        case 'amministrazione': if (jsonData.clients && Array.isArray(jsonData.clients)) { this.clients = jsonData.clients; this.showNotification(`Amministrazione importata! Caricati ${this.clients.length} clienti.`); } else { this.showNotification('Errore: formato file non valido per Amministrazione.'); } break;
+                        case 'anagrafica': if (jsonData.contacts && Array.isArray(jsonData.contacts)) { this.contacts = jsonData.contacts.map(contact => { return { id: contact.id || Math.random().toString(36).substring(2), firstName: contact.firstName || contact.nome || '', lastName: contact.lastName || contact.cognome || '', phone: contact.phone || contact.telefono || '', organization: contact.organization || contact.azienda || contact.organizzazione || '', email: '', notes: '', labels: [] }; }); this.showNotification(`Anagrafica importata! Caricati ${this.contacts.length} contatti.`); this.$nextTick(() => lucide.createIcons()); } else { this.showNotification('Errore: formato file non valido per Anagrafica.'); } break;
+                        case 'calendario': if (jsonData.activities && Array.isArray(jsonData.activities)) { this.activities = jsonData.activities.map(activity => ({ ...activity, id: activity.id || Math.random().toString(36).substring(2) })); this.showNotification(`Calendario importato! Caricate ${this.activities.length} attività.`); } else { this.showNotification('Errore: formato file non valido per Calendario.'); } break;
+                        case 'virtual': if (jsonData.turni && Array.isArray(jsonData.turni)) { this.turni = jsonData.turni; this.showNotification(`VirtualStation importata! Caricati ${this.turni.length} turni.`); } else { this.showNotification('Errore: formato file non valido per VirtualStation.'); } break;
+                        default: this.showNotification('Impossibile importare dati per questa sezione.');
                     }
-                    // Salva lo stato dopo ogni importazione
                     this.saveState();
                 },
-
-                getSectionExportData() {
-                    // ... (codice invariato)
-                    switch(this.activeSection) { case 'registro': return { registryEntries: this.registryEntries }; case 'prezzi': return { priceHistory: this.priceHistory, competitorPrices: this.competitorPrices, adbluePrice: this.adbluePrice }; case 'amministrazione': return { clients: this.clients }; case 'anagrafica': return { contacts: this.contacts, contactLabels: this.contactLabels }; case 'calendario': return { activities: this.activities }; case 'virtual': return { turni: this.turni }; default: return {}; }
-                },
-                getSectionFileName() {
-                    // ... (codice invariato)
-                    const date = new Date().toISOString().split('T')[0].replace(/-/g, ''); switch(this.activeSection) { case 'registro': return `registro_${date}.json`; case 'prezzi': return `prezzi_${date}.json`; case 'amministrazione': return `amministrazione_${date}.json`; case 'anagrafica': return `anagrafica_${date}.json`; case 'calendario': return `calendario_${date}.json`; case 'virtual': return `virtual_${date}.json`; default: return `dati_${date}.json`; }
-                },
+                getSectionExportData() { switch(this.activeSection) { case 'registro': return { registryEntries: this.registryEntries }; case 'prezzi': return { priceHistory: this.priceHistory, competitorPrices: this.competitorPrices, adbluePrice: this.adbluePrice }; case 'amministrazione': return { clients: this.clients }; case 'anagrafica': return { contacts: this.contacts, contactLabels: this.contactLabels }; case 'calendario': return { activities: this.activities }; case 'virtual': return { turni: this.turni }; default: return {}; } },
+                getSectionFileName() { const date = new Date().toISOString().split('T')[0].replace(/-/g, ''); switch(this.activeSection) { case 'registro': return `registro_${date}.json`; case 'prezzi': return `prezzi_${date}.json`; case 'amministrazione': return `amministrazione_${date}.json`; case 'anagrafica': return `anagrafica_${date}.json`; case 'calendario': return `calendario_${date}.json`; case 'virtual': return `virtual_${date}.json`; default: return `dati_${date}.json`; } },
                 setActiveSection(sectionId) { this.activeSection = sectionId; this.isMobileMenuOpen = false; }, 
                 nuovaGiornata() { this.showNotification('Apertura form nuova giornata'); },
                 importaData() { document.getElementById('fileInput').click(); },
-                esportaData() { 
-                    const dataToExport = this.getSectionExportData(); 
-                    if (Object.keys(dataToExport).length === 0 || (Array.isArray(Object.values(dataToExport)[0]) && Object.values(dataToExport)[0].length === 0)) { this.showNotification('Nessun dato da esportare per questa sezione.'); return; } 
-                    const jsonString = JSON.stringify(dataToExport, null, 2); 
-                    const blob = new Blob([jsonString], { type: 'application/json' }); 
-                    const url = URL.createObjectURL(blob); 
-                    const link = document.createElement('a'); 
-                    link.href = url; link.download = this.getSectionFileName(); 
-                    document.body.appendChild(link); link.click(); 
-                    document.body.removeChild(link); URL.revokeObjectURL(url); 
-                },
+                esportaData() { const dataToExport = this.getSectionExportData(); if (Object.keys(dataToExport).length === 0 || (Array.isArray(Object.values(dataToExport)[0]) && Object.values(dataToExport)[0].length === 0)) { this.showNotification('Nessun dato da esportare per questa sezione.'); return; } const jsonString = JSON.stringify(dataToExport, null, 2); const blob = new Blob([jsonString], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = this.getSectionFileName(); document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); },
                 eliminaDatiSezione() {
                     const sectionMessages = { 'registro': 'Sei sicuro di voler eliminare tutti i carichi? Questa azione non può essere annullata.', 'prezzi': 'Sei sicuro di voler eliminare tutti i listini prezzi? Questa azione non può essere annullata.', 'amministrazione': 'Sei sicuro di voler eliminare tutti i clienti e le loro transazioni? Questa azione non può essere annullata.', 'anagrafica': 'Sei sicuro di voler eliminare tutti i contatti? Questa azione non può essere annullata.', 'calendario': 'Sei sicuro di voler eliminare tutte le attività, appuntamenti e note? Questa azione non può essere annullata.', 'virtual': 'Sei sicuro di voler eliminare tutti i turni? Questa azione non può essere annullata.' };
                     const message = sectionMessages[this.activeSection] || 'Sei sicuro di voler eliminare tutti i dati? Questa azione non può essere annullata.';
@@ -574,7 +430,7 @@
                             case 'calendario': this.activities = []; this.showNotification('Tutte le attività sono state eliminate.'); break;
                             case 'virtual': this.turni = []; this.showNotification('Tutti i turni sono stati eliminati.'); break;
                         }
-                        this.saveState(); // Salva lo stato dopo l'eliminazione
+                        this.saveState();
                     });
                 },
                 stampaDati() { window.print(); }
@@ -627,10 +483,12 @@
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
                     </div>
-                    <input type="search" x-model="activeSection === 'amministrazione' ? adminSearchQuery : (activeSection === 'anagrafica' ? contactSearchQuery : searchQuery)"
-                           :placeholder="activeSection === 'registro' ? 'Cerca nel registro...' : (activeSection === 'anagrafica' ? 'Cerca contatto...' : 'Cerca cliente...')"
+                    <input type="search"
+                           x-model.debounce.300ms="currentSearchQuery"
+                           :placeholder="searchPlaceholder"
                            class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 pl-10 p-2.5">
                 </div>
+
                  <div x-show="activeSection === 'amministrazione'" class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center h-10">
                         <i data-lucide="filter" class="w-5 h-5 mr-2"></i> Filtri <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
@@ -1053,7 +911,7 @@
                                             <td class="px-6 py-4 text-right" x-text="formatCarico(item.carico)"></td>
                                             <td class="px-6 py-4 text-right" :class="getCaricoDifferenceClass(item.differenza)" x-text="formatCaricoDifferenza(item.differenza)"></td>
                                             <td class="px-6 py-4 text-right">
-                                                <input type="number" x-model.number="summary.previousYear[item.key]"
+                                                <input type="number" x-model.number="summary.previousYear[item.key]" @change="saveState()"
                                                        class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 text-right">
                                             </td>
                                             <td class="px-6 py-4 text-right font-semibold" x-text="formatCarico(item.contabile)"></td>
@@ -1159,7 +1017,7 @@
                         <div class="text-gray-500 dark:text-gray-400">
                             <i data-lucide="database" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600"></i>
                             <p class="text-lg">Nessun dato da visualizzare</p>
-                            <p class="text-sm">Importa un file JSON per iniziare.</p>
+                            <p class="text-sm">Aggiungi un nuovo carico per iniziare.</p>
                         </div>
                     </div>
                 </div>
@@ -1207,7 +1065,7 @@
                                         <th class="px-6 py-4 font-medium text-gray-900 dark:text-white">AdBlue</th>
                                         <td class="px-6 py-4 text-right">-</td>
                                         <td class="px-6 py-4 text-right">
-                                            <input type="number" step="0.001" x-model.number="adbluePrice" class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-24 ml-auto p-2 text-right">
+                                            <input type="number" step="0.001" x-model.number="adbluePrice" @change="saveState()" class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-24 ml-auto p-2 text-right">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1233,15 +1091,15 @@
                                 <tbody>
                                     <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
                                         <th class="px-6 py-4 font-medium text-gray-900 dark:text-white">Benzina</th>
-                                        <td class="px-6 py-4 text-right" :class="getDifferenceClass(priceDifferences?.myoil.benzina)" x-text="formatDifference(priceDifferences?.myoil.benzina)"></td>
-                                        <td class="px-6 py-4 text-right" :class="getDifferenceClass(priceDifferences?.esso.benzina)" x-text="formatDifference(priceDifferences?.esso.benzina)"></td>
-                                        <td class="px-6 py-4 text-right" :class="getDifferenceClass(priceDifferences?.q8.benzina)" x-text="formatDifference(priceDifferences?.q8.benzina)"></td>
+                                        <td class="px-6 py-4 text-right" x-text="formatPrice(competitorPrices?.myoil.benzina)"></td>
+                                        <td class="px-6 py-4 text-right" x-text="formatPrice(competitorPrices?.esso.benzina)"></td>
+                                        <td class="px-6 py-4 text-right" x-text="formatPrice(competitorPrices?.q8.benzina)"></td>
                                     </tr>
                                     <tr class="bg-white dark:bg-gray-800">
                                         <th class="px-6 py-4 font-medium text-gray-900 dark:text-white">Gasolio</th>
-                                        <td class="px-6 py-4 text-right" :class="getDifferenceClass(priceDifferences?.myoil.gasolio)" x-text="formatDifference(priceDifferences?.myoil.gasolio)"></td>
-                                        <td class="px-6 py-4 text-right" :class="getDifferenceClass(priceDifferences?.esso.gasolio)" x-text="formatDifference(priceDifferences?.esso.gasolio)"></td>
-                                        <td class="px-6 py-4 text-right" :class="getDifferenceClass(priceDifferences?.q8.gasolio)" x-text="formatDifference(priceDifferences?.q8.gasolio)"></td>
+                                        <td class="px-6 py-4 text-right" x-text="formatPrice(competitorPrices?.myoil.gasolio)"></td>
+                                        <td class="px-6 py-4 text-right" x-text="formatPrice(competitorPrices?.esso.gasolio)"></td>
+                                        <td class="px-6 py-4 text-right" x-text="formatPrice(competitorPrices?.q8.gasolio)"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1405,12 +1263,7 @@
                     </div>
                     
                     <div class="flex items-center gap-4">
-                        <input x-show="statsFilter === 'giorno'" 
-                               type="text" 
-                               :value="toDisplayDate(statsDate)"
-                               @input="statsDate = fromDisplayDate($event.target.value)"
-                               placeholder="GG-MM-AAAA" 
-                               class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 h-10">
+                        <input x-show="statsFilter === 'giorno'" type="text" x-model="statsDate" placeholder="AAAA-MM-GG" class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 h-10">
 
                         <div x-show="statsFilter === 'mese'" class="relative">
                              <button @click="isStatsMonthDropdownOpen = !isStatsMonthDropdownOpen" class="text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center h-10 w-36 justify-between">
@@ -1681,7 +1534,7 @@
         </div>
     </div>
     
-<div x-show="isContoClienteModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+    <div x-show="isContoClienteModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div x-show="isContoClienteModalOpen" @click="closeContoClienteModal()" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
@@ -1791,7 +1644,7 @@
         </div>
     </div>
     
-    <div x-show="isNuovoTurnoModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+<div x-show="isNuovoTurnoModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div x-show="isNuovoTurnoModalOpen" @click="closeNuovoTurnoModal()" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
