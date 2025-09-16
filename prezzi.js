@@ -45,7 +45,7 @@ function gestionePrezziModule() {
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Benzina Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().benzina, true)" class="text-2xl font-bold text-green-600 dark:text-green-400">€ 0,000</p>
+                                <p x-text="formatCurrency(latestAppliedPrices().benzina, true)" class="text-2xl font-bold text-green-400 dark:text-green-400">€ 0,000</p>
                             </div>
                             <div class="bg-green-100 dark:bg-green-900 p-2 rounded-full">
                                 <i data-lucide="droplets" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
@@ -54,7 +54,7 @@ function gestionePrezziModule() {
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Gasolio Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().gasolio, true)" class="text-2xl font-bold text-yellow-500 dark:text-yellow-400">€ 0,000</p>
+                                <p x-text="formatCurrency(latestAppliedPrices().gasolio, true)" class="text-2xl font-bold text-yellow-400 dark:text-yellow-400">€ 0,000</p>
                             </div>
                             <div class="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full">
                                 <i data-lucide="droplets" class="w-6 h-6 text-yellow-500 dark:text-yellow-400"></i>
@@ -63,7 +63,7 @@ function gestionePrezziModule() {
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Diesel+ Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().dieselPlus, true)" class="text-2xl font-bold text-red-600 dark:text-red-400">€ 0,000</p>
+                                <p x-text="formatCurrency(latestAppliedPrices().dieselPlus, true)" class="text-2xl font-bold text-red-400 dark:text-red-400">€ 0,000</p>
                             </div>
                             <div class="bg-red-100 dark:bg-red-900 p-2 rounded-full">
                                 <i data-lucide="droplets" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
@@ -72,7 +72,7 @@ function gestionePrezziModule() {
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Hvolution Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().hvolution, true)" class="text-2xl font-bold text-blue-600 dark:text-blue-400">€ 0,000</p>
+                                <p x-text="formatCurrency(latestAppliedPrices().hvolution, true)" class="text-2xl font-bold text-blue-400 dark:text-blue-400">€ 0,000</p>
                             </div>
                             <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-full">
                                 <i data-lucide="droplets" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
@@ -110,11 +110,11 @@ function gestionePrezziModule() {
                                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white" x-text="formatDate(listino.date)"></td>
                                             <td class="px-6 py-4 text-gray-900 dark:text-white" x-text="listino.variazione || '-'"></td>
-                                            <td class="px-6 py-4 font-bold text-green-600 dark:text-green-400" x-text="formatCurrency(listino.benzina, true)"></td>
-                                            <td class="px-6 py-4 font-bold text-yellow-500 dark:text-yellow-400" x-text="formatCurrency(listino.gasolio, true)"></td>
-                                            <td class="px-6 py-4 font-bold text-red-600 dark:text-red-400" x-text="listino.dieselPlus ? formatCurrency(listino.dieselPlus, true) : '-'"></td>
-                                            <td class="px-6 py-4 font-bold text-blue-600 dark:text-blue-400" x-text="listino.hvolution ? formatCurrency(listino.hvolution, true) : '-'"></td>
-                                            <td class="px-6 py-4 font-bold text-cyan-600 dark:text-cyan-400" x-text="listino.adblue ? formatCurrency(listino.adblue, true) : '-'"></td>
+                                            <td class="px-6 py-4 font-bold text-green-400 dark:text-green-400" x-text="formatCurrency(listino.benzina, true)"></td>
+                                            <td class="px-6 py-4 font-bold text-yellow-400 dark:text-yellow-400" x-text="formatCurrency(listino.gasolio, true)"></td>
+                                            <td class="px-6 py-4 font-bold text-red-400 dark:text-red-400" x-text="listino.dieselPlus ? formatCurrency(listino.dieselPlus, true) : '-'"></td>
+                                            <td class="px-6 py-4 font-bold text-blue-400 dark:text-blue-400" x-text="listino.hvolution ? formatCurrency(listino.hvolution, true) : '-'"></td>
+                                            <td class="px-6 py-4 font-bold text-cyan-400 dark:text-cyan-400" x-text="listino.adblue ? formatCurrency(listino.adblue, true) : '-'"></td>
                                             <td class="px-6 py-4 text-right">
                                                 <div class="flex items-center justify-end space-x-2">
                                                     <button @click="showEditListino(listino)" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 p-1" title="Modifica listino">
@@ -148,7 +148,7 @@ function gestionePrezziModule() {
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Confronto Benzina</h3>
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-green-900 dark:text-green-300">MyStation</span>
+                                    <span class="font-medium text-green-400 dark:text-green-400">MyStation</span>
                                     <span x-text="formatCurrency(currentPrices().benzina || 0, true)" class="font-bold text-green-600 dark:text-green-400">€ 0,000</span>
                                 </div>
                                 <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -171,7 +171,7 @@ function gestionePrezziModule() {
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center p-3 bg-yellow-50 dark:bg-gray-700 rounded-lg">
                                     <span class="font-medium text-yellow-400 dark:text-yellow-400">MyStation</span>
-                                    <span x-text="formatCurrency(currentPrices().gasolio || 0, true)" class="font-bold text-yellow-500 dark:text-yellow-400">€ 0,000</span>
+                                    <span x-text="formatCurrency(currentPrices().gasolio || 0, true)" class="font-bold text-yellow-400 dark:text-yellow-400">€ 0,000</span>
                                 </div>
                                 <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                     <span class="font-medium text-gray-900 dark:text-gray-200">MyOil</span>

@@ -309,7 +309,7 @@ function homeModule() {
                                     </div>
                                     <div class="w-20 text-right">
                                         <span x-text="formatCurrency(calcolaImportoCarburante('benzina'))" 
-                                              class="text-sm font-bold text-green-600 dark:text-green-400"></span>
+                                              class="text-sm font-bold text-green-400 dark:text-green-400"></span>
                                     </div>
                                 </div>
 
@@ -335,7 +335,7 @@ function homeModule() {
                                     </div>
                                     <div class="w-20 text-right">
                                         <span x-text="formatCurrency(calcolaImportoCarburante('gasolio'))" 
-                                              class="text-sm font-bold text-yellow-600 dark:text-yellow-400"></span>
+                                              class="text-sm font-bold text-yellow-400 dark:text-yellow-400"></span>
                                     </div>
                                 </div>
 
