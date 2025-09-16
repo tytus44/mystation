@@ -1704,7 +1704,7 @@
                                         </div>
                                         <div>
                                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome Autista</label>
-                                            <input type="text" x-model="registryForm.autistaName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Nome Cognome">
+                                            <input type="text" x-model="registryForm.autistaName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Nome Cognome">
                                         </div>
                                     </div>
 
@@ -2069,7 +2069,7 @@
                                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
                                     <div>
                                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Gasolio Iperself</p>
-                                        <p x-text="formatCurrency(latestAppliedPrices().gasolio, true)" class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">€ 0,000</p>
+                                        <p x-text="formatCurrency(latestAppliedPrices().gasolio, true)" class="text-2xl font-bold text-yellow-500 dark:text-yellow-400">€ 0,000</p>
                                     </div>
                                     <div class="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full">
                                         <i data-lucide="droplets" class="w-6 h-6 text-yellow-500 dark:text-yellow-400"></i>
@@ -2127,7 +2127,7 @@
                                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-white" x-text="formatDate(listino.date)"></td>
                                                     <td class="px-6 py-4 text-gray-900 dark:text-white" x-text="listino.variazione || '-'"></td>
                                                     <td class="px-6 py-4 font-bold text-green-600 dark:text-green-400" x-text="formatCurrency(listino.benzina, true)"></td>
-                                                    <td class="px-6 py-4 font-bold text-yellow-600 dark:text-yellow-400" x-text="formatCurrency(listino.gasolio, true)"></td>
+                                                    <td class="px-6 py-4 font-bold text-yellow-500 dark:text-yellow-400" x-text="formatCurrency(listino.gasolio, true)"></td>
                                                     <td class="px-6 py-4 font-bold text-red-600 dark:text-red-400" x-text="listino.dieselPlus ? formatCurrency(listino.dieselPlus, true) : '-'"></td>
                                                     <td class="px-6 py-4 font-bold text-blue-600 dark:text-blue-400" x-text="listino.hvolution ? formatCurrency(listino.hvolution, true) : '-'"></td>
                                                     <td class="px-6 py-4 font-bold text-cyan-600 dark:text-cyan-400" x-text="listino.adblue ? formatCurrency(listino.adblue, true) : '-'"></td>
@@ -2189,8 +2189,8 @@
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Confronto Gasolio</h3>
                                     <div class="space-y-3">
                                         <div class="flex justify-between items-center p-3 bg-yellow-50 dark:bg-gray-700 rounded-lg">
-                                            <span class="font-medium text-yellow-900 dark:text-yellow-300">MyStation</span>
-                                            <span x-text="formatCurrency(currentPrices().gasolio || 0, true)" class="font-bold text-yellow-600 dark:text-yellow-400">€ 0,000</span>
+                                            <span class="font-medium text-yellow-400 dark:text-yellow-400">MyStation</span>
+                                            <span x-text="formatCurrency(currentPrices().gasolio || 0, true)" class="font-bold text-yellow-500 dark:text-yellow-400">€ 0,000</span>
                                         </div>
                                         <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                             <span class="font-medium text-gray-900 dark:text-gray-200">MyOil</span>
