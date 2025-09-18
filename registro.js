@@ -6,12 +6,11 @@
 
 function registroDiCaricoModule() {
     return {
+        // === STATO ===
         registryViewMode: Alpine.$persist('list'), // 'list' | 'create-carico' | 'edit-carico'
         registrySort: { column: 'date', direction: 'desc' },
-        
         registrySearchQuery: '',
         registryTimeFilter: 'none', // 'none' | 'month' | 'quarter' | 'semester'
-
         editingRegistry: null,
         registryForm: { 
             date: '', 
@@ -22,11 +21,16 @@ function registroDiCaricoModule() {
             hvolution: { carico: 0, differenza: 0 } 
         },
         
+        // === INIZIALIZZAZIONE SPECIFICA ===
         initRegistroDiCarico() { 
             this.resetRegistryForm(); 
+            // Inizializza il campo per le giacenze dell'anno precedente se non esiste
+            if (typeof this.data.previousYearStock === 'undefined') {
+                this.data.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
+            }
         },
         
-        // Template HTML per la sezione
+        // === TEMPLATE HTML ===
         registroTemplate: `<div class="max-w-7xl mx-auto space-y-6">
             <div x-show="registryViewMode === 'list'" class="view-transition">
                 
@@ -53,7 +57,7 @@ function registroDiCaricoModule() {
                                     <td class="px-6 py-4 text-green-600 dark:text-green-400" x-text="formatInteger(summary.benzina.diff_pos)"></td>
                                     <td class="px-6 py-4 text-red-600 dark:text-red-400" x-text="formatInteger(summary.benzina.diff_neg)"></td>
                                     <td class="px-6 py-4">
-                                        <input type="number" x-model.number="data.previousYearStock.benzina" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                                        <input type="number" x-model.number="data.previousYearStock.benzina" @input.debounce.500ms="$forceUpdate()" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                                     </td>
                                     <td class="px-6 py-4 font-bold text-gray-900 dark:text-white" x-text="formatInteger(summary.benzina.carico + (data.previousYearStock.benzina || 0) + summary.benzina.diff_pos + summary.benzina.diff_neg)"></td>
                                 </tr>
@@ -63,7 +67,7 @@ function registroDiCaricoModule() {
                                     <td class="px-6 py-4 text-green-600 dark:text-green-400" x-text="formatInteger(summary.gasolio.diff_pos)"></td>
                                     <td class="px-6 py-4 text-red-600 dark:text-red-400" x-text="formatInteger(summary.gasolio.diff_neg)"></td>
                                     <td class="px-6 py-4">
-                                        <input type="number" x-model.number="data.previousYearStock.gasolio" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                                        <input type="number" x-model.number="data.previousYearStock.gasolio" @input.debounce.500ms="$forceUpdate()" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                                     </td>
                                     <td class="px-6 py-4 font-bold text-gray-900 dark:text-white" x-text="formatInteger(summary.gasolio.carico + (data.previousYearStock.gasolio || 0) + summary.gasolio.diff_pos + summary.gasolio.diff_neg)"></td>
                                 </tr>
@@ -73,7 +77,7 @@ function registroDiCaricoModule() {
                                     <td class="px-6 py-4 text-green-600 dark:text-green-400" x-text="formatInteger(summary.dieselPlus.diff_pos)"></td>
                                     <td class="px-6 py-4 text-red-600 dark:text-red-400" x-text="formatInteger(summary.dieselPlus.diff_neg)"></td>
                                     <td class="px-6 py-4">
-                                        <input type="number" x-model.number="data.previousYearStock.dieselPlus" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                                        <input type="number" x-model.number="data.previousYearStock.dieselPlus" @input.debounce.500ms="$forceUpdate()" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                                     </td>
                                     <td class="px-6 py-4 font-bold text-gray-900 dark:text-white" x-text="formatInteger(summary.dieselPlus.carico + (data.previousYearStock.dieselPlus || 0) + summary.dieselPlus.diff_pos + summary.dieselPlus.diff_neg)"></td>
                                 </tr>
@@ -83,7 +87,7 @@ function registroDiCaricoModule() {
                                     <td class="px-6 py-4 text-green-600 dark:text-green-400" x-text="formatInteger(summary.hvolution.diff_pos)"></td>
                                     <td class="px-6 py-4 text-red-600 dark:text-red-400" x-text="formatInteger(summary.hvolution.diff_neg)"></td>
                                     <td class="px-6 py-4">
-                                        <input type="number" x-model.number="data.previousYearStock.hvolution" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                                        <input type="number" x-model.number="data.previousYearStock.hvolution" @input.debounce.500ms="$forceUpdate()" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                                     </td>
                                     <td class="px-6 py-4 font-bold text-gray-900 dark:text-white" x-text="formatInteger(summary.hvolution.carico + (data.previousYearStock.hvolution || 0) + summary.hvolution.diff_pos + summary.hvolution.diff_neg)"></td>
                                 </tr>
@@ -247,6 +251,9 @@ function registroDiCaricoModule() {
             </div>
         </div>`,
         
+        // === METODI ===
+        
+        // Navigazione
         showCreateCarico() {
             this.registryViewMode = 'create-carico';
             this.editingRegistry = null;
@@ -273,6 +280,7 @@ function registroDiCaricoModule() {
             this.editingRegistry = null;
         },
 
+        // Ordinamento e Filtro
         sortRegistry(column) { 
             if (this.registrySort.column === column) { 
                 this.registrySort.direction = this.registrySort.direction === 'asc' ? 'desc' : 'asc'; 
@@ -318,6 +326,7 @@ function registroDiCaricoModule() {
             }); 
         },
 
+        // Statistiche
         getRegistryStats() {
             const entries = this.getFilteredRegistryEntries();
             const stats = { totalLiters: 0, topProduct: 'N/D', topDriver: 'N/D' };
@@ -351,11 +360,11 @@ function registroDiCaricoModule() {
                 if (driverCounts[driver] > maxTrips) {
                     maxTrips = driverCounts[driver];
                     const nameParts = driver.split(' ');
-                    // --- MODIFICA QUI ---
-                    // Prende il primo elemento (il cognome) invece dell'ultimo.
                     stats.topDriver = nameParts[0] || driver;
                 }
             }
+            if (maxTrips === 0) stats.topDriver = 'N/D';
+
             return stats;
         },
 
@@ -386,6 +395,7 @@ function registroDiCaricoModule() {
             return summary; 
         },
 
+        // Operazioni CRUD
         resetRegistryForm() { 
             this.registryForm = { 
                 date: this.getTodayFormatted(), 
@@ -427,7 +437,6 @@ function registroDiCaricoModule() {
             } 
             
             this.backToRegistryList();
-            // AGGIUNTA: Reinizializza le icone
             this.refreshIcons();
         },
         
@@ -436,18 +445,17 @@ function registroDiCaricoModule() {
             if (!carico) return; 
             this.showConfirm(`Sei sicuro di voler eliminare il carico del ${this.formatDate(carico.date)} di ${carico.autistaName}?`, () => { 
                 this.data.registryEntries = this.data.registryEntries.filter(c => c.id !== caricoId); 
-                // AGGIUNTA: Reinizializza le icone
                 this.refreshIcons();
             }); 
         },
         
-        // === FUNZIONE FORMATO COLONNA PRODOTTO (AGGIUNTA AL RETURN) ===
+        // Formattazione
         formatProductColumn(product) { 
-            if (!product) return '-'; 
+            if (!product || (product.carico === 0 && product.differenza === 0)) return '-'; 
             const carico = product.carico || 0; 
             const differenza = product.differenza || 0; 
             const diffClass = differenza >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'; 
-            return `<div class="text-sm"><div>Carico: <span class="font-medium">${carico.toLocaleString('it-IT')} L</span></div><div class="${diffClass}">Diff: ${differenza >= 0 ? '+' : ''}${differenza.toLocaleString('it-IT')} L</div></div>`; 
+            return `<div class="text-sm"><div>Carico: <span class="font-medium">${this.formatInteger(carico)} L</span></div><div class="${diffClass}">Diff: ${differenza >= 0 ? '+' : ''}${this.formatInteger(differenza)} L</div></div>`; 
         }
     };
 }

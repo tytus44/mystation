@@ -1,320 +1,280 @@
 // =============================================
 // FILE: app.js
-// DESCRIZIONE: Core dell'applicazione MyStation.
-// Contiene il modulo comune e inizializza 
-// l'applicazione Alpine.js assemblando tutti i moduli.
+// DESCRIZIONE: File principale dell'applicazione Alpine.js.
+// Unisce tutti i moduli e gestisce lo stato globale.
+// CORREZIONI: Rimozione datepicker e dropdown Flowbite ovunque
 // =============================================
 
-// ===== MODULO COMUNE =====
-function comuneModule() {
+function myStationApp() {
     return {
-        isDarkMode: Alpine.$persist(false), 
-        currentSection: Alpine.$persist('home'), 
+        // === STATO GLOBALE DELL'APPLICAZIONE ===
+        currentSection: Alpine.$persist('home'),
         mobileMenuOpen: false,
-        data: Alpine.$persist({ 
-            clients: [], 
-            registryEntries: [], 
-            priceHistory: [], 
-            competitorPrices: [], 
-            turni: [],
-            previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
-        }),
+        isDarkMode: Alpine.$persist(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),
+
+        // === GESTIONE NOTIFICHE E CONFERME ===
         notification: { show: false, message: '' },
         confirm: { show: false, message: '', onConfirm: () => {} },
-        
+
+        // === DATABASE PRINCIPALE (PERSISTENTE) ===
+        data: Alpine.$persist({
+            clients: [],
+            registryEntries: [],
+            priceHistory: [],
+            competitorPrices: [],
+            turni: [],
+            contatti: [],
+            previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
+        }).as('myStationData'),
+
+        // =================================================================
+        // ✨ TEMPLATE PER LA STAMPA
         printTemplates: `
             <div id="print-content" class="hidden print-only">
-                <style>
-                    /* Stili per la stampa dell'estratto conto */
-                    @media print {
-                        body * { visibility: hidden; }
-                        #print-content, #print-content * { visibility: visible; }
-                        #print-content { position: absolute; left: 0; top: 0; width: 100%; }
-                        .print-header { text-align: center; margin-bottom: 20px; }
-                        .print-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10pt; }
-                        .print-table th, .print-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-                        .print-table th { background-color: #f2f2f2; }
-                        .print-balance { font-weight: bold; font-size: 1.2em; }
-                    }
-                </style>
-                <div class="print-header">
-                    <h1 class="text-2xl font-bold" x-text="'Estratto Conto - ' + currentClient.name"></h1>
-                    <p>Periodo dal: <span x-text="formatDate(currentClientTransactions().slice(-1)[0]?.date)"></span> al: <span x-text="formatDate(currentClientTransactions()[0]?.date)"></span></p>
-                </div>
-                <table class="print-table">
+                <h1 class="text-2xl font-bold mb-2" x-text="'Estratto Conto: ' + (currentClient.name || '')"></h1>
+                <p class="mb-4" x-text="'Data: ' + getTodayFormatted()"></p>
+                <table class="w-full text-sm border-collapse border border-gray-400">
                     <thead>
-                        <tr><th>Data</th><th>Descrizione</th><th>Importo</th></tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="tx in currentClientTransactions()">
-                            <tr>
-                                <td x-text="formatDate(tx.date)"></td>
-                                <td x-text="tx.description"></td>
-                                <td x-text="formatTransactionAmount(tx.amount)" :class="tx.amount > 0 ? 'text-green-600' : 'text-red-600'"></td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-                <div class="mt-4 text-right">
-                    <p class="print-balance">Saldo Finale: <span x-text="formatCurrency(currentClient.balance)"></span></p>
-                </div>
-            </div>
-
-            <div id="print-clients-content" class="hidden print-only">
-                 <style>
-                    /* Stili per la stampa dell'elenco clienti */
-                    @media print {
-                        body * { visibility: hidden; }
-                        #print-clients-content, #print-clients-content * { visibility: visible; }
-                        #print-clients-content { position: absolute; left: 0; top: 0; width: 100%; }
-                    }
-                </style>
-                <div class="print-header">
-                    <h1 class="text-2xl font-bold">Elenco Clienti</h1>
-                    <p>Dati aggiornati al: <span x-text="formatDate(new Date().toISOString())"></span></p>
-                </div>
-                <table class="print-table">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Saldo</th>
-                            <th>Cliente</th>
-                            <th>Saldo</th>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 p-2 text-left">Data</th>
+                            <th class="border border-gray-300 p-2 text-left">Descrizione</th>
+                            <th class="border border-gray-300 p-2 text-right">Importo</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <template x-for="pair in getPairedSortedClients()" :key="pair.client1.id">
+                        <template x-for="tx in currentClientTransactions()" :key="tx.id">
                             <tr>
-                                <td x-text="pair.client1.name"></td>
-                                <td x-text="formatCurrency(pair.client1.balance)" :class="getBalanceClass(pair.client1.balance)"></td>
-                                
-                                <td>
-                                    <template x-if="pair.client2">
-                                        <span x-text="pair.client2.name"></span>
-                                    </template>
-                                </td>
-                                <td>
-                                    <template x-if="pair.client2">
-                                        <span x-text="formatCurrency(pair.client2.balance)" :class="getBalanceClass(pair.client2.balance)"></span>
-                                    </template>
-                                </td>
+                                <td class="border border-gray-300 p-2" x-text="formatDate(tx.date)"></td>
+                                <td class="border border-gray-300 p-2" x-text="tx.description"></td>
+                                <td class="border border-gray-300 p-2 text-right" x-text="formatTransactionAmount(tx.amount)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-gray-100 font-bold">
+                            <td colspan="2" class="border border-gray-300 p-2 text-right">Saldo Finale:</td>
+                            <td class="border border-gray-300 p-2 text-right" x-text="formatCurrency(currentClient.balance)"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div id="print-clients-content" class="hidden print-only">
+                <h1 class="text-2xl font-bold mb-2">Elenco Clienti</h1>
+                <p class="mb-4" x-text="'Data: ' + getTodayFormatted()"></p>
+                <table class="w-full text-sm border-collapse border border-gray-400">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 p-2 text-left">Cliente</th>
+                            <th class="border border-gray-300 p-2 text-right">Saldo</th>
+                            <th class="border border-gray-300 p-2 text-center">N. Transazioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="client in sortedClients()" :key="client.id">
+                            <tr>
+                                <td class="border border-gray-300 p-2" x-text="client.name"></td>
+                                <td class="border border-gray-300 p-2 text-right" x-text="formatCurrency(client.balance)"></td>
+                                <td class="border border-gray-300 p-2 text-center" x-text="client.transactions.length"></td>
                             </tr>
                         </template>
                     </tbody>
                 </table>
             </div>
         `,
-        
+        // =================================================================
+
+        // === UNIONE DI TUTTI I MODULI ===
+        ...homeModule(),
+        ...virtualStationModule(),
+        ...anagraficaModule(),
+        ...amministrazioneModule(),
+        ...registroDiCaricoModule(),
+        ...gestionePrezziModule(),
+        ...impostazioniModule(),
+
+        // === INIZIALIZZAZIONE GLOBALE ===
+        init() {
+            this.initComune();
+            this.initHome();
+            this.initVirtualStation();
+            this.initAmministrazione();
+            this.initRegistroDiCarico();
+            this.initGestionePrezzi();
+            this.initImpostazioni();
+            this.initAnagrafica();
+            
+            // ✨ FIX: Inizializza solo i componenti Flowbite
+            this.$nextTick(() => {
+                this.initFlowbiteComponents();
+            });
+        },
+
+        // === FUNZIONI COMUNI E WATCHER ===
         initComune() {
-            if (typeof this.data.previousYearStock === 'undefined') {
-                this.data.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
-            }
-            this.updateTheme(); 
-            this.$watch('currentSection', (section) => { 
-                this.mobileMenuOpen = false; 
-                this.$nextTick(() => { 
+            this.updateTheme();
+            this.$watch('currentSection', (section) => {
+                this.mobileMenuOpen = false;
+                this.$nextTick(() => {
                     this.refreshIcons();
-                }); 
-                this.onSectionChange(section); 
-            }); 
-            this.$watch('isDarkMode', () => this.updateTheme()); 
-            this.$watch('virtualFilters.mode', () => { 
+                    this.initFlowbiteComponents(); // ✨ FIX: Inizializza componenti Flowbite
+                });
+                this.onSectionChange(section);
+            });
+            this.$watch('isDarkMode', () => this.updateTheme());
+            this.$watch('virtualFilters.mode', () => {
                 if (this.currentSection === 'virtual' && this.virtualFilters.mode !== 'range') {
                     this.safeUpdateCharts();
                 }
             });
 
-            // === WATCHER PER REFRESH ICONE SU CAMBI FILTRI ===
-            // Questi watcher assicurano che le icone Lucide vengano reinizializzate
-            // ogni volta che i filtri cambiano e il DOM viene aggiornato
-
-            // Watcher per filtri del registro di carico
-            this.$watch('registryTimeFilter', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-            this.$watch('registrySearchQuery', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-
-            // Watcher per filtri dell'amministrazione
-            this.$watch('adminFilters.search', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-            this.$watch('adminFilters.filter', () => {
-                this.$nextTick(() => this.refreshIcons());
+            // Watcher per reinizializzare componenti Flowbite quando cambiano le viste
+            const watchProps = [
+                'registryTimeFilter', 'registrySearchQuery', 'adminFilters.search', 'adminFilters.filter',
+                'anagraficaFilters.search', 'anagraficaFilters.favorites', 'amministrazioneViewMode',
+                'registryViewMode', 'virtualViewMode', 'prezziViewMode', 'anagraficaViewMode',
+                'priceTab', 'calculatorTab'
+            ];
+            
+            watchProps.forEach(prop => {
+                this.$watch(prop, () => {
+                    this.$nextTick(() => {
+                        this.refreshIcons();
+                        this.initFlowbiteComponents(); // ✨ FIX: Reinizializza componenti Flowbite
+                    });
+                }, { deep: prop.includes('.') });
             });
 
-            // Watcher per sort di tutti i moduli
-            this.$watch('adminSort', () => {
-                this.$nextTick(() => this.refreshIcons());
-            }, { deep: true });
-            this.$watch('registrySort', () => {
-                this.$nextTick(() => this.refreshIcons());
-            }, { deep: true });
-            this.$watch('virtualSort', () => {
-                this.$nextTick(() => this.refreshIcons());
-            }, { deep: true });
-            this.$watch('priceSort', () => {
-                this.$nextTick(() => this.refreshIcons());
-            }, { deep: true });
-
-            // Watcher per i view mode (quando si cambia vista)
-            this.$watch('amministrazioneViewMode', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-            this.$watch('registryViewMode', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-            this.$watch('virtualViewMode', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-            this.$watch('prezziViewMode', () => {
-                this.$nextTick(() => this.refreshIcons());
-            });
-            this.$watch('priceTab', () => {
-                this.$nextTick(() => this.refreshIcons());
+            // Watcher per ordinamento
+            const sortWatchers = ['adminSort', 'registrySort', 'virtualSort', 'priceSort', 'anagraficaSort'];
+            sortWatchers.forEach(sortProp => {
+                this.$watch(sortProp, () => this.$nextTick(() => this.refreshIcons()), { deep: true });
             });
 
-            this.$nextTick(() => { this.refreshIcons(); }); 
+            this.$nextTick(() => this.refreshIcons());
         },
-        
-        // === FUNZIONE HELPER PER ICONE ===
-        refreshIcons() {
-            this.$nextTick(() => {
-                if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                    lucide.createIcons();
-                }
+
+        // ✨ NUOVO: Inizializzazione componenti Flowbite (dropdown, ecc.)
+        initFlowbiteComponents() {
+            setTimeout(() => {
+                // Inizializza i componenti Flowbite usando la funzione globale se disponibile
                 if (typeof initFlowbite === 'function') {
                     initFlowbite();
+                } else if (typeof window.initFlowbite === 'function') {
+                    window.initFlowbite();
                 }
-            });
+                
+                // Inizializzazione manuale dei dropdown se la funzione globale non è disponibile
+                const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+                dropdownButtons.forEach(button => {
+                    const targetId = button.getAttribute('data-dropdown-toggle');
+                    const dropdown = document.getElementById(targetId);
+                    
+                    if (dropdown && !button.hasAttribute('data-dropdown-initialized')) {
+                        button.setAttribute('data-dropdown-initialized', 'true');
+                        
+                        button.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            
+                            // Chiudi altri dropdown aperti
+                            document.querySelectorAll('[data-dropdown-toggle]').forEach(otherButton => {
+                                if (otherButton !== button) {
+                                    const otherId = otherButton.getAttribute('data-dropdown-toggle');
+                                    const otherDropdown = document.getElementById(otherId);
+                                    if (otherDropdown) {
+                                        otherDropdown.classList.add('hidden');
+                                    }
+                                }
+                            });
+                            
+                            // Toggle del dropdown corrente
+                            dropdown.classList.toggle('hidden');
+                        });
+                        
+                        // Chiudi dropdown quando si clicca fuori
+                        document.addEventListener('click', (e) => {
+                            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+                                dropdown.classList.add('hidden');
+                            }
+                        });
+                    }
+                });
+            }, 150);
         },
-        
+
+        onSectionChange(section) {
+            switch (section) {
+                case 'home': if (typeof this.initHome === 'function') this.initHome(); break;
+                case 'virtual': if (typeof this.onVirtualSectionOpen === 'function') this.onVirtualSectionOpen(); break;
+            }
+        },
+
+        // === FUNZIONI DI UTILITÀ GLOBALI ===
+        switchSection(section) { this.currentSection = section; },
         updateTheme() {
             document.documentElement.classList.toggle('dark', this.isDarkMode);
-            if (typeof this.updateChartsTheme === 'function') { this.updateChartsTheme(); }
+            if (typeof this.updateChartsTheme === 'function') this.updateChartsTheme();
+        },
+        showNotification(message) {
+            this.notification.message = message;
+            this.notification.show = true;
+            setTimeout(() => { this.notification.show = false; }, 3000);
+        },
+        showConfirm(message, onConfirm) {
+            this.confirm.message = message;
+            this.confirm.onConfirm = onConfirm;
+            this.confirm.show = true;
+        },
+        refreshIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); },
+        generateUniqueId(prefix = 'id') { return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; },
+        
+        // ✨ CORRETTO: Simbolo euro corretto
+        formatCurrency(value, full = false) {
+            if (typeof value !== 'number') return full ? '€ 0,000' : '€ 0,00';
+            const options = { style: 'currency', currency: 'EUR' };
+            if (full) {
+                options.minimumFractionDigits = 3;
+                options.maximumFractionDigits = 3;
+            }
+            return new Intl.NumberFormat('it-IT', options).format(value);
         },
         
-        switchSection(section) { this.currentSection = section; },
-        
-        onSectionChange(section) { 
-            if (section === 'virtual' && typeof this.onVirtualSectionOpen === 'function') { 
-                this.onVirtualSectionOpen(); 
-            } 
+        formatInteger(value) {
+            if (typeof value !== 'number') return '0';
+            return Math.round(value).toLocaleString('it-IT');
         },
-        
-        generateUniqueId(prefix) { 
-            return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; 
+        formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            return new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(dateString));
         },
-        
-        formatInteger(num) {
-            if (num === null || num === undefined) return '0';
-            return Math.round(num).toLocaleString('it-IT');
+        getTodayFormatted() {
+            const today = new Date();
+            return `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
         },
-        
-        formatCurrency(amount, isPricePerLiter = false) { 
-            if (amount === null || amount === undefined) { 
-                return isPricePerLiter ? '€ 0,000' : '€ 0,00'; 
-            } 
-            const options = { 
-                style: 'currency', 
-                currency: 'EUR', 
-                minimumFractionDigits: isPricePerLiter ? 3 : 2, 
-                maximumFractionDigits: isPricePerLiter ? 3 : 2 
-            }; 
-            return new Intl.NumberFormat('it-IT', options).format(amount); 
+        formatToItalianDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
         },
-        
-        formatDate(dateString) { 
-            if (!dateString) return '-'; 
-            return this.formatToItalianDate(new Date(dateString));
+        parseItalianDate(dateString) {
+            if (!dateString || typeof dateString !== 'string') return null;
+            const parts = dateString.split(/[.\/-]/);
+            if (parts.length !== 3) return null;
+            return new Date(parts[2], parts[1] - 1, parts[0]);
         },
-        
-        formatDateForFilename(date = new Date()) { 
-            const day = String(date.getDate()).padStart(2, '0'); 
-            const month = String(date.getMonth() + 1).padStart(2, '0'); 
-            const year = date.getFullYear(); 
-            return `${day}.${month}.${year}`; 
+        validateItalianDate(dateString) { 
+            return /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.\d{4}$/.test(dateString); 
         },
-        
-        parseItalianDate(dateStr) { 
-            if (!dateStr) return null; 
-            const parts = dateStr.split('.'); 
-            if (parts.length !== 3) return null; 
-            const day = parseInt(parts[0], 10); 
-            const month = parseInt(parts[1], 10); 
-            const year = parseInt(parts[2], 10); 
-            if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || day > 31 || month < 1 || month > 12) return null; 
-            const fullYear = year < 100 ? (year < 30 ? 2000 + year : 1900 + year) : year; 
-            return new Date(fullYear, month - 1, day, 12); 
+        formatDateForFilename() { 
+            return new Date().toISOString().slice(0, 10).replace(/-/g, ''); 
         },
-        
-        formatToItalianDate(isoDate) { 
-            if (!isoDate) return ''; 
-            const date = new Date(isoDate); 
-            const day = String(date.getDate()).padStart(2, '0'); 
-            const month = String(date.getMonth() + 1).padStart(2, '0'); 
-            const year = date.getFullYear(); 
-            return `${day}.${month}.${year}`; 
+        getBalanceClass(balance) {
+            if (balance > 0) return 'text-green-600 dark:text-green-400';
+            if (balance < 0) return 'text-red-600 dark:text-red-400';
+            return 'text-gray-500 dark:text-gray-400';
         },
-        
-        getTodayFormatted() { 
-            return this.formatToItalianDate(new Date().toISOString()); 
+        getFilterLabel(filter) {
+            const labels = { 'all': 'Tutti i clienti', 'credit': 'Clienti a credito', 'debit': 'Clienti a debito' };
+            return labels[filter] || 'Filtra per';
         },
-        
-        validateItalianDate(dateStr) { 
-            return this.parseItalianDate(dateStr) !== null; 
-        },
-        
-        showNotification(message) { 
-            this.notification.message = message; 
-            this.notification.show = true; 
-            setTimeout(() => this.notification.show = false, 3000); 
-        },
-        
-        showConfirm(message, onConfirm) { 
-            this.confirm.message = message; 
-            this.confirm.onConfirm = onConfirm; 
-            this.confirm.show = true; 
-        },
-        
-        getBalanceClass(balance) { 
-            if (balance > 0) return 'text-green-600 dark:text-green-400'; 
-            if (balance < 0) return 'text-red-600 dark:text-red-400'; 
-            return 'text-gray-600 dark:text-gray-400'; 
-        },
-        
-        getFilterLabel(filter) { 
-            return ({ 
-                'all': 'Tutti i clienti', 
-                'credit': 'Clienti a credito', 
-                'debit': 'Clienti a debito' 
-            })[filter] || 'Tutti i clienti'; 
-        }
-    };
-}
-
-// ===== INIZIALIZZAZIONE PRINCIPALE =====
-function myStationApp() {
-    return {
-        // Moduli
-        ...comuneModule(), 
-        ...homeModule(),
-        ...amministrazioneModule(), 
-        ...virtualStationModule(), 
-        ...registroDiCaricoModule(), 
-        ...gestionePrezziModule(), 
-        ...impostazioniModule(),
-        
-        // Funzione di inizializzazione globale
-        init() {
-            this.initComune(); 
-            this.initHome();
-            this.initAmministrazione(); 
-            this.initVirtualStation(); 
-            this.initRegistroDiCarico(); 
-            this.initGestionePrezzi(); 
-            this.initImpostazioni();
-        }
     };
 }

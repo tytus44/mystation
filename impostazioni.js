@@ -56,7 +56,7 @@ function impostazioniModule() {
             <div class="p-6 border border-red-300 bg-red-50 dark:bg-gray-800 dark:border-red-600 rounded-lg">
                 <h3 class="font-semibold text-red-800 dark:text-red-400">Zona Pericolosa</h3>
                 <p class="text-sm text-red-600 dark:text-red-400 mt-1 mb-3">
-                    Questa azione eliminerà permanentemente tutti i dati dell'applicazione. Non può essere annullata.
+                    Questa azione eliminerÃ  permanentemente tutti i dati dell'applicazione. Non puÃ² essere annullata.
                 </p>
                 <button @click="confirmReset()" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
                     <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i> Reset Tutti i Dati
@@ -73,7 +73,7 @@ function impostazioniModule() {
         toggleFullscreen() { 
             if (!document.fullscreenElement) { 
                 document.documentElement.requestFullscreen().catch(err => { 
-                    alert(`Errore nell'attivare la modalità a schermo intero: ${err.message} (${err.name})`); 
+                    alert(`Errore nell'attivare la modalitÃ  a schermo intero: ${err.message} (${err.name})`); 
                 }); 
             } else { 
                 if (document.exitFullscreen) { 
@@ -139,7 +139,7 @@ function impostazioniModule() {
         },
         
         confirmReset() { 
-            this.showConfirm('Sei sicuro di voler eliminare TUTTI i dati dell\'applicazione? Questa azione non può essere annullata.', () => this.resetAllData()); 
+            this.showConfirm('Sei sicuro di voler eliminare TUTTI i dati dell\'applicazione? Questa azione non puÃ² essere annullata.', () => this.resetAllData()); 
         },
         
         resetAllData() { 

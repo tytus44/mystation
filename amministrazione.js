@@ -1,7 +1,8 @@
 // =============================================
-// FILE: amministrazione.js (versione Alpine.js)
+// FILE: amministrazione.js (versione Alpine.js) - VERSIONE CORRETTA
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Amministrazione (clienti, conti).
+// CORREZIONI: UTF-8 e funzione "Salda Conto"
 // =============================================
 
 function amministrazioneModule() {
@@ -129,7 +130,6 @@ function amministrazioneModule() {
             this.data.clients = [...this.data.clients, newClient];
             this.showNotification('Cliente aggiunto con successo!'); 
             this.backToClientsList();
-            // AGGIUNTA: Reinizializza le icone
             this.refreshIcons();
         },
         
@@ -148,7 +148,6 @@ function amministrazioneModule() {
 
             this.showNotification('Cliente aggiornato con successo!');
             this.backToClientsList();
-            // AGGIUNTA: Reinizializza le icone
             this.refreshIcons();
         },
         
@@ -158,7 +157,6 @@ function amministrazioneModule() {
             this.showConfirm(`Sei sicuro di voler eliminare il cliente "${client.name}"? Verranno eliminate anche tutte le sue transazioni.`, () => { 
                 this.data.clients = this.data.clients.filter(c => c.id !== clientId); 
                 this.showNotification('Cliente eliminato.'); 
-                // AGGIUNTA: Reinizializza le icone
                 this.refreshIcons();
             }); 
         },
@@ -200,39 +198,42 @@ function amministrazioneModule() {
             
             if(clientToUpdate) this.showClientAccount(clientToUpdate); 
             this.transactionForm = { description: 'Carburante', amount: 0 }; 
-            // AGGIUNTA: Reinizializza le icone
             this.refreshIcons();
         },
         
+        // 🔧 CORREZIONE: Funzione "Salda Conto" - Azzera tutto invece di aggiungere transazione
         settleAccount() { 
             const clientIndex = this.data.clients.findIndex(c => c.id === this.currentClient.id); 
             if (clientIndex === -1 || this.data.clients[clientIndex].balance === 0) return; 
             
-            const balanceToSettle = this.data.clients[clientIndex].balance; 
-            const newTransaction = { 
-                id: this.generateUniqueId('tx'), 
-                date: new Date().toISOString(), 
-                description: 'Saldo Conto', 
-                amount: -balanceToSettle 
-            }; 
+            // 🔯 Mostra conferma con il saldo corrente
+            const currentBalance = this.data.clients[clientIndex].balance;
+            const balanceText = this.formatCurrency(Math.abs(currentBalance));
+            const balanceType = currentBalance > 0 ? 'credito' : 'debito';
             
-            let clientToUpdate = null;
-            this.data.clients = this.data.clients.map(client => {
-                if (client.id === this.currentClient.id) {
-                     const updatedClient = {
-                        ...client,
-                        balance: 0,
-                        transactions: [...client.transactions, newTransaction]
-                    };
-                    clientToUpdate = updatedClient;
-                    return updatedClient;
+            this.showConfirm(
+                `Sei sicuro di voler saldare il conto? Verranno eliminate tutte le transazioni e azzerato il saldo di ${balanceText} in ${balanceType}.`, 
+                () => {
+                    // 🔧 NUOVO COMPORTAMENTO: Azzera tutto senza aggiungere transazioni
+                    let clientToUpdate = null;
+                    this.data.clients = this.data.clients.map(client => {
+                        if (client.id === this.currentClient.id) {
+                            const updatedClient = {
+                                ...client,
+                                balance: 0,           // ✅ Azzera il saldo
+                                transactions: []     // ✅ Rimuove tutte le transazioni
+                            };
+                            clientToUpdate = updatedClient;
+                            return updatedClient;
+                        }
+                        return client;
+                    });
+                    
+                    if(clientToUpdate) this.showClientAccount(clientToUpdate); 
+                    this.showNotification('Conto saldato! Tutte le transazioni sono state eliminate.');
+                    this.refreshIcons();
                 }
-                return client;
-            });
-            
-            if(clientToUpdate) this.showClientAccount(clientToUpdate); 
-            // AGGIUNTA: Reinizializza le icone
-            this.refreshIcons();
+            );
         },
         
         deleteTransaction(transactionId) { 
@@ -255,7 +256,6 @@ function amministrazioneModule() {
             });
 
             if(clientToUpdate) this.showClientAccount(clientToUpdate);
-            // AGGIUNTA: Reinizializza le icone
             this.refreshIcons();
         },
         
@@ -476,7 +476,13 @@ function amministrazioneModule() {
                                         </div>
                                     </div>
                                     <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                                        <button @click="settleAccount()" class="w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Salda Conto</button>
+                                        <button @click="settleAccount()" 
+                                                :disabled="!currentClient.transactions || currentClient.transactions.length === 0"
+                                                :class="(!currentClient.transactions || currentClient.transactions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''"
+                                                class="w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                            🔧 Salda Conto (Azzera Tutto)
+                                        </button>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">Elimina tutte le transazioni e azzera il saldo</p>
                                     </div>
                                 </div>
 

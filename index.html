@@ -12,18 +12,32 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
         [x-cloak] { display: none !important; }
-        /* Aggiungi qui gli altri stili personalizzati (scrollbar, print, datepicker) che avevi nel file originale */
-        input[type=number]::-webkit-outer-spin-button,
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
-        .dark ::-webkit-scrollbar-thumb { background-color: #4b5563; }
-        @media print { .no-print { display: none !important; } /* ... etc ... */ }
+        
+        /* Focus outline per accessibilità */
+        button:focus, input:focus, select:focus, textarea:focus, a:focus, [tabindex]:focus {
+            outline: 2px solid #3b82f6 !important;
+            outline-offset: 2px !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+        }
+
+        /* Stili per la stampa */
+        @media print { 
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body * { visibility: hidden; }
+            #print-content, #print-content *,
+            #print-clients-content, #print-clients-content * {
+                visibility: visible;
+            }
+            #print-content, #print-clients-content {
+                position: absolute; left: 0; top: 0; width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900">
@@ -35,7 +49,10 @@
         <header class="sm:hidden fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 no-print">
             <div class="px-3 py-3">
                 <div class="flex items-center justify-between">
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                            type="button" 
+                            aria-label="Apri menu di navigazione"
+                            class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                     <span class="self-center text-xl font-semibold dark:text-white ms-2">MyStation</span>
@@ -43,49 +60,99 @@
             </div>
         </header>
 
-        <aside :class="{'translate-x-0': mobileMenuOpen, '-translate-x-full': !mobileMenuOpen}" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform sm:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 no-print">
-            <div class="h-full px-3 py-4 overflow-y-auto">
-                <a href="#" @click.prevent="switchSection('home')" class="hidden sm:flex items-center h-20 px-2 mb-6">
-                    <i data-lucide="box" class="h-10 w-10 text-blue-600 me-4"></i>
-                    <span class="self-center text-2xl font-bold whitespace-nowrap dark:text-white">MyStation</span>
-                </a>
-                <ul class="space-y-2 font-medium">
-                    <li><a href="#" @click.prevent="switchSection('home')" :class="currentSection === 'home' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="home" class="w-6 h-6"></i><span class="ms-3">Home</span></a></li>
-                    <li><a href="#" @click.prevent="switchSection('virtual')" :class="currentSection === 'virtual' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="monitor" class="w-6 h-6"></i><span class="ms-3">VirtualStation</span></a></li>
-                    <li><a href="#" @click.prevent="switchSection('amministrazione')" :class="currentSection === 'amministrazione' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="shield" class="w-6 h-6"></i><span class="ms-3">Amministrazione</span></a></li>
-                    <li><a href="#" @click.prevent="switchSection('registro')" :class="currentSection === 'registro' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="clipboard-list" class="w-6 h-6"></i><span class="ms-3">Registro di carico</span></a></li>
-                    <li><a href="#" @click.prevent="switchSection('prezzi')" :class="currentSection === 'prezzi' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="euro" class="w-6 h-6"></i><span class="ms-3">Gestione prezzi</span></a></li>
-                    <li><a href="#" @click.prevent="switchSection('impostazioni')" :class="currentSection === 'impostazioni' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="settings" class="w-6 h-6"></i><span class="ms-3">Impostazioni</span></a></li>
-                </ul>
+        <aside :class="{'translate-x-0': mobileMenuOpen, '-translate-x-full': !mobileMenuOpen}" 
+               class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform sm:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 no-print"
+               role="navigation"
+               aria-label="Menu principale">
+            
+            <div class="h-full px-3 py-4 overflow-y-auto flex flex-col justify-between">
+                
+                <div>
+                    <button @click.prevent="switchSection('home')" 
+                            class="hidden sm:flex items-center h-20 px-2 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                        <i data-lucide="radar" class="h-10 w-10 text-blue-600 me-4"></i>
+                        <span class="self-center text-2xl font-bold whitespace-nowrap text-blue-600">MyStation</span>
+                    </button>
+
+                    <hr class="my-2 border-gray-200 dark:border-gray-700">
+
+                    <nav class="mt-4">
+                        <ul class="space-y-2 font-medium" role="menu">
+                            <li role="none">
+                                <button @click.prevent="switchSection('home')" :class="currentSection === 'home' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="home" class="w-6 h-6"></i><span class="ms-3">Home</span>
+                                </button>
+                            </li>
+                            <li role="none">
+                                <button @click.prevent="switchSection('virtual')" :class="currentSection === 'virtual' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="monitor-dot" class="w-6 h-6"></i><span class="ms-3">VirtualStation</span>
+                                </button>
+                            </li>
+                            <li role="none">
+                                <button @click.prevent="switchSection('amministrazione')" :class="currentSection === 'amministrazione' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="handshake" class="w-6 h-6"></i><span class="ms-3">Amministrazione</span>
+                                </button>
+                            </li>
+                            <li role="none">
+                                <button @click.prevent="switchSection('registro')" :class="currentSection === 'registro' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="truck" class="w-6 h-6"></i><span class="ms-3">Registro di carico</span>
+                                </button>
+                            </li>
+                            <li role="none">
+                                <button @click.prevent="switchSection('prezzi')" :class="currentSection === 'prezzi' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="tags" class="w-6 h-6"></i><span class="ms-3">Gestione prezzi</span>
+                                </button>
+                            </li>
+                            <li role="none">
+                                <button @click.prevent="switchSection('anagrafica')" :class="currentSection === 'anagrafica' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="users-round" class="w-6 h-6"></i><span class="ms-3">Anagrafica</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <div>
+                    <nav>
+                        <ul class="space-y-2 font-medium pt-4 border-t border-gray-200 dark:border-gray-700" role="menu">
+                             <li role="none">
+                                <button @click.prevent="switchSection('impostazioni')" :class="currentSection === 'impostazioni' ? 'bg-gray-100 dark:bg-gray-700' : ''" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full text-left" role="menuitem">
+                                    <i data-lucide="settings" class="w-6 h-6"></i><span class="ms-3">Impostazioni</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </aside>
 
-        <main class="p-4 sm:ml-64">
+        <main class="p-4 sm:ml-64" id="main-content" role="main">
             <div class="pt-14 sm:pt-4">
-                
-                <div x-show="currentSection === 'home'" x-html="homeTemplate" x-init="$watch('currentSection', val => { if (val === 'home' && typeof initHome === 'function') initHome() })"></div>
+                <div x-show="currentSection === 'home'" x-html="homeTemplate"></div>
                 <div x-show="currentSection === 'virtual'" x-html="virtualTemplate"></div>
+                <div x-show="currentSection === 'anagrafica'" x-html="anagraficaTemplate"></div>
                 <div x-show="currentSection === 'amministrazione'" x-html="amministrazioneTemplate"></div>
                 <div x-show="currentSection === 'registro'" x-html="registroTemplate"></div>
                 <div x-show="currentSection === 'prezzi'" x-html="prezziTemplate"></div>
                 <div x-show="currentSection === 'impostazioni'" x-html="impostazioniTemplate"></div>
-
             </div>
         </main>
 
-        <div x-show="notification.show" x-transition class="fixed bottom-5 right-5 z-50 no-print">
-            <div class="flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:bg-gray-800" role="alert">
+        <div x-show="notification.show" x-transition class="fixed bottom-5 right-5 z-50 no-print" role="alert" aria-live="polite">
+            <div class="flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:bg-gray-800">
                 <i data-lucide="bell" class="w-5 h-5 text-blue-600 dark:text-blue-500"></i>
                 <div class="ps-4 text-sm font-normal" x-text="notification.message"></div>
             </div>
         </div>
 
-        <div x-show="confirm.show" x-transition.opacity class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm z-50 no-print">
-            <div @click.away="confirm.show = false" class="relative bg-white rounded-lg shadow dark:bg-gray-700 p-6 text-center">
+        <div x-show="confirm.show" x-transition.opacity class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50 no-print" role="dialog" aria-modal="true">
+            <div @click.away="confirm.show = false" class="relative bg-white rounded-lg shadow dark:bg-gray-700 p-6 text-center max-w-md mx-4">
                 <i data-lucide="alert-circle" class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"></i>
                 <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400" x-text="confirm.message"></h3>
-                <button @click="confirm.onConfirm(); confirm.show = false;" type="button" class="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5">Sì, sono sicuro</button>
-                <button @click="confirm.show = false" type="button" class="ms-3 text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">No, annulla</button>
+                <div class="flex justify-center gap-3">
+                    <button @click="confirm.onConfirm(); confirm.show = false;" type="button" class="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5">Sì, sono sicuro</button>
+                    <button @click="confirm.show = false" type="button" class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">No, annulla</button>
+                </div>
             </div>
         </div>
     </div>
@@ -93,13 +160,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/datepicker.min.js"></script>
     
-<script src="home.js"></script>
-<script src="virtual.js"></script>
-<script src="amministrazione.js"></script>
-<script src="registro.js"></script>
-<script src="prezzi.js"></script>
-<script src="impostazioni.js"></script>
-<script src="app.js"></script>
+    <script src="home.js"></script>
+    <script src="virtual.js"></script>
+    <script src="anagrafica.js"></script>
+    <script src="amministrazione.js"></script>
+    <script src="registro.js"></script>
+    <script src="prezzi.js"></script>
+    <script src="impostazioni.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>
