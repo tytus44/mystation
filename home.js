@@ -447,10 +447,10 @@ function renderOrdineCarburante() {
     
     const app = this;
     const prodotti = [
-        { key: 'benzina', name: 'Benzina', color: 'green' },
-        { key: 'gasolio', name: 'Gasolio', color: 'yellow' },
-        { key: 'dieselPlus', name: 'Diesel+', color: 'red' },
-        { key: 'hvolution', name: 'Hvolution', color: 'blue' }
+        { key: 'benzina', name: 'Benzina', color: 'green', textColorClass: 'text-success' },
+        { key: 'gasolio', name: 'Gasolio', color: 'yellow', textColorClass: 'text-warning' },
+        { key: 'dieselPlus', name: 'Diesel+', color: 'red', textColorClass: 'text-danger' },
+        { key: 'hvolution', name: 'Hvolution', color: 'blue', textColorClass: 'text-info' }
     ];
     
     const prezzi = getLatestPrices.call(app);
@@ -465,7 +465,7 @@ function renderOrdineCarburante() {
         html += `
             <div class="flex items-center justify-between p-3 bg-${prodotto.color}-50 rounded-lg">
                 <div style="width: 125px;">
-                    <span class="text-sm font-medium text-primary">${prodotto.name}</span>
+                    <span class="text-sm font-medium ${prodotto.textColorClass}">${prodotto.name}</span>
                     <div class="text-xs text-secondary">${app.formatCurrency(prezzo, true)}/L</div>
                 </div>
                 <div style="width: 200px;">

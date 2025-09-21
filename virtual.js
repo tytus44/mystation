@@ -58,6 +58,19 @@ function renderVirtualSection(container) {
 function renderVirtualListView(container) {
     // *** CORREZIONE: Usiamo 'this' invece di getApp() per coerenza ***
     const app = this;
+
+    // CORREZIONE BUG GRAFICI: Distruggi le istanze dei grafici esistenti prima di ridisegnare l'HTML.
+    // Questo previene che i grafici rimangano vuoti quando si rientra nella sezione.
+    if (virtualState.productsChartInstance) {
+        virtualState.productsChartInstance.destroy();
+        virtualState.productsChartInstance = null;
+    }
+    if (virtualState.serviceChartInstance) {
+        virtualState.serviceChartInstance.destroy();
+        virtualState.serviceChartInstance = null;
+    }
+    virtualState.chartsInitialized = false; // Forza la re-inizializzazione
+
     const stats = virtualStats.call(app);
     
     container.innerHTML = `
@@ -84,21 +97,21 @@ function renderVirtualListView(container) {
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-label">Litri Venduti</div>
-                        <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
+                        <div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-label">Fatturato Stimato</div>
-                        <div class="stat-value">${app.formatCurrency(stats.revenue)}</div>
+                        <div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div>
                     </div>
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-content">
                         <div class="stat-label">% Servito</div>
-                        <div class="stat-value">${stats.servitoPercentage}%</div>
+                        <div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div>
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
                 </div>
@@ -195,15 +208,6 @@ function getVirtualFormHTML() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="font-medium text-primary">Benzina</td>
-                            <td>
-                                <input type="number" id="iperself-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.benzina || ''}">
-                            </td>
-                            <td>
-                                <input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}">
-                            </td>
-                        </tr>
-                        <tr>
                             <td class="font-medium text-primary">Gasolio</td>
                             <td>
                                 <input type="number" id="iperself-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.gasolio || ''}">
@@ -222,19 +226,28 @@ function getVirtualFormHTML() {
                             </td>
                         </tr>
                         <tr>
+                            <td class="font-medium text-primary">AdBlue</td>
+                            <td></td>
+                            <td>
+                                <input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium text-primary">Benzina</td>
+                            <td>
+                                <input type="number" id="iperself-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.benzina || ''}">
+                            </td>
+                            <td>
+                                <input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}">
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="font-medium text-primary">Hvolution</td>
                             <td>
                                 <input type="number" id="iperself-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.hvolution || ''}">
                             </td>
                             <td>
                                 <input type="number" id="servito-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.hvolution || ''}">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="font-medium text-primary">AdBlue</td>
-                            <td></td>
-                            <td>
-                                <input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}">
                             </td>
                         </tr>
                     </tbody>
@@ -424,9 +437,25 @@ function setFilterMode(mode) {
     app.saveToStorage('virtualFilterMode', mode);
     updateFilterButtons(mode);
     renderTurniTable.call(app);
+    renderVirtualStats.call(app);
     safeUpdateCharts.call(app);
 }
 // Fine funzione setFilterMode
+
+// Inizio funzione renderVirtualStats
+function renderVirtualStats() {
+    const app = this;
+    const stats = virtualStats.call(app);
+
+    const litriEl = document.getElementById('stat-litri');
+    const fatturatoEl = document.getElementById('stat-fatturato');
+    const servitoEl = document.getElementById('stat-servito');
+
+    if (litriEl) litriEl.textContent = app.formatInteger(stats.totalLiters);
+    if (fatturatoEl) fatturatoEl.textContent = app.formatCurrency(stats.revenue);
+    if (servitoEl) servitoEl.textContent = `${stats.servitoPercentage}%`;
+}
+// Fine funzione renderVirtualStats
 
 // Inizio funzione updateFilterButtons
 function updateFilterButtons(activeMode) {
@@ -486,11 +515,27 @@ function sortedTurni() {
     const app = this;
     const filtered = getFilteredTurniForPeriod.call(app);
     const turni = filtered.map(t => ({ ...t, total: getTurnoTotal(t) }));
+    
+    // CORREZIONE BUG ORDINAMENTO: Aggiunto ordinamento secondario per 'createdAt'
+    // quando le date sono identiche, per mostrare i turni più recenti prima.
     return turni.sort((a, b) => {
         const dir = virtualState.virtualSort.direction === 'asc' ? 1 : -1;
-        return virtualState.virtualSort.column === 'date'
-            ? (new Date(a.date) - new Date(b.date)) * dir
-            : (a.total - b.total) * dir;
+        
+        if (virtualState.virtualSort.column === 'date') {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            
+            if (dateA.getTime() !== dateB.getTime()) {
+                return (dateA - dateB) * dir;
+            } else {
+                // Se le date sono uguali, ordina per data di creazione (più recente prima)
+                const createdAtA = new Date(a.createdAt || 0);
+                const createdAtB = new Date(b.createdAt || 0);
+                return createdAtB - createdAtA;
+            }
+        } else { // Ordinamento per 'total'
+            return (a.total - b.total) * dir;
+        }
     });
 }
 // Fine funzione sortedTurni
