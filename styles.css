@@ -100,6 +100,15 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* =============================================
+   Accessibilità: Stile per Navigazione da Tastiera
+   ============================================= */
+*:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Usando il colore primario con più opacità */
+    border-radius: var(--radius-md); 
+}
+
 /* === HEADER MOBILE === */
 .mobile-header {
     display: none;

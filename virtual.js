@@ -779,9 +779,7 @@ function safeUpdateCharts() {
     
     try {
         if (virtualState.productsChartInstance) {
-            const newProductData = getProductsChartData.call(app);
-            virtualState.productsChartInstance.data.datasets[0].backgroundColor = newProductData.datasets[0].backgroundColor;
-            virtualState.productsChartInstance.data.datasets[0].data = newProductData.datasets[0].data;
+            virtualState.productsChartInstance.data = getProductsChartData.call(app);
             virtualState.productsChartInstance.update('none');
         }
         
@@ -821,7 +819,7 @@ function updateChartsTheme() {
     };
     
     if (virtualState.productsChartInstance) {
-        Object.assign(virtualState.productsChartInstance.options, updateOptions.plugins);
+        Object.assign(virtualState.productsChartInstance.options.plugins, updateOptions.plugins);
         virtualState.productsChartInstance.data.datasets[0].borderColor = borderColor;
         virtualState.productsChartInstance.update('none');
     }
