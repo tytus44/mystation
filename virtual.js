@@ -1,742 +1,1071 @@
 // =============================================
-// FILE: virtual.js (versione Alpine.js)
+// FILE: virtual.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione VirtualStation (turni, statistiche, grafici).
-// CORREZIONI: Layout riorganizzato, no datepicker, dropdown Flowbite
+// --- RIFATTORIZZATO COMPLETAMENTE PER USARE I MODALI ---
 // =============================================
 
-function virtualStationModule() {
-    let productsChartInstance = null;
-    let serviceChartInstance = null;
+// === STATO LOCALE DEL MODULO VIRTUAL ===
+let virtualState = {
+    // Il virtualViewMode non è più necessario qui, la vista è sempre 'list'
+    virtualFilters: { mode: 'today' }, 
+    virtualSort: { column: 'date', direction: 'desc' },
+    editingTurno: null,
+    turnoForm: { 
+        date: '', 
+        turno: 'Mattina', 
+        iperself: { benzina: null, gasolio: null, dieselplus: null, hvolution: null },
+        servito: { benzina: null, gasolio: null, dieselplus: null, hvolution: null, adblue: null }
+    },
+    chartsInitialized: false,
+    updatingCharts: false,
+    productsChartInstance: null,
+    serviceChartInstance: null
+};
 
-    return {
-        // ✨ MODIFICA: Filtro predefinito impostato su 'year'
-        virtualFilters: Alpine.$persist({ mode: 'year', startDate: null, endDate: null }),
-        virtualViewMode: Alpine.$persist('list'),
-        virtualSort: { column: 'date', direction: 'desc' },
-        showDateRangePicker: false,
-        editingTurno: null,
-        turnoForm: { 
-            date: '', 
-            turno: 'Mattina', 
-            iperself: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }, 
-            servito: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 } 
-        },
-        chartsInitialized: false, 
-        updatingCharts: false,
-        
-        initVirtualStation() { 
-            this.resetTurnoForm();
-            if (!this.virtualFilters.startDate) {
-                const today = new Date();
-                this.virtualFilters.startDate = this.formatToItalianDate(new Date(today.getFullYear(), 0, 1));
-                this.virtualFilters.endDate = this.formatToItalianDate(today);
-            }
-        },
-        
-        // === NAVIGATION METHODS ===
-        showCreateTurno() { 
-            this.virtualViewMode = 'create-turno'; 
-            this.editingTurno = null; 
-            this.resetTurnoForm(); 
-            this.refreshIcons(); 
-            // ✨ FIX: Reinizializza dropdown dopo un delay maggiore
-            setTimeout(() => {
-                this.initFlowbiteComponents();
-            }, 200);
-        },
-        
-        showEditTurno(turno) {
-            this.virtualViewMode = 'edit-turno';
-            this.editingTurno = turno;
-            this.turnoForm = { 
-                date: this.formatToItalianDate(turno.date), 
-                turno: turno.turno || 'Mattina', 
-                iperself: { ...turno.iperself }, 
-                servito: { ...turno.servito } 
-            };
-            this.refreshIcons();
-            // ✨ FIX: Reinizializza dropdown dopo un delay maggiore
-            setTimeout(() => {
-                this.initFlowbiteComponents();
-            }, 200);
-        },
-        
-        backToTurniList() { 
-            this.virtualViewMode = 'list'; 
-            this.editingTurno = null; 
-        },
+// === INIZIALIZZAZIONE MODULO VIRTUAL ===
+// Inizio funzione initVirtualStation
+function initVirtualStation() {
+    console.log('📺 Inizializzazione modulo VirtualStation...');
+    // Durante l'init, usiamo 'this' perchè 'getApp()' non è ancora pronto.
+    // 'this' è l'istanza dell'app passata da 'initializeModules'.
+    virtualState.virtualFilters.mode = this.loadFromStorage('virtualFilterMode', 'today');
+    resetTurnoForm.call(this); // Passiamo il contesto
+    console.log('✅ Modulo VirtualStation inizializzato');
+}
+// Fine funzione initVirtualStation
 
-        // === FLOWBITE COMPONENTS INITIALIZATION ===
-        initFlowbiteComponents() {
-            // Inizializza i dropdown Flowbite manualmente
-            setTimeout(() => {
-                // Inizializza i dropdown usando la funzione globale initFlowbite se disponibile
-                if (typeof initFlowbite === 'function') {
-                    initFlowbite();
-                } else if (typeof window.initFlowbite === 'function') {
-                    window.initFlowbite();
-                }
-                
-                // Alternativa: inizializza manualmente i dropdown se la funzione globale non è disponibile
-                const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
-                dropdownButtons.forEach(button => {
-                    const targetId = button.getAttribute('data-dropdown-toggle');
-                    const dropdown = document.getElementById(targetId);
-                    
-                    if (dropdown && !button.hasAttribute('data-dropdown-initialized')) {
-                        button.setAttribute('data-dropdown-initialized', 'true');
-                        
-                        button.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            
-                            // Chiudi altri dropdown aperti
-                            document.querySelectorAll('[data-dropdown-toggle]').forEach(otherButton => {
-                                if (otherButton !== button) {
-                                    const otherId = otherButton.getAttribute('data-dropdown-toggle');
-                                    const otherDropdown = document.getElementById(otherId);
-                                    if (otherDropdown) {
-                                        otherDropdown.classList.add('hidden');
-                                    }
-                                }
-                            });
-                            
-                            // Toggle del dropdown corrente
-                            dropdown.classList.toggle('hidden');
-                        });
-                        
-                        // Chiudi dropdown quando si clicca fuori
-                        document.addEventListener('click', (e) => {
-                            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
-                                dropdown.classList.add('hidden');
-                            }
-                        });
-                    }
-                });
-            }, 100);
-        },
+// === RENDER SEZIONE VIRTUAL ===
+// Ora questa funzione renderizza sempre e solo la vista principale (la lista).
+// Inizio funzione renderVirtualSection
+function renderVirtualSection(container) {
+    console.log('🎨 Rendering sezione VirtualStation...');
+    // *** CORREZIONE: Usiamo 'this' che è l'istanza MyStationApp passata da app.js ***
+    const app = this;
+    
+    // *** CORREZIONE: Passiamo il contesto app alle funzioni ***
+    renderVirtualListView.call(app, container);
+    setupVirtualListViewEventListeners.call(app); // Collega solo gli eventi della lista.
+    
+    app.refreshIcons();
+}
+// Fine funzione renderVirtualSection
 
-        // === TURNO DROPDOWN METHODS ===
-        selectTurno(turno) {
-            this.turnoForm.turno = turno;
-            // Chiudi il dropdown dopo la selezione
-            const dropdown = document.getElementById('turnoDropdown');
-            if (dropdown) {
-                dropdown.classList.add('hidden');
-            }
-        },
-
-        // === SORT & FILTER ===
-        sortVirtual(column) { 
-            if (this.virtualSort.column === column) { 
-                this.virtualSort.direction = this.virtualSort.direction === 'asc' ? 'desc' : 'asc'; 
-            } else { 
-                this.virtualSort.column = column; 
-                this.virtualSort.direction = 'asc'; 
-            } 
-        },
-        
-        setFilterMode(mode) { 
-            this.virtualFilters.mode = mode; 
-            this.showDateRangePicker = (mode === 'range'); 
-        },
-        
-        applyDateRangeFilter() { 
-            if (this.virtualFilters.startDate && this.virtualFilters.endDate) { 
-                this.safeUpdateCharts(); 
-            } else { 
-                this.showNotification('Seleziona un intervallo di date valido.'); 
-            } 
-        },
-
-        // === DATA PROCESSING ===
-        getFilteredTurniForPeriod() { 
-            if (!Array.isArray(this.data.turni)) return []; 
-            const today = new Date(); 
-            today.setHours(0, 0, 0, 0); 
+// === RENDER VISTA LISTA ===
+// Questa funzione costruisce l'HTML della pagina principale.
+// MODIFICA: Spostato pulsante "Nuovo Turno" dalla tabella alla sinistra del pulsante "Stampa Periodo"
+// Inizio funzione renderVirtualListView
+function renderVirtualListView(container) {
+    // *** CORREZIONE: Usiamo 'this' invece di getApp() per coerenza ***
+    const app = this;
+    const stats = virtualStats.call(app);
+    
+    container.innerHTML = `
+        <div class="space-y-6">
+            <div class="filters-bar no-print">
+                <div class="filter-group"><div class="btn-group">
+                    <button class="btn ${virtualState.virtualFilters.mode === 'today' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="today">Oggi</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'month' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="month">Ultimo Mese</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="quarter">Ultimo Trimestre</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Ultimo Semestre</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Ultimo Anno</button>
+                </div></div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="new-turno-btn" class="btn btn-primary">
+                        <i data-lucide="plus-circle"></i> Nuovo Turno
+                    </button>
+                    <button id="print-virtual-btn" class="btn btn-secondary">
+                        <i data-lucide="printer"></i> Stampa Periodo
+                    </button>
+                </div>
+            </div>
             
-            switch (this.virtualFilters.mode) { 
-                case 'today': 
-                    return this.data.turni.filter(t => new Date(t.date).setHours(0,0,0,0) === today.getTime()); 
-                case 'year': 
-                    return this.data.turni.filter(t => new Date(t.date).getFullYear() === today.getFullYear());
-                case 'range': 
-                    const startDate = this.parseItalianDate(this.virtualFilters.startDate); 
-                    const endDate = this.parseItalianDate(this.virtualFilters.endDate); 
-                    if (!startDate || !endDate) return []; 
-                    startDate.setHours(0, 0, 0, 0); 
-                    endDate.setHours(23, 59, 59, 999); 
-                    return this.data.turni.filter(t => new Date(t.date) >= startDate && new Date(t.date) <= endDate); 
-                default: 
-                    return []; 
-            } 
-        },
-        
-        onVirtualSectionOpen() { 
-            if (!this.chartsInitialized) { 
-                setTimeout(() => { 
-                    this.initCharts(); 
-                }, 100); 
-            } else { 
-                this.safeUpdateCharts(); 
-            } 
-        },
-        
-        sortedTurni() { 
-            if (!Array.isArray(this.data.turni)) return []; 
-            let turni = [...this.data.turni].map(t => ({...t, total: this.getTurnoTotal(t) })); 
-            return turni.sort((a, b) => { 
-                const dir = this.virtualSort.direction === 'asc' ? 1 : -1; 
-                if (this.virtualSort.column === 'date') return (new Date(a.date) - new Date(b.date)) * dir; 
-                return (a.total - b.total) * dir; 
-            }); 
-        },
-        
-        getProductValue(turnoData, product) {
-            if (!turnoData) return 0;
-            if (product === 'dieselPlus') return parseFloat(turnoData.dieselPlus || turnoData.dieselplus || 0);
-            return parseFloat(turnoData[product] || 0);
-        },
-
-        // === STATS ===
-        virtualStats() {
-            if (!Array.isArray(this.data.turni)) return { totalLiters: 0, revenue: 0, servitoPercentage: 0 };
-            const filteredTurni = this.getFilteredTurniForPeriod();
-            if (filteredTurni.length === 0) return { totalLiters: 0, revenue: 0, servitoPercentage: 0 };
-            
-            let totalIperself = 0, totalServito = 0, revenue = 0;
-            const basePrices = this.currentPrices();
-            
-            filteredTurni.forEach(turno => {
-                const products = ['benzina', 'gasolio', 'dieselPlus', 'hvolution', 'adblue'];
-                products.forEach(product => {
-                    const iperselfLiters = this.getProductValue(turno.iperself, product);
-                    const servitoLiters = this.getProductValue(turno.servito, product);
-                    
-                    if (product !== 'adblue') { totalIperself += iperselfLiters; }
-                    totalServito += servitoLiters;
-                    
-                    const basePrice = basePrices[product] || 0;
-                    if (basePrice > 0) {
-                        if (product === 'adblue') { 
-                            revenue += servitoLiters * basePrice; 
-                        } else {
-                            const iperselfPrice = basePrice + 0.005;
-                            // ✨ MODIFICA: Aggiornata la formula del prezzo Servito
-                            const servitoPrice = basePrice + 0.210 + 0.015;
-                            revenue += (iperselfLiters * iperselfPrice) + (servitoLiters * servitoPrice);
-                        }
-                    }
-                });
-            });
-            
-            const totalLiters = totalIperself + totalServito;
-            const servitoPercentage = totalLiters > 0 ? (totalServito / totalLiters) * 100 : 0;
-            return { totalLiters, revenue, servitoPercentage };
-        },
-        
-        currentPrices() { 
-            if (!Array.isArray(this.data.priceHistory) || this.data.priceHistory.length === 0) return {};
-            return [...this.data.priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; 
-        },
-
-        // === TURNO OPERATIONS ===
-        resetTurnoForm() { 
-            this.turnoForm = { 
-                date: this.getTodayFormatted(), 
-                turno: 'Mattina', 
-                iperself: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }, 
-                servito: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 } 
-            }; 
-        },
-        
-        saveTurno() { 
-            if (!this.turnoForm.date || !this.turnoForm.turno) { 
-                this.showNotification('Data e tipo turno sono obbligatori'); 
-                return; 
-            } 
-            if (!this.validateItalianDate(this.turnoForm.date)) { 
-                this.showNotification('Formato data non valido. Usa gg.mm.aaaa'); 
-                return; 
-            } 
-            
-            const parsedDate = this.parseItalianDate(this.turnoForm.date); 
-            const turno = { 
-                id: this.editingTurno ? this.editingTurno.id : this.generateUniqueId('turno'), 
-                date: parsedDate.toISOString(), 
-                turno: this.turnoForm.turno, 
-                iperself: { 
-                    benzina: parseFloat(this.turnoForm.iperself.benzina) || 0, 
-                    gasolio: parseFloat(this.turnoForm.iperself.gasolio) || 0, 
-                    dieselPlus: parseFloat(this.turnoForm.iperself.dieselPlus) || 0, 
-                    hvolution: parseFloat(this.turnoForm.iperself.hvolution) || 0 
-                }, 
-                servito: { 
-                    benzina: parseFloat(this.turnoForm.servito.benzina) || 0, 
-                    gasolio: parseFloat(this.turnoForm.servito.gasolio) || 0, 
-                    dieselPlus: parseFloat(this.turnoForm.servito.dieselPlus) || 0, 
-                    hvolution: parseFloat(this.turnoForm.servito.hvolution) || 0, 
-                    adblue: parseFloat(this.turnoForm.servito.adblue) || 0 
-                }, 
-                createdAt: this.editingTurno ? this.editingTurno.createdAt : new Date().toISOString() 
-            }; 
-            
-            if (this.editingTurno) { 
-                const index = this.data.turni.findIndex(t => t.id === this.editingTurno.id); 
-                if (index !== -1) this.data.turni[index] = turno; 
-            } else { 
-                this.data.turni.push(turno); 
-            } 
-            
-            this.safeUpdateCharts(); 
-            this.backToTurniList();
-            this.refreshIcons();
-        },
-        
-        deleteTurno(turnoId) { 
-            const turno = this.data.turni.find(t => t.id === turnoId); 
-            if (!turno) return; 
-            this.showConfirm(`Sei sicuro di voler eliminare il turno del ${this.formatDate(turno.date)} - ${turno.turno}?`, () => { 
-                this.data.turni = this.data.turni.filter(t => t.id !== turnoId); 
-                this.safeUpdateCharts(); 
-                this.refreshIcons();
-            }); 
-        },
-        
-        getTurnoTotal(turno) { 
-            const products = ['benzina', 'gasolio', 'dieselPlus', 'hvolution', 'adblue']; 
-            return products.reduce((total, product) => total + this.getProductValue(turno.iperself, product) + this.getProductValue(turno.servito, product), 0); 
-        },
-
-        // === CHARTS ===
-        initCharts() { 
-            if (typeof Chart === 'undefined' || this.chartsInitialized) return; 
-            try { 
-                const isDark = this.isDarkMode;
-                const textColor = isDark ? '#f3f4f6' : '#111827';
-                const gridColor = isDark ? '#374151' : '#f3f4f6'; 
-                
-                if (productsChartInstance) productsChartInstance.destroy(); 
-                if (serviceChartInstance) serviceChartInstance.destroy(); 
-                
-                const productsCtx = document.getElementById('productsChart'); 
-                if (productsCtx) { 
-                    productsChartInstance = new Chart(productsCtx, { 
-                        type: 'bar', 
-                        data: { 
-                            labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'], 
-                            datasets: [{ 
-                                label: 'Litri Venduti', 
-                                data: [], 
-                                backgroundColor: ['#22c55e', '#facc15', '#dc2626', '#2563eb', '#06b6d4'], 
-                                borderWidth: 0 
-                            }] 
-                        }, 
-                        options: { 
-                            responsive: true, 
-                            maintainAspectRatio: false, 
-                            animation: false, 
-                            plugins: { 
-                                legend: { display: false } 
-                            }, 
-                            scales: { 
-                                y: { 
-                                    beginAtZero: true, 
-                                    grid: { color: gridColor }, 
-                                    ticks: { color: textColor } 
-                                }, 
-                                x: { 
-                                    grid: { display: false }, 
-                                    ticks: { color: textColor } 
-                                } 
-                            } 
-                        } 
-                    }); 
-                } 
-                
-                const serviceCtx = document.getElementById('serviceChart'); 
-                if (serviceCtx) { 
-                    serviceChartInstance = new Chart(serviceCtx, { 
-                        type: 'doughnut', 
-                        data: { 
-                            labels: ['Iperself', 'Servito'], 
-                            datasets: [{ 
-                                data: [], 
-                                backgroundColor: ['#dc2626', '#2563eb'], 
-                                borderWidth: 0 
-                            }] 
-                        }, 
-                        options: { 
-                            responsive: true, 
-                            maintainAspectRatio: false, 
-                            animation: false, 
-                            plugins: { 
-                                legend: { 
-                                    position: 'bottom', 
-                                    labels: { color: textColor } 
-                                } 
-                            } 
-                        } 
-                    }); 
-                } 
-                
-                this.chartsInitialized = true; 
-                this.safeUpdateCharts(); 
-            } catch (error) { 
-                console.error('Errore inizializzazione chart:', error); 
-            } 
-        },
-        
-        safeUpdateCharts() { 
-            if (!this.chartsInitialized || !productsChartInstance || this.updatingCharts) return; 
-            this.updatingCharts = true; 
-            
-            setTimeout(() => { 
-                try { 
-                    const filteredTurni = this.getFilteredTurniForPeriod(); 
-                    const productsData = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 }; 
-                    let totalIperself = 0, totalServito = 0; 
-                    
-                    filteredTurni.forEach(turno => { 
-                        Object.keys(productsData).forEach(product => { 
-                            const iperselfAmount = this.getProductValue(turno.iperself, product);
-                            const servitoAmount = this.getProductValue(turno.servito, product);
-                            productsData[product] += iperselfAmount + servitoAmount; 
-                            if (product !== 'adblue') totalIperself += iperselfAmount; 
-                            totalServito += servitoAmount; 
-                        }); 
-                    }); 
-                    
-                    if(productsChartInstance) { 
-                        productsChartInstance.data.datasets[0].data = Object.values(productsData); 
-                        productsChartInstance.update('none'); 
-                    } 
-                    if(serviceChartInstance) { 
-                        serviceChartInstance.data.datasets[0].data = [totalIperself, totalServito]; 
-                        serviceChartInstance.update('none'); 
-                    } 
-                } catch (error) { 
-                    console.error('Errore aggiornamento chart:', error); 
-                } finally { 
-                    this.updatingCharts = false; 
-                } 
-            }, 0); 
-        },
-        
-        updateChartsTheme() { 
-            if (typeof Chart === 'undefined' || !this.chartsInitialized || !productsChartInstance) return; 
-            const textColor = this.isDarkMode ? '#f3f4f6' : '#111827';
-            const gridColor = this.isDarkMode ? '#374151' : '#f3f4f6'; 
-            
-            if (productsChartInstance) { 
-                productsChartInstance.options.scales.y.ticks.color = textColor; 
-                productsChartInstance.options.scales.y.grid.color = gridColor; 
-                productsChartInstance.options.scales.x.ticks.color = textColor; 
-            } 
-            if (serviceChartInstance) { 
-                serviceChartInstance.options.plugins.legend.labels.color = textColor; 
-            } 
-            if (productsChartInstance) productsChartInstance.update('none'); 
-            if (serviceChartInstance) serviceChartInstance.update('none'); 
-        },
-
-        // ✨ Template HTML con layout riorganizzato e senza datepicker
-        virtualTemplate: `
-            <div class="max-w-7xl mx-auto space-y-6">
-                
-                <div x-show="virtualViewMode === 'list'" class="view-transition">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 no-print">
-                        <div class="flex flex-col lg:flex-row justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 lg:mb-0">Statistiche VirtualStation</h2>
-                            <div class="inline-flex rounded-md shadow-sm" role="group">
-                                <button @click="setFilterMode('today')" :class="virtualFilters.mode === 'today' ? 'bg-blue-700 text-white' : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'" type="button" class="px-4 py-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-s-lg focus:z-10 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500">Oggi</button>
-                                <button @click="setFilterMode('range')" :class="virtualFilters.mode === 'range' ? 'bg-blue-700 text-white' : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'" type="button" class="px-4 py-2 text-sm font-medium text-gray-900 border-t border-b border-gray-200 focus:z-10 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500">Periodo</button>
-                                <button @click="setFilterMode('year')" :class="virtualFilters.mode === 'year' ? 'bg-blue-700 text-white' : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'" type="button" class="px-4 py-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-e-lg focus:z-10 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500">Anno</button>
-                            </div>
-                        </div>
-                        <div x-show="showDateRangePicker" x-transition class="mt-4 p-4 border rounded-lg bg-gray-100 dark:bg-gray-900 dark:border-gray-700">
-                            <div class="flex flex-col sm:flex-row items-center gap-4">
-                                <div class="flex items-center flex-1 gap-4">
-                                    <div>
-                                        <input type="text" x-model="virtualFilters.startDate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Data inizio (gg.mm.aaaa)">
-                                    </div>
-                                    <span class="text-gray-500 dark:text-gray-400">a</span>
-                                    <div>
-                                        <input type="text" x-model="virtualFilters.endDate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Data fine (gg.mm.aaaa)">
-                                    </div>
-                                </div>
-                                <button @click="applyDateRangeFilter()" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Applica</button>
-                            </div>
-                        </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Litri Venduti</div>
+                        <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 no-print">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Litri Totali</p>
-                                    <p x-text="formatInteger(virtualStats().totalLiters)" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0</p>
-                                </div>
-                                <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full ml-6"><i data-lucide="droplets" class="w-8 h-8 text-blue-600 dark:text-blue-300"></i></div>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Fatturato</p>
-                                    <p x-text="formatCurrency(virtualStats().revenue)" class="text-4xl font-bold text-green-600 dark:text-green-400">€ 0,00</p>
-                                </div>
-                                <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full ml-6"><i data-lucide="euro" class="w-8 h-8 text-green-600 dark:text-green-300"></i></div>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">% Servito</p>
-                                    <p x-text="Math.round(virtualStats().servitoPercentage) + '%'" class="text-4xl font-bold text-purple-600 dark:text-purple-400">0%</p>
-                                </div>
-                                <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-full ml-6"><i data-lucide="pie-chart" class="w-8 h-8 text-purple-600 dark:text-purple-300"></i></div>
-                            </div>
-                        </div>
+                    <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Fatturato Stimato</div>
+                        <div class="stat-value">${app.formatCurrency(stats.revenue)}</div>
                     </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 no-print">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vendite per Prodotto</h3>
-                            <div class="h-64"><canvas id="productsChart"></canvas></div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Iperself vs Servito</h3>
-                            <div class="h-64"><canvas id="serviceChart"></canvas></div>
-                        </div>
+                    <div class="stat-icon green"><i data-lucide="euro"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">% Servito</div>
+                        <div class="stat-value">${stats.servitoPercentage}%</div>
                     </div>
+                    <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Vendite per Prodotto</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="productsChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Iperself vs Servito</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="serviceChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card no-print">
+                <div class="card-header" style="padding: 1rem 1.5rem;">
+                <h2 class="card-title">Storico Turni</h2>
+                </div>
+                <div class="table-container"><table class="table" id="turni-table">
+                    <thead><tr>
+                        <th><button data-sort="date">Data <i data-lucide="arrow-up-down"></i></button></th>
+                        <th>Turno</th><th>Benzina</th><th>Gasolio</th><th>Diesel+</th><th>Hvolution</th><th>AdBlue</th>
+                        <th><button data-sort="total">Totale <i data-lucide="arrow-up-down"></i></button></th>
+                        <th class="text-right">Azioni</th>
+                    </tr></thead>
+                    <tbody id="turni-tbody"></tbody>
+                </table></div>
+            </div>
+        </div>
+    `;
+    
+    // *** CORREZIONE: Passiamo il contesto alle funzioni ***
+    renderTurniTable.call(app);
+}
+// Fine funzione renderVirtualListView
 
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden no-print">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Storico Turni</h2>
-                            <button @click="showCreateTurno()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center">
-                                <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>Nuovo Turno
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3"><button @click="sortVirtual('date')" class="flex items-center">Data <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i></button></th>
-                                        <th scope="col" class="px-6 py-3">Turno</th>
-                                        <th scope="col" class="px-6 py-3">Benzina</th>
-                                        <th scope="col" class="px-6 py-3">Gasolio</th>
-                                        <th scope="col" class="px-6 py-3">Diesel+</th>
-                                        <th scope="col" class="px-6 py-3">Hvolution</th>
-                                        <th scope="col" class="px-6 py-3">AdBlue</th>
-                                        <th scope="col" class="px-6 py-3"><button @click="sortVirtual('total')" class="flex items-center">Totale <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i></button></th>
-                                        <th scope="col" class="px-6 py-3 text-right">Azioni</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template x-for="turno in sortedTurni()" :key="turno.id">
-                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white" x-text="formatDate(turno.date)"></td>
-                                            <td class="px-6 py-4" x-text="turno.turno"></td>
-                                            <td class="px-6 py-4"><div class="text-xs"><div>I: <span x-text="formatInteger(getProductValue(turno.iperself, 'benzina'))"></span> L</div><div>S: <span x-text="formatInteger(getProductValue(turno.servito, 'benzina'))"></span> L</div><div class="font-bold">Tot: <span x-text="formatInteger(getProductValue(turno.iperself, 'benzina') + getProductValue(turno.servito, 'benzina'))"></span> L</div></div></td>
-                                            <td class="px-6 py-4"><div class="text-xs"><div>I: <span x-text="formatInteger(getProductValue(turno.iperself, 'gasolio'))"></span> L</div><div>S: <span x-text="formatInteger(getProductValue(turno.servito, 'gasolio'))"></span> L</div><div class="font-bold">Tot: <span x-text="formatInteger(getProductValue(turno.iperself, 'gasolio') + getProductValue(turno.servito, 'gasolio'))"></span> L</div></div></td>
-                                            <td class="px-6 py-4"><div class="text-xs"><div>I: <span x-text="formatInteger(getProductValue(turno.iperself, 'dieselPlus'))"></span> L</div><div>S: <span x-text="formatInteger(getProductValue(turno.servito, 'dieselPlus'))"></span> L</div><div class="font-bold">Tot: <span x-text="formatInteger(getProductValue(turno.iperself, 'dieselPlus') + getProductValue(turno.servito, 'dieselPlus'))"></span> L</div></div></td>
-                                            <td class="px-6 py-4"><div class="text-xs"><div>I: <span x-text="formatInteger(getProductValue(turno.iperself, 'hvolution'))"></span> L</div><div>S: <span x-text="formatInteger(getProductValue(turno.servito, 'hvolution'))"></span> L</div></div></td>
-                                            <td class="px-6 py-4"><div class="text-xs"><div>S: <span x-text="formatInteger(getProductValue(turno.servito, 'adblue'))"></span> L</div></div></td>
-                                            <td class="px-6 py-4 font-bold" x-text="formatInteger(turno.total) + ' L'"></td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end space-x-2">
-                                                    <button @click="showEditTurno(turno)" class="text-yellow-600 hover:text-yellow-900 p-1" title="Modifica turno"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                                                    <button @click="deleteTurno(turno.id)" class="text-red-600 hover:text-red-900 p-1" title="Elimina turno"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <tr x-show="sortedTurni().length === 0">
-                                        <td colspan="9" class="text-center py-12"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="monitor-x" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i><p class="text-lg">Nessun turno trovato</p></div></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+// === CORREZIONE: NUOVA FUNZIONE PER L'HTML DEL FORM SENZA COLONNA NOTE ===
+// Questa funzione non renderizza nulla, ma restituisce solo la stringa HTML del form.
+// Inizio funzione getVirtualFormHTML
+function getVirtualFormHTML() {
+    const isEdit = !!virtualState.editingTurno;
+    const title = isEdit ? 'Modifica Turno' : 'Nuovo Turno';
+    
+    return `
+        <div class="card-header">
+            <h2 class="card-title">${title}</h2>
+            <button id="cancel-turno-btn" class="btn btn-secondary modal-close-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-12 gap-4 items-end mb-4">
+                <div class="col-span-3">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Data</label>
+                        <div class="input-group">
+                            <i data-lucide="calendar" class="input-group-icon"></i>
+                            <input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}">
                         </div>
                     </div>
                 </div>
-
-                <!-- ✨ FORM TURNO CON LAYOUT RIORGANIZZATO E SENZA DATEPICKER -->
-                <div x-show="virtualViewMode === 'create-turno' || virtualViewMode === 'edit-turno'" class="view-transition">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="virtualViewMode === 'edit-turno' ? 'Modifica Turno' : 'Nuovo Turno'"></h2>
-                            <button @click="backToTurniList()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i data-lucide="x" class="w-6 h-6"></i></button>
-                        </div>
-                        <div class="p-6">
-                            <div class="space-y-6">
-                                <!-- Prima riga: Data e Turno -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- ✅ CAMPO DATA SENZA DATEPICKER -->
-                                    <div>
-                                        <label for="turno-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label>
-                                        <input id="turno-date" 
-                                               type="text" 
-                                               x-model="turnoForm.date" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                               placeholder="gg.mm.aaaa">
-                                    </div>
-                                    
-                                    <!-- ✅ DROPDOWN TURNO FLOWBITE -->
-                                    <div>
-                                        <label for="turno-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>
-                                        <button id="turnoDropdownButton" 
-                                                data-dropdown-toggle="turnoDropdown" 
-                                                class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-between w-full dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" 
-                                                type="button">
-                                            <span x-text="turnoForm.turno"></span>
-                                            <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                            </svg>
-                                        </button>
-                                        <div id="turnoDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-                                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="turnoDropdownButton">
-                                                <li><a href="#" @click.prevent="selectTurno('Notte')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Notte</a></li>
-                                                <li><a href="#" @click.prevent="selectTurno('Mattina')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Mattina</a></li>
-                                                <li><a href="#" @click.prevent="selectTurno('Pranzo')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Pranzo</a></li>
-                                                <li><a href="#" @click.prevent="selectTurno('Pomeriggio')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Pomeriggio</a></li>
-                                                <li><a href="#" @click.prevent="selectTurno('Weekend')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Weekend</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- ✨ LAYOUT RIORGANIZZATO: Prima riga - Gasolio e Diesel+ -->
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <!-- Gasolio -->
-                                    <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg space-y-4">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white flex items-center">
-                                            <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
-                                            Gasolio (Litri)
-                                        </h4>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Iperself</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.iperself.gasolio" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Servito</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.servito.gasolio" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Diesel+ -->
-                                    <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg space-y-4">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white flex items-center">
-                                            <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-                                            Diesel+ (Litri)
-                                        </h4>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Iperself</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.iperself.dieselPlus" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Servito</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.servito.dieselPlus" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- ✨ LAYOUT RIORGANIZZATO: Seconda riga - AdBlue (solo servito), Benzina e Hvolution -->
-                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                    <!-- AdBlue (Solo Servito) -->
-                                    <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg space-y-4">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white flex items-center">
-                                            <div class="w-4 h-4 bg-cyan-500 rounded-full mr-2"></div>
-                                            AdBlue (Litri)
-                                        </h4>
-                                        <div>
-                                            <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Solo Servito</label>
-                                            <input type="number" 
-                                                   x-model.number="turnoForm.servito.adblue" 
-                                                   class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                   placeholder="0">
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Benzina -->
-                                    <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg space-y-4">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white flex items-center">
-                                            <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-                                            Benzina (Litri)
-                                        </h4>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Iperself</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.iperself.benzina" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Servito</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.servito.benzina" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Hvolution -->
-                                    <div class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg space-y-4">
-                                        <h4 class="font-semibold text-gray-900 dark:text-white flex items-center">
-                                            <div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
-                                            Hvolution (Litri)
-                                        </h4>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Iperself</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.iperself.hvolution" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                            <div>
-                                                <label class="block mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">Servito</label>
-                                                <input type="number" 
-                                                       x-model.number="turnoForm.servito.hvolution" 
-                                                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                       placeholder="0">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Pulsanti Azione -->
-                                <div class="flex items-center justify-start space-x-3">
-                                    <button @click="saveTurno()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                                        Salva Turno
-                                    </button>
-                                    <button @click="backToTurniList()" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">
-                                        Annulla
-                                    </button>
-                                </div>
-                            </div>
+                <div class="col-span-9">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Tipo Turno</label>
+                        <div class="btn-group w-full" role="group">
+                            <button type="button" id="tab-Notte" class="btn ${virtualState.turnoForm.turno === 'Notte' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Notte">Notte</button>
+                            <button type="button" id="tab-Mattina" class="btn ${virtualState.turnoForm.turno === 'Mattina' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Mattina">Mattina</button>
+                            <button type="button" id="tab-Pranzo" class="btn ${virtualState.turnoForm.turno === 'Pranzo' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pranzo">Pranzo</button>
+                            <button type="button" id="tab-Pomeriggio" class="btn ${virtualState.turnoForm.turno === 'Pomeriggio' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pomeriggio">Pomeriggio</button>
+                            <button type="button" id="tab-Weekend" class="btn ${virtualState.turnoForm.turno === 'Weekend' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Weekend">Weekend</button>
                         </div>
                     </div>
                 </div>
             </div>
-        `
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Prodotto</th>
+                            <th style="width: 37.5%;">Iperself (L)</th>
+                            <th style="width: 37.5%;">Servito (L)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-medium text-primary">Benzina</td>
+                            <td>
+                                <input type="number" id="iperself-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.benzina || ''}">
+                            </td>
+                            <td>
+                                <input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium text-primary">Gasolio</td>
+                            <td>
+                                <input type="number" id="iperself-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.gasolio || ''}">
+                            </td>
+                            <td>
+                                <input type="number" id="servito-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.gasolio || ''}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium text-primary">Diesel+</td>
+                            <td>
+                                <input type="number" id="iperself-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.dieselplus || ''}">
+                            </td>
+                            <td>
+                                <input type="number" id="servito-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.dieselplus || ''}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium text-primary">Hvolution</td>
+                            <td>
+                                <input type="number" id="iperself-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.hvolution || ''}">
+                            </td>
+                            <td>
+                                <input type="number" id="servito-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.hvolution || ''}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium text-primary">AdBlue</td>
+                            <td></td>
+                            <td>
+                                <input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="flex justify-end space-x-4 mt-4">
+                <button id="cancel-turno-btn-bottom" class="btn btn-secondary">Annulla</button>
+                <button id="save-turno-btn" class="btn btn-primary">Salva Turno</button>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getVirtualFormHTML
+
+// === SETUP EVENT LISTENERS VISTA LISTA ===
+// Inizio funzione setupVirtualListViewEventListeners
+function setupVirtualListViewEventListeners() {
+    // *** CORREZIONE: Usiamo 'this' per il contesto ***
+    const app = this;
+    
+    document.querySelectorAll('[data-filter-mode]').forEach(btn => 
+        btn.addEventListener('click', () => setFilterMode.call(app, btn.getAttribute('data-filter-mode')))
+    );
+    document.getElementById('new-turno-btn')?.addEventListener('click', () => showCreateTurno());
+    document.getElementById('print-virtual-btn')?.addEventListener('click', () => printVirtualReport.call(app));
+    document.querySelectorAll('#turni-table [data-sort]').forEach(btn => 
+        btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort')))
+    );
+}
+// Fine funzione setupVirtualListViewEventListeners
+
+// Inizio funzione setupVirtualFormEventListeners
+function setupVirtualFormEventListeners() {
+    const app = getApp();
+    document.getElementById('save-turno-btn')?.addEventListener('click', () => saveTurno());
+    document.getElementById('cancel-turno-btn')?.addEventListener('click', () => app.hideFormModal());
+    document.getElementById('cancel-turno-btn-bottom')?.addEventListener('click', () => app.hideFormModal());
+
+    // Event listeners per i campi input
+    const inputs = [
+        { id: 'turno-date', path: 'date' },
+        { id: 'iperself-benzina', path: 'iperself.benzina' }, { id: 'iperself-gasolio', path: 'iperself.gasolio' },
+        { id: 'iperself-dieselplus', path: 'iperself.dieselplus' }, { id: 'iperself-hvolution', path: 'iperself.hvolution' },
+        { id: 'servito-benzina', path: 'servito.benzina' }, { id: 'servito-gasolio', path: 'servito.gasolio' },
+        { id: 'servito-dieselplus', path: 'servito.dieselplus' }, { id: 'servito-hvolution', path: 'servito.hvolution' },
+        { id: 'servito-adblue', path: 'servito.adblue' }
+    ];
+    inputs.forEach(({ id, path }) => {
+        const input = document.getElementById(id);
+        if (input) input.addEventListener('input', () => updateTurnoFormValue(path, input.value));
+    });
+    
+    // NUOVO: Event listeners per i tab dei tipi di turno
+    document.querySelectorAll('.turno-tab').forEach(tabButton => {
+        tabButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const turnoType = tabButton.getAttribute('data-turno');
+            
+            // Aggiorna lo stato del form
+            updateTurnoFormValue('turno', turnoType);
+            
+            // Aggiorna lo stile dei tab (rimuovi active da tutti e aggiungi al corrente)
+            document.querySelectorAll('.turno-tab').forEach(tab => {
+                tab.classList.remove('btn-primary');
+                tab.classList.add('btn-secondary');
+            });
+            tabButton.classList.remove('btn-secondary');
+            tabButton.classList.add('btn-primary');
+        });
+    });
+}
+// Fine funzione setupVirtualFormEventListeners
+
+// === GESTIONE MODALE (LOGICA CENTRALE DELLA MODIFICA) ===
+// Inizio funzione showCreateTurno
+function showCreateTurno() {
+    const app = getApp();
+    virtualState.editingTurno = null;
+    resetTurnoForm.call(app); // Passiamo il contesto per usare getTodayFormatted()
+    
+    document.getElementById('form-modal-content').innerHTML = getVirtualFormHTML();
+    
+    // NUOVO: Applica la classe CSS per modale largo
+    const modalContent = document.querySelector('#form-modal .modal-content');
+    if (modalContent) {
+        modalContent.classList.add('modal-wide');
+    }
+    
+    setupVirtualFormEventListeners();
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showCreateTurno
+
+// Inizio funzione showEditTurno
+function showEditTurno(turno) {
+    const app = getApp();
+    virtualState.editingTurno = turno;
+    virtualState.turnoForm = { 
+        date: app.formatToItalianDate(turno.date), 
+        turno: turno.turno || 'Mattina', 
+        iperself: { ...(turno.iperself || {}) }, 
+        servito: { ...(turno.servito || {}) } 
     };
+    
+    document.getElementById('form-modal-content').innerHTML = getVirtualFormHTML();
+
+    // NUOVO: Applica la classe CSS per modale largo
+    const modalContent = document.querySelector('#form-modal .modal-content');
+    if (modalContent) {
+        modalContent.classList.add('modal-wide');
+    }
+
+    setupVirtualFormEventListeners();
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showEditTurno
+
+// === AZIONI (SALVA, ELIMINA, ETC) ===
+// Inizio funzione saveTurno
+function saveTurno() {
+    const app = getApp();
+    if (!virtualState.turnoForm.date || !virtualState.turnoForm.turno) return app.showNotification('Data e tipo turno sono obbligatori');
+    if (!app.validateItalianDate(virtualState.turnoForm.date)) return app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
+    
+    const parsedDate = app.parseItalianDate(virtualState.turnoForm.date);
+    const turno = {
+        id: virtualState.editingTurno ? virtualState.editingTurno.id : app.generateUniqueId('turno'),
+        date: parsedDate.toISOString(),
+        turno: virtualState.turnoForm.turno,
+        iperself: {
+            benzina: parseFloat(virtualState.turnoForm.iperself.benzina) || 0,
+            gasolio: parseFloat(virtualState.turnoForm.iperself.gasolio) || 0,
+            dieselplus: parseFloat(virtualState.turnoForm.iperself.dieselplus) || 0,
+            hvolution: parseFloat(virtualState.turnoForm.iperself.hvolution) || 0
+        },
+        servito: {
+            benzina: parseFloat(virtualState.turnoForm.servito.benzina) || 0,
+            gasolio: parseFloat(virtualState.turnoForm.servito.gasolio) || 0,
+            dieselplus: parseFloat(virtualState.turnoForm.servito.dieselplus) || 0,
+            hvolution: parseFloat(virtualState.turnoForm.servito.hvolution) || 0,
+            adblue: parseFloat(virtualState.turnoForm.servito.adblue) || 0
+        },
+        createdAt: virtualState.editingTurno ? virtualState.editingTurno.createdAt : new Date().toISOString()
+    };
+    
+    if (virtualState.editingTurno) {
+        const index = app.state.data.turni.findIndex(t => t.id === virtualState.editingTurno.id);
+        if (index !== -1) app.state.data.turni[index] = turno;
+    } else {
+        app.state.data.turni.push(turno);
+    }
+    
+    app.saveToStorage('data', app.state.data);
+    app.hideFormModal();
+    app.showNotification('Turno salvato con successo!');
+    
+    // Ora aggiorniamo la lista senza ricaricare la pagina
+    renderTurniTable.call(app);
+    safeUpdateCharts.call(app);
+}
+// Fine funzione saveTurno
+
+// Inizio funzione deleteTurno
+function deleteTurno(turnoId) {
+    const app = getApp();
+    const turno = app.state.data.turni.find(t => t.id === turnoId);
+    if (!turno) return;
+
+    app.showConfirm(`Sei sicuro di voler eliminare il turno del ${app.formatDate(turno.date)} - ${turno.turno}?`, () => {
+        app.state.data.turni = app.state.data.turni.filter(t => t.id !== turnoId);
+        app.saveToStorage('data', app.state.data);
+        renderTurniTable.call(app);
+        safeUpdateCharts.call(app);
+        app.showNotification('Turno eliminato.');
+    });
+}
+// Fine funzione deleteTurno
+
+// === FUNZIONI DATI E UTILITY ===
+// Inizio funzione setFilterMode
+function setFilterMode(mode) {
+    const app = this;
+    virtualState.virtualFilters.mode = mode;
+    app.saveToStorage('virtualFilterMode', mode);
+    updateFilterButtons(mode);
+    renderTurniTable.call(app);
+    safeUpdateCharts.call(app);
+}
+// Fine funzione setFilterMode
+
+// Inizio funzione updateFilterButtons
+function updateFilterButtons(activeMode) {
+    document.querySelectorAll('[data-filter-mode]').forEach(btn => {
+        const isActive = btn.getAttribute('data-filter-mode') === activeMode;
+        btn.classList.toggle('btn-primary', isActive);
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('btn-secondary', !isActive);
+    });
+}
+// Fine funzione updateFilterButtons
+
+// Inizio funzione sortVirtual
+function sortVirtual(column) {
+    const app = this;
+    if (virtualState.virtualSort.column === column) {
+        virtualState.virtualSort.direction = virtualState.virtualSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        virtualState.virtualSort.column = column;
+        virtualState.virtualSort.direction = 'asc';
+    }
+    renderTurniTable.call(app);
+}
+// Fine funzione sortVirtual
+
+// Inizio funzione getFilteredTurniForPeriod
+function getFilteredTurniForPeriod() {
+    // *** CORREZIONE: Usiamo 'this' per il contesto ***
+    const app = this;
+    
+    // CORREZIONE ERRORE: Controlli di sicurezza per evitare errori "Cannot read properties of undefined"
+    if (!app || !app.state || !app.state.data || !Array.isArray(app.state.data.turni)) {
+        console.warn('⚠️ Dati turni non disponibili');
+        return [];
+    }
+    
+    const now = new Date();
+    let startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    now.setHours(23, 59, 59, 999);
+
+    switch (virtualState.virtualFilters.mode) {
+        case 'today': break;
+        case 'month': startDate.setMonth(startDate.getMonth() - 1); break;
+        case 'quarter': startDate.setMonth(startDate.getMonth() - 3); break;
+        case 'semester': startDate.setMonth(startDate.getMonth() - 6); break;
+        case 'year': startDate = new Date(now.getFullYear(), 0, 1); break;
+        default: return app.state.data.turni;
+    }
+
+    return app.state.data.turni.filter(turno => new Date(turno.date) >= startDate && new Date(turno.date) <= now);
+}
+// Fine funzione getFilteredTurniForPeriod
+
+// Inizio funzione sortedTurni
+function sortedTurni() {
+    const app = this;
+    const filtered = getFilteredTurniForPeriod.call(app);
+    const turni = filtered.map(t => ({ ...t, total: getTurnoTotal(t) }));
+    return turni.sort((a, b) => {
+        const dir = virtualState.virtualSort.direction === 'asc' ? 1 : -1;
+        return virtualState.virtualSort.column === 'date'
+            ? (new Date(a.date) - new Date(b.date)) * dir
+            : (a.total - b.total) * dir;
+    });
+}
+// Fine funzione sortedTurni
+
+// Inizio funzione virtualStats
+function virtualStats() {
+    // *** CORREZIONE: Usiamo 'this' per il contesto invece di getApp() ***
+    const app = this;
+    
+    // CORREZIONE ERRORE: Controlli di sicurezza per evitare errori "Cannot read properties of undefined"
+    if (!app || !app.state || !app.state.data) {
+        console.warn('⚠️ Dati app non disponibili per statistiche');
+        return { totalLiters: 0, revenue: 0, servitoPercentage: 0 };
+    }
+    
+    const filteredTurni = getFilteredTurniForPeriod.call(app);
+    if (filteredTurni.length === 0) return { totalLiters: 0, revenue: 0, servitoPercentage: 0 };
+    
+    let totalServito = 0, totalIperself = 0, revenue = 0;
+    const basePrices = currentPrices.call(app);
+    
+    filteredTurni.forEach(turno => {
+        ['benzina', 'gasolio', 'dieselplus', 'hvolution', 'adblue'].forEach(p => {
+            const iperselfL = parseFloat(turno.iperself?.[p]) || 0;
+            const servitoL = parseFloat(turno.servito?.[p]) || 0;
+            if (p !== 'adblue') totalIperself += iperselfL;
+            totalServito += servitoL;
+            const price = basePrices[p] || 0;
+            if (price > 0) {
+                revenue += (p === 'adblue') ? servitoL * price : (iperselfL + servitoL) * price;
+            }
+        });
+    });
+    
+    const totalLiters = totalIperself + totalServito;
+    const servitoPercentage = totalLiters > 0 ? Math.round((totalServito / totalLiters) * 100) : 0;
+    
+    return { totalLiters, revenue, servitoPercentage };
+}
+// Fine funzione virtualStats
+
+// Inizio funzione currentPrices
+function currentPrices() {
+    const app = this;
+    return {
+        benzina: app.state.data.priceHistory.filter(p => p.product === 'benzina').pop()?.price || 1.60,
+        gasolio: app.state.data.priceHistory.filter(p => p.product === 'gasolio').pop()?.price || 1.50,
+        dieselplus: app.state.data.priceHistory.filter(p => p.product === 'dieselplus').pop()?.price || 1.65,
+        hvolution: app.state.data.priceHistory.filter(p => p.product === 'hvolution').pop()?.price || 1.70,
+        adblue: app.state.data.priceHistory.filter(p => p.product === 'adblue').pop()?.price || 0.80
+    };
+}
+// Fine funzione currentPrices
+
+// Inizio funzione resetTurnoForm
+function resetTurnoForm() {
+    // *** CORREZIONE: Usiamo 'this' per il contesto ***
+    const app = this;
+    virtualState.turnoForm = {
+        date: app.getTodayFormatted(),
+        turno: 'Mattina',
+        iperself: { benzina: null, gasolio: null, dieselplus: null, hvolution: null },
+        servito: { benzina: null, gasolio: null, dieselplus: null, hvolution: null, adblue: null }
+    };
+}
+// Fine funzione resetTurnoForm
+
+// Inizio funzione updateTurnoFormValue
+function updateTurnoFormValue(path, value) {
+    const keys = path.split('.');
+    let current = virtualState.turnoForm;
+    for (let i = 0; i < keys.length - 1; i++) current = current[keys[i]];
+    current[keys[keys.length - 1]] = value === '' ? null : value;
+}
+// Fine funzione updateTurnoFormValue
+
+// Inizio funzione getTurnoTotal
+function getTurnoTotal(turno) {
+    const iperselfTotal = Object.values(turno.iperself || {}).reduce((a, b) => a + (b || 0), 0);
+    const servitoTotal = Object.values(turno.servito || {}).reduce((a, b) => a + (b || 0), 0);
+    return iperselfTotal + servitoTotal;
+}
+// Fine funzione getTurnoTotal
+
+// Inizio funzione renderTurniTable
+function renderTurniTable() {
+    const tbody = document.getElementById('turni-tbody');
+    if (!tbody) return;
+    
+    const app = this;
+    
+    // CORREZIONE ERRORE: Controlli di sicurezza per evitare errori "Cannot read properties of undefined"
+    if (!app || !app.state || !app.state.data) {
+        console.warn('⚠️ Dati app non disponibili per renderTurniTable');
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-12"><div class="empty-state"><i data-lucide="monitor-x"></i><div class="empty-state-title">Errore caricamento dati</div></div></td></tr>`;
+        return;
+    }
+    
+    const turni = sortedTurni.call(app);
+    if (turni.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-12"><div class="empty-state"><i data-lucide="monitor-x"></i><div class="empty-state-title">Nessun turno trovato</div></div></td></tr>`;
+    } else {
+        tbody.innerHTML = turni.map(turno => `
+            <tr class="hover:bg-secondary">
+                <td class="font-medium text-primary">${app.formatDate(turno.date)}</td><td>${turno.turno}</td>
+                <td>${formatProductColumn(turno, 'benzina')}</td><td>${formatProductColumn(turno, 'gasolio')}</td>
+                <td>${formatProductColumn(turno, 'dieselplus')}</td><td>${formatProductColumn(turno, 'hvolution')}</td>
+                <td><div class="text-xs">S: ${Math.round(turno.servito?.adblue || 0)} L</div></td>
+                <td class="font-bold">${app.formatInteger(turno.total)} L</td>
+                <td class="text-right"><div class="flex items-center justify-end space-x-2">
+                    <button class="btn btn-warning" onclick="editTurnoById('${turno.id}')" title="Modifica turno"><i data-lucide="edit"></i></button>
+                    <button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina turno"><i data-lucide="trash-2"></i></button>
+                </div></td>
+            </tr>`).join('');
+    }
+    app.refreshIcons();
+}
+// Fine funzione renderTurniTable
+
+// Inizio funzione formatProductColumn
+function formatProductColumn(turno, product) {
+    const iperself = Math.round(turno.iperself?.[product] || 0);
+    const servito = Math.round(turno.servito?.[product] || 0);
+    return `<div class="text-xs">I: ${iperself} L</div><div class="text-xs">S: ${servito} L</div>`;
+}
+// Fine funzione formatProductColumn
+
+// === GRAFICI ===
+// Inizio funzione initCharts
+function initCharts() {
+    const app = this;
+    if (virtualState.chartsInitialized) return;
+    
+    try {
+        initProductsChart.call(app);
+        initServiceChart.call(app);
+        virtualState.chartsInitialized = true;
+        console.log('✅ Grafici Virtual inizializzati');
+    } catch (error) {
+        console.error('❌ Errore inizializzazione grafici Virtual:', error);
+    }
+}
+// Fine funzione initCharts
+
+// Inizio funzione initProductsChart
+function initProductsChart() {
+    const app = this;
+    const ctx = document.getElementById('productsChart');
+    if (!ctx) return;
+    
+    const chartData = getProductsChartData.call(app);
+    
+    virtualState.productsChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = Math.round(context.parsed);
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${label}: ${value} L (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+// Fine funzione initProductsChart
+
+// Inizio funzione initServiceChart
+function initServiceChart() {
+    const app = this;
+    const ctx = document.getElementById('serviceChart');
+    if (!ctx) return;
+    
+    const chartData = getServiceChartData.call(app);
+    
+    virtualState.serviceChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return Math.round(value) + ' L';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+// Fine funzione initServiceChart
+
+// Inizio funzione getProductsChartData
+function getProductsChartData() {
+    const app = this;
+    const filteredTurni = getFilteredTurniForPeriod.call(app);
+    
+    const totals = { benzina: 0, gasolio: 0, dieselplus: 0, hvolution: 0, adblue: 0 };
+    
+    filteredTurni.forEach(turno => {
+        Object.keys(totals).forEach(product => {
+            if (product === 'adblue') {
+                totals[product] += parseFloat(turno.servito?.[product]) || 0;
+            } else {
+                totals[product] += (parseFloat(turno.iperself?.[product]) || 0) + (parseFloat(turno.servito?.[product]) || 0);
+            }
+        });
+    });
+    
+    return {
+        labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
+        datasets: [{
+            data: Object.values(totals),
+            backgroundColor: [
+                '#10b981', // Verde per Benzina
+                '#f59e0b', // Giallo per Gasolio
+                '#dc2626', // Rosso per Diesel+
+                '#06b6d4', // Ciano per Hvolution
+                '#6b7280'  // Grigio per AdBlue
+            ],
+            borderWidth: 2,
+            borderColor: document.body.classList.contains('theme-dark') ? '#111827' : '#ffffff'
+        }]
+    };
+}
+// Fine funzione getProductsChartData
+
+// Inizio funzione getServiceChartData
+function getServiceChartData() {
+    const app = this;
+    const filteredTurni = getFilteredTurniForPeriod.call(app);
+    
+    const iperself = { benzina: 0, gasolio: 0, dieselplus: 0, hvolution: 0 };
+    const servito = { benzina: 0, gasolio: 0, dieselplus: 0, hvolution: 0, adblue: 0 };
+    
+    filteredTurni.forEach(turno => {
+        Object.keys(iperself).forEach(product => {
+            iperself[product] += parseFloat(turno.iperself?.[product]) || 0;
+        });
+        Object.keys(servito).forEach(product => {
+            servito[product] += parseFloat(turno.servito?.[product]) || 0;
+        });
+    });
+    
+    return {
+        labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
+        datasets: [
+            {
+                label: 'Iperself',
+                data: [iperself.benzina, iperself.gasolio, iperself.dieselplus, iperself.hvolution, 0],
+                backgroundColor: '#3b82f6'
+            },
+            {
+                label: 'Servito',
+                data: [servito.benzina, servito.gasolio, servito.dieselplus, servito.hvolution, servito.adblue],
+                backgroundColor: '#22c55e'
+            }
+        ]
+    };
+}
+// Fine funzione getServiceChartData
+
+// Inizio funzione safeUpdateCharts
+function safeUpdateCharts() {
+    const app = this;
+    if (virtualState.updatingCharts || !virtualState.chartsInitialized) return;
+    
+    virtualState.updatingCharts = true;
+    
+    try {
+        if (virtualState.productsChartInstance) {
+            const newProductData = getProductsChartData.call(app);
+            virtualState.productsChartInstance.data.datasets[0].backgroundColor = newProductData.datasets[0].backgroundColor;
+            virtualState.productsChartInstance.data.datasets[0].data = newProductData.datasets[0].data;
+            virtualState.productsChartInstance.update('none');
+        }
+        
+        if (virtualState.serviceChartInstance) {
+            virtualState.serviceChartInstance.data = getServiceChartData.call(app);
+            virtualState.serviceChartInstance.update('none');
+        }
+    } catch (error) {
+        console.error('Errore aggiornamento grafici:', error);
+    } finally {
+        virtualState.updatingCharts = false;
+    }
+}
+// Fine funzione safeUpdateCharts
+
+// Inizio funzione updateChartsTheme
+function updateChartsTheme() {
+    const isDark = document.body.classList.contains('theme-dark');
+    const textColor = isDark ? '#f9fafb' : '#111827';
+    const gridColor = isDark ? '#374151' : '#e5e7eb';
+    const borderColor = isDark ? '#111827' : '#ffffff';
+    
+    const updateOptions = {
+        plugins: {
+            legend: { labels: { color: textColor } }
+        },
+        scales: {
+            x: { 
+                ticks: { color: textColor },
+                grid: { color: gridColor }
+            },
+            y: { 
+                ticks: { color: textColor },
+                grid: { color: gridColor }
+            }
+        }
+    };
+    
+    if (virtualState.productsChartInstance) {
+        Object.assign(virtualState.productsChartInstance.options, updateOptions.plugins);
+        virtualState.productsChartInstance.data.datasets[0].borderColor = borderColor;
+        virtualState.productsChartInstance.update('none');
+    }
+    
+    if (virtualState.serviceChartInstance) {
+        Object.assign(virtualState.serviceChartInstance.options, updateOptions);
+        virtualState.serviceChartInstance.update('none');
+    }
+}
+// Fine funzione updateChartsTheme
+
+// === STAMPA VIRTUAL - VERSIONE CORRETTA ===
+// Inizio funzione printVirtualReport
+function printVirtualReport() {
+    const app = this;
+    const mode = virtualState.virtualFilters.mode;
+    const periodName = {
+        today: 'Oggi',
+        month: 'Ultimo Mese',
+        quarter: 'Ultimo Trimestre', 
+        semester: 'Ultimo Semestre',
+        year: 'Ultimo Anno'
+    }[mode] || 'Periodo Selezionato';
+    
+    document.getElementById('print-virtual-period').textContent = `Periodo: ${periodName} - ${app.formatDate(new Date())}`;
+    
+    const stats = virtualStats.call(app);
+    const statsContainer = document.getElementById('print-virtual-stats');
+    statsContainer.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-label">Litri Venduti</div>
+                <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-label">Fatturato Stimato</div>
+                <div class="stat-value">${app.formatCurrency(stats.revenue)}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-label">% Servito</div>
+                <div class="stat-value">${stats.servitoPercentage}%</div>
+            </div>
+        </div>
+    `;
+    
+    const chartsContainer = document.getElementById('print-virtual-charts');
+    chartsContainer.innerHTML = ''; // Pulisci contenuto precedente
+    
+    try {
+        // Grafico Vendite per Prodotto
+        const productsCanvas = document.getElementById('productsChart');
+        if (productsCanvas) {
+            const productsImgData = productsCanvas.toDataURL('image/png');
+            const productsDiv = document.createElement('div');
+            productsDiv.innerHTML = `
+                <h3>Vendite per Prodotto</h3>
+                <img src="${productsImgData}" alt="Grafico Vendite per Prodotto" style="max-width: 100%; height: auto;">
+            `;
+            chartsContainer.appendChild(productsDiv);
+        }
+        
+        // Grafico Iperself vs Servito
+        const serviceCanvas = document.getElementById('serviceChart');
+        if (serviceCanvas) {
+            const serviceImgData = serviceCanvas.toDataURL('image/png');
+            const serviceDiv = document.createElement('div');
+            serviceDiv.innerHTML = `
+                <h3>Iperself vs Servito</h3>
+                <img src="${serviceImgData}" alt="Grafico Iperself vs Servito" style="max-width: 100%; height: auto;">
+            `;
+            chartsContainer.appendChild(serviceDiv);
+        }
+    } catch (error) {
+        console.warn('Errore nella conversione grafici per stampa:', error);
+        chartsContainer.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #666;">
+                <p>Grafici non disponibili per la stampa</p>
+                <p style="font-size: 0.9em;">I grafici sono visibili solo nella versione digitale</p>
+            </div>
+        `;
+    }
+    
+    // CORREZIONE: Usa solo le classi hidden, rimuovi le classi extra non standard
+    document.getElementById('virtual-print-content').classList.remove('hidden');
+    document.getElementById('print-content').classList.add('hidden');
+    document.getElementById('print-clients-content').classList.add('hidden');
+    
+    // Avvia la stampa
+    setTimeout(() => {
+        window.print();
+        
+        // Cleanup dopo la stampa
+        setTimeout(() => {
+            // CORREZIONE: Ripristina lo stato hidden
+            document.getElementById('virtual-print-content').classList.add('hidden');
+        }, 1000);
+    }, 100);
+}
+// Fine funzione printVirtualReport
+
+// === GESTIONE APERTURA SEZIONE ===
+// Inizio funzione onVirtualSectionOpen
+function onVirtualSectionOpen() {
+    const app = getApp();
+    
+    // CORREZIONE: Controllo che i dati siano effettivamente caricati prima di inizializzare
+    if (!app || !app.state || !app.state.data || !Array.isArray(app.state.data.turni)) {
+        console.log('🔄 Dati non ancora caricati, posticipando inizializzazione grafici...');
+        
+        // Ritenta dopo che i dati sono stati caricati
+        setTimeout(() => {
+            const appRetry = getApp();
+            if (appRetry && appRetry.state && appRetry.state.data && Array.isArray(appRetry.state.data.turni)) {
+                console.log('✅ Dati caricati, inizializzando grafici...');
+                onVirtualSectionOpen();
+            }
+        }, 500);
+        return;
+    }
+    
+    if (!virtualState.chartsInitialized) {
+        setTimeout(() => { 
+            initCharts.call(app); 
+            setTimeout(() => safeUpdateCharts.call(app), 200); 
+        }, 100);
+    } else {
+        safeUpdateCharts.call(app);
+    }
+}
+// Fine funzione onVirtualSectionOpen
+
+// =============================================
+// INIZIO NUOVE FUNZIONI PER NORMALIZZAZIONE BACKUP
+// Risolve il problema "dieselPlus" vs "dieselplus"
+// =============================================
+
+/**
+ * Normalizza i dati dei turni dal backup JSON
+ * Converte "dieselPlus" in "dieselplus" per compatibilità 
+ * @param {Array} turni - Array dei turni dal backup
+ * @returns {Array} - Array dei turni normalizzati
+ */
+// Inizio funzione normalizeTurniData
+function normalizeTurniData(turni) {
+    console.log('🔧 Normalizzazione dati turni dal backup...');
+    
+    if (!Array.isArray(turni)) {
+        console.warn('⚠️ Dati turni non validi - non è un array');
+        return [];
+    }
+    
+    return turni.map(turno => {
+        // Clona l'oggetto turno per non modificare l'originale
+        const normalizedTurno = { ...turno };
+        
+        // Normalizza la sezione iperself
+        if (normalizedTurno.iperself && normalizedTurno.iperself.dieselPlus !== undefined) {
+            normalizedTurno.iperself.dieselplus = normalizedTurno.iperself.dieselPlus;
+            delete normalizedTurno.iperself.dieselPlus;
+            console.log(`✅ Normalizzato iperself.dieselPlus per turno ${turno.id}`);
+        }
+        
+        // Normalizza la sezione servito
+        if (normalizedTurno.servito && normalizedTurno.servito.dieselPlus !== undefined) {
+            normalizedTurno.servito.dieselplus = normalizedTurno.servito.dieselPlus;
+            delete normalizedTurno.servito.dieselPlus;
+            console.log(`✅ Normalizzato servito.dieselPlus per turno ${turno.id}`);
+        }
+        
+        return normalizedTurno;
+    });
+}
+// Fine funzione normalizeTurniData
+
+/**
+ * Diagnostica e ripara i turni presenti nel localStorage
+ * Esegue la normalizzazione dei turni già presenti nell'applicazione
+ */
+// Inizio funzione diagnosticaERiparaTurni
+function diagnosticaERiparaTurni() {
+    console.log('🔍 Inizio diagnostica turni esistenti...');
+    
+    const app = getApp();
+    if (!app || !app.state.data.turni) {
+        console.log('❌ Nessun dato turni trovato');
+        return false;
+    }
+    
+    const turniOriginali = app.state.data.turni.length;
+    console.log(`📊 Trovati ${turniOriginali} turni da analizzare`);
+    
+    // Conta i turni che necessitano normalizzazione
+    let turniDaNormalizzare = 0;
+    app.state.data.turni.forEach(turno => {
+        if ((turno.iperself && turno.iperself.dieselPlus !== undefined) ||
+            (turno.servito && turno.servito.dieselPlus !== undefined)) {
+            turniDaNormalizzare++;
+        }
+    });
+    
+    if (turniDaNormalizzare === 0) {
+        console.log('✅ Tutti i turni sono già normalizzati');
+        return true;
+    }
+    
+    console.log(`🔧 Trovati ${turniDaNormalizzare} turni da normalizzare`);
+    
+    // Applica la normalizzazione
+    app.state.data.turni = normalizeTurniData(app.state.data.turni);
+    
+    // Salva i dati corretti
+    app.saveToStorage('data', app.state.data);
+    
+    console.log(`✅ Normalizzazione completata! ${turniDaNormalizzare} turni corretti`);
+    
+    // Aggiorna la visualizzazione se siamo nella sezione virtual
+    if (app.state.currentSection === 'virtual') {
+        renderTurniTable.call(app);
+        safeUpdateCharts.call(app);
+    }
+    
+    return true;
+}
+// Fine funzione diagnosticaERiparaTurni
+
+// =============================================
+// FINE NUOVE FUNZIONI PER NORMALIZZAZIONE BACKUP
+// =============================================
+
+// === ESPORTAZIONI GLOBALI ===
+if (typeof window !== 'undefined') {
+    window.initVirtualStation = initVirtualStation;
+    window.renderVirtualSection = renderVirtualSection;
+    window.onVirtualSectionOpen = onVirtualSectionOpen;
+    window.updateChartsTheme = updateChartsTheme;
+    window.editTurnoById = (id) => { const turno = getApp().state.data.turni.find(t => t.id === id); if (turno) showEditTurno(turno); };
+    window.deleteTurnoById = deleteTurno;
+    window.virtualState = virtualState;
+    
+    // NUOVE ESPORTAZIONI PER LE FUNZIONI DI NORMALIZZAZIONE
+    window.normalizeTurniData = normalizeTurniData;
+    window.diagnosticaERiparaTurni = diagnosticaERiparaTurni;
 }

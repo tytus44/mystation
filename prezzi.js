@@ -1,401 +1,700 @@
 // =============================================
-// FILE: prezzi.js
+// FILE: prezzi.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della 
 // sezione Gestione Prezzi (listini e concorrenza).
-// VERSIONE: Logica del sovrapprezzo resa uniforme
-// per tutti i prodotti.
+// --- RI-PROGETTATO CON LAYOUT A GRID E MODALI AGGIORNATI ---
 // =============================================
 
-function gestionePrezziModule() {
+// === STATO LOCALE DEL MODULO PREZZI ===
+let prezziState = {
+    // Stato locale
+    priceSort: { column: 'date', direction: 'desc' },
+    editingListino: null,
+    listinoForm: { 
+        date: '', 
+        variazione: 'Entrambi', 
+        benzina: '', 
+        gasolio: '', 
+        dieselPlus: '', 
+        hvolution: '', 
+        adblue: '' 
+    },
+    concorrenzaForm: { 
+        date: '', 
+        myoil: { benzina: '', gasolio: '' }, 
+        esso: { benzina: '', gasolio: '' }, 
+        q8: { benzina: '', gasolio: '' } 
+    }
+};
+
+// === INIZIALIZZAZIONE MODULO PREZZI ===
+// Inizio funzione initGestionePrezzi
+function initGestionePrezzi() {
+    console.log('💰 Inizializzazione modulo Gestione Prezzi...');
+    
+    // Inizializza form
+    resetListinoForm.call(this);
+    resetConcorrenzaForm.call(this);
+    
+    console.log('✅ Modulo Gestione Prezzi inizializzato');
+}
+// Fine funzione initGestionePrezzi
+
+// === RENDER SEZIONE PREZZI ===
+// Inizio funzione renderPrezziSection
+function renderPrezziSection(container) {
+    console.log('🎨 Rendering sezione Gestione Prezzi...');
+    
+    const app = this;
+    
+    // La sezione ora renderizza sempre e solo la vista a lista
+    renderPrezziListView.call(app, container);
+    
+    // Setup event listeners
+    setupPrezziEventListeners.call(app);
+    
+    // Refresh icone
+    app.refreshIcons();
+}
+// Fine funzione renderPrezziSection
+
+// === RENDER VISTA LISTA ===
+// Inizio funzione renderPrezziListView
+function renderPrezziListView(container) {
+    const app = this;
+    const latestPrices = latestAppliedPrices.call(app);
+    
+    container.innerHTML = `
+        <div class="space-y-6">
+            
+            <div class="grid grid-cols-2 gap-6">
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Benzina Iperself</div>
+                            <div class="stat-value text-success">${app.formatCurrency(latestPrices.benzina, true)}</div>
+                        </div>
+                        <div class="stat-icon green"><i data-lucide="droplets"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Gasolio Iperself</div>
+                            <div class="stat-value text-warning">${app.formatCurrency(latestPrices.gasolio, true)}</div>
+                        </div>
+                        <div class="stat-icon yellow"><i data-lucide="droplets"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Diesel+ Iperself</div>
+                            <div class="stat-value text-danger">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
+                        </div>
+                        <div class="stat-icon red"><i data-lucide="droplets"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Hvolution Iperself</div>
+                            <div class="stat-value text-info">${app.formatCurrency(latestPrices.hvolution, true)}</div>
+                        </div>
+                        <div class="stat-icon blue"><i data-lucide="droplets"></i></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Prezzi Concorrenza</h3>
+                        <button id="update-concorrenza-btn" class="btn btn-secondary btn-sm" title="Aggiorna">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="card-body" id="concorrenza-card-content">
+                        </div>
+                </div>
+
+            </div>
+
+            <div class="card no-print">
+                <div class="card-header">
+                    <h2 class="card-title">Storico Listini Prezzi</h2>
+                    <button id="new-listino-btn" class="btn btn-primary">
+                        <i data-lucide="plus-circle"></i> Nuovo Listino
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="listini-table">
+                        <thead>
+                            <tr>
+                                <th><button class="flex items-center" data-sort="date">Data <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i></button></th>
+                                <th>Variazione</th>
+                                <th>Benzina</th>
+                                <th>Gasolio</th>
+                                <th>Diesel+</th>
+                                <th>Hvolution</th>
+                                <th>AdBlue</th>
+                                <th class="text-right">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listini-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    renderListiniTable.call(app);
+    renderConcorrenzaCard.call(app);
+}
+// Fine funzione renderPrezziListView
+
+// Inizio funzione getListinoFormHTML
+function getListinoFormHTML() {
+    const isEdit = !!prezziState.editingListino;
+    const title = isEdit ? 'Modifica Listino' : 'Nuovo Listino';
+    
+    return `
+        <div class="card-header">
+            <h2 class="card-title">${title}</h2>
+            <button id="cancel-listino-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="card-body">
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="form-label">Data</label>
+                        <div class="input-group">
+                            <i data-lucide="calendar" class="input-group-icon"></i>
+                            <input type="text" id="listino-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.listinoForm.date}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Variazione</label>
+                        <div class="btn-group w-full">
+                            <button class="btn ${prezziState.listinoForm.variazione === 'Aumento' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Aumento">Aumento</button>
+                            <button class="btn ${prezziState.listinoForm.variazione === 'Diminuzione' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Diminuzione">Diminuzione</button>
+                            <button class="btn ${prezziState.listinoForm.variazione === 'Entrambi' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Entrambi">Entrambi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-5 gap-4">
+                    <div class="product-box" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-success);">Benzina</label>
+                        <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina || ''}">
+                    </div>
+                     <div class="product-box" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-warning);">Gasolio</label>
+                        <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio || ''}">
+                    </div>
+                     <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-danger);">Diesel+</label>
+                        <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus || ''}">
+                    </div>
+                     <div class="product-box" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-info);">Hvolution</label>
+                        <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution || ''}">
+                    </div>
+                     <div class="product-box" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-secondary);">AdBlue</label>
+                        <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue || ''}">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button id="cancel-listino-btn-bottom" class="btn btn-secondary">Annulla</button>
+                    <button id="save-listino-btn" class="btn btn-primary">Salva Listino</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getListinoFormHTML
+
+// Inizio funzione getConcorrenzaFormHTML
+function getConcorrenzaFormHTML() {
+    return `
+        <div class="card-header">
+            <h2 class="card-title">Aggiorna Prezzi Concorrenza</h2>
+            <button id="cancel-concorrenza-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="card-body">
+            <div class="space-y-6">
+                <div class="form-group max-w-sm">
+                    <label class="form-label">Data</label>
+                    <div class="input-group">
+                        <i data-lucide="calendar" class="input-group-icon"></i>
+                        <input type="text" id="concorrenza-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.concorrenzaForm.date}">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="product-box" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
+                        <h4 class="product-title text-center" style="color: #8b5cf6;">MyOil</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina || ''}"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio || ''}"></div>
+                    </div>
+                    <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
+                        <h4 class="product-title text-center" style="color: var(--color-danger);">Esso</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina || ''}"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio || ''}"></div>
+                    </div>
+                    <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                        <h4 class="product-title text-center" style="color: var(--color-primary);">Q8</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina || ''}"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio || ''}"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end space-x-4">
+                    <button id="cancel-concorrenza-btn-bottom" class="btn btn-secondary">Annulla</button>
+                    <button id="save-concorrenza-btn" class="btn btn-primary">Salva Prezzi</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getConcorrenzaFormHTML
+
+// === SETUP EVENT LISTENERS ===
+// Inizio funzione setupPrezziEventListeners
+function setupPrezziEventListeners() {
+    const app = this;
+    
+    // Pulsanti per aprire i modali
+    document.getElementById('new-listino-btn')?.addEventListener('click', () => showCreateListino.call(app));
+    document.getElementById('update-concorrenza-btn')?.addEventListener('click', () => showUpdateConcorrenza.call(app));
+    
+    // Sorting tabella
+    document.querySelectorAll('#listini-table [data-sort]').forEach(btn => {
+        btn.addEventListener('click', () => sortPrices.call(app, btn.getAttribute('data-sort')));
+    });
+}
+// Fine funzione setupPrezziEventListeners
+
+// Inizio funzione setupListinoFormEventListeners
+function setupListinoFormEventListeners() {
+    const app = getApp();
+    document.getElementById('save-listino-btn')?.addEventListener('click', () => saveListino.call(app));
+    
+    const close = () => app.hideFormModal();
+    document.getElementById('cancel-listino-btn')?.addEventListener('click', close);
+    document.getElementById('cancel-listino-btn-bottom')?.addEventListener('click', close);
+    
+    // Listener per i tab Variazione
+    document.querySelectorAll('[data-variazione]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const newVariazione = e.currentTarget.dataset.variazione;
+            prezziState.listinoForm.variazione = newVariazione;
+            // Aggiorna UI
+            document.querySelectorAll('[data-variazione]').forEach(b => {
+                b.classList.toggle('btn-primary', b.dataset.variazione === newVariazione);
+                b.classList.toggle('active', b.dataset.variazione === newVariazione);
+                b.classList.toggle('btn-secondary', b.dataset.variazione !== newVariazione);
+            });
+        });
+    });
+
+    const listinoInputs = [
+        { id: 'listino-date', path: 'date' },
+        { id: 'listino-benzina', path: 'benzina' },
+        { id: 'listino-gasolio', path: 'gasolio' },
+        { id: 'listino-dieselPlus', path: 'dieselPlus' },
+        { id: 'listino-hvolution', path: 'hvolution' },
+        { id: 'listino-adblue', path: 'adblue' }
+    ];
+    
+    listinoInputs.forEach(({ id, path }) => {
+        const input = document.getElementById(id);
+        if (input) input.addEventListener('input', () => updateListinoFormValue(path, input.value));
+    });
+}
+// Fine funzione setupListinoFormEventListeners
+
+// Inizio funzione setupConcorrenzaFormEventListeners
+function setupConcorrenzaFormEventListeners() {
+    const app = getApp();
+    document.getElementById('save-concorrenza-btn')?.addEventListener('click', () => saveConcorrenza.call(app));
+
+    const close = () => app.hideFormModal();
+    document.getElementById('cancel-concorrenza-btn')?.addEventListener('click', close);
+    document.getElementById('cancel-concorrenza-btn-bottom')?.addEventListener('click', close);
+
+    const concorrenzaInputs = [
+        { id: 'concorrenza-date', path: 'date' },
+        { id: 'myoil-benzina', path: 'myoil.benzina' }, { id: 'myoil-gasolio', path: 'myoil.gasolio' },
+        { id: 'esso-benzina', path: 'esso.benzina' }, { id: 'esso-gasolio', path: 'esso.gasolio' },
+        { id: 'q8-benzina', path: 'q8.benzina' }, { id: 'q8-gasolio', path: 'q8.gasolio' }
+    ];
+    
+    concorrenzaInputs.forEach(({ id, path }) => {
+        const input = document.getElementById(id);
+        if (input) input.addEventListener('input', () => updateConcorrenzaFormValue(path, input.value));
+    });
+}
+// Fine funzione setupConcorrenzaFormEventListeners
+
+// === FUNZIONI GESTIONE MODALI ===
+// Inizio funzione showCreateListino
+function showCreateListino() {
+    const app = this;
+    prezziState.editingListino = null;
+    resetListinoForm.call(app);
+    
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = getListinoFormHTML();
+    modalContentEl.classList.add('modal-wide');
+    
+    setupListinoFormEventListeners.call(app);
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showCreateListino
+
+// Inizio funzione showEditListino
+function showEditListino(listino) {
+    const app = this;
+    prezziState.editingListino = { ...listino };
+    
+    prezziState.listinoForm = { 
+        date: app.formatToItalianDate(listino.date), 
+        variazione: listino.variazione || 'Entrambi', 
+        benzina: listino.benzina || '', gasolio: listino.gasolio || '', 
+        dieselPlus: listino.dieselPlus || '', hvolution: listino.hvolution || '', 
+        adblue: listino.adblue || '' 
+    };
+    
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = getListinoFormHTML();
+    modalContentEl.classList.add('modal-wide');
+
+    setupListinoFormEventListeners.call(app);
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showEditListino
+
+// Inizio funzione showUpdateConcorrenza
+function showUpdateConcorrenza() {
+    const app = this;
+    resetConcorrenzaForm.call(app);
+
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = getConcorrenzaFormHTML();
+    modalContentEl.classList.add('modal-wide');
+
+    setupConcorrenzaFormEventListeners.call(app);
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showUpdateConcorrenza
+
+// === FUNZIONI ORDINAMENTO ===
+// Inizio funzione sortPrices
+function sortPrices(column) {
+    if (prezziState.priceSort.column === column) {
+        prezziState.priceSort.direction = prezziState.priceSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        prezziState.priceSort.column = column;
+        prezziState.priceSort.direction = 'asc';
+    }
+    renderListiniTable.call(this);
+}
+// Fine funzione sortPrices
+
+// === FUNZIONI DATI ===
+// Inizio funzione sortedPriceHistory
+function sortedPriceHistory() {
+    if (!Array.isArray(this.state.data.priceHistory)) return [];
+    
+    return [...this.state.data.priceHistory].sort((a, b) => {
+        const dir = prezziState.priceSort.direction === 'asc' ? 1 : -1;
+        return (new Date(a.date) - new Date(b.date)) * dir;
+    });
+}
+// Fine funzione sortedPriceHistory
+
+// Inizio funzione latestAppliedPrices
+function latestAppliedPrices() {
+    const prices = currentPrices.call(this);
+    const surcharge = 0.005;
     return {
-        prezziViewMode: Alpine.$persist('list'), // 'list' | 'create-listino' | 'edit-listino' | 'update-concorrenza'
-        priceTab: Alpine.$persist('listini'),
-        priceSort: { column: 'date', direction: 'desc' },
-        editingListino: null,
-        listinoForm: { 
-            date: '', 
-            variazione: 'Entrambi', 
-            benzina: '', 
-            gasolio: '', 
-            dieselPlus: '', 
-            hvolution: '', 
-            adblue: '' 
-        },
-        concorrenzaForm: { 
-            date: '', 
-            myoil: { benzina: '', gasolio: '' }, 
-            esso: { benzina: '', gasolio: '' }, 
-            q8: { benzina: '', gasolio: '' } 
-        },
-        
-        prezziTemplate: `<div class="max-w-7xl mx-auto space-y-6">
-            
-            <div x-show="prezziViewMode === 'list'" class="view-transition">
-                <div class="border-b border-gray-200 dark:border-gray-700 mb-6 no-print">
-                    <nav class="-mb-px flex space-x-8">
-                        <button @click="priceTab = 'listini'" :class="priceTab === 'listini' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-2 px-1 border-b-2 font-medium text-sm">
-                            Listini Prezzi
-                        </button>
-                        <button @click="priceTab = 'concorrenza'" :class="priceTab === 'concorrenza' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'" class="py-2 px-1 border-b-2 font-medium text-sm">
-                            Prezzi Concorrenza
-                        </button>
-                    </nav>
-                </div>
+        benzina: (prices.benzina || 0) + surcharge,
+        gasolio: (prices.gasolio || 0) + surcharge,
+        dieselPlus: prices.dieselPlus ? prices.dieselPlus + surcharge : null,
+        hvolution: prices.hvolution ? prices.hvolution + surcharge : null,
+    };
+}
+// Fine funzione latestAppliedPrices
 
-                <div x-show="priceTab === 'listini'">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Benzina Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().benzina, true)" class="text-2xl font-bold text-green-400 dark:text-green-400">€ 0,000</p>
-                            </div>
-                            <div class="bg-green-100 dark:bg-green-900 p-2 rounded-full">
-                                <i data-lucide="droplets" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Gasolio Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().gasolio, true)" class="text-2xl font-bold text-yellow-400 dark:text-yellow-400">€ 0,000</p>
-                            </div>
-                            <div class="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full">
-                                <i data-lucide="droplets" class="w-6 h-6 text-yellow-500 dark:text-yellow-400"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Diesel+ Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().dieselPlus, true)" class="text-2xl font-bold text-red-400 dark:text-red-400">€ 0,000</p>
-                            </div>
-                            <div class="bg-red-100 dark:bg-red-900 p-2 rounded-full">
-                                <i data-lucide="droplets" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Hvolution Iperself</p>
-                                <p x-text="formatCurrency(latestAppliedPrices().hvolution, true)" class="text-2xl font-bold text-blue-400 dark:text-blue-400">€ 0,000</p>
-                            </div>
-                            <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-full">
-                                <i data-lucide="droplets" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
-                            </div>
-                        </div>
+// Inizio funzione currentPrices
+function currentPrices() {
+    if (!Array.isArray(this.state.data.priceHistory) || this.state.data.priceHistory.length === 0) {
+        return { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 };
+    }
+    return [...this.state.data.priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+}
+// Fine funzione currentPrices
+
+// Inizio funzione competitorPrices
+function competitorPrices() {
+    if (!Array.isArray(this.state.data.competitorPrices) || this.state.data.competitorPrices.length === 0) {
+        return { myoil: { benzina: 0, gasolio: 0 }, esso: { benzina: 0, gasolio: 0 }, q8: { benzina: 0, gasolio: 0 } };
+    }
+    const latest = [...this.state.data.competitorPrices].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    return {
+        myoil: latest.myoil || { benzina: 0, gasolio: 0 },
+        esso: latest.esso || { benzina: 0, gasolio: 0 },
+        q8: latest.q8 || { benzina: 0, gasolio: 0 }
+    };
+}
+// Fine funzione competitorPrices
+
+// === FUNZIONI FORM ===
+// Inizio funzione resetListinoForm
+function resetListinoForm() {
+    prezziState.listinoForm = {
+        date: this.getTodayFormatted(),
+        variazione: 'Entrambi',
+        benzina: '', gasolio: '', dieselPlus: '', hvolution: '', adblue: ''
+    };
+}
+// Fine funzione resetListinoForm
+
+// Inizio funzione resetConcorrenzaForm
+function resetConcorrenzaForm() {
+    prezziState.concorrenzaForm = {
+        date: this.getTodayFormatted(),
+        myoil: { benzina: '', gasolio: '' },
+        esso: { benzina: '', gasolio: '' },
+        q8: { benzina: '', gasolio: '' }
+    };
+}
+// Fine funzione resetConcorrenzaForm
+
+// Inizio funzione updateListinoFormValue
+function updateListinoFormValue(path, value) {
+    prezziState.listinoForm[path] = value;
+}
+// Fine funzione updateListinoFormValue
+
+// Inizio funzione updateConcorrenzaFormValue
+function updateConcorrenzaFormValue(path, value) {
+    const keys = path.split('.');
+    if (keys.length === 1) {
+        prezziState.concorrenzaForm[keys[0]] = value;
+    } else {
+        prezziState.concorrenzaForm[keys[0]][keys[1]] = value;
+    }
+}
+// Fine funzione updateConcorrenzaFormValue
+
+// Inizio funzione saveListino
+function saveListino() {
+    if (!prezziState.listinoForm.date || !prezziState.listinoForm.benzina || !prezziState.listinoForm.gasolio) {
+        return this.showNotification('Data, prezzo benzina e gasolio sono obbligatori');
+    }
+    if (!this.validateItalianDate(prezziState.listinoForm.date)) {
+        return this.showNotification('Formato data non valido. Usa gg.mm.aaaa');
+    }
+    
+    const parsedDate = this.parseItalianDate(prezziState.listinoForm.date);
+    const listino = {
+        id: prezziState.editingListino ? prezziState.editingListino.id : this.generateUniqueId('listino'),
+        date: parsedDate.toISOString(),
+        variazione: prezziState.listinoForm.variazione,
+        benzina: parseFloat(prezziState.listinoForm.benzina) || 0,
+        gasolio: parseFloat(prezziState.listinoForm.gasolio) || 0,
+        dieselPlus: parseFloat(prezziState.listinoForm.dieselPlus) || null,
+        hvolution: parseFloat(prezziState.listinoForm.hvolution) || null,
+        adblue: parseFloat(prezziState.listinoForm.adblue) || null
+    };
+    
+    if (prezziState.editingListino) {
+        const index = this.state.data.priceHistory.findIndex(l => l.id === prezziState.editingListino.id);
+        if (index !== -1) this.state.data.priceHistory[index] = listino;
+    } else {
+        this.state.data.priceHistory.push(listino);
+    }
+    
+    this.saveToStorage('data', this.state.data);
+    this.hideFormModal();
+    renderPrezziListView.call(this, document.getElementById('section-prezzi'));
+}
+// Fine funzione saveListino
+
+// Inizio funzione saveConcorrenza
+function saveConcorrenza() {
+    if (!prezziState.concorrenzaForm.date || !this.validateItalianDate(prezziState.concorrenzaForm.date)) {
+        return this.showNotification('Data obbligatoria in formato gg.mm.aaaa');
+    }
+    
+    const parsedDate = this.parseItalianDate(prezziState.concorrenzaForm.date);
+    const concorrenza = {
+        id: this.generateUniqueId('concorrenza'),
+        date: parsedDate.toISOString(),
+        myoil: { benzina: parseFloat(prezziState.concorrenzaForm.myoil.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.myoil.gasolio) || null },
+        esso: { benzina: parseFloat(prezziState.concorrenzaForm.esso.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.esso.gasolio) || null },
+        q8: { benzina: parseFloat(prezziState.concorrenzaForm.q8.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.q8.gasolio) || null }
+    };
+    
+    this.state.data.competitorPrices.push(concorrenza);
+    this.saveToStorage('data', this.state.data);
+    this.hideFormModal();
+    renderConcorrenzaCard.call(this);
+}
+// Fine funzione saveConcorrenza
+
+// Inizio funzione deleteListino
+function deleteListino(listinoId) {
+    const listino = this.state.data.priceHistory.find(l => l.id === listinoId);
+    if (!listino) return;
+    
+    this.showConfirm(`Sei sicuro di voler eliminare il listino del ${this.formatDate(listino.date)}?`, () => {
+        this.state.data.priceHistory = this.state.data.priceHistory.filter(l => l.id !== listinoId);
+        this.saveToStorage('data', this.state.data);
+        renderPrezziListView.call(this, document.getElementById('section-prezzi'));
+    });
+}
+// Fine funzione deleteListino
+
+// === RENDER FUNZIONI SPECIFICHE ===
+// Inizio funzione renderListiniTable
+function renderListiniTable() {
+    const tbody = document.getElementById('listini-tbody');
+    if (!tbody) return;
+    
+    const app = this;
+    const listini = sortedPriceHistory.call(app);
+    
+    if (listini.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-12"><div class="empty-state"><i data-lucide="euro"></i><div class="empty-state-title">Nessun listino trovato</div></div></td></tr>`;
+    } else {
+        tbody.innerHTML = listini.map(listino => `
+            <tr class="hover:bg-secondary">
+                <td class="font-medium text-primary">${app.formatDate(listino.date)}</td>
+                <td class="text-primary">${listino.variazione || '-'}</td>
+                <td class="font-bold text-success">${app.formatCurrency(listino.benzina, true)}</td>
+                <td class="font-bold text-warning">${app.formatCurrency(listino.gasolio, true)}</td>
+                <td class="font-bold text-danger">${listino.dieselPlus ? app.formatCurrency(listino.dieselPlus, true) : '-'}</td>
+                <td class="font-bold text-info">${listino.hvolution ? app.formatCurrency(listino.hvolution, true) : '-'}</td>
+                <td class="font-bold text-info">${listino.adblue ? app.formatCurrency(listino.adblue, true) : '-'}</td>
+                <td class="text-right">
+                    <div class="flex items-center justify-end space-x-2">
+                        <button class="btn btn-warning btn-sm" onclick="editListinoById('${listino.id}')" title="Modifica listino"><i data-lucide="edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteListinoById('${listino.id}')" title="Elimina listino"><i data-lucide="trash-2"></i></button>
                     </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    this.refreshIcons();
+}
+// Fine funzione renderListiniTable
 
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden no-print">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Storico Listini Prezzi</h2>
-                            <button @click="showCreateListino()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center">
-                                <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> Nuovo Listino
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3"><button @click="sortPrices('date')" class="flex items-center">Data <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i></button></th>
-                                        <th scope="col" class="px-6 py-3">Variazione</th>
-                                        <th scope="col" class="px-6 py-3">Benzina</th>
-                                        <th scope="col" class="px-6 py-3">Gasolio</th>
-                                        <th scope="col" class="px-6 py-3">Diesel+</th>
-                                        <th scope="col" class="px-6 py-3">Hvolution</th>
-                                        <th scope="col" class="px-6 py-3">AdBlue</th>
-                                        <th scope="col" class="px-6 py-3 text-right">Azioni</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template x-for="listino in sortedPriceHistory()" :key="listino.id">
-                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white" x-text="formatDate(listino.date)"></td>
-                                            <td class="px-6 py-4" x-text="listino.variazione || '-'"></td>
-                                            <td class="px-6 py-4 font-bold text-green-400" x-text="formatCurrency(listino.benzina, true)"></td>
-                                            <td class="px-6 py-4 font-bold text-yellow-400" x-text="formatCurrency(listino.gasolio, true)"></td>
-                                            <td class="px-6 py-4 font-bold text-red-400" x-text="listino.dieselPlus ? formatCurrency(listino.dieselPlus, true) : '-'"></td>
-                                            <td class="px-6 py-4 font-bold text-blue-400" x-text="listino.hvolution ? formatCurrency(listino.hvolution, true) : '-'"></td>
-                                            <td class="px-6 py-4 font-bold text-cyan-400" x-text="listino.adblue ? formatCurrency(listino.adblue, true) : '-'"></td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end space-x-2">
-                                                    <button @click="showEditListino(listino)" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 p-1" title="Modifica"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                                                    <button @click="deleteListino(listino.id)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1" title="Elimina"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <tr x-show="!sortedPriceHistory() || sortedPriceHistory().length === 0">
-                                        <td colspan="8" class="text-center py-12"><div class="text-gray-500 dark:text-gray-400"><i data-lucide="euro" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600"></i><p class="text-lg">Nessun listino trovato</p><p class="text-sm">Aggiungi un nuovo listino per iniziare.</p></div></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+// Inizio funzione renderConcorrenzaCard
+function renderConcorrenzaCard() {
+    const app = this;
+    const myPrices = latestAppliedPrices.call(app);
+    const competitorPricesData = competitorPrices.call(app);
+    const container = document.getElementById('concorrenza-card-content');
+    if (!container) return;
 
-                <div x-show="priceTab === 'concorrenza'" class="no-print">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Confronto Benzina</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-green-400 dark:text-green-400">MyStation</span>
-                                    <span x-text="formatCurrency(currentPrices().benzina || 0, true)" class="font-bold text-green-600 dark:text-green-400">€ 0,000</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-gray-900 dark:text-gray-200">MyOil</span>
-                                    <span x-text="formatCurrency(competitorPrices().myoil?.benzina || 0, true)" class="font-bold text-gray-900 dark:text-gray-200">€ 0,000</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-gray-900 dark:text-gray-200">Esso</span>
-                                    <span x-text="formatCurrency(competitorPrices().esso?.benzina || 0, true)" class="font-bold text-gray-900 dark:text-gray-200">€ 0,000</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-gray-900 dark:text-gray-200">Q8</span>
-                                    <span x-text="formatCurrency(competitorPrices().q8?.benzina || 0, true)" class="font-bold text-gray-900 dark:text-gray-200">€ 0,000</span>
-                                </div>
-                            </div>
-                        </div>
+    // Funzione locale per formattare la differenza di prezzo
+    const formatDiff = (diff) => {
+        const roundedDiff = Math.round(diff * 1000) / 1000;
+        const colorClass = roundedDiff > 0 ? 'text-success' : roundedDiff < 0 ? 'text-danger' : 'text-secondary';
+        const sign = roundedDiff > 0 ? '+' : '';
+        const text = `${sign}${app.formatCurrency(roundedDiff, true).replace('€', '').trim()}`;
+        return `<div class="font-bold ${colorClass}">${text}</div>`;
+    };
 
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Confronto Gasolio</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center p-3 bg-yellow-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-yellow-400 dark:text-yellow-400">MyStation</span>
-                                    <span x-text="formatCurrency(currentPrices().gasolio || 0, true)" class="font-bold text-yellow-400 dark:text-yellow-400">€ 0,000</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-gray-900 dark:text-gray-200">MyOil</span>
-                                    <span x-text="formatCurrency(competitorPrices().myoil?.gasolio || 0, true)" class="font-bold text-gray-900 dark:text-gray-200">€ 0,000</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-gray-900 dark:text-gray-200">Esso</span>
-                                    <span x-text="formatCurrency(competitorPrices().esso?.gasolio || 0, true)" class="font-bold text-gray-900 dark:text-gray-200">€ 0,000</span>
-                                </div>
-                                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <span class="font-medium text-gray-900 dark:text-gray-200">Q8</span>
-                                    <span x-text="formatCurrency(competitorPrices().q8?.gasolio || 0, true)" class="font-bold text-gray-900 dark:text-gray-200">€ 0,000</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button @click="showUpdateConcorrenza()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center">
-                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Aggiorna Prezzi Concorrenza
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div x-show="prezziViewMode === 'create-listino' || prezziViewMode === 'edit-listino'" class="view-transition">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="prezziViewMode === 'edit-listino' ? 'Modifica Listino' : 'Nuovo Listino'"></h2>
-                        <button @click="backToPrezziList()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i data-lucide="x" class="w-6 h-6"></i></button>
-                    </div>
-                    <div class="p-6">
-                        <div class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md">
-                                <div class="relative"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none top-6"><svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z"/><path d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/></svg></div><input datepicker datepicker-autohide datepicker-format="dd.mm.yyyy" type="text" x-model="listinoForm.date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="gg.mm.aaaa"></div>
-                                <div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Variazione</label><select x-model="listinoForm.variazione" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600"><option>Aumento</option><option>Diminuzione</option><option>Entrambi</option></select></div>
-                            </div>
-                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-4xl">
-                                <div><label class="block mb-2 text-sm font-medium">Benzina (€)</label><input type="number" step="0.001" x-model.number="listinoForm.benzina" class="w-full p-2.5 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="1.000"></div>
-                                <div><label class="block mb-2 text-sm font-medium">Gasolio (€)</label><input type="number" step="0.001" x-model.number="listinoForm.gasolio" class="w-full p-2.5 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="1.000"></div>
-                                <div><label class="block mb-2 text-sm font-medium">Diesel+ (€)</label><input type="number" step="0.001" x-model.number="listinoForm.dieselPlus" class="w-full p-2.5 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="1.000"></div>
-                                <div><label class="block mb-2 text-sm font-medium">Hvolution (€)</label><input type="number" step="0.001" x-model.number="listinoForm.hvolution" class="w-full p-2.5 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="1.000"></div>
-                                <div><label class="block mb-2 text-sm font-medium">AdBlue (€)</label><input type="number" step="0.001" x-model.number="listinoForm.adblue" class="w-full p-2.5 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="1.000"></div>
-                            </div>
-                            <div class="flex items-center justify-start space-x-3">
-                                <button @click="saveListino()" class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5">Salva Listino</button>
-                                <button @click="backToPrezziList()" class="text-gray-500 bg-white hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800">Annulla</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div x-show="prezziViewMode === 'update-concorrenza'" class="view-transition">
-                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Aggiorna Prezzi Concorrenza</h2>
-                        <button @click="backToPrezziList()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i data-lucide="x" class="w-6 h-6"></i></button>
-                    </div>
-                    <div class="p-6">
-                        <div class="space-y-6">
-                            <div class="relative max-w-sm"><label class="block mb-2 text-sm font-medium">Data</label><div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none top-6"><svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z"/><path d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/></svg></div><input datepicker datepicker-autohide datepicker-format="dd.mm.yyyy" type="text" x-model="concorrenzaForm.date" class="bg-gray-50 border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="gg.mm.aaaa"></div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
-                                <div class="p-4 border dark:border-gray-600 rounded-lg space-y-3"><h4 class="font-medium">MyOil</h4><div><label class="block text-xs mb-1">Benzina</label><input type="number" step="0.001" x-model.number="concorrenzaForm.myoil.benzina" class="w-full p-2 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-500"></div><div><label class="block text-xs mb-1">Gasolio</label><input type="number" step="0.001" x-model.number="concorrenzaForm.myoil.gasolio" class="w-full p-2 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-500"></div></div>
-                                <div class="p-4 border dark:border-gray-600 rounded-lg space-y-3"><h4 class="font-medium">Esso</h4><div><label class="block text-xs mb-1">Benzina</label><input type="number" step="0.001" x-model.number="concorrenzaForm.esso.benzina" class="w-full p-2 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-500"></div><div><label class="block text-xs mb-1">Gasolio</label><input type="number" step="0.001" x-model.number="concorrenzaForm.esso.gasolio" class="w-full p-2 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-500"></div></div>
-                                <div class="p-4 border dark:border-gray-600 rounded-lg space-y-3"><h4 class="font-medium">Q8</h4><div><label class="block text-xs mb-1">Benzina</label><input type="number" step="0.001" x-model.number="concorrenzaForm.q8.benzina" class="w-full p-2 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-500"></div><div><label class="block text-xs mb-1">Gasolio</label><input type="number" step="0.001" x-model.number="concorrenzaForm.q8.gasolio" class="w-full p-2 text-sm rounded-lg bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-500"></div></div>
-                            </div>
-                            <div class="flex items-center justify-start space-x-3">
-                                <button @click="saveConcorrenza()" class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5">Salva Prezzi</button>
-                                <button @click="backToPrezziList()" class="text-gray-500 bg-white hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800">Annulla</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`,
-        
-        initGestionePrezzi() { 
-            this.resetListinoForm(); 
-            this.resetConcorrenzaForm(); 
+    const diffs = {
+        myoil: {
+            benzina: (competitorPricesData.myoil?.benzina || 0) - (myPrices.benzina || 0),
+            gasolio: (competitorPricesData.myoil?.gasolio || 0) - (myPrices.gasolio || 0)
         },
-        
-        showCreateListino() {
-            this.prezziViewMode = 'create-listino';
-            this.editingListino = null;
-            this.resetListinoForm();
-            this.refreshIcons();
+        q8: {
+            benzina: (competitorPricesData.q8?.benzina || 0) - (myPrices.benzina || 0),
+            gasolio: (competitorPricesData.q8?.gasolio || 0) - (myPrices.gasolio || 0)
         },
-        
-        showEditListino(listino) {
-            this.prezziViewMode = 'edit-listino';
-            this.editingListino = { ...listino };
-            this.listinoForm = { 
-                date: this.formatToItalianDate(listino.date), 
-                variazione: listino.variazione || 'Entrambi', 
-                benzina: listino.benzina || '', 
-                gasolio: listino.gasolio || '', 
-                dieselPlus: listino.dieselPlus || '', 
-                hvolution: listino.hvolution || '', 
-                adblue: listino.adblue || '' 
-            };
-            this.refreshIcons();
-        },
-        
-        showUpdateConcorrenza() {
-            this.prezziViewMode = 'update-concorrenza';
-            this.resetConcorrenzaForm();
-            this.refreshIcons();
-        },
-        
-        backToPrezziList() {
-            this.prezziViewMode = 'list';
-            this.editingListino = null;
-        },
-
-        sortPrices(column) { 
-            if (this.priceSort.column === column) { 
-                this.priceSort.direction = this.priceSort.direction === 'asc' ? 'desc' : 'asc'; 
-            } else { 
-                this.priceSort.column = column; 
-                this.priceSort.direction = 'asc'; 
-            } 
-        },
-        
-        sortedPriceHistory() { 
-            if (!Array.isArray(this.data.priceHistory)) return []; 
-            return [...this.data.priceHistory].sort((a, b) => { 
-                const dir = this.priceSort.direction === 'asc' ? 1 : -1; 
-                return (new Date(a.date) - new Date(b.date)) * dir; 
-            }); 
-        },
-
-        latestAppliedPrices() { 
-            const prices = this.currentPrices(); 
-            const surcharge = 0.005;
-            return { 
-                benzina: (prices.benzina || 0) + surcharge, 
-                gasolio: (prices.gasolio || 0) + surcharge, 
-                dieselPlus: (prices.dieselPlus || 0) + surcharge, 
-                hvolution: (prices.hvolution || 0) + surcharge, 
-            }; 
-        },
-        
-        currentPrices() { 
-            if (!Array.isArray(this.data.priceHistory) || this.data.priceHistory.length === 0) { 
-                return { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 }; 
-            } 
-            return [...this.data.priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; 
-        },
-        
-        competitorPrices() { 
-            if (!Array.isArray(this.data.competitorPrices) || this.data.competitorPrices.length === 0) { 
-                return { myoil: { benzina: 0, gasolio: 0 }, esso: { benzina: 0, gasolio: 0 }, q8: { benzina: 0, gasolio: 0 } }; 
-            } 
-            const latest = [...this.data.competitorPrices].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; 
-            return { 
-                myoil: latest.myoil || { benzina: 0, gasolio: 0 }, 
-                esso: latest.esso || { benzina: 0, gasolio: 0 }, 
-                q8: latest.q8 || { benzina: 0, gasolio: 0 } 
-            }; 
-        },
-
-        resetListinoForm() { 
-            this.listinoForm = { 
-                date: this.getTodayFormatted(), 
-                variazione: 'Entrambi', 
-                benzina: '', gasolio: '', dieselPlus: '', hvolution: '', adblue: '' 
-            }; 
-        },
-        
-        saveListino() { 
-            if (!this.listinoForm.date || !this.listinoForm.benzina || !this.listinoForm.gasolio) { 
-                this.showNotification('Data, prezzo benzina e gasolio sono obbligatori'); return; 
-            } 
-            if (!this.validateItalianDate(this.listinoForm.date)) { 
-                this.showNotification('Formato data non valido. Usa gg.mm.aaaa'); return; 
-            } 
-            
-            const parsedDate = this.parseItalianDate(this.listinoForm.date); 
-            const listino = { 
-                id: this.editingListino ? this.editingListino.id : this.generateUniqueId('listino'), 
-                date: parsedDate.toISOString(), 
-                variazione: this.listinoForm.variazione, 
-                benzina: parseFloat(this.listinoForm.benzina) || 0, 
-                gasolio: parseFloat(this.listinoForm.gasolio) || 0, 
-                dieselPlus: parseFloat(this.listinoForm.dieselPlus) || null, 
-                hvolution: parseFloat(this.listinoForm.hvolution) || null, 
-                adblue: parseFloat(this.listinoForm.adblue) || null 
-            }; 
-            
-            if (this.editingListino) { 
-                const index = this.data.priceHistory.findIndex(l => l.id === this.editingListino.id); 
-                if (index !== -1) this.data.priceHistory[index] = listino; 
-            } else { 
-                this.data.priceHistory.push(listino); 
-            } 
-            
-            this.backToPrezziList();
-            this.refreshIcons();
-        },
-        
-        deleteListino(listinoId) { 
-            const listino = this.data.priceHistory.find(l => l.id === listinoId); 
-            if (!listino) return; 
-            this.showConfirm(`Sei sicuro di voler eliminare il listino del ${this.formatDate(listino.date)}?`, () => { 
-                this.data.priceHistory = this.data.priceHistory.filter(l => l.id !== listinoId); 
-                this.refreshIcons();
-            }); 
-        },
-
-        resetConcorrenzaForm() { 
-            this.concorrenzaForm = { 
-                date: this.getTodayFormatted(), 
-                myoil: { benzina: '', gasolio: '' }, 
-                esso: { benzina: '', gasolio: '' }, 
-                q8: { benzina: '', gasolio: '' } 
-            }; 
-        },
-        
-        saveConcorrenza() { 
-            if (!this.concorrenzaForm.date || !this.validateItalianDate(this.concorrenzaForm.date)) { 
-                this.showNotification('Data obbligatoria in formato gg.mm.aaaa'); return; 
-            } 
-            
-            const parsedDate = this.parseItalianDate(this.concorrenzaForm.date); 
-            const concorrenza = { 
-                id: this.generateUniqueId('concorrenza'), 
-                date: parsedDate.toISOString(), 
-                myoil: { benzina: parseFloat(this.concorrenzaForm.myoil.benzina) || null, gasolio: parseFloat(this.concorrenzaForm.myoil.gasolio) || null }, 
-                esso: { benzina: parseFloat(this.concorrenzaForm.esso.benzina) || null, gasolio: parseFloat(this.concorrenzaForm.esso.gasolio) || null }, 
-                q8: { benzina: parseFloat(this.concorrenzaForm.q8.benzina) || null, gasolio: parseFloat(this.concorrenzaForm.q8.gasolio) || null } 
-            }; 
-            
-            this.data.competitorPrices.push(concorrenza); 
-            this.backToPrezziList();
-            this.refreshIcons();
+        esso: {
+            benzina: (competitorPricesData.esso?.benzina || 0) - (myPrices.benzina || 0),
+            gasolio: (competitorPricesData.esso?.gasolio || 0) - (myPrices.gasolio || 0)
         }
     };
+
+    container.innerHTML = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="product-box" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
+                    <h4 class="font-semibold mb-2 text-center" style="color: #8b5cf6;">MyOil</h4>
+                    <div class="space-y-1 mt-2">
+                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
+                    </div>
+                </div>
+                <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
+                    <div class="space-y-1 mt-2">
+                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
+                    </div>
+                </div>
+                <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger);">Esso</h4>
+                    <div class="space-y-1 mt-2">
+                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="product-box text-center p-2">
+                    <div class="text-xs">Benzina</div>
+                    ${formatDiff(diffs.myoil.benzina)}
+                    <div class="text-xs mt-1">Gasolio</div>
+                    ${formatDiff(diffs.myoil.gasolio)}
+                </div>
+                <div class="product-box text-center p-2">
+                    <div class="text-xs">Benzina</div>
+                    ${formatDiff(diffs.q8.benzina)}
+                    <div class="text-xs mt-1">Gasolio</div>
+                    ${formatDiff(diffs.q8.gasolio)}
+                </div>
+                <div class="product-box text-center p-2">
+                    <div class="text-xs">Benzina</div>
+                    ${formatDiff(diffs.esso.benzina)}
+                    <div class="text-xs mt-1">Gasolio</div>
+                    ${formatDiff(diffs.esso.gasolio)}
+                </div>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione renderConcorrenzaCard
+
+
+// === FUNZIONI GLOBALI PER EVENTI ONCLICK ===
+// Inizio funzione editListinoById
+function editListinoById(listinoId) {
+    const app = getApp();
+    const listino = app.state.data.priceHistory.find(l => l.id === listinoId);
+    if (listino) {
+        showEditListino.call(app, listino);
+    }
+}
+// Fine funzione editListinoById
+
+// Inizio funzione deleteListinoById
+function deleteListinoById(listinoId) {
+    const app = getApp();
+    deleteListino.call(app, listinoId);
+}
+// Fine funzione deleteListinoById
+
+// === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
+if (typeof window !== 'undefined') {
+    window.initGestionePrezzi = initGestionePrezzi;
+    window.renderPrezziSection = renderPrezziSection;
+    window.editListinoById = editListinoById;
+    window.deleteListinoById = deleteListinoById;
+    window.prezziState = prezziState;
 }

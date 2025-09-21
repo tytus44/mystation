@@ -1,280 +1,626 @@
 // =============================================
-// FILE: app.js
-// DESCRIZIONE: File principale dell'applicazione Alpine.js.
-// Unisce tutti i moduli e gestisce lo stato globale.
-// CORREZIONI: Rimozione datepicker e dropdown Flowbite ovunque
+// FILE: app.js (Vanilla JavaScript Version)
+// DESCRIZIONE: Core dell'applicazione MyStation.
+// Gestisce stato globale, routing, temi e funzioni comuni.
+// --- MODIFICATO PER GESTIRE I MODALI DEI FORM E STAMPE CENTRALIZZATE ---
 // =============================================
 
-function myStationApp() {
-    return {
-        // === STATO GLOBALE DELL'APPLICAZIONE ===
-        currentSection: Alpine.$persist('home'),
-        mobileMenuOpen: false,
-        isDarkMode: Alpine.$persist(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches),
-
-        // === GESTIONE NOTIFICHE E CONFERME ===
-        notification: { show: false, message: '' },
-        confirm: { show: false, message: '', onConfirm: () => {} },
-
-        // === DATABASE PRINCIPALE (PERSISTENTE) ===
-        data: Alpine.$persist({
-            clients: [],
-            registryEntries: [],
-            priceHistory: [],
-            competitorPrices: [],
-            turni: [],
-            contatti: [],
-            previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
-        }).as('myStationData'),
-
-        // =================================================================
-        // ✨ TEMPLATE PER LA STAMPA
-        printTemplates: `
-            <div id="print-content" class="hidden print-only">
-                <h1 class="text-2xl font-bold mb-2" x-text="'Estratto Conto: ' + (currentClient.name || '')"></h1>
-                <p class="mb-4" x-text="'Data: ' + getTodayFormatted()"></p>
-                <table class="w-full text-sm border-collapse border border-gray-400">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-300 p-2 text-left">Data</th>
-                            <th class="border border-gray-300 p-2 text-left">Descrizione</th>
-                            <th class="border border-gray-300 p-2 text-right">Importo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="tx in currentClientTransactions()" :key="tx.id">
-                            <tr>
-                                <td class="border border-gray-300 p-2" x-text="formatDate(tx.date)"></td>
-                                <td class="border border-gray-300 p-2" x-text="tx.description"></td>
-                                <td class="border border-gray-300 p-2 text-right" x-text="formatTransactionAmount(tx.amount)"></td>
-                            </tr>
-                        </template>
-                    </tbody>
-                    <tfoot>
-                        <tr class="bg-gray-100 font-bold">
-                            <td colspan="2" class="border border-gray-300 p-2 text-right">Saldo Finale:</td>
-                            <td class="border border-gray-300 p-2 text-right" x-text="formatCurrency(currentClient.balance)"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-            <div id="print-clients-content" class="hidden print-only">
-                <h1 class="text-2xl font-bold mb-2">Elenco Clienti</h1>
-                <p class="mb-4" x-text="'Data: ' + getTodayFormatted()"></p>
-                <table class="w-full text-sm border-collapse border border-gray-400">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-300 p-2 text-left">Cliente</th>
-                            <th class="border border-gray-300 p-2 text-right">Saldo</th>
-                            <th class="border border-gray-300 p-2 text-center">N. Transazioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="client in sortedClients()" :key="client.id">
-                            <tr>
-                                <td class="border border-gray-300 p-2" x-text="client.name"></td>
-                                <td class="border border-gray-300 p-2 text-right" x-text="formatCurrency(client.balance)"></td>
-                                <td class="border border-gray-300 p-2 text-center" x-text="client.transactions.length"></td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        `,
-        // =================================================================
-
-        // === UNIONE DI TUTTI I MODULI ===
-        ...homeModule(),
-        ...virtualStationModule(),
-        ...anagraficaModule(),
-        ...amministrazioneModule(),
-        ...registroDiCaricoModule(),
-        ...gestionePrezziModule(),
-        ...impostazioniModule(),
-
-        // === INIZIALIZZAZIONE GLOBALE ===
-        init() {
-            this.initComune();
-            this.initHome();
-            this.initVirtualStation();
-            this.initAmministrazione();
-            this.initRegistroDiCarico();
-            this.initGestionePrezzi();
-            this.initImpostazioni();
-            this.initAnagrafica();
+// === STATO GLOBALE DELL'APPLICAZIONE ===
+class MyStationApp {
+    
+    // === COSTRUTTORE - Inizializza l'applicazione ===
+    constructor() {
+        // Stato reattivo dell'applicazione
+        this.state = {
+            // Tema e UI
+            isDarkMode: this.loadFromStorage('isDarkMode', false),
+            currentSection: this.loadFromStorage('currentSection', 'home'),
+            mobileMenuOpen: false,
             
-            // ✨ FIX: Inizializza solo i componenti Flowbite
-            this.$nextTick(() => {
-                this.initFlowbiteComponents();
-            });
-        },
-
-        // === FUNZIONI COMUNI E WATCHER ===
-        initComune() {
-            this.updateTheme();
-            this.$watch('currentSection', (section) => {
-                this.mobileMenuOpen = false;
-                this.$nextTick(() => {
-                    this.refreshIcons();
-                    this.initFlowbiteComponents(); // ✨ FIX: Inizializza componenti Flowbite
-                });
-                this.onSectionChange(section);
-            });
-            this.$watch('isDarkMode', () => this.updateTheme());
-            this.$watch('virtualFilters.mode', () => {
-                if (this.currentSection === 'virtual' && this.virtualFilters.mode !== 'range') {
-                    this.safeUpdateCharts();
-                }
-            });
-
-            // Watcher per reinizializzare componenti Flowbite quando cambiano le viste
-            const watchProps = [
-                'registryTimeFilter', 'registrySearchQuery', 'adminFilters.search', 'adminFilters.filter',
-                'anagraficaFilters.search', 'anagraficaFilters.favorites', 'amministrazioneViewMode',
-                'registryViewMode', 'virtualViewMode', 'prezziViewMode', 'anagraficaViewMode',
-                'priceTab', 'calculatorTab'
-            ];
+            // Dati principali
+            data: this.loadFromStorage('data', {
+                clients: [],
+                registryEntries: [],
+                priceHistory: [],
+                competitorPrices: [],
+                turni: [],
+                previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
+            }),
             
-            watchProps.forEach(prop => {
-                this.$watch(prop, () => {
-                    this.$nextTick(() => {
-                        this.refreshIcons();
-                        this.initFlowbiteComponents(); // ✨ FIX: Reinizializza componenti Flowbite
-                    });
-                }, { deep: prop.includes('.') });
-            });
+            // Stati delle sezioni (QUESTI VERRANNO GRADUALMENTE SOSTITUITI DAI MODALI)
+            amministrazioneViewMode: this.loadFromStorage('amministrazioneViewMode', 'list'),
+            registryViewMode: this.loadFromStorage('registryViewMode', 'list'),
+            virtualViewMode: this.loadFromStorage('virtualViewMode', 'list'),
+            prezziViewMode: this.loadFromStorage('prezziViewMode', 'list'),
+            priceTab: this.loadFromStorage('priceTab', 'listini'),
+            
+            // Filtri e ordinamenti
+            adminFilters: this.loadFromStorage('adminFilters', { search: '', filter: 'all' }),
+            adminSort: { column: 'name', direction: 'asc' },
+            registrySort: { column: 'date', direction: 'desc' },
+            virtualSort: { column: 'date', direction: 'desc' },
+            priceSort: { column: 'date', direction: 'desc' },
+            virtualFilters: this.loadFromStorage('virtualFilters', { mode: 'today', startDate: null, endDate: null }),
+            
+            // Form states
+            registrySearchQuery: '',
+            registryTimeFilter: 'none',
+            
+            // Notifiche e modal
+            notification: { show: false, message: '' },
+            confirm: { show: false, message: '', onConfirm: () => {} }
+        };
+        
+        // Bindare i metodi al contesto
+        this.init = this.init.bind(this);
+        this.updateTheme = this.updateTheme.bind(this);
+        this.switchSection = this.switchSection.bind(this);
+        this.showNotification = this.showNotification.bind(this);
+        this.showConfirm = this.showConfirm.bind(this);
+        this.saveToStorage = this.saveToStorage.bind(this);
+        this.loadFromStorage = this.loadFromStorage.bind(this);
+        
+        // Inizializzazione
+        this.init();
+    }
+    
+    // === INIZIALIZZAZIONE PRINCIPALE ===
+    // Inizio funzione init
+    init() {
+        console.log('🚀 Inizializzazione MyStation App...');
+        
+        if (!this.isLocalStorageAvailable()) {
+            console.warn('⚠️ LocalStorage non disponibile, alcuni dati potrebbero non persistere');
+        }
+        
+        if (typeof this.state.data.previousYearStock === 'undefined') {
+            this.state.data.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
+        }
+        
+        this.updateTheme();
+        this.initializeModules();
+        this.setupEventListeners();
+        this.refreshIcons();
+        this.switchSection(this.state.currentSection);
+        
+        console.log('✅ MyStation App inizializzata correttamente');
+    }
+    // Fine funzione init
+    
+    // === SETUP EVENT LISTENERS ===
+    // Inizio funzione setupEventListeners
+    setupEventListeners() {
+        const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => this.toggleMobileMenu());
+        }
+        
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.getAttribute('data-section');
 
-            // Watcher per ordinamento
-            const sortWatchers = ['adminSort', 'registrySort', 'virtualSort', 'priceSort', 'anagraficaSort'];
-            sortWatchers.forEach(sortProp => {
-                this.$watch(sortProp, () => this.$nextTick(() => this.refreshIcons()), { deep: true });
-            });
-
-            this.$nextTick(() => this.refreshIcons());
-        },
-
-        // ✨ NUOVO: Inizializzazione componenti Flowbite (dropdown, ecc.)
-        initFlowbiteComponents() {
-            setTimeout(() => {
-                // Inizializza i componenti Flowbite usando la funzione globale se disponibile
-                if (typeof initFlowbite === 'function') {
-                    initFlowbite();
-                } else if (typeof window.initFlowbite === 'function') {
-                    window.initFlowbite();
-                }
-                
-                // Inizializzazione manuale dei dropdown se la funzione globale non è disponibile
-                const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
-                dropdownButtons.forEach(button => {
-                    const targetId = button.getAttribute('data-dropdown-toggle');
-                    const dropdown = document.getElementById(targetId);
-                    
-                    if (dropdown && !button.hasAttribute('data-dropdown-initialized')) {
-                        button.setAttribute('data-dropdown-initialized', 'true');
-                        
-                        button.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            
-                            // Chiudi altri dropdown aperti
-                            document.querySelectorAll('[data-dropdown-toggle]').forEach(otherButton => {
-                                if (otherButton !== button) {
-                                    const otherId = otherButton.getAttribute('data-dropdown-toggle');
-                                    const otherDropdown = document.getElementById(otherId);
-                                    if (otherDropdown) {
-                                        otherDropdown.classList.add('hidden');
-                                    }
-                                }
-                            });
-                            
-                            // Toggle del dropdown corrente
-                            dropdown.classList.toggle('hidden');
-                        });
-                        
-                        // Chiudi dropdown quando si clicca fuori
-                        document.addEventListener('click', (e) => {
-                            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
-                                dropdown.classList.add('hidden');
-                            }
-                        });
+                // MODIFICA: Gestione separata per il link Impostazioni
+                if (section === 'impostazioni') {
+                    if (typeof showImpostazioniModal === 'function') {
+                        showImpostazioniModal();
                     }
-                });
-            }, 150);
-        },
+                } else if (section) {
+                    this.switchSection(section);
+                }
+            });
+        });
+        
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+            if (this.state.mobileMenuOpen && !sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                this.toggleMobileMenu();
+            }
+        });
+        
+        const confirmYes = document.getElementById('confirm-yes');
+        const confirmNo = document.getElementById('confirm-no');
+        
+        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+        modalBackdrops.forEach(backdrop => {
+            backdrop.addEventListener('click', () => {
+                this.hideConfirm();
+                this.hideFormModal();
+            });
+        });
 
-        onSectionChange(section) {
+        if (confirmYes) {
+            confirmYes.addEventListener('click', () => {
+                this.state.confirm.onConfirm();
+                this.hideConfirm();
+            });
+        }
+        
+        if (confirmNo) {
+            confirmNo.addEventListener('click', () => this.hideConfirm());
+        }
+        
+        window.addEventListener('beforeunload', () => this.saveAllState());
+        setInterval(() => this.saveAllState(), 30000);
+    }
+    // Fine funzione setupEventListeners
+    
+    // === INIZIALIZZAZIONE MODULI ===
+    // Inizio funzione initializeModules
+    initializeModules() {
+        if (typeof initHome === 'function') initHome.call(this);
+        if (typeof initAmministrazione === 'function') initAmministrazione.call(this);
+        if (typeof initVirtualStation === 'function') initVirtualStation.call(this);
+        if (typeof initRegistroDiCarico === 'function') initRegistroDiCarico.call(this);
+        if (typeof initGestionePrezzi === 'function') initGestionePrezzi.call(this);
+        if (typeof initImpostazioni === 'function') initImpostazioni.call(this);
+    }
+    // Fine funzione initializeModules
+    
+    // === GESTIONE MOBILE MENU ===
+    // Inizio funzione toggleMobileMenu
+    toggleMobileMenu() {
+        this.state.mobileMenuOpen = !this.state.mobileMenuOpen;
+        document.getElementById('sidebar').classList.toggle('show');
+    }
+    // Fine funzione toggleMobileMenu
+    
+    // === NAVIGAZIONE TRA SEZIONI ===
+    // Inizio funzione switchSection
+    switchSection(section) {
+        console.log(`📱 Cambio sezione: ${this.state.currentSection} → ${section}`);
+        
+        this.state.currentSection = section;
+        this.saveToStorage('currentSection', section);
+        
+        if (this.state.mobileMenuOpen) this.toggleMobileMenu();
+        
+        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+        const currentSectionEl = document.getElementById(`section-${section}`);
+        if (currentSectionEl) currentSectionEl.classList.remove('hidden');
+        
+        this.updateSidebarActiveState(section);
+        this.renderSection(section);
+        this.onSectionChange(section);
+        
+        setTimeout(() => this.refreshIcons(), 100);
+    }
+    // Fine funzione switchSection
+    
+    // === RENDER SEZIONE ===
+    // Inizio funzione renderSection
+    renderSection(section) {
+        const sectionEl = document.getElementById(`section-${section}`);
+        if (!sectionEl) return;
+        
+        try {
             switch (section) {
-                case 'home': if (typeof this.initHome === 'function') this.initHome(); break;
-                case 'virtual': if (typeof this.onVirtualSectionOpen === 'function') this.onVirtualSectionOpen(); break;
+                case 'home': if (typeof renderHomeSection === 'function') renderHomeSection.call(this, sectionEl); break;
+                case 'virtual': if (typeof renderVirtualSection === 'function') renderVirtualSection.call(this, sectionEl); break;
+                case 'amministrazione': if (typeof renderAmministrazioneSection === 'function') renderAmministrazioneSection.call(this, sectionEl); break;
+                case 'registro': if (typeof renderRegistroSection === 'function') renderRegistroSection.call(this, sectionEl); break;
+                case 'prezzi': if (typeof renderPrezziSection === 'function') renderPrezziSection.call(this, sectionEl); break;
+                // case 'impostazioni' rimosso perché ora è un modale
             }
-        },
+        } catch (error) {
+            console.error(`❌ Errore nel render della sezione ${section}:`, error);
+        }
+    }
+    // Fine funzione renderSection
+    
+    // === AGGIORNA STATO ATTIVO SIDEBAR ===
+    // Inizio funzione updateSidebarActiveState
+    updateSidebarActiveState(section) {
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-section') === section);
+        });
+    }
+    // Fine funzione updateSidebarActiveState
+    
+    // === CALLBACK CAMBIO SEZIONE ===
+    // Inizio funzione onSectionChange
+    onSectionChange(section) {
+        if (section === 'virtual' && typeof onVirtualSectionOpen === 'function') {
+            onVirtualSectionOpen.call(this);
+        }
+    }
+    // Fine funzione onSectionChange
+    
+    // === GESTIONE TEMA ===
+    // Inizio funzione updateTheme
+    updateTheme() {
+        document.body.classList.toggle('theme-dark', this.state.isDarkMode);
+        document.body.classList.toggle('theme-light', !this.state.isDarkMode);
+        this.saveToStorage('isDarkMode', this.state.isDarkMode);
+        if (typeof updateChartsTheme === 'function') updateChartsTheme.call(this);
+    }
+    // Fine funzione updateTheme
+    
+    // Inizio funzione toggleTheme
+    toggleTheme() {
+        this.state.isDarkMode = !this.state.isDarkMode;
+        this.updateTheme();
+    }
+    // Fine funzione toggleTheme
+    
+    // === NOTIFICHE ===
+    // Inizio funzione showNotification
+    showNotification(message) {
+        const notificationEl = document.getElementById('notification');
+        const messageEl = notificationEl.querySelector('.notification-message');
+        if (messageEl) messageEl.textContent = message;
+        notificationEl.classList.remove('hidden');
+        notificationEl.classList.add('show');
+        setTimeout(() => this.hideNotification(), 3000);
+    }
+    // Fine funzione showNotification
+    
+    // Inizio funzione hideNotification
+    hideNotification() {
+        const notificationEl = document.getElementById('notification');
+        notificationEl.classList.remove('show');
+        setTimeout(() => notificationEl.classList.add('hidden'), 300);
+    }
+    // Fine funzione hideNotification
+    
+    // === MODAL DI CONFERMA ===
+    // Inizio funzione showConfirm
+    showConfirm(message, onConfirm) {
+        this.state.confirm.message = message;
+        this.state.confirm.onConfirm = onConfirm;
+        const modalEl = document.getElementById('confirm-modal');
+        const messageEl = modalEl.querySelector('.modal-message');
 
-        // === FUNZIONI DI UTILITÀ GLOBALI ===
-        switchSection(section) { this.currentSection = section; },
-        updateTheme() {
-            document.documentElement.classList.toggle('dark', this.isDarkMode);
-            if (typeof this.updateChartsTheme === 'function') this.updateChartsTheme();
-        },
-        showNotification(message) {
-            this.notification.message = message;
-            this.notification.show = true;
-            setTimeout(() => { this.notification.show = false; }, 3000);
-        },
-        showConfirm(message, onConfirm) {
-            this.confirm.message = message;
-            this.confirm.onConfirm = onConfirm;
-            this.confirm.show = true;
-        },
-        refreshIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); },
-        generateUniqueId(prefix = 'id') { return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; },
+        if (messageEl) messageEl.textContent = message;
+        modalEl.classList.remove('hidden');
+        modalEl.classList.add('show');
+    }
+    // Fine funzione showConfirm
+    
+    // Inizio funzione hideConfirm
+    hideConfirm() {
+        const modalEl = document.getElementById('confirm-modal');
+        modalEl.classList.remove('show');
+        setTimeout(() => modalEl.classList.add('hidden'), 300);
+    }
+    // Fine funzione hideConfirm
+
+    // === GESTIONE MODALE FORM ===
+    // Inizio funzione showFormModal
+    showFormModal() {
+        const modalEl = document.getElementById('form-modal');
+        if (modalEl) {
+            modalEl.classList.remove('hidden');
+            modalEl.classList.add('show');
+        }
+    }
+    // Fine funzione showFormModal
+
+    // Inizio funzione hideFormModal
+    hideFormModal() {
+        const modalEl = document.getElementById('form-modal');
+        const contentEl = document.getElementById('form-modal-content');
+        const modalContent = modalEl?.querySelector('.modal-content');
         
-        // ✨ CORRETTO: Simbolo euro corretto
-        formatCurrency(value, full = false) {
-            if (typeof value !== 'number') return full ? '€ 0,000' : '€ 0,00';
-            const options = { style: 'currency', currency: 'EUR' };
-            if (full) {
-                options.minimumFractionDigits = 3;
-                options.maximumFractionDigits = 3;
+        if (modalEl) {
+            modalEl.classList.remove('show');
+            setTimeout(() => {
+                modalEl.classList.add('hidden');
+                if (contentEl) {
+                    contentEl.innerHTML = ''; 
+                }
+                if (modalContent) {
+                    modalContent.classList.remove('modal-wide');
+                }
+            }, 300);
+        }
+    }
+    // Fine funzione hideFormModal
+    
+    // === FUNZIONI DI STAMPA CENTRALIZZATE ===
+    // Inizio funzione printClientsList
+    printClientsList(clients = null) {
+        console.log('🖨️ Avvio stampa elenco clienti...');
+        const clientiDaStampare = clients || this.state.data.clients || [];
+        document.getElementById('print-clients-date').textContent = 
+            `${this.formatDate(new Date().toISOString())}`;
+        const clientsTableBody = document.getElementById('print-clients-list');
+        const pairs = [];
+        for (let i = 0; i < clientiDaStampare.length; i += 2) {
+            pairs.push({
+                client1: clientiDaStampare[i],
+                client2: clientiDaStampare[i + 1] || null
+            });
+        }
+        clientsTableBody.innerHTML = pairs.map(pair => `
+            <tr>
+                <td>${pair.client1.name}</td>
+                <td class="${this.getBalanceClass(pair.client1.balance)}">${this.formatCurrency(pair.client1.balance)}</td>
+                <td>${pair.client2 ? pair.client2.name : ''}</td>
+                <td class="${pair.client2 ? this.getBalanceClass(pair.client2.balance) : ''}">${pair.client2 ? this.formatCurrency(pair.client2.balance) : ''}</td>
+            </tr>
+        `).join('');
+        document.getElementById('print-clients-content').classList.remove('hidden');
+        document.getElementById('print-content').classList.add('hidden');
+        document.getElementById('virtual-print-content').classList.add('hidden');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.getElementById('print-clients-content').classList.add('hidden');
+            }, 100);
+        }, 100);
+        console.log('✅ Stampa elenco clienti completata');
+    }
+    // Fine funzione printClientsList
+    
+    // Inizio funzione printClientAccount
+    printClientAccount(client) {
+        console.log(`🖨️ Avvio stampa conto cliente: ${client.name}...`);
+        const transactions = client.transactions ? 
+            [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
+        document.getElementById('print-client-name').textContent = 
+            `Estratto conto ${client.name}`;
+        document.getElementById('print-date-range').textContent = 
+            `${this.formatDate(new Date().toISOString())}`;
+        const transactionsTableBody = document.getElementById('print-transactions');
+        const pairs = [];
+        for (let i = 0; i < transactions.length; i += 2) {
+            pairs.push({
+                tx1: transactions[i],
+                tx2: transactions[i + 1] || null
+            });
+        }
+        transactionsTableBody.innerHTML = pairs.map(pair => {
+            const tx1Amount = pair.tx1 ? this.formatTransactionAmount(pair.tx1.amount) : '';
+            const tx2Amount = pair.tx2 ? this.formatTransactionAmount(pair.tx2.amount) : '';
+            return `
+                <tr>
+                    <td>${pair.tx1 ? pair.tx1.description : ''}</td>
+                    <td class="${pair.tx1 ? (pair.tx1.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx1Amount}</td>
+                    <td>${pair.tx2 ? pair.tx2.description : ''}</td>
+                    <td class="${pair.tx2 ? (pair.tx2.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx2Amount}</td>
+                </tr>
+            `;
+        }).join('');
+        document.getElementById('print-final-balance').textContent = this.formatCurrency(client.balance);
+        document.getElementById('print-content').classList.remove('hidden');
+        document.getElementById('print-clients-content').classList.add('hidden');
+        document.getElementById('virtual-print-content').classList.add('hidden');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.getElementById('print-content').classList.add('hidden');
+            }, 100);
+        }, 100);
+        console.log('✅ Stampa conto cliente completata');
+    }
+    // Fine funzione printClientAccount
+    
+    // Inizio funzione printVirtualReport
+    printVirtualReport(stats, periodName, productsChartCanvas = null, serviceChartCanvas = null) {
+        console.log('🖨️ Avvio stampa report virtual...');
+        document.getElementById('print-virtual-period').textContent = 
+            `Periodo: ${periodName} - ${this.formatDate(new Date())}`;
+        const statsContainer = document.getElementById('print-virtual-stats');
+        statsContainer.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-label">Litri Venduti</div>
+                    <div class="stat-value">${this.formatInteger(stats.totalLiters)}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-label">Fatturato Stimato</div>
+                    <div class="stat-value">${this.formatCurrency(stats.revenue)}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-label">% Servito</div>
+                    <div class="stat-value">${stats.servitoPercentage}%</div>
+                </div>
+            </div>
+        `;
+        const chartsContainer = document.getElementById('print-virtual-charts');
+        chartsContainer.innerHTML = '';
+        try {
+            if (productsChartCanvas) {
+                const productsImgData = productsChartCanvas.toDataURL('image/png');
+                const productsDiv = document.createElement('div');
+                productsDiv.innerHTML = `
+                    <h3>Vendite per Prodotto</h3>
+                    <img src="${productsImgData}" alt="Grafico Vendite per Prodotto" style="max-width: 100%; height: auto;">
+                `;
+                chartsContainer.appendChild(productsDiv);
             }
-            return new Intl.NumberFormat('it-IT', options).format(value);
-        },
-        
-        formatInteger(value) {
-            if (typeof value !== 'number') return '0';
-            return Math.round(value).toLocaleString('it-IT');
-        },
-        formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            return new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(dateString));
-        },
-        getTodayFormatted() {
-            const today = new Date();
-            return `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
-        },
-        formatToItalianDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-        },
-        parseItalianDate(dateString) {
-            if (!dateString || typeof dateString !== 'string') return null;
-            const parts = dateString.split(/[.\/-]/);
-            if (parts.length !== 3) return null;
-            return new Date(parts[2], parts[1] - 1, parts[0]);
-        },
-        validateItalianDate(dateString) { 
-            return /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.\d{4}$/.test(dateString); 
-        },
-        formatDateForFilename() { 
-            return new Date().toISOString().slice(0, 10).replace(/-/g, ''); 
-        },
-        getBalanceClass(balance) {
-            if (balance > 0) return 'text-green-600 dark:text-green-400';
-            if (balance < 0) return 'text-red-600 dark:text-red-400';
-            return 'text-gray-500 dark:text-gray-400';
-        },
-        getFilterLabel(filter) {
-            const labels = { 'all': 'Tutti i clienti', 'credit': 'Clienti a credito', 'debit': 'Clienti a debito' };
-            return labels[filter] || 'Filtra per';
-        },
-    };
+            if (serviceChartCanvas) {
+                const serviceImgData = serviceChartCanvas.toDataURL('image/png');
+                const serviceDiv = document.createElement('div');
+                serviceDiv.innerHTML = `
+                    <h3>Iperself vs Servito</h3>
+                    <img src="${serviceImgData}" alt="Grafico Iperself vs Servito" style="max-width: 100%; height: auto;">
+                `;
+                chartsContainer.appendChild(serviceDiv);
+            }
+        } catch (error) {
+            console.warn('Errore nella conversione grafici per stampa:', error);
+            chartsContainer.innerHTML = `<p>Grafici non disponibili per la stampa</p>`;
+        }
+        document.getElementById('virtual-print-content').classList.remove('hidden');
+        document.getElementById('print-content').classList.add('hidden');
+        document.getElementById('print-clients-content').classList.add('hidden');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.getElementById('virtual-print-content').classList.add('hidden');
+            }, 500);
+        }, 100);
+        console.log('✅ Stampa report virtual completata');
+    }
+    // Fine funzione printVirtualReport
+    
+    // Inizio funzione formatTransactionAmount
+    formatTransactionAmount(amount) {
+        return amount > 0 ? '+' + this.formatCurrency(amount) : this.formatCurrency(amount);
+    }
+    // Fine funzione formatTransactionAmount
+    
+    // === PERSISTENZA DATI ===
+    // Inizio funzione isLocalStorageAvailable
+    isLocalStorageAvailable() {
+        try {
+            localStorage.setItem('__test__', '__test__');
+            localStorage.removeItem('__test__');
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    // Fine funzione isLocalStorageAvailable
+    
+    // Inizio funzione saveToStorage
+    saveToStorage(key, value) {
+        if (this.isLocalStorageAvailable()) {
+            localStorage.setItem(`mystation_${key}`, JSON.stringify(value));
+        }
+    }
+    // Fine funzione saveToStorage
+    
+    // Inizio funzione loadFromStorage
+    loadFromStorage(key, defaultValue = null) {
+        if (!this.isLocalStorageAvailable()) return defaultValue;
+        const item = localStorage.getItem(`mystation_${key}`);
+        return item ? JSON.parse(item) : defaultValue;
+    }
+    // Fine funzione loadFromStorage
+    
+    // Inizio funzione saveAllState
+    saveAllState() {
+        const keysToSave = ['isDarkMode', 'currentSection', 'data', 'amministrazioneViewMode', 'registryViewMode', 'virtualViewMode', 'prezziViewMode', 'priceTab', 'adminFilters', 'virtualFilters'];
+        keysToSave.forEach(key => this.saveToStorage(key, this.state[key]));
+    }
+    // Fine funzione saveAllState
+    
+    // === UTILITY FUNCTIONS ===
+    // Inizio funzione generateUniqueId
+    generateUniqueId(prefix) {
+        return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    }
+    // Fine funzione generateUniqueId
+    
+    // Inizio funzione formatInteger
+    formatInteger(num) {
+        return (num === null || num === undefined) ? '0' : Math.round(num).toLocaleString('it-IT');
+    }
+    // Fine funzione formatInteger
+    
+    // Inizio funzione formatCurrency
+    formatCurrency(amount, isPricePerLiter = false) {
+        const options = { style: 'currency', currency: 'EUR', minimumFractionDigits: isPricePerLiter ? 3 : 2 };
+        return new Intl.NumberFormat('it-IT', options).format(amount || 0);
+    }
+    // Fine funzione formatCurrency
+    
+    // Inizio funzione formatDate
+    formatDate(dateString) {
+        return dateString ? this.formatToItalianDate(new Date(dateString)) : '-';
+    }
+    // Fine funzione formatDate
+    
+    // Inizio funzione formatDateForFilename
+    formatDateForFilename(date = new Date()) {
+        const d = new Date(date);
+        return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+    }
+    // Fine funzione formatDateForFilename
+    
+    // Inizio funzione parseItalianDate
+    parseItalianDate(dateStr) {
+        if (!dateStr) return null;
+        const parts = dateStr.split(/[.\/-]/);
+        if (parts.length !== 3) return null;
+        const [day, month, year] = parts.map(p => parseInt(p, 10));
+        if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+        const fullYear = year < 100 ? (year < 50 ? 2000 + year : 1900 + year) : year;
+        return new Date(fullYear, month - 1, day, 12);
+    }
+    // Fine funzione parseItalianDate
+    
+    // Inizio funzione formatToItalianDate
+    formatToItalianDate(isoDate) {
+        if (!isoDate) return '';
+        const date = new Date(isoDate);
+        return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+    }
+    // Fine funzione formatToItalianDate
+    
+    // Inizio funzione getTodayFormatted
+    getTodayFormatted() {
+        return this.formatToItalianDate(new Date());
+    }
+    // Fine funzione getTodayFormatted
+    
+    // Inizio funzione validateItalianDate
+    validateItalianDate(dateStr) {
+        const date = this.parseItalianDate(dateStr);
+        return date instanceof Date && !isNaN(date);
+    }
+    // Fine funzione validateItalianDate
+    
+    // Inizio funzione getBalanceClass
+    getBalanceClass(balance) {
+        if (balance > 0) return 'balance-positive';
+        if (balance < 0) return 'balance-negative';
+        return 'balance-zero';
+    }
+    // Fine funzione getBalanceClass
+    
+    // Inizio funzione getFilterLabel
+    getFilterLabel(filter) {
+        return ({ 'all': 'Tutti i clienti', 'credit': 'Clienti a credito', 'debit': 'Clienti a debito' })[filter] || 'Tutti i clienti';
+    }
+    // Fine funzione getFilterLabel
+    
+    // Inizio funzione refreshIcons
+    refreshIcons() {
+        setTimeout(() => {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }, 50);
+    }
+    // Fine funzione refreshIcons
+}
+
+// === ISTANZA GLOBALE ===
+let app;
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🌟 DOM loaded, inizializzazione MyStation...');
+    app = new MyStationApp();
+    window.myStation = app;
+});
+
+// === FUNZIONI GLOBALI PER COMPATIBILITÀ CON I MODULI ===
+function getApp() {
+    return app;
+}
+
+function showNotification(message) {
+    if (app) app.showNotification(message);
+}
+
+function showConfirm(message, onConfirm) {
+    if (app) app.showConfirm(message, onConfirm);
+}
+
+function refreshIcons() {
+    if (app) app.refreshIcons();
+}
+
+function switchSection(section) {
+    if (app) app.switchSection(section);
 }
