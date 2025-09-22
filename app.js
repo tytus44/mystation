@@ -81,10 +81,11 @@ class MyStationApp {
         
         this.updateTheme();
         this.updateSidebarLayout();
+        document.body.classList.add('animations-enabled'); // Aggiungi questa riga
         this.initializeModules();
         this.setupEventListeners();
         this.refreshIcons();
-        this.switchSection(this.state.currentSection);
+        this.switchSection(this.state.currentSection, true); // Primo caricamento senza animazione
         
         console.log('✅ MyStation App inizializzata correttamente');
     }
@@ -170,19 +171,52 @@ class MyStationApp {
     }
     // Fine funzione toggleMobileMenu
     
+    // === NUOVA FUNZIONE PER TRANSIZIONI ANIMATE ===
+    // Inizio funzione animatePageTransition
+    animatePageTransition(oldSection, newSection, isInitialLoad = false) {
+        // Se è il caricamento iniziale, mostra la sezione senza animazioni
+        if (isInitialLoad) {
+            if (oldSection) oldSection.classList.add('hidden');
+            if (newSection) {
+                newSection.classList.remove('hidden');
+                newSection.classList.add('active');
+            }
+            return;
+        }
+
+        // Nascondi la vecchia sezione
+        if (oldSection) {
+            oldSection.classList.remove('active');
+            oldSection.classList.add('hidden');
+        }
+
+        // Mostra la nuova sezione (l'animazione fadeIn è applicata via CSS)
+        if (newSection) {
+            newSection.classList.remove('hidden');
+            newSection.classList.add('active');
+        }
+    }
+    // Fine funzione animatePageTransition
+
     // === NAVIGAZIONE TRA SEZIONI ===
     // Inizio funzione switchSection
-    switchSection(section) {
+    switchSection(section, isInitialLoad = false) {
+        if (this.state.currentSection === section && !isInitialLoad) {
+            return; // Non fare nulla se la sezione è già quella attiva
+        }
         console.log(`📱 Cambio sezione: ${this.state.currentSection} → ${section}`);
         
+        const oldSectionEl = document.getElementById(`section-${this.state.currentSection}`);
+
         this.state.currentSection = section;
         this.saveToStorage('currentSection', section);
         
         if (this.state.mobileMenuOpen) this.toggleMobileMenu();
         
-        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
-        const currentSectionEl = document.getElementById(`section-${section}`);
-        if (currentSectionEl) currentSectionEl.classList.remove('hidden');
+        const newSectionEl = document.getElementById(`section-${section}`);
+
+        // Gestisce la transizione
+        this.animatePageTransition(oldSectionEl, newSectionEl, isInitialLoad);
         
         this.updateSidebarActiveState(section);
         this.renderSection(section);
@@ -294,7 +328,7 @@ class MyStationApp {
     hideConfirm() {
         const modalEl = document.getElementById('confirm-modal');
         modalEl.classList.remove('show');
-        setTimeout(() => modalEl.classList.add('hidden'), 300);
+        setTimeout(() => modalEl.classList.add('hidden'), 200);
     }
     // Fine funzione hideConfirm
 
@@ -325,7 +359,7 @@ class MyStationApp {
                 if (modalContent) {
                     modalContent.classList.remove('modal-wide');
                 }
-            }, 300);
+            }, 200);
         }
     }
     // Fine funzione hideFormModal

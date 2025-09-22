@@ -3,6 +3,7 @@
 // DESCRIZIONE: Modulo per la gestione della
 // sezione VirtualStation (turni, statistiche, grafici).
 // --- RIFATTORIZZATO COMPLETAMENTE PER USARE I MODALI ---
+// --- POTENZIATO CON GRAFICI INTERATTIVI AVANZATI ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO VIRTUAL ===
@@ -20,7 +21,13 @@ let virtualState = {
     chartsInitialized: false,
     updatingCharts: false,
     productsChartInstance: null,
-    serviceChartInstance: null
+    serviceChartInstance: null,
+    
+    // NUOVO: Stato per la gestione del drill-down dei grafici
+    chartDrilldown: {
+        active: false,
+        product: null
+    }
 };
 
 // === INIZIALIZZAZIONE MODULO VIRTUAL ===
@@ -70,6 +77,7 @@ function renderVirtualListView(container) {
         virtualState.serviceChartInstance = null;
     }
     virtualState.chartsInitialized = false; // Forza la re-inizializzazione
+    virtualState.chartDrilldown.active = false; // Resetta il drilldown
 
     const stats = virtualStats.call(app);
     
@@ -120,7 +128,15 @@ function renderVirtualListView(container) {
             <div class="grid grid-cols-2">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Vendite per Prodotto</h3>
+                        <h3 id="products-chart-title" class="card-title">Vendite per Prodotto</h3>
+                        <div class="flex items-center space-x-2">
+                            <button id="chart-back-btn" class="btn btn-secondary btn-sm hidden" title="Indietro">
+                                <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Indietro
+                            </button>
+                            <button id="export-products-chart-btn" class="btn btn-secondary btn-sm" title="Esporta immagine">
+                                <i data-lucide="image" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="productsChart" width="400" height="300"></canvas>
@@ -129,6 +145,9 @@ function renderVirtualListView(container) {
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Iperself vs Servito</h3>
+                         <button id="export-service-chart-btn" class="btn btn-secondary btn-sm" title="Esporta immagine">
+                            <i data-lucide="image" class="w-4 h-4"></i>
+                        </button>
                     </div>
                     <div class="card-body">
                         <canvas id="serviceChart" width="400" height="300"></canvas>
@@ -277,6 +296,11 @@ function setupVirtualListViewEventListeners() {
     document.querySelectorAll('#turni-table [data-sort]').forEach(btn => 
         btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort')))
     );
+
+    // NUOVO: Listener per i pulsanti di export e drill-down
+    document.getElementById('export-products-chart-btn')?.addEventListener('click', () => exportChart('productsChart', 'vendite_prodotti.png'));
+    document.getElementById('export-service-chart-btn')?.addEventListener('click', () => exportChart('serviceChart', 'servito_vs_iperself.png'));
+    document.getElementById('chart-back-btn')?.addEventListener('click', () => handleChartDrilldown.call(app, null));
 }
 // Fine funzione setupVirtualListViewEventListeners
 
@@ -315,7 +339,7 @@ function setupVirtualFormEventListeners() {
                 tab.classList.remove('btn-primary');
                 tab.classList.add('btn-secondary');
             });
-            tabButton.classList.remove('btn-secondary');
+            tabButton.classList.remove('btn-primary');
             tabButton.classList.add('btn-primary');
         });
     });
@@ -678,7 +702,8 @@ function formatProductColumn(turno, product) {
 }
 // Fine funzione formatProductColumn
 
-// === GRAFICI ===
+// === GRAFICI INTERATTIVI AVANZATI ===
+
 // Inizio funzione initCharts
 function initCharts() {
     const app = this;
@@ -709,8 +734,17 @@ function initProductsChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // NUOVO: Gestione click per drill-down
+            onClick: (event, elements) => {
+                if (elements.length > 0 && !virtualState.chartDrilldown.active) {
+                    const clickedIndex = elements[0].index;
+                    const product = chartData.labels[clickedIndex];
+                    handleChartDrilldown.call(app, product);
+                }
+            },
             plugins: {
                 legend: { position: 'bottom' },
+                // NUOVO: Tooltip personalizzati e ricchi
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -718,7 +752,17 @@ function initProductsChart() {
                             const value = Math.round(context.parsed);
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                            return `${label}: ${value} L (${percentage}%)`;
+                            
+                            if (virtualState.chartDrilldown.active) {
+                                return `${label}: ${app.formatInteger(value)} L (${percentage}%)`;
+                            }
+
+                            const { iperself, servito } = getProductBreakdown.call(app, label.toLowerCase());
+                            return [
+                                `${label}: ${app.formatInteger(value)} L (${percentage}%)`,
+                                `  Iperself: ${app.formatInteger(iperself)} L`,
+                                `  Servito: ${app.formatInteger(servito)} L`
+                            ];
                         }
                     }
                 }
@@ -743,7 +787,25 @@ function initServiceChart() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom' }
+                legend: { position: 'bottom' },
+                // NUOVO: Configurazione per zoom e pan.
+                // NOTA: Richiede il plugin 'chartjs-plugin-zoom'.
+                // Esempio: <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'x',
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'x',
+                    }
+                }
             },
             scales: {
                 y: {
@@ -765,6 +827,23 @@ function getProductsChartData() {
     const app = this;
     const filteredTurni = getFilteredTurniForPeriod.call(app);
     
+    // Logica per il drill-down
+    if (virtualState.chartDrilldown.active && virtualState.chartDrilldown.product) {
+        const productKey = virtualState.chartDrilldown.product.toLowerCase().replace('+', 'plus');
+        const breakdown = getProductBreakdown.call(app, productKey);
+        
+        return {
+            labels: [`Iperself`, `Servito`],
+            datasets: [{
+                data: [breakdown.iperself, breakdown.servito],
+                backgroundColor: ['#3b82f6', '#22c55e'],
+                borderWidth: 2,
+                borderColor: document.body.classList.contains('theme-dark') ? '#111827' : '#ffffff'
+            }]
+        };
+    }
+
+    // Dati per la vista principale
     const totals = { benzina: 0, gasolio: 0, dieselplus: 0, hvolution: 0, adblue: 0 };
     
     filteredTurni.forEach(turno => {
@@ -782,11 +861,7 @@ function getProductsChartData() {
         datasets: [{
             data: Object.values(totals),
             backgroundColor: [
-                '#10b981', // Verde per Benzina
-                '#f59e0b', // Giallo per Gasolio
-                '#dc2626', // Rosso per Diesel+
-                '#06b6d4', // Ciano per Hvolution
-                '#6b7280'  // Grigio per AdBlue
+                '#10b981', '#f59e0b', '#dc2626', '#06b6d4', '#6b7280'
             ],
             borderWidth: 2,
             borderColor: document.body.classList.contains('theme-dark') ? '#111827' : '#ffffff'
@@ -890,6 +965,66 @@ function updateChartsTheme() {
     }
 }
 // Fine funzione updateChartsTheme
+
+// NUOVO: Inizio funzione handleChartDrilldown
+function handleChartDrilldown(product) {
+    const app = this;
+    const titleEl = document.getElementById('products-chart-title');
+    const backBtn = document.getElementById('chart-back-btn');
+
+    if (product) {
+        // Entra in modalità drill-down
+        virtualState.chartDrilldown.active = true;
+        virtualState.chartDrilldown.product = product;
+        if (titleEl) titleEl.textContent = `Dettaglio ${product}`;
+        if (backBtn) backBtn.classList.remove('hidden');
+    } else {
+        // Torna alla vista principale
+        virtualState.chartDrilldown.active = false;
+        virtualState.chartDrilldown.product = null;
+        if (titleEl) titleEl.textContent = 'Vendite per Prodotto';
+        if (backBtn) backBtn.classList.add('hidden');
+    }
+    
+    // Aggiorna il grafico dei prodotti
+    safeUpdateCharts.call(app);
+    app.refreshIcons(); // Aggiorna icona nel pulsante indietro
+}
+// Fine funzione handleChartDrilldown
+
+// NUOVO: Inizio funzione getProductBreakdown
+function getProductBreakdown(productKey) {
+    const app = this;
+    const filteredTurni = getFilteredTurniForPeriod.call(app);
+    const breakdown = { iperself: 0, servito: 0 };
+    
+    // Normalizza la chiave per 'diesel+'
+    const key = productKey.toLowerCase() === 'diesel+' ? 'dieselplus' : productKey;
+
+    filteredTurni.forEach(turno => {
+        breakdown.iperself += parseFloat(turno.iperself?.[key]) || 0;
+        breakdown.servito += parseFloat(turno.servito?.[key]) || 0;
+    });
+
+    return breakdown;
+}
+// Fine funzione getProductBreakdown
+
+// NUOVO: Inizio funzione exportChart
+function exportChart(canvasId, filename) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error(`Canvas con ID '${canvasId}' non trovato.`);
+        return;
+    }
+
+    const image = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = filename;
+    link.click();
+}
+// Fine funzione exportChart
 
 // === STAMPA VIRTUAL - VERSIONE CORRETTA ===
 // Inizio funzione printVirtualReport
@@ -1112,6 +1247,59 @@ function diagnosticaERiparaTurni() {
 // =============================================
 // FINE NUOVE FUNZIONI PER NORMALIZZAZIONE BACKUP
 // =============================================
+
+// Inizio funzione showSkeletonLoader
+function showSkeletonLoader(container) {
+    const skeletonHTML = `
+        <div class="space-y-6">
+            <div class="filters-bar" style="justify-content: space-between;">
+                <div class="skeleton-loader" style="height: 2.5rem; width: 420px;"></div>
+                <div class="skeleton-loader" style="height: 2.5rem; width: 280px;"></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div class="card"><div class="card-body"><div class="skeleton-loader" style="height: 300px; width: 100%;"></div></div></div>
+                <div class="card"><div class="card-body"><div class="skeleton-loader" style="height: 300px; width: 100%;"></div></div></div>
+            </div>
+
+            <div class="card">
+                 <div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 200px;"></div></div>
+                 <div class="p-6 space-y-2">
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                 </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML = skeletonHTML;
+}
+// Fine funzione showSkeletonLoader
 
 // === ESPORTAZIONI GLOBALI ===
 if (typeof window !== 'undefined') {

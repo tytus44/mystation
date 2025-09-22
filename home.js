@@ -728,6 +728,60 @@ function getHomeDashboardStats() {
 }
 // Fine funzione getHomeDashboardStats
 
+// Inizio funzione showSkeletonLoader
+function showSkeletonLoader(container) {
+    const skeletonHTML = `
+        <div class="space-y-6">
+            <div class="grid grid-cols-3 gap-6">
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="skeleton-loader" style="height: 1.5rem; width: 70%; margin-bottom: 1.5rem;"></div>
+                        <div class="skeleton-loader" style="height: 180px; width: 100%;"></div>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <div class="skeleton-loader" style="height: 1.5rem; width: 70%; margin-bottom: 1.5rem;"></div>
+                        <div class="skeleton-loader" style="height: 180px; width: 100%;"></div>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <div class="skeleton-loader" style="height: 1.5rem; width: 70%; margin-bottom: 1.5rem;"></div>
+                        <div class="skeleton-loader" style="height: 180px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML = skeletonHTML;
+}
+// Fine funzione showSkeletonLoader
+
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {
     window.initHome = initHome;

@@ -71,6 +71,10 @@ body {
     /* Sidebar */
     --sidebar-width: 16rem;
     --mobile-header-height: 3.5rem;
+    
+    /* Aggiungi questo blocco dentro :root */
+    --animation-duration-fast: 0.2s;
+    --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Tema Scuro */
@@ -228,7 +232,6 @@ body {
 }
 
 .sidebar-link.active {
-    background-color: var(--bg-tertiary);
     color: var(--color-primary);
 }
 
@@ -265,6 +268,7 @@ body {
 
 .content-section.active {
     display: block;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 /* === COMPONENTI UI === */
@@ -310,6 +314,8 @@ body {
     transition: all 0.2s ease;
     text-decoration: none;
     height: 2.5rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn:disabled {
@@ -728,7 +734,7 @@ select.form-control {
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--animation-duration-fast) var(--animation-timing);
 }
 
 .modal.show {
@@ -752,6 +758,14 @@ select.form-control {
     text-align: center;
     max-width: 28rem;
     margin: var(--spacing-md);
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform var(--animation-duration-fast) var(--animation-timing), opacity var(--animation-duration-fast) var(--animation-timing);
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
 }
 
 .modal-content i {
@@ -1590,4 +1604,121 @@ select.form-control {
         font-size: 14pt; 
         font-weight: bold; 
     }
+}
+
+/* === MICRO-ANIMAZIONI SIDEBAR === */
+/* Abilita transizioni su link e icone */
+.animations-enabled .sidebar-link,
+.animations-enabled .sidebar-link svg {
+    transition: all var(--animation-duration-fast) var(--animation-timing);
+}
+
+/* Crea lo spazio per l'indicatore laterale */
+.animations-enabled .sidebar-link {
+    position: relative;
+}
+
+/* Stile e animazione dell'indicatore laterale */
+.animations-enabled .sidebar-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0; /* Altezza iniziale a 0 per l'animazione */
+    background-color: var(--color-primary);
+    transition: height var(--animation-duration-fast) var(--animation-timing);
+}
+
+/* Animazione al passaggio del mouse (hover) */
+.animations-enabled .sidebar-link:hover {
+    background-color: var(--bg-tertiary);
+}
+.animations-enabled .sidebar-link:hover::before {
+    height: 70%; /* L'indicatore si estende al 70% */
+}
+.animations-enabled .sidebar-link:hover svg {
+    transform: scale(1.1); /* L'icona si ingrandisce leggermente */
+}
+
+/* Stile finale per il link attivo */
+.animations-enabled .sidebar-link.active::before {
+    height: 100%; /* L'indicatore copre tutta l'altezza */
+}
+
+/* === NUOVO: ANIMAZIONI AVANZATE === */
+
+/* Keyframes per le animazioni di pagina */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Classe per applicare l'animazione slide-in */
+.slide-in-right {
+    animation: slideInRight 0.3s ease-in-out;
+}
+
+/* Keyframes per l'animazione dello skeleton loader */
+@keyframes shimmer {
+    0% { background-position: -468px 0; }
+    100% { background-position: 468px 0; }
+}
+
+/* Classe base per lo skeleton loader */
+.skeleton-loader {
+    background: #f6f7f8;
+    background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 104px;
+    display: inline-block;
+    position: relative;
+    animation: shimmer 1.2s infinite ease-out;
+    border-radius: var(--radius-md);
+}
+
+.theme-dark .skeleton-loader {
+    background: #374151;
+    background-image: linear-gradient(to right, #374151 0%, #4b5563 20%, #374151 40%, #374151 100%);
+}
+
+/* Keyframes per l'effetto ripple sui pulsanti */
+@keyframes ripple-effect {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Implementazione del ripple effect (richiede JS per un posizionamento preciso) */
+/* Questa è una versione base centrata */
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s, opacity 0.4s;
+    pointer-events: none;
+}
+
+.btn:active::after {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
 }

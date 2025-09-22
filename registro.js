@@ -792,6 +792,64 @@ function formatProductColumn(product) {
 }
 // Fine funzione formatProductColumn
 
+// Inizio funzione showSkeletonLoader
+function showSkeletonLoader(container) {
+    const skeletonHTML = `
+        <div class="space-y-6">
+            <div class="card">
+                <div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 300px;"></div></div>
+                <div class="p-6 space-y-2">
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+            </div>
+
+            <div class="filters-bar" style="justify-content: space-between;">
+                 <div class="skeleton-loader" style="height: 2.5rem; width: 250px;"></div>
+                 <div class="skeleton-loader" style="height: 2.5rem; width: 400px;"></div>
+                 <div class="skeleton-loader" style="height: 2.5rem; width: 180px;"></div>
+            </div>
+
+            <div class="card">
+                 <div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 200px;"></div></div>
+                 <div class="p-6 space-y-2">
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                 </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML = skeletonHTML;
+}
+// Fine funzione showSkeletonLoader
+
 // === FUNZIONI GLOBALI PER EVENTI ===
 // Inizio funzione editCaricoById
 function editCaricoById(caricoId) {

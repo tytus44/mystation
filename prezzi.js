@@ -671,6 +671,45 @@ function renderConcorrenzaCard() {
 }
 // Fine funzione renderConcorrenzaCard
 
+// Inizio funzione showSkeletonLoader
+function showSkeletonLoader(container) {
+    const skeletonHTML = `
+        <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
+                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
+                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
+                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="skeleton-loader" style="height: 1.5rem; width: 200px;"></div>
+                    </div>
+                    <div class="p-6 space-y-2">
+                        <div class="skeleton-loader" style="height: 5rem; width: 100%;"></div>
+                        <div class="skeleton-loader" style="height: 3rem; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" style="justify-content: space-between; align-items: center;">
+                    <div class="skeleton-loader" style="height: 1.5rem; width: 250px;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 150px; border-radius: var(--radius-md);"></div>
+                </div>
+                <div class="p-6 space-y-2">
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML = skeletonHTML;
+}
+// Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ONCLICK ===
 // Inizio funzione editListinoById
