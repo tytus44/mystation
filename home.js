@@ -473,14 +473,14 @@ function renderOrdineCarburante() {
                         <button type="button" class="number-input-btn" data-action="decrement" data-product="${prodotto.key}">
                             <i data-lucide="minus"></i>
                         </button>
-                        <input type="text" value="${app.formatInteger(quantita)}" readonly class="number-input-field" />
+                        <input type="text" id="carburante-quantita-${prodotto.key}" value="${app.formatInteger(quantita)}" readonly class="number-input-field" />
                         <button type="button" class="number-input-btn" data-action="increment" data-product="${prodotto.key}">
                             <i data-lucide="plus"></i>
                         </button>
                     </div>
                 </div>
                 <div class="text-right" style="width: 125px;">
-                    <span class="text-sm font-bold text-${prodotto.color}">${app.formatCurrency(importo)}</span>
+                    <span id="carburante-importo-${prodotto.key}" class="text-sm font-bold text-${prodotto.color}">${app.formatCurrency(importo)}</span>
                 </div>
             </div>
         `;
@@ -499,11 +499,11 @@ function renderOrdineCarburante() {
                 </div>
                 <div style="width: 200px;" class="text-center">
                     <div class="text-sm text-secondary">Litri:</div>
-                    <span class="text-lg font-bold text-primary">${app.formatInteger(totaleLitri)}</span>
+                    <span id="carburante-totale-litri" class="text-lg font-bold text-primary">${app.formatInteger(totaleLitri)}</span>
                 </div>
                 <div style="width: 125px;" class="text-right">
                     <div class="text-sm text-secondary">Importo:</div>
-                    <span class="text-lg font-bold text-info">${app.formatCurrency(totaleImporto)}</span>
+                    <span id="carburante-totale-importo" class="text-lg font-bold text-info">${app.formatCurrency(totaleImporto)}</span>
                 </div>
             </div>
         </div>
@@ -543,7 +543,7 @@ function setupCarburanteEventListeners() {
 function incrementCarburante(prodotto) {
     homeState.ordineCarburante[prodotto] += 1000;
     this.saveToStorage('ordineCarburante', homeState.ordineCarburante);
-    renderOrdineCarburante.call(this);
+    updateOrdineCarburanteUI.call(this, prodotto);
 }
 // Fine funzione incrementCarburante
 
@@ -552,10 +552,33 @@ function decrementCarburante(prodotto) {
     if (homeState.ordineCarburante[prodotto] >= 1000) {
         homeState.ordineCarburante[prodotto] -= 1000;
         this.saveToStorage('ordineCarburante', homeState.ordineCarburante);
-        renderOrdineCarburante.call(this);
+        updateOrdineCarburanteUI.call(this, prodotto);
     }
 }
 // Fine funzione decrementCarburante
+
+// Inizio funzione updateOrdineCarburanteUI
+function updateOrdineCarburanteUI(prodotto) {
+    const app = this;
+    const quantita = homeState.ordineCarburante[prodotto];
+    const importo = calcolaImportoCarburante.call(app, prodotto);
+
+    // Aggiorna campi specifici del prodotto
+    const quantitaEl = document.getElementById(`carburante-quantita-${prodotto}`);
+    const importoEl = document.getElementById(`carburante-importo-${prodotto}`);
+    if (quantitaEl) quantitaEl.value = app.formatInteger(quantita);
+    if (importoEl) importoEl.textContent = app.formatCurrency(importo);
+
+    // Aggiorna totali
+    const totaleLitri = getTotaleLitri.call(app);
+    const totaleImporto = getTotaleImporto.call(app);
+
+    const totaleLitriEl = document.getElementById('carburante-totale-litri');
+    const totaleImportoEl = document.getElementById('carburante-totale-importo');
+    if (totaleLitriEl) totaleLitriEl.textContent = app.formatInteger(totaleLitri);
+    if (totaleImportoEl) totaleImportoEl.textContent = app.formatCurrency(totaleImporto);
+}
+// Fine funzione updateOrdineCarburanteUI
 
 // Inizio funzione getLatestPrices
 function getLatestPrices() {
@@ -608,7 +631,7 @@ function getHomeDashboardStats() {
     const shiftNames = todayTurni.map(t => t.turno).join(', ');
     const prices = getLatestPrices.call(this);
 
-    let totalLiters = 0;
+    let totalIperself = 0;
     let totalServito = 0;
     let totalRevenue = 0;
     const productTotals = {
@@ -621,34 +644,52 @@ function getHomeDashboardStats() {
 
     todayTurni.forEach(turno => {
         for (const product in productTotals) {
-            const pKey = product === 'dieselplus' ? (turno.iperself?.dieselplus !== undefined ? 'dieselplus' : 'dieselPlus') : product;
-            const iperselfL = parseFloat(turno.iperself?.[pKey]) || 0;
-            const servitoL = parseFloat(turno.servito?.[pKey]) || 0;
+            const iperselfL = parseFloat(turno.iperself?.[product]) || 0;
+            const servitoL = parseFloat(turno.servito?.[product]) || 0;
             
             productTotals[product].iperself += iperselfL;
             productTotals[product].servito += servitoL;
             
+            if (product !== 'adblue') {
+                totalIperself += iperselfL;
+            }
             totalServito += servitoL;
-            totalLiters += iperselfL + servitoL;
             
-            totalRevenue += (iperselfL + servitoL) * (prices[pKey] || 0);
+            const priceKey = product === 'dieselplus' ? 'dieselPlus' : product;
+            const basePrice = prices[priceKey] || 0;
+
+            if (basePrice > 0) {
+                if (product === 'adblue') {
+                    totalRevenue += servitoL * basePrice;
+                } else {
+                    const maggiorazione_iperself = 0.005;
+                    const maggiorazione_servito = 0.210;
+                    const maggiorazione_base_servito = 0.015;
+
+                    const prezzo_iperself = basePrice + maggiorazione_iperself;
+                    const prezzo_servito = basePrice + maggiorazione_base_servito + maggiorazione_servito;
+
+                    totalRevenue += (iperselfL * prezzo_iperself) + (servitoL * prezzo_servito);
+                }
+            }
         }
     });
 
-    const overallServitoPercentage = totalLiters > 0 ? Math.round((totalServito / totalLiters) * 100) : 0;
+    const totalLitersToday = totalIperself + totalServito;
+    const overallServitoPercentage = totalLitersToday > 0 ? Math.round((totalServito / totalLitersToday) * 100) : 0;
     
-    const productPercentages = {};
     const productLiters = {};
+    const productServitoPercentages = {};
     for (const product in productTotals) {
         const pTotal = productTotals[product].servito + productTotals[product].iperself;
-        productPercentages[product] = pTotal > 0 ? Math.round((productTotals[product].servito / pTotal) * 100) : 0;
         productLiters[product] = pTotal;
+        productServitoPercentages[product] = pTotal > 0 ? Math.round((productTotals[product].servito / pTotal) * 100) : 0;
     }
 
     return {
-        totalLitersToday: totalLiters,
+        totalLitersToday: totalLitersToday,
         overallServitoPercentage: overallServitoPercentage,
-        productServitoPercentages: productPercentages,
+        productServitoPercentages: productServitoPercentages,
         totalRevenueToday: totalRevenue,
         shiftCount: shiftCount,
         shiftNames: shiftNames,

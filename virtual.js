@@ -542,34 +542,46 @@ function sortedTurni() {
 
 // Inizio funzione virtualStats
 function virtualStats() {
-    // *** CORREZIONE: Usiamo 'this' per il contesto invece di getApp() ***
     const app = this;
-    
-    // CORREZIONE ERRORE: Controlli di sicurezza per evitare errori "Cannot read properties of undefined"
-    if (!app || !app.state || !app.state.data) {
-        console.warn('⚠️ Dati app non disponibili per statistiche');
-        return { totalLiters: 0, revenue: 0, servitoPercentage: 0 };
-    }
-    
-    const filteredTurni = getFilteredTurniForPeriod.call(app);
+    const filteredTurni = getFilteredTurniForPeriod.call(this);
     if (filteredTurni.length === 0) return { totalLiters: 0, revenue: 0, servitoPercentage: 0 };
-    
-    let totalServito = 0, totalIperself = 0, revenue = 0;
-    const basePrices = currentPrices.call(app);
-    
+
+    const basePrices = currentPrices.call(this);
+    let totalIperself = 0;
+    let totalServito = 0;
+    let revenue = 0;
+
     filteredTurni.forEach(turno => {
-        ['benzina', 'gasolio', 'dieselplus', 'hvolution', 'adblue'].forEach(p => {
-            const iperselfL = parseFloat(turno.iperself?.[p]) || 0;
-            const servitoL = parseFloat(turno.servito?.[p]) || 0;
-            if (p !== 'adblue') totalIperself += iperselfL;
+        const products = ['benzina', 'gasolio', 'dieselplus', 'hvolution', 'adblue'];
+        products.forEach(product => {
+            const iperselfL = parseFloat(turno.iperself?.[product]) || 0;
+            const servitoL = parseFloat(turno.servito?.[product]) || 0;
+
+            if (product !== 'adblue') {
+                totalIperself += iperselfL;
+            }
             totalServito += servitoL;
-            const price = basePrices[p] || 0;
-            if (price > 0) {
-                revenue += (p === 'adblue') ? servitoL * price : (iperselfL + servitoL) * price;
+
+            const priceKey = product === 'dieselplus' ? 'dieselPlus' : product;
+            const basePrice = basePrices[priceKey] || 0;
+
+            if (basePrice > 0) {
+                if (product === 'adblue') {
+                    revenue += servitoL * basePrice;
+                } else {
+                    const maggiorazione_iperself = 0.005;
+                    const maggiorazione_servito = 0.210;
+                    const maggiorazione_base_servito = 0.015;
+
+                    const prezzo_iperself = basePrice + maggiorazione_iperself;
+                    const prezzo_servito = basePrice + maggiorazione_base_servito + maggiorazione_servito;
+
+                    revenue += (iperselfL * prezzo_iperself) + (servitoL * prezzo_servito);
+                }
             }
         });
     });
-    
+
     const totalLiters = totalIperself + totalServito;
     const servitoPercentage = totalLiters > 0 ? Math.round((totalServito / totalLiters) * 100) : 0;
     
@@ -580,13 +592,11 @@ function virtualStats() {
 // Inizio funzione currentPrices
 function currentPrices() {
     const app = this;
-    return {
-        benzina: app.state.data.priceHistory.filter(p => p.product === 'benzina').pop()?.price || 1.60,
-        gasolio: app.state.data.priceHistory.filter(p => p.product === 'gasolio').pop()?.price || 1.50,
-        dieselplus: app.state.data.priceHistory.filter(p => p.product === 'dieselplus').pop()?.price || 1.65,
-        hvolution: app.state.data.priceHistory.filter(p => p.product === 'hvolution').pop()?.price || 1.70,
-        adblue: app.state.data.priceHistory.filter(p => p.product === 'adblue').pop()?.price || 0.80
-    };
+    // CORREZIONE: Unificata la logica per recuperare l'ultimo listino prezzi valido.
+    if (!Array.isArray(app.state.data.priceHistory) || app.state.data.priceHistory.length === 0) {
+        return { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 };
+    }
+    return [...app.state.data.priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 }
 // Fine funzione currentPrices
 

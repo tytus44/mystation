@@ -14,6 +14,7 @@ class MyStationApp {
         this.state = {
             // Tema e UI
             isDarkMode: this.loadFromStorage('isDarkMode', false),
+            isSidebarCollapsed: this.loadFromStorage('isSidebarCollapsed', false),
             currentSection: this.loadFromStorage('currentSection', 'home'),
             mobileMenuOpen: false,
             
@@ -54,6 +55,7 @@ class MyStationApp {
         // Bindare i metodi al contesto
         this.init = this.init.bind(this);
         this.updateTheme = this.updateTheme.bind(this);
+        this.updateSidebarLayout = this.updateSidebarLayout.bind(this);
         this.switchSection = this.switchSection.bind(this);
         this.showNotification = this.showNotification.bind(this);
         this.showConfirm = this.showConfirm.bind(this);
@@ -78,6 +80,7 @@ class MyStationApp {
         }
         
         this.updateTheme();
+        this.updateSidebarLayout();
         this.initializeModules();
         this.setupEventListeners();
         this.refreshIcons();
@@ -244,6 +247,14 @@ class MyStationApp {
         this.updateTheme();
     }
     // Fine funzione toggleTheme
+
+    // === GESTIONE LAYOUT SIDEBAR ===
+    // Inizio funzione updateSidebarLayout
+    updateSidebarLayout() {
+        this.state.isSidebarCollapsed = this.loadFromStorage('isSidebarCollapsed', false);
+        document.body.classList.toggle('sidebar-collapsed', this.state.isSidebarCollapsed);
+    }
+    // Fine funzione updateSidebarLayout
     
     // === NOTIFICHE ===
     // Inizio funzione showNotification
@@ -499,7 +510,7 @@ class MyStationApp {
     
     // Inizio funzione saveAllState
     saveAllState() {
-        const keysToSave = ['isDarkMode', 'currentSection', 'data', 'amministrazioneViewMode', 'registryViewMode', 'virtualViewMode', 'prezziViewMode', 'priceTab', 'adminFilters', 'virtualFilters'];
+        const keysToSave = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'data', 'amministrazioneViewMode', 'registryViewMode', 'virtualViewMode', 'prezziViewMode', 'priceTab', 'adminFilters', 'virtualFilters'];
         keysToSave.forEach(key => this.saveToStorage(key, this.state[key]));
     }
     // Fine funzione saveAllState

@@ -7,13 +7,16 @@
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
 let impostazioniState = {
-    isFullscreen: false
+    isFullscreen: false,
+    isSidebarCollapsed: false
 };
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 // Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
+    // CORREZIONE: Durante l'init, si usa 'this' perché la variabile globale 'app' non è ancora pronta.
+    impostazioniState.isSidebarCollapsed = this.loadFromStorage('isSidebarCollapsed', false);
     
     // Listener per cambiamenti fullscreen
     document.addEventListener('fullscreenchange', () => {
@@ -53,6 +56,14 @@ function getImpostazioniModalHTML() {
                     <span class="font-medium text-primary">Schermo intero</span>
                     <label class="switch">
                         <input type="checkbox" id="fullscreen-toggle" ${impostazioniState.isFullscreen ? 'checked' : ''}>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between w-full">
+                    <span class="font-medium text-primary">Collassa menu laterale</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sidebar-collapse-toggle" ${impostazioniState.isSidebarCollapsed ? 'checked' : ''}>
                         <span class="switch-slider"></span>
                     </label>
                 </div>
@@ -128,6 +139,14 @@ function setupImpostazioniEventListeners() {
             toggleFullscreen();
         });
     }
+
+    // Toggle sidebar collapse
+    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
+    if (sidebarCollapseToggle) {
+        sidebarCollapseToggle.addEventListener('change', () => {
+            toggleSidebarCollapse.call(app);
+        });
+    }
     
     // Import dati
     const importBtn = document.getElementById('import-btn');
@@ -162,6 +181,14 @@ function setupImpostazioniEventListeners() {
 // Fine funzione setupImpostazioniEventListeners
 
 // === FUNZIONI TEMA E DISPLAY ===
+// Inizio funzione toggleSidebarCollapse
+function toggleSidebarCollapse() {
+    impostazioniState.isSidebarCollapsed = !impostazioniState.isSidebarCollapsed;
+    this.saveToStorage('isSidebarCollapsed', impostazioniState.isSidebarCollapsed);
+    this.updateSidebarLayout();
+}
+// Fine funzione toggleSidebarCollapse
+
 // Inizio funzione toggleFullscreen
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
