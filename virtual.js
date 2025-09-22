@@ -407,8 +407,9 @@ function saveTurno() {
     app.hideFormModal();
     app.showNotification('Turno salvato con successo!');
     
-    // Ora aggiorniamo la lista senza ricaricare la pagina
+    // Aggiorna tutti i componenti della UI
     renderTurniTable.call(app);
+    renderVirtualStats.call(app);
     safeUpdateCharts.call(app);
 }
 // Fine funzione saveTurno
@@ -422,8 +423,12 @@ function deleteTurno(turnoId) {
     app.showConfirm(`Sei sicuro di voler eliminare il turno del ${app.formatDate(turno.date)} - ${turno.turno}?`, () => {
         app.state.data.turni = app.state.data.turni.filter(t => t.id !== turnoId);
         app.saveToStorage('data', app.state.data);
+        
+        // Aggiorna tutti i componenti della UI
         renderTurniTable.call(app);
+        renderVirtualStats.call(app);
         safeUpdateCharts.call(app);
+        
         app.showNotification('Turno eliminato.');
     });
 }
