@@ -187,9 +187,9 @@ function getExpandedRowHTML(client) {
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
     
     return `
-        <tr id="expanded-row-${client.id}" class="expanded-row" style="background-color: var(--bg-secondary);">
-            <td colspan="5" style="padding: 0;">
-                <div style="padding: 1.5rem; border-top: 2px solid var(--color-primary);">
+        <tr id="expanded-row-${client.id}" class="expanded-row" style="background-color: rgba(37, 99, 235, 0.05);">
+            <td colspan="5" style="padding: 1rem 0.5rem;">
+                <div class="expanded-content-frame" style="padding: 1.5rem;">
                     
                     <div class="space-y-4 mb-6">
                         <h4 class="text-lg font-medium text-primary">Nuova Transazione</h4>

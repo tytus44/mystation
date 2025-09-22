@@ -1202,7 +1202,6 @@ select.form-control {
 
 .expanded-row {
     animation: expandRow 0.3s ease-out;
-    border-left: 3px solid var(--color-primary);
 }
 
 @keyframes expandRow {
@@ -1216,6 +1215,13 @@ select.form-control {
         transform: translateY(0);
         max-height: 1000px;
     }
+}
+
+/* NUOVA REGOLA: Cornice per il contenuto espanso del cliente */
+.expanded-content-frame {
+    border: 2px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-primary);
 }
 
 .expanded-row .grid-cols-12 {
@@ -1333,7 +1339,7 @@ select.form-control {
 }
 
 .expanded-row td {
-    border-top: 2px solid var(--color-primary);
+    border-top: none;
 }
 
 .editable-table tr.editing {
