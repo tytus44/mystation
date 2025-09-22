@@ -761,7 +761,7 @@ function renderRegistryTable() {
                 <td>${formatProductColumn(carico.hvolution)}</td>
                 <td class="text-right">
                     <div class="flex items-center justify-end space-x-2">
-                        <button class="btn btn-warning btn-sm" onclick="editCaricoById('${carico.id}')" title="Modifica carico">
+                        <button class="btn btn-success btn-sm" onclick="editCaricoById('${carico.id}')" title="Modifica carico">
                             <i data-lucide="edit"></i>
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="deleteCaricoById('${carico.id}')" title="Elimina carico">

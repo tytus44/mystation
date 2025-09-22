@@ -577,7 +577,7 @@ function renderListiniTable() {
                 <td class="font-bold text-info">${listino.adblue ? app.formatCurrency(listino.adblue, true) : '-'}</td>
                 <td class="text-right">
                     <div class="flex items-center justify-end space-x-2">
-                        <button class="btn btn-warning btn-sm" onclick="editListinoById('${listino.id}')" title="Modifica listino"><i data-lucide="edit"></i></button>
+                        <button class="btn btn-success btn-sm" onclick="editListinoById('${listino.id}')" title="Modifica listino"><i data-lucide="edit"></i></button>
                         <button class="btn btn-danger btn-sm" onclick="deleteListinoById('${listino.id}')" title="Elimina listino"><i data-lucide="trash-2"></i></button>
                     </div>
                 </td>

@@ -162,7 +162,7 @@ function renderHomeSection(container) {
                             <div class="product-box p-3" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                                 <div class="flex justify-between items-center">
                                     <span class="font-medium" style="color: var(--color-primary);">Imponibile</span>
-                                    <span id="iva-imponibile" class="text-lg font-bold text-primary">${app.formatCurrency(homeState.ivaCalculator.risultati.imponibile)}</span>
+                                    <span id="iva-imponibile" class="text-lg font-bold" style="color: var(--color-primary);">${app.formatCurrency(homeState.ivaCalculator.risultati.imponibile)}</span>
                                 </div>
                             </div>
                             <div class="product-box p-3" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">

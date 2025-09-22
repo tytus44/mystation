@@ -656,7 +656,7 @@ function renderTurniTable() {
                 <td><div class="text-xs">S: ${Math.round(turno.servito?.adblue || 0)} L</div></td>
                 <td class="font-bold">${app.formatInteger(turno.total)} L</td>
                 <td class="text-right"><div class="flex items-center justify-end space-x-2">
-                    <button class="btn btn-warning" onclick="editTurnoById('${turno.id}')" title="Modifica turno"><i data-lucide="edit"></i></button>
+                    <button class="btn btn-success" onclick="editTurnoById('${turno.id}')" title="Modifica turno"><i data-lucide="edit"></i></button>
                     <button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina turno"><i data-lucide="trash-2"></i></button>
                 </div></td>
             </tr>`).join('');
