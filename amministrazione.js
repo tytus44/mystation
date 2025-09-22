@@ -558,7 +558,7 @@ function addNewClient() {
     this.saveToStorage('data', this.state.data);
     this.showNotification('Cliente aggiunto con successo!');
     this.hideFormModal();
-    renderClientsTable.call(this); // Aggiorna solo la tabella
+    renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
 }
 // Fine funzione addNewClient
 
@@ -579,7 +579,7 @@ function updateClient() {
     this.saveToStorage('data', this.state.data);
     this.showNotification('Cliente aggiornato con successo!');
     this.hideFormModal();
-    renderClientsTable.call(this); // Aggiorna solo la tabella
+    renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
 }
 // Fine funzione updateClient
 
@@ -598,7 +598,7 @@ function deleteClient(clientId) {
         this.saveToStorage('data', this.state.data);
         this.showNotification('Cliente eliminato.');
         
-        renderClientsTable.call(this);
+        renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
     });
 }
 // Fine funzione deleteClient
@@ -607,6 +607,7 @@ function deleteClient(clientId) {
 // NUOVO: Inizio funzione addTransactionInline
 function addTransactionInline(clientId, type) {
     const app = getApp();
+    const container = document.getElementById('section-amministrazione');
     const descInput = document.getElementById(`transaction-description-${clientId}`);
     const amountInput = document.getElementById(`transaction-amount-${clientId}`);
     
@@ -639,17 +640,17 @@ function addTransactionInline(clientId, type) {
     
     app.saveToStorage('data', app.state.data);
     
-    // Reset form
-    if (descInput) descInput.value = 'Carburante';
-    if (amountInput) amountInput.value = '';
+    // Reset form for next transaction
+    amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
     
-    renderClientsTable.call(app);
+    renderAmministrazioneSection.call(app, container);
 }
 // Fine funzione addTransactionInline
 
 // NUOVO: Inizio funzione settleAccountInline
 function settleAccountInline(clientId) {
     const app = getApp();
+    const container = document.getElementById('section-amministrazione');
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client || client.balance === 0) return;
     
@@ -673,13 +674,14 @@ function settleAccountInline(clientId) {
     });
     
     app.saveToStorage('data', app.state.data);
-    renderClientsTable.call(app);
+    renderAmministrazioneSection.call(app, container);
 }
 // Fine funzione settleAccountInline
 
 // NUOVO: Inizio funzione deleteTransactionInline
 function deleteTransactionInline(clientId, transactionId) {
     const app = getApp();
+    const container = document.getElementById('section-amministrazione');
     
     app.state.data.clients = app.state.data.clients.map(client => {
         if (client.id === clientId) {
@@ -697,7 +699,7 @@ function deleteTransactionInline(clientId, transactionId) {
     });
 
     app.saveToStorage('data', app.state.data);
-    renderClientsTable.call(app);
+    renderAmministrazioneSection.call(app, container);
 }
 // Fine funzione deleteTransactionInline
 
@@ -797,6 +799,7 @@ function toggleEditTransaction(clientId, transactionId) {
 // NUOVO: Inizio funzione saveEditTransaction
 function saveEditTransaction(clientId, transactionId) {
     const app = getApp();
+    const container = document.getElementById('section-amministrazione');
     const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
     if (!row) return;
     
@@ -852,8 +855,7 @@ function saveEditTransaction(clientId, transactionId) {
     app.saveToStorage('data', app.state.data);
     app.showNotification('Transazione aggiornata con successo!');
     
-    // Rigenera la tabella per riflettere i cambiamenti
-    renderClientsTable.call(app);
+    renderAmministrazioneSection.call(app, container);
 }
 // Fine funzione saveEditTransaction
 
