@@ -143,6 +143,10 @@ function renderHomeSection(container) {
                             <div class="calendar-day-header sunday">Dom</div>
                             </div>
                     </div>
+                    <div class="p-4 pt-2">
+                        <div id="calendar-today-display-box" class="product-box p-3 text-center" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                            </div>
+                    </div>
                 </div>
                 
                 <div class="card">
@@ -159,6 +163,12 @@ function renderHomeSection(container) {
                             Calcola
                         </button>
                         <div id="iva-risultati" class="space-y-4">
+                            <div class="product-box p-3" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium" style="color: var(--color-info);">Importo Lordo</span>
+                                    <span id="iva-lordo" class="text-lg font-bold" style="color: var(--color-info);">${app.formatCurrency(homeState.ivaCalculator.importoLordo || 0)}</span>
+                                </div>
+                            </div>
                             <div class="product-box p-3" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                                 <div class="flex justify-between items-center">
                                     <span class="font-medium" style="color: var(--color-primary);">Imponibile</span>
@@ -191,6 +201,7 @@ function renderHomeSection(container) {
     
     // Render componenti dinamici
     renderCalendar.call(app);
+    renderTodayDisplay.call(app);
     renderOrdineCarburante.call(app);
     
     // Refresh icone
@@ -260,9 +271,13 @@ function calcolaIva() {
 
 // Inizio funzione updateIvaDisplay
 function updateIvaDisplay() {
+    const lordoEl = document.getElementById('iva-lordo');
     const imponibileEl = document.getElementById('iva-imponibile');
     const ivaEl = document.getElementById('iva-iva');
     
+    if (lordoEl) {
+        lordoEl.textContent = this.formatCurrency(homeState.ivaCalculator.importoLordo || 0);
+    }
     if (imponibileEl) {
         imponibileEl.textContent = this.formatCurrency(homeState.ivaCalculator.risultati.imponibile);
     }
@@ -364,6 +379,21 @@ function renderCalendarDays() {
     });
 }
 // Fine funzione renderCalendarDays
+
+// Inizio funzione renderTodayDisplay
+function renderTodayDisplay() {
+    const today = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+    const formattedDate = today.toLocaleDateString('it-IT', options);
+    
+    const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+    const container = document.getElementById('calendar-today-display-box');
+    if (container) {
+        container.innerHTML = `<span class="font-medium text-primary">${capitalizedDate}</span>`;
+    }
+}
+// Fine funzione renderTodayDisplay
 
 // Inizio funzione changeMonth
 function changeMonth(offset) {
@@ -491,19 +521,19 @@ function renderOrdineCarburante() {
     const totaleImporto = getTotaleImporto.call(app);
     
     html += `
-        <div class="border-t border-primary pt-4">
-            <div class="flex items-center justify-between p-3 bg-tertiary rounded-lg">
-                <div style="width: 125px;">
+        <div class="product-box mt-4 p-4" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+            <div class="flex items-end justify-between">
+                <div>
                     <div class="text-sm text-secondary">Prodotti:</div>
-                    <span class="text-lg font-bold text-primary">Totale</span>
+                    <div class="text-xl font-bold text-primary">Totale</div>
                 </div>
-                <div style="width: 200px;" class="text-center">
-                    <div class="text-sm text-secondary">Litri:</div>
-                    <span id="carburante-totale-litri" class="text-lg font-bold text-primary">${app.formatInteger(totaleLitri)}</span>
+                <div>
+                    <div class="text-sm text-secondary text-right">Litri:</div>
+                    <div id="carburante-totale-litri" class="text-xl font-bold text-primary text-right">${app.formatInteger(totaleLitri)}</div>
                 </div>
-                <div style="width: 125px;" class="text-right">
-                    <div class="text-sm text-secondary">Importo:</div>
-                    <span id="carburante-totale-importo" class="text-lg font-bold text-info">${app.formatCurrency(totaleImporto)}</span>
+                <div>
+                    <div class="text-sm text-secondary text-right">Importo:</div>
+                    <div id="carburante-totale-importo" class="text-xl font-bold text-success text-right">${app.formatCurrency(totaleImporto)}</div>
                 </div>
             </div>
         </div>
