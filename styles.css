@@ -31,6 +31,7 @@ body {
     --color-warning: #f59e0b;
     --color-danger: #dc2626;
     --color-info: #06b6d4;
+    --color-accent-calc: #29c7b9;
     
     /* Background */
     --bg-primary: #ffffff;
@@ -449,6 +450,8 @@ body {
 
 /* Select */
 select.form-control {
+    -webkit-appearance: none; /* Aggiunto per nascondere la freccia di default */
+    appearance: none; /* Aggiunto per nascondere la freccia di default */
     cursor: pointer;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
@@ -590,6 +593,13 @@ select.form-control {
     border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid var(--border-secondary);
+}
+
+.btn-group.w-full {
+    display: flex;
+}
+.btn-group.w-full .btn {
+    flex: 1;
 }
 
 .btn-group .btn {
@@ -758,14 +768,6 @@ select.form-control {
     text-align: center;
     max-width: 28rem;
     margin: var(--spacing-md);
-    transform: scale(0.95);
-    opacity: 0;
-    transition: transform var(--animation-duration-fast) var(--animation-timing), opacity var(--animation-duration-fast) var(--animation-timing);
-}
-
-.modal.show .modal-content {
-    transform: scale(1);
-    opacity: 1;
 }
 
 .modal-content i {
@@ -845,6 +847,7 @@ select.form-control {
 .grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
 
 /* Responsive Grid Columns */
+.col-span-2 { grid-column: span 2; }
 .col-span-3 { grid-column: span 3; }
 .col-span-9 { grid-column: span 9; }
 
@@ -871,6 +874,7 @@ select.form-control {
 .justify-end { justify-content: end; }
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
+.ml-auto { margin-left: auto; }
 .space-x-2 > :not(:first-child) { margin-left: 0.5rem; }
 .space-x-4 > :not(:first-child) { margin-left: 1rem; }
 .space-y-4 > :not(:first-child) { margin-top: 1rem; }
@@ -1082,54 +1086,6 @@ select.form-control {
     font-size: 0.875rem;
 }
 
-/* Comparison Grid */
-.comparison-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-}
-
-.comparison-card {
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-}
-
-.comparison-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-md);
-    color: var(--text-primary);
-}
-
-.comparison-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm) 0;
-    border-bottom: 1px solid var(--border-primary);
-}
-
-.comparison-item:last-child {
-    border-bottom: none;
-}
-
-.comparison-item.highlight {
-    background-color: rgba(37, 99, 235, 0.05);
-    color: var(--color-primary);
-}
-
-.comparison-brand {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.comparison-price {
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
 /* Balance styling */
 .balance-positive {
     color: var(--color-success) !important;
@@ -1144,7 +1100,7 @@ select.form-control {
 }
 
 /* =============================================
-   Stile Pulsanti Azione Circolari nelle Tabelle (Versione Definitiva e Corretta)
+   Stile Pulsanti Azione Circolari nelle Tabelle
    ============================================= */
 
 .btn-info {
@@ -1155,8 +1111,6 @@ select.form-control {
     background-color: #0891b2;
 }
 
-/* Applichiamo lo stile circolare SOLO ai bottoni nelle righe principali della tabella,
-   escludendo quelli nelle righe espanse (.expanded-row) */
 .table > tbody > tr:not(.expanded-row) .btn {
     width: 2rem;
     height: 2rem;
@@ -1231,7 +1185,6 @@ select.form-control {
     }
 }
 
-/* NUOVA REGOLA: Cornice per il contenuto espanso del cliente */
 .expanded-content-frame {
     border: 2px solid var(--border-secondary);
     border-radius: var(--radius-lg);
@@ -1247,7 +1200,7 @@ select.form-control {
 
 .expanded-row .col-span-1 { grid-column: span 1; }
 .expanded-row .col-span-2 { grid-column: span 2; }
-.expanded-row .col-span-4 { grid-column: span 4; }
+.expanded-row .col-span-3 { grid-column: span 3; }
 
 .editable-table {
     font-size: 0.875rem;
@@ -1721,4 +1674,322 @@ select.form-control {
 .btn:active::after {
     transform: translate(-50%, -50%) scale(2);
     opacity: 0;
+}
+
+/* NUOVO: Keyframes e classi per l'animazione "Blow Up" dei modali */
+@keyframes blowUpModal {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes blowUpModalTwo {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+/* Rimuove le vecchie transizioni e prepara per l'animazione */
+.modal-content {
+    transform: scale(1);
+    opacity: 1;
+    transition: none;
+}
+
+/* Applica l'animazione di entrata */
+.modal.show .modal-content {
+    animation: blowUpModal 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* Applica l'animazione di uscita (richiede JS per aggiungere la classe .is-closing) */
+.modal.is-closing .modal-content {
+    animation: blowUpModalTwo 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* === COMPONENTI HOME AGGIUNTIVI === */
+
+/* Stili per la Nuova Calcolatrice */
+.calculator {
+    padding: var(--spacing-sm);
+}
+
+.calculator-display {
+    background-color: rgba(41, 199, 185, 0.1);
+    border: 1px solid rgba(41, 199, 185, 0.3);
+    grid-column: 1 / -1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    text-align: right;
+    word-wrap: break-word;
+    word-break: break-all;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+}
+.theme-dark .calculator-display {
+    background-color: rgba(41, 199, 185, 0.1);
+    border-color: rgba(41, 199, 185, 0.4);
+}
+.calculator-display .equation {
+    font-size: 1rem;
+    color: var(--color-accent-calc);
+    height: 20px;
+}
+.calculator-display .result {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--text-primary);
+}
+.theme-dark .calculator-display .result {
+    color: var(--text-primary);
+}
+
+
+.calculator-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.calc-btn {
+    background-color: transparent;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 1rem 0;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background-color 0.2s ease;
+}
+.theme-dark .calc-btn {
+    color: var(--text-primary);
+}
+
+.calc-btn:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.calc-btn.operator {
+    background-color: var(--color-accent-calc);
+    color: white;
+    font-size: 1.3rem;
+}
+.calc-btn.operator:hover {
+    opacity: 0.9;
+}
+
+.calc-btn.function {
+    color: var(--color-accent-calc);
+}
+
+.calc-btn.equal {
+    grid-column: span 2;
+}
+
+/* Stili per le card Notes e To-Do */
+.notes-grid, .todo-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.note-item, .todo-item {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    position: relative;
+    word-wrap: break-word;
+    border: 1px solid;
+}
+
+.note-item {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.note-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.note-content-view {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: left;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.note-item .delete-btn, .todo-item .delete-btn {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+.note-item .delete-btn:hover, .todo-item .delete-btn:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+.theme-dark .note-item .delete-btn:hover, .theme-dark .todo-item .delete-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+
+/* Colori per le note */
+.note-yellow { background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: #b45309; }
+.note-blue   { background-color: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #1d4ed8; }
+.note-green  { background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #065f46; }
+.note-pink   { background-color: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: #9d174d; }
+
+.theme-dark .note-yellow { color: #fcd34d; }
+.theme-dark .note-blue   { color: #93c5fd; }
+.theme-dark .note-green  { color: #6ee7b7; }
+.theme-dark .note-pink   { color: #f9a8d4; }
+
+
+/* Stili specifici per To-Do */
+.todo-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(37, 99, 235, 0.05);
+    border-color: rgba(37, 99, 235, 0.3);
+    color: var(--text-primary);
+}
+
+.todo-item input[type="checkbox"] {
+    margin-right: var(--spacing-md);
+    width: 1.15rem;
+    height: 1.15rem;
+    flex-shrink: 0;
+}
+.todo-item.completed {
+    opacity: 0.6;
+}
+.todo-item.completed span {
+    text-decoration: line-through;
+}
+
+/* Stili per il modale delle note */
+.note-color-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.note-color-option {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+.note-color-option.selected {
+    border-color: var(--color-primary);
+}
+
+.form-textarea {
+    min-height: 100px;
+    height: auto;
+    padding-top: 0.75rem;
+}
+
+/* =============================================
+   STILI PER LA SEZIONE ANAGRAFICA
+   ============================================= */
+
+.anagrafica-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr; /* Colonna fissa a sx, colonna flessibile a dx */
+    gap: var(--spacing-lg);
+    align-items: start;
+}
+
+.anagrafica-sidebar .card-header {
+    padding: var(--spacing-md);
+}
+.anagrafica-sidebar .card-body {
+    padding: var(--spacing-md);
+}
+
+.etichette-list {
+    list-style: none;
+    space-y: var(--spacing-xs);
+}
+
+.etichetta-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.etichetta-item:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.etichetta-item.active {
+    background-color: var(--color-primary);
+    color: var(--text-inverse);
+}
+
+.etichetta-color-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+.etichetta-badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.bulk-actions-bar {
+    background-color: rgba(220, 38, 38, 0.05);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-danger);
+}
+
+#contatti-table tr.selected {
+    background-color: rgba(37, 99, 235, 0.05);
+}
+.theme-dark #contatti-table tr.selected {
+    background-color: rgba(37, 99, 235, 0.1);
 }

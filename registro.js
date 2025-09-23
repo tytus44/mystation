@@ -31,7 +31,7 @@ function initRegistroDiCarico() {
     console.log('📋 Inizializzazione modulo Registro di Carico...');
     
     // Carica stato persistente
-    registroState.registryViewMode = this.loadFromStorage('registryViewMode', 'list');
+    registroState.registryTimeFilter = this.loadFromStorage('registryTimeFilter', 'none');
     
     // Inizializza form
     resetRegistryForm.call(this);
@@ -149,35 +149,8 @@ function renderRegistroListView(container) {
                 </div>
             </div>
 
-            <div class="stats-grid no-print">
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Totale Litri Caricati</div>
-                        <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
-                    </div>
-                    <div class="stat-icon blue">
-                        <i data-lucide="droplets"></i>
-                    </div>
+            <div id="registry-stats-container" class="stats-grid no-print">
                 </div>
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Prodotto Top</div>
-                        <div class="stat-value">${stats.topProduct}</div>
-                    </div>
-                    <div class="stat-icon green">
-                        <i data-lucide="droplet"></i>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Autista Top</div>
-                        <div class="stat-value">${stats.topDriver}</div>
-                    </div>
-                    <div class="stat-icon purple">
-                        <i data-lucide="user-check"></i>
-                    </div>
-                </div>
-            </div>
 
             <div class="filters-bar no-print">
                 <div class="filter-group">
@@ -235,7 +208,8 @@ function renderRegistroListView(container) {
         </div>
     `;
     
-    // Render tabella carichi
+    // Render componenti dinamici
+    renderRegistryStats.call(app);
     renderRegistryTable.call(app);
 }
 // Fine funzione renderRegistroListView
@@ -359,9 +333,10 @@ function setupRegistroEventListeners() {
     prevYearInputs.forEach(product => {
         const input = document.getElementById(`prev-year-${product}`);
         if (input) {
-            input.addEventListener('input', (e) => {
+            input.addEventListener('change', (e) => { // 'change' è più efficiente di 'input' per questo caso
                 app.state.data.previousYearStock[product] = parseFloat(e.target.value) || 0;
                 app.saveToStorage('data', app.state.data);
+                // Ricarica solo la tabella del riepilogo annuale
                 renderRegistroListView.call(app, document.getElementById('section-registro'));
             });
         }
@@ -491,14 +466,27 @@ function showEditCarico(carico) {
 // Inizio funzione setTimeFilter
 function setTimeFilter(filter) {
     registroState.registryTimeFilter = filter;
+    this.saveToStorage('registryTimeFilter', filter);
     
-    // Ricarica l'intera vista per aggiornare sia le card che la tabella.
-    renderRegistroListView.call(this, document.getElementById('section-registro'));
-
-    // Ricollega gli event listener ai nuovi elementi creati.
-    setupRegistroEventListeners.call(this);
+    // Aggiorna i componenti della UI in modo selettivo
+    updateRegistroFilterButtons(filter);
+    renderRegistryStats.call(this);
+    renderRegistryTable.call(this);
 }
 // Fine funzione setTimeFilter
+
+// Inizio funzione updateRegistroFilterButtons
+function updateRegistroFilterButtons(activeFilter) {
+    const timeFilterButtons = document.querySelectorAll('[data-time-filter]');
+    timeFilterButtons.forEach(btn => {
+        const filter = btn.getAttribute('data-time-filter');
+        const isActive = filter === activeFilter;
+        btn.classList.toggle('btn-primary', isActive);
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('btn-secondary', !isActive);
+    });
+}
+// Fine funzione updateRegistroFilterButtons
 
 // Inizio funzione sortRegistry
 function sortRegistry(column) {
@@ -729,7 +717,48 @@ function deleteCarico(caricoId) {
 }
 // Fine funzione deleteCarico
 
-// === RENDER TABELLA REGISTRY ===
+// === RENDER FUNZIONI SPECIFICHE ===
+// Inizio funzione renderRegistryStats
+function renderRegistryStats() {
+    const app = this;
+    const stats = getRegistryStats.call(app);
+    const container = document.getElementById('registry-stats-container');
+    
+    if (container) {
+        container.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-label">Totale Litri Caricati</div>
+                    <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
+                </div>
+                <div class="stat-icon blue">
+                    <i data-lucide="droplets"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-label">Prodotto Top</div>
+                    <div class="stat-value">${stats.topProduct}</div>
+                </div>
+                <div class="stat-icon green">
+                    <i data-lucide="droplet"></i>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-label">Autista Top</div>
+                    <div class="stat-value">${stats.topDriver}</div>
+                </div>
+                <div class="stat-icon purple">
+                    <i data-lucide="user-check"></i>
+                </div>
+            </div>
+        `;
+        app.refreshIcons();
+    }
+}
+// Fine funzione renderRegistryStats
+
 // Inizio funzione renderRegistryTable
 function renderRegistryTable() {
     const tbody = document.getElementById('registry-tbody');

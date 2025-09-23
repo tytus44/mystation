@@ -25,27 +25,12 @@ class MyStationApp {
                 priceHistory: [],
                 competitorPrices: [],
                 turni: [],
+                // NUOVI DATI PER LA RUBRICA
+                contatti: [],
+                etichette: [],
+                // FINE NUOVI DATI
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
-            
-            // Stati delle sezioni (QUESTI VERRANNO GRADUALMENTE SOSTITUITI DAI MODALI)
-            amministrazioneViewMode: this.loadFromStorage('amministrazioneViewMode', 'list'),
-            registryViewMode: this.loadFromStorage('registryViewMode', 'list'),
-            virtualViewMode: this.loadFromStorage('virtualViewMode', 'list'),
-            prezziViewMode: this.loadFromStorage('prezziViewMode', 'list'),
-            priceTab: this.loadFromStorage('priceTab', 'listini'),
-            
-            // Filtri e ordinamenti
-            adminFilters: this.loadFromStorage('adminFilters', { search: '', filter: 'all' }),
-            adminSort: { column: 'name', direction: 'asc' },
-            registrySort: { column: 'date', direction: 'desc' },
-            virtualSort: { column: 'date', direction: 'desc' },
-            priceSort: { column: 'date', direction: 'desc' },
-            virtualFilters: this.loadFromStorage('virtualFilters', { mode: 'today', startDate: null, endDate: null }),
-            
-            // Form states
-            registrySearchQuery: '',
-            registryTimeFilter: 'none',
             
             // Notifiche e modal
             notification: { show: false, message: '' },
@@ -81,7 +66,7 @@ class MyStationApp {
         
         this.updateTheme();
         this.updateSidebarLayout();
-        document.body.classList.add('animations-enabled'); // Aggiungi questa riga
+        document.body.classList.add('animations-enabled');
         this.initializeModules();
         this.setupEventListeners();
         this.refreshIcons();
@@ -105,7 +90,6 @@ class MyStationApp {
                 e.preventDefault();
                 const section = link.getAttribute('data-section');
 
-                // MODIFICA: Gestione separata per il link Impostazioni
                 if (section === 'impostazioni') {
                     if (typeof showImpostazioniModal === 'function') {
                         showImpostazioniModal();
@@ -155,8 +139,9 @@ class MyStationApp {
     // Inizio funzione initializeModules
     initializeModules() {
         if (typeof initHome === 'function') initHome.call(this);
-        if (typeof initAmministrazione === 'function') initAmministrazione.call(this);
         if (typeof initVirtualStation === 'function') initVirtualStation.call(this);
+        if (typeof initAmministrazione === 'function') initAmministrazione.call(this);
+        if (typeof initAnagrafica === 'function') initAnagrafica.call(this);
         if (typeof initRegistroDiCarico === 'function') initRegistroDiCarico.call(this);
         if (typeof initGestionePrezzi === 'function') initGestionePrezzi.call(this);
         if (typeof initImpostazioni === 'function') initImpostazioni.call(this);
@@ -171,10 +156,9 @@ class MyStationApp {
     }
     // Fine funzione toggleMobileMenu
     
-    // === NUOVA FUNZIONE PER TRANSIZIONI ANIMATE ===
+    // === FUNZIONE PER TRANSIZIONI ANIMATE ===
     // Inizio funzione animatePageTransition
     animatePageTransition(oldSection, newSection, isInitialLoad = false) {
-        // Se è il caricamento iniziale, mostra la sezione senza animazioni
         if (isInitialLoad) {
             if (oldSection) oldSection.classList.add('hidden');
             if (newSection) {
@@ -184,13 +168,11 @@ class MyStationApp {
             return;
         }
 
-        // Nascondi la vecchia sezione
         if (oldSection) {
             oldSection.classList.remove('active');
             oldSection.classList.add('hidden');
         }
 
-        // Mostra la nuova sezione (l'animazione fadeIn è applicata via CSS)
         if (newSection) {
             newSection.classList.remove('hidden');
             newSection.classList.add('active');
@@ -202,7 +184,7 @@ class MyStationApp {
     // Inizio funzione switchSection
     switchSection(section, isInitialLoad = false) {
         if (this.state.currentSection === section && !isInitialLoad) {
-            return; // Non fare nulla se la sezione è già quella attiva
+            return;
         }
         console.log(`📱 Cambio sezione: ${this.state.currentSection} → ${section}`);
         
@@ -215,7 +197,6 @@ class MyStationApp {
         
         const newSectionEl = document.getElementById(`section-${section}`);
 
-        // Gestisce la transizione
         this.animatePageTransition(oldSectionEl, newSectionEl, isInitialLoad);
         
         this.updateSidebarActiveState(section);
@@ -237,9 +218,9 @@ class MyStationApp {
                 case 'home': if (typeof renderHomeSection === 'function') renderHomeSection.call(this, sectionEl); break;
                 case 'virtual': if (typeof renderVirtualSection === 'function') renderVirtualSection.call(this, sectionEl); break;
                 case 'amministrazione': if (typeof renderAmministrazioneSection === 'function') renderAmministrazioneSection.call(this, sectionEl); break;
+                case 'anagrafica': if (typeof renderAnagraficaSection === 'function') renderAnagraficaSection.call(this, sectionEl); break;
                 case 'registro': if (typeof renderRegistroSection === 'function') renderRegistroSection.call(this, sectionEl); break;
                 case 'prezzi': if (typeof renderPrezziSection === 'function') renderPrezziSection.call(this, sectionEl); break;
-                // case 'impostazioni' rimosso perché ora è un modale
             }
         } catch (error) {
             console.error(`❌ Errore nel render della sezione ${section}:`, error);
@@ -327,8 +308,14 @@ class MyStationApp {
     // Inizio funzione hideConfirm
     hideConfirm() {
         const modalEl = document.getElementById('confirm-modal');
-        modalEl.classList.remove('show');
-        setTimeout(() => modalEl.classList.add('hidden'), 200);
+        if (modalEl) {
+            modalEl.classList.add('is-closing');
+
+            setTimeout(() => {
+                modalEl.classList.remove('show', 'is-closing');
+                modalEl.classList.add('hidden');
+            }, 500);
+        }
     }
     // Fine funzione hideConfirm
 
@@ -350,8 +337,10 @@ class MyStationApp {
         const modalContent = modalEl?.querySelector('.modal-content');
         
         if (modalEl) {
-            modalEl.classList.remove('show');
+            modalEl.classList.add('is-closing');
+
             setTimeout(() => {
+                modalEl.classList.remove('show', 'is-closing');
                 modalEl.classList.add('hidden');
                 if (contentEl) {
                     contentEl.innerHTML = ''; 
@@ -359,7 +348,7 @@ class MyStationApp {
                 if (modalContent) {
                     modalContent.classList.remove('modal-wide');
                 }
-            }, 200);
+            }, 500);
         }
     }
     // Fine funzione hideFormModal
@@ -418,12 +407,12 @@ class MyStationApp {
             });
         }
         transactionsTableBody.innerHTML = pairs.map(pair => {
-            const tx1Amount = pair.tx1 ? this.formatTransactionAmount(pair.tx1.amount) : '';
+            const tx1Amount = this.formatTransactionAmount(pair.tx1.amount);
             const tx2Amount = pair.tx2 ? this.formatTransactionAmount(pair.tx2.amount) : '';
             return `
                 <tr>
                     <td>${pair.tx1 ? pair.tx1.description : ''}</td>
-                    <td class="${pair.tx1 ? (pair.tx1.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx1Amount}</td>
+                    <td class="${pair.tx1.amount > 0 ? 'text-success' : 'text-danger'}">${tx1Amount}</td>
                     <td>${pair.tx2 ? pair.tx2.description : ''}</td>
                     <td class="${pair.tx2 ? (pair.tx2.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx2Amount}</td>
                 </tr>
@@ -442,70 +431,6 @@ class MyStationApp {
         console.log('✅ Stampa conto cliente completata');
     }
     // Fine funzione printClientAccount
-    
-    // Inizio funzione printVirtualReport
-    printVirtualReport(stats, periodName, productsChartCanvas = null, serviceChartCanvas = null) {
-        console.log('🖨️ Avvio stampa report virtual...');
-        document.getElementById('print-virtual-period').textContent = 
-            `Periodo: ${periodName} - ${this.formatDate(new Date())}`;
-        const statsContainer = document.getElementById('print-virtual-stats');
-        statsContainer.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-label">Litri Venduti</div>
-                    <div class="stat-value">${this.formatInteger(stats.totalLiters)}</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-label">Fatturato Stimato</div>
-                    <div class="stat-value">${this.formatCurrency(stats.revenue)}</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-content">
-                    <div class="stat-label">% Servito</div>
-                    <div class="stat-value">${stats.servitoPercentage}%</div>
-                </div>
-            </div>
-        `;
-        const chartsContainer = document.getElementById('print-virtual-charts');
-        chartsContainer.innerHTML = '';
-        try {
-            if (productsChartCanvas) {
-                const productsImgData = productsChartCanvas.toDataURL('image/png');
-                const productsDiv = document.createElement('div');
-                productsDiv.innerHTML = `
-                    <h3>Vendite per Prodotto</h3>
-                    <img src="${productsImgData}" alt="Grafico Vendite per Prodotto" style="max-width: 100%; height: auto;">
-                `;
-                chartsContainer.appendChild(productsDiv);
-            }
-            if (serviceChartCanvas) {
-                const serviceImgData = serviceChartCanvas.toDataURL('image/png');
-                const serviceDiv = document.createElement('div');
-                serviceDiv.innerHTML = `
-                    <h3>Iperself vs Servito</h3>
-                    <img src="${serviceImgData}" alt="Grafico Iperself vs Servito" style="max-width: 100%; height: auto;">
-                `;
-                chartsContainer.appendChild(serviceDiv);
-            }
-        } catch (error) {
-            console.warn('Errore nella conversione grafici per stampa:', error);
-            chartsContainer.innerHTML = `<p>Grafici non disponibili per la stampa</p>`;
-        }
-        document.getElementById('virtual-print-content').classList.remove('hidden');
-        document.getElementById('print-content').classList.add('hidden');
-        document.getElementById('print-clients-content').classList.add('hidden');
-        setTimeout(() => {
-            window.print();
-            setTimeout(() => {
-                document.getElementById('virtual-print-content').classList.add('hidden');
-            }, 500);
-        }, 100);
-        console.log('✅ Stampa report virtual completata');
-    }
-    // Fine funzione printVirtualReport
     
     // Inizio funzione formatTransactionAmount
     formatTransactionAmount(amount) {
@@ -544,7 +469,7 @@ class MyStationApp {
     
     // Inizio funzione saveAllState
     saveAllState() {
-        const keysToSave = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'data', 'amministrazioneViewMode', 'registryViewMode', 'virtualViewMode', 'prezziViewMode', 'priceTab', 'adminFilters', 'virtualFilters'];
+        const keysToSave = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'data'];
         keysToSave.forEach(key => this.saveToStorage(key, this.state[key]));
     }
     // Fine funzione saveAllState
@@ -622,12 +547,6 @@ class MyStationApp {
         return 'balance-zero';
     }
     // Fine funzione getBalanceClass
-    
-    // Inizio funzione getFilterLabel
-    getFilterLabel(filter) {
-        return ({ 'all': 'Tutti i clienti', 'credit': 'Clienti a credito', 'debit': 'Clienti a debito' })[filter] || 'Tutti i clienti';
-    }
-    // Fine funzione getFilterLabel
     
     // Inizio funzione refreshIcons
     refreshIcons() {

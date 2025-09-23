@@ -703,37 +703,32 @@ function deleteTransactionInline(clientId, transactionId) {
 }
 // Fine funzione deleteTransactionInline
 
-// NUOVO: Inizio funzione printAccountInline - VERSIONE CORRETTA
+// Inizio funzione printAccountInline
 function printAccountInline(clientId) {
     const app = getApp();
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
-    
+
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
-    
+
     document.getElementById('print-client-name').textContent = `Estratto Conto - ${client.name}`;
-    
+
     if (transactions.length > 0) {
         const dateRange = `dal: ${app.formatDate(transactions[transactions.length - 1].date)} al: ${app.formatDate(transactions[0].date)}`;
         document.getElementById('print-date-range').textContent = `Periodo ${dateRange}`;
+    } else {
+        document.getElementById('print-date-range').textContent = `-`;
     }
-    
+
     const transactionsTableBody = document.getElementById('print-transactions');
-    
-    // Organizza le transazioni in coppie per la stampa a 4 colonne: Descrizione, importo, Descrizione, importo
     const pairs = [];
     for (let i = 0; i < transactions.length; i += 2) {
-        pairs.push({
-            tx1: transactions[i],
-            tx2: transactions[i + 1] || null
-        });
+        pairs.push({ tx1: transactions[i], tx2: transactions[i + 1] || null });
     }
-    
-    // Genera le righe della tabella con il formato a 4 colonne
+
     transactionsTableBody.innerHTML = pairs.map(pair => {
         const tx1Amount = pair.tx1 ? formatTransactionAmount.call(app, pair.tx1.amount) : '';
         const tx2Amount = pair.tx2 ? formatTransactionAmount.call(app, pair.tx2.amount) : '';
-        
         return `
             <tr>
                 <td>${pair.tx1 ? pair.tx1.description : ''}</td>
@@ -743,19 +738,25 @@ function printAccountInline(clientId) {
             </tr>
         `;
     }).join('');
-    
+
     document.getElementById('print-final-balance').textContent = app.formatCurrency(client.balance);
-    
-    // CORREZIONE: Usa le classi hidden invece di style.display
+
     document.getElementById('print-content').classList.remove('hidden');
     document.getElementById('print-clients-content').classList.add('hidden');
     document.getElementById('virtual-print-content').classList.add('hidden');
-    
+
+    // Modifica il titolo del documento per suggerire il nome del file
+    const originalTitle = document.title;
+    const today = app.formatToItalianDate(new Date());
+    const clientNameForFile = client.name.replace(/\s+/g, '_');
+    document.title = `${clientNameForFile}_${today}`;
+
     setTimeout(() => {
         window.print();
+        // Ripristina lo stato e il titolo originale dopo la stampa
         setTimeout(() => {
-            // CORREZIONE: Ripristina lo stato hidden
             document.getElementById('print-content').classList.add('hidden');
+            document.title = originalTitle;
         }, 100);
     }, 100);
 }

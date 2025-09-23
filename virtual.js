@@ -22,8 +22,10 @@ let virtualState = {
     updatingCharts: false,
     productsChartInstance: null,
     serviceChartInstance: null,
+    monthlyTrendChartInstance: null,
+    trendChartTab: 'generale', // NUOVO: Stato per il selettore del grafico
     
-    // NUOVO: Stato per la gestione del drill-down dei grafici
+    // Stato per la gestione del drill-down dei grafici
     chartDrilldown: {
         active: false,
         product: null
@@ -47,27 +49,21 @@ function initVirtualStation() {
 // Inizio funzione renderVirtualSection
 function renderVirtualSection(container) {
     console.log('🎨 Rendering sezione VirtualStation...');
-    // *** CORREZIONE: Usiamo 'this' che è l'istanza MyStationApp passata da app.js ***
     const app = this;
     
-    // *** CORREZIONE: Passiamo il contesto app alle funzioni ***
     renderVirtualListView.call(app, container);
-    setupVirtualListViewEventListeners.call(app); // Collega solo gli eventi della lista.
+    setupVirtualListViewEventListeners.call(app);
     
     app.refreshIcons();
 }
 // Fine funzione renderVirtualSection
 
 // === RENDER VISTA LISTA ===
-// Questa funzione costruisce l'HTML della pagina principale.
-// MODIFICA: Spostato pulsante "Nuovo Turno" dalla tabella alla sinistra del pulsante "Stampa Periodo"
 // Inizio funzione renderVirtualListView
 function renderVirtualListView(container) {
-    // *** CORREZIONE: Usiamo 'this' invece di getApp() per coerenza ***
     const app = this;
 
-    // CORREZIONE BUG GRAFICI: Distruggi le istanze dei grafici esistenti prima di ridisegnare l'HTML.
-    // Questo previene che i grafici rimangano vuoti quando si rientra nella sezione.
+    // Distruggi le istanze dei grafici esistenti prima di ridisegnare l'HTML.
     if (virtualState.productsChartInstance) {
         virtualState.productsChartInstance.destroy();
         virtualState.productsChartInstance = null;
@@ -75,6 +71,10 @@ function renderVirtualListView(container) {
     if (virtualState.serviceChartInstance) {
         virtualState.serviceChartInstance.destroy();
         virtualState.serviceChartInstance = null;
+    }
+    if (virtualState.monthlyTrendChartInstance) {
+        virtualState.monthlyTrendChartInstance.destroy();
+        virtualState.monthlyTrendChartInstance = null;
     }
     virtualState.chartsInitialized = false; // Forza la re-inizializzazione
     virtualState.chartDrilldown.active = false; // Resetta il drilldown
@@ -125,7 +125,7 @@ function renderVirtualListView(container) {
                 </div>
             </div>
             
-            <div class="grid grid-cols-2">
+            <div class="grid grid-cols-2 gap-6">
                 <div class="card">
                     <div class="card-header">
                         <h3 id="products-chart-title" class="card-title">Vendite per Prodotto</h3>
@@ -139,7 +139,7 @@ function renderVirtualListView(container) {
                         </div>
                     </div>
                     <div class="card-body">
-                        <canvas id="productsChart" width="400" height="300"></canvas>
+                        <canvas id="productsChart" height="300"></canvas>
                     </div>
                 </div>
                 <div class="card">
@@ -150,8 +150,26 @@ function renderVirtualListView(container) {
                         </button>
                     </div>
                     <div class="card-body">
-                        <canvas id="serviceChart" width="400" height="300"></canvas>
+                        <canvas id="serviceChart" height="300"></canvas>
                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="btn-group">
+                        <button class="btn btn-sm ${virtualState.trendChartTab === 'generale' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="generale">Generale</button>
+                        <button class="btn btn-sm ${virtualState.trendChartTab === 'benzina' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="benzina">Benzina</button>
+                        <button class="btn btn-sm ${virtualState.trendChartTab === 'gasolio' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="gasolio">Gasolio</button>
+                        <button class="btn btn-sm ${virtualState.trendChartTab === 'dieselplus' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="dieselplus">Diesel+</button>
+                        <button class="btn btn-sm ${virtualState.trendChartTab === 'hvolution' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="hvolution">Hvolution</button>
+                    </div>
+                    <button id="export-trend-chart-btn" class="btn btn-secondary btn-sm" title="Esporta immagine">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyTrendChart" height="120"></canvas>
                 </div>
             </div>
             
@@ -172,13 +190,10 @@ function renderVirtualListView(container) {
         </div>
     `;
     
-    // *** CORREZIONE: Passiamo il contesto alle funzioni ***
     renderTurniTable.call(app);
 }
 // Fine funzione renderVirtualListView
 
-// === CORREZIONE: NUOVA FUNZIONE PER L'HTML DEL FORM SENZA COLONNA NOTE ===
-// Questa funzione non renderizza nulla, ma restituisce solo la stringa HTML del form.
 // Inizio funzione getVirtualFormHTML
 function getVirtualFormHTML() {
     const isEdit = !!virtualState.editingTurno;
@@ -285,7 +300,6 @@ function getVirtualFormHTML() {
 // === SETUP EVENT LISTENERS VISTA LISTA ===
 // Inizio funzione setupVirtualListViewEventListeners
 function setupVirtualListViewEventListeners() {
-    // *** CORREZIONE: Usiamo 'this' per il contesto ***
     const app = this;
     
     document.querySelectorAll('[data-filter-mode]').forEach(btn => 
@@ -297,9 +311,15 @@ function setupVirtualListViewEventListeners() {
         btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort')))
     );
 
-    // NUOVO: Listener per i pulsanti di export e drill-down
+    // Listener per i selettori del grafico andamento mensile
+    document.querySelectorAll('[data-trend-tab]').forEach(btn =>
+        btn.addEventListener('click', () => setTrendChartTab.call(app, btn.dataset.trendTab))
+    );
+
+    // Listener per i pulsanti di export e drill-down
     document.getElementById('export-products-chart-btn')?.addEventListener('click', () => exportChart('productsChart', 'vendite_prodotti.png'));
     document.getElementById('export-service-chart-btn')?.addEventListener('click', () => exportChart('serviceChart', 'servito_vs_iperself.png'));
+    document.getElementById('export-trend-chart-btn')?.addEventListener('click', () => exportChart('monthlyTrendChart', 'andamento_mensile.png'));
     document.getElementById('chart-back-btn')?.addEventListener('click', () => handleChartDrilldown.call(app, null));
 }
 // Fine funzione setupVirtualListViewEventListeners
@@ -325,7 +345,7 @@ function setupVirtualFormEventListeners() {
         if (input) input.addEventListener('input', () => updateTurnoFormValue(path, input.value));
     });
     
-    // NUOVO: Event listeners per i tab dei tipi di turno
+    // Event listeners per i tab dei tipi di turno
     document.querySelectorAll('.turno-tab').forEach(tabButton => {
         tabButton.addEventListener('click', (e) => {
             e.preventDefault();
@@ -334,12 +354,14 @@ function setupVirtualFormEventListeners() {
             // Aggiorna lo stato del form
             updateTurnoFormValue('turno', turnoType);
             
-            // Aggiorna lo stile dei tab (rimuovi active da tutti e aggiungi al corrente)
+            // Aggiorna lo stile di tutti i tab, impostandoli come inattivi
             document.querySelectorAll('.turno-tab').forEach(tab => {
                 tab.classList.remove('btn-primary');
                 tab.classList.add('btn-secondary');
             });
-            tabButton.classList.remove('btn-primary');
+            
+            // Imposta il pulsante cliccato come attivo
+            tabButton.classList.remove('btn-secondary');
             tabButton.classList.add('btn-primary');
         });
     });
@@ -351,12 +373,11 @@ function setupVirtualFormEventListeners() {
 function showCreateTurno() {
     const app = getApp();
     virtualState.editingTurno = null;
-    resetTurnoForm.call(app); // Passiamo il contesto per usare getTodayFormatted()
+    resetTurnoForm.call(app);
     
     document.getElementById('form-modal-content').innerHTML = getVirtualFormHTML();
     
-    // NUOVO: Applica la classe CSS per modale largo
-    const modalContent = document.querySelector('#form-modal .modal-content');
+    const modalContent = document.querySelector('#form-modal-content');
     if (modalContent) {
         modalContent.classList.add('modal-wide');
     }
@@ -380,8 +401,7 @@ function showEditTurno(turno) {
     
     document.getElementById('form-modal-content').innerHTML = getVirtualFormHTML();
 
-    // NUOVO: Applica la classe CSS per modale largo
-    const modalContent = document.querySelector('#form-modal .modal-content');
+    const modalContent = document.querySelector('#form-modal-content');
     if (modalContent) {
         modalContent.classList.add('modal-wide');
     }
@@ -497,6 +517,24 @@ function updateFilterButtons(activeMode) {
 }
 // Fine funzione updateFilterButtons
 
+// Inizio funzione setTrendChartTab
+function setTrendChartTab(tab) {
+    const app = this;
+    virtualState.trendChartTab = tab;
+
+    // Aggiorna stile pulsanti
+    document.querySelectorAll('[data-trend-tab]').forEach(btn => {
+        const isActive = btn.dataset.trendTab === tab;
+        btn.classList.toggle('btn-primary', isActive);
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('btn-secondary', !isActive);
+    });
+
+    // Aggiorna il grafico
+    safeUpdateCharts.call(app);
+}
+// Fine funzione setTrendChartTab
+
 // Inizio funzione sortVirtual
 function sortVirtual(column) {
     const app = this;
@@ -512,10 +550,8 @@ function sortVirtual(column) {
 
 // Inizio funzione getFilteredTurniForPeriod
 function getFilteredTurniForPeriod() {
-    // *** CORREZIONE: Usiamo 'this' per il contesto ***
     const app = this;
     
-    // CORREZIONE ERRORE: Controlli di sicurezza per evitare errori "Cannot read properties of undefined"
     if (!app || !app.state || !app.state.data || !Array.isArray(app.state.data.turni)) {
         console.warn('⚠️ Dati turni non disponibili');
         return [];
@@ -545,8 +581,6 @@ function sortedTurni() {
     const filtered = getFilteredTurniForPeriod.call(app);
     const turni = filtered.map(t => ({ ...t, total: getTurnoTotal(t) }));
     
-    // CORREZIONE BUG ORDINAMENTO: Aggiunto ordinamento secondario per 'createdAt'
-    // quando le date sono identiche, per mostrare i turni più recenti prima.
     return turni.sort((a, b) => {
         const dir = virtualState.virtualSort.direction === 'asc' ? 1 : -1;
         
@@ -557,7 +591,6 @@ function sortedTurni() {
             if (dateA.getTime() !== dateB.getTime()) {
                 return (dateA - dateB) * dir;
             } else {
-                // Se le date sono uguali, ordina per data di creazione (più recente prima)
                 const createdAtA = new Date(a.createdAt || 0);
                 const createdAtB = new Date(b.createdAt || 0);
                 return createdAtB - createdAtA;
@@ -621,7 +654,6 @@ function virtualStats() {
 // Inizio funzione currentPrices
 function currentPrices() {
     const app = this;
-    // CORREZIONE: Unificata la logica per recuperare l'ultimo listino prezzi valido.
     if (!Array.isArray(app.state.data.priceHistory) || app.state.data.priceHistory.length === 0) {
         return { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 };
     }
@@ -631,7 +663,6 @@ function currentPrices() {
 
 // Inizio funzione resetTurnoForm
 function resetTurnoForm() {
-    // *** CORREZIONE: Usiamo 'this' per il contesto ***
     const app = this;
     virtualState.turnoForm = {
         date: app.getTodayFormatted(),
@@ -666,7 +697,6 @@ function renderTurniTable() {
     
     const app = this;
     
-    // CORREZIONE ERRORE: Controlli di sicurezza per evitare errori "Cannot read properties of undefined"
     if (!app || !app.state || !app.state.data) {
         console.warn('⚠️ Dati app non disponibili per renderTurniTable');
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-12"><div class="empty-state"><i data-lucide="monitor-x"></i><div class="empty-state-title">Errore caricamento dati</div></div></td></tr>`;
@@ -712,6 +742,7 @@ function initCharts() {
     try {
         initProductsChart.call(app);
         initServiceChart.call(app);
+        initMonthlyTrendChart.call(app);
         virtualState.chartsInitialized = true;
         console.log('✅ Grafici Virtual inizializzati');
     } catch (error) {
@@ -734,7 +765,6 @@ function initProductsChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            // NUOVO: Gestione click per drill-down
             onClick: (event, elements) => {
                 if (elements.length > 0 && !virtualState.chartDrilldown.active) {
                     const clickedIndex = elements[0].index;
@@ -744,7 +774,6 @@ function initProductsChart() {
             },
             plugins: {
                 legend: { position: 'bottom' },
-                // NUOVO: Tooltip personalizzati e ricchi
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -788,23 +817,9 @@ function initServiceChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { position: 'bottom' },
-                // NUOVO: Configurazione per zoom e pan.
-                // NOTA: Richiede il plugin 'chartjs-plugin-zoom'.
-                // Esempio: <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
                 zoom: {
-                    pan: {
-                        enabled: true,
-                        mode: 'x',
-                    },
-                    zoom: {
-                        wheel: {
-                            enabled: true,
-                        },
-                        pinch: {
-                            enabled: true
-                        },
-                        mode: 'x',
-                    }
+                    pan: { enabled: true, mode: 'x' },
+                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
                 }
             },
             scales: {
@@ -822,12 +837,54 @@ function initServiceChart() {
 }
 // Fine funzione initServiceChart
 
+// Inizio funzione initMonthlyTrendChart
+function initMonthlyTrendChart() {
+    const app = this;
+    const ctx = document.getElementById('monthlyTrendChart');
+    if (!ctx) return;
+
+    const chartData = getMonthlyTrendChartData.call(app);
+
+    virtualState.monthlyTrendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            elements: {
+                line: { tension: 0.4, borderWidth: 3 },
+                point: { radius: 4, hoverRadius: 6 }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Litri venduti: ${app.formatInteger(context.parsed.y)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return app.formatInteger(value) + ' L';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+// Fine funzione initMonthlyTrendChart
+
 // Inizio funzione getProductsChartData
 function getProductsChartData() {
     const app = this;
     const filteredTurni = getFilteredTurniForPeriod.call(app);
     
-    // Logica per il drill-down
     if (virtualState.chartDrilldown.active && virtualState.chartDrilldown.product) {
         const productKey = virtualState.chartDrilldown.product.toLowerCase().replace('+', 'plus');
         const breakdown = getProductBreakdown.call(app, productKey);
@@ -843,7 +900,6 @@ function getProductsChartData() {
         };
     }
 
-    // Dati per la vista principale
     const totals = { benzina: 0, gasolio: 0, dieselplus: 0, hvolution: 0, adblue: 0 };
     
     filteredTurni.forEach(turno => {
@@ -860,9 +916,7 @@ function getProductsChartData() {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
         datasets: [{
             data: Object.values(totals),
-            backgroundColor: [
-                '#10b981', '#f59e0b', '#dc2626', '#06b6d4', '#6b7280'
-            ],
+            backgroundColor: [ '#10b981', '#f59e0b', '#dc2626', '#06b6d4', '#6b7280' ],
             borderWidth: 2,
             borderColor: document.body.classList.contains('theme-dark') ? '#111827' : '#ffffff'
         }]
@@ -890,20 +944,57 @@ function getServiceChartData() {
     return {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
         datasets: [
-            {
-                label: 'Iperself',
-                data: [iperself.benzina, iperself.gasolio, iperself.dieselplus, iperself.hvolution, 0],
-                backgroundColor: '#3b82f6'
-            },
-            {
-                label: 'Servito',
-                data: [servito.benzina, servito.gasolio, servito.dieselplus, servito.hvolution, servito.adblue],
-                backgroundColor: '#22c55e'
-            }
+            { label: 'Iperself', data: [iperself.benzina, iperself.gasolio, iperself.dieselplus, iperself.hvolution, 0], backgroundColor: '#3b82f6' },
+            { label: 'Servito', data: [servito.benzina, servito.gasolio, servito.dieselplus, servito.hvolution, servito.adblue], backgroundColor: '#22c55e' }
         ]
     };
 }
 // Fine funzione getServiceChartData
+
+// Inizio funzione getMonthlyTrendChartData
+function getMonthlyTrendChartData() {
+    const app = getApp();
+    const tab = virtualState.trendChartTab;
+    const currentYear = new Date().getFullYear();
+    
+    const labels = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    const data = Array(12).fill(0);
+
+    const yearTurni = app.state.data.turni.filter(t => new Date(t.date).getFullYear() === currentYear);
+
+    yearTurni.forEach(turno => {
+        const monthIndex = new Date(turno.date).getMonth();
+        let totalLiters = 0;
+
+        if (tab === 'generale') {
+            totalLiters = getTurnoTotal(turno);
+        } else {
+            totalLiters = (turno.iperself?.[tab] || 0) + (turno.servito?.[tab] || 0);
+        }
+        data[monthIndex] += totalLiters;
+    });
+
+    const productColors = {
+        generale: '#2563eb',   // blue
+        benzina: '#10b981',    // green
+        gasolio: '#f59e0b',    // yellow
+        dieselplus: '#dc2626', // red
+        hvolution: '#06b6d4'   // cyan/info
+    };
+    const selectedColor = productColors[tab] || '#6b7280';
+
+    return {
+        labels: labels,
+        datasets: [{
+            label: `Litri Totali Venduti (${tab})`,
+            data: data,
+            borderColor: selectedColor,
+            backgroundColor: `${selectedColor}1a`, // Aggiunge trasparenza
+            fill: true
+        }]
+    };
+}
+// Fine funzione getMonthlyTrendChartData
 
 // Inizio funzione safeUpdateCharts
 function safeUpdateCharts() {
@@ -921,6 +1012,11 @@ function safeUpdateCharts() {
         if (virtualState.serviceChartInstance) {
             virtualState.serviceChartInstance.data = getServiceChartData.call(app);
             virtualState.serviceChartInstance.update('none');
+        }
+        
+        if (virtualState.monthlyTrendChartInstance) {
+            virtualState.monthlyTrendChartInstance.data = getMonthlyTrendChartData.call(app);
+            virtualState.monthlyTrendChartInstance.update('none');
         }
     } catch (error) {
         console.error('Errore aggiornamento grafici:', error);
@@ -962,6 +1058,11 @@ function updateChartsTheme() {
     if (virtualState.serviceChartInstance) {
         Object.assign(virtualState.serviceChartInstance.options, updateOptions);
         virtualState.serviceChartInstance.update('none');
+    }
+    
+    if (virtualState.monthlyTrendChartInstance) {
+        Object.assign(virtualState.monthlyTrendChartInstance.options, updateOptions);
+        virtualState.monthlyTrendChartInstance.update('none');
     }
 }
 // Fine funzione updateChartsTheme

@@ -1,848 +1,643 @@
 // =============================================
-// FILE: anagrafica.js (versione Alpine.js) - VERSIONE CON PREFERITI
+// FILE: anagrafica.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
-// sezione Anagrafica (contatti, import/export, preferiti).
-// CORREZIONI: UTF-8 e funzionalità preferiti
+// sezione Anagrafica (contatti, etichette, import/export).
+// --- LAYOUT A COLONNA SINGOLA E FILTRO DROPDOWN ---
 // =============================================
 
-function anagraficaModule() {
-    return {
-        // === STATO DELLA SEZIONE ANAGRAFICA ===
-        anagraficaViewMode: Alpine.$persist('list'), // 'list' | 'create-contatto' | 'edit-contatto' | 'import-file'
-        anagraficaFilters: Alpine.$persist({ search: '', favorites: 'all' }), // ✨ AGGIUNTO: filtro preferiti
-        anagraficaSort: { column: 'cognome', direction: 'asc' },
-        
-        // === NUOVE: SELEZIONI MULTIPLE ===
-        selectedContatti: [],
-        selectAll: false,
-        
-        // === DATI ===
-        editingContatto: null,
-        contattoForm: {
-            nome: '',
-            cognome: '',
-            azienda: '',
-            telefono1: '',
-            telefono2: '',
-            email: '',
-            note: '',
-            isFavorite: false // ✨ AGGIUNTO: campo preferito
-        },
-        
-        // === STATO IMPORT ===
-        importProgress: { show: false, message: '', progress: 0 },
-        
-        // === INIZIALIZZAZIONE ===
-        initAnagrafica() {
-            // Inizializza l'array contatti se non esiste
-            if (!Array.isArray(this.data.contatti)) {
-                this.data.contatti = [];
-            }
-            this.resetContattoForm();
-            this.selectedContatti = [];
-            this.selectAll = false;
-        },
+// === STATO LOCALE DEL MODULO ANAGRAFICA ===
+let anagraficaState = {
+    // Filtri e Ordinamento
+    activeEtichettaId: 'all', // 'all' o l'ID di un'etichetta
+    searchQuery: '',
+    sort: { column: 'cognome', direction: 'asc' },
 
-        // === ✨ NUOVI METODI PER I PREFERITI ===
-        
-        // Togglea lo stato preferito di un contatto
-        toggleFavorite(contattoId) {
-            const contattoIndex = this.data.contatti.findIndex(c => c.id === contattoId);
-            if (contattoIndex !== -1) {
-                this.data.contatti[contattoIndex].isFavorite = !this.data.contatti[contattoIndex].isFavorite;
-                const action = this.data.contatti[contattoIndex].isFavorite ? 'aggiunto ai' : 'rimosso dai';
-                this.showNotification(`Contatto ${action} preferiti`);
-                this.refreshIcons();
-            }
-        },
-        
-        // Conta i contatti preferiti
-        getFavoritesCount() {
-            if (!Array.isArray(this.data.contatti)) return 0;
-            return this.data.contatti.filter(c => c.isFavorite === true).length;
-        },
+    // Form
+    contattoForm: {
+        nome: '', cognome: '', azienda: '',
+        telefono1: '', telefono2: '', email: '',
+        note: '', etichettaId: null
+    },
+    editingContatto: null,
+    
+    // Selezione Multipla
+    selectedContatti: [],
+    isSelectAllChecked: false,
+};
 
-        // === METODI SELEZIONE MULTIPLA ===
-        
-        toggleSelectAll() {
-            if (this.selectAll) {
-                this.selectedContatti = this.sortedContatti().map(c => c.id);
-            } else {
-                this.selectedContatti = [];
-            }
-        },
-        
-        toggleSelectContatto(contattoId) {
-            const index = this.selectedContatti.indexOf(contattoId);
-            if (index > -1) {
-                this.selectedContatti.splice(index, 1);
-            } else {
-                this.selectedContatti.push(contattoId);
-            }
-            this.updateSelectAllState();
-        },
-        
-        updateSelectAllState() {
-            const visibleContatti = this.sortedContatti();
-            this.selectAll = visibleContatti.length > 0 && 
-                this.selectedContatti.length === visibleContatti.length;
-        },
-        
-        deleteBulkContatti() {
-            if (this.selectedContatti.length === 0) {
-                this.showNotification('Seleziona almeno un contatto');
-                return;
-            }
-            
-            const count = this.selectedContatti.length;
-            this.showConfirm(
-                `Sei sicuro di voler eliminare ${count} contatti selezionati? Questa azione non può essere annullata.`,
-                () => {
-                    this.data.contatti = this.data.contatti.filter(c => !this.selectedContatti.includes(c.id));
-                    this.selectedContatti = [];
-                    this.selectAll = false;
-                    this.showNotification(`Eliminati ${count} contatti`);
-                    this.refreshIcons();
-                }
-            );
-        },
+// === INIZIALIZZAZIONE MODULO ANAGRAFICA ===
+// Inizio funzione initAnagrafica
+function initAnagrafica() {
+    console.log('📖 Inizializzazione modulo Anagrafica...');
+    const app = this;
 
-        // === METODI DI NAVIGAZIONE ===
-        
-        showCreateContatto() {
-            this.anagraficaViewMode = 'create-contatto';
-            this.editingContatto = null;
-            this.resetContattoForm();
-            this.refreshIcons();
-        },
+    if (!app.state.data.contatti) app.state.data.contatti = [];
+    if (!app.state.data.etichette) app.state.data.etichette = [];
 
-        showEditContatto(contatto) {
-            this.anagraficaViewMode = 'edit-contatto';
-            this.editingContatto = contatto;
-            this.contattoForm = {
-                nome: contatto.nome || '',
-                cognome: contatto.cognome || '',
-                azienda: contatto.azienda || '',
-                telefono1: contatto.telefono1 || '',
-                telefono2: contatto.telefono2 || '',
-                email: contatto.email || '',
-                note: contatto.note || '',
-                isFavorite: contatto.isFavorite || false // ✨ AGGIUNTO: carica stato preferito
-            };
-            this.refreshIcons();
-        },
+    resetContattoForm();
+    console.log('✅ Modulo Anagrafica inizializzato');
+}
+// Fine funzione initAnagrafica
 
-        showImportFile() {
-            this.anagraficaViewMode = 'import-file';
-            this.refreshIcons();
-        },
+// === FUNZIONI DI RENDER ===
 
-        backToAnagraficaList() {
-            this.anagraficaViewMode = 'list';
-            this.editingContatto = null;
-            this.resetContattoForm();
-        },
+// Inizio funzione renderAnagraficaSection
+function renderAnagraficaSection(container) {
+    const app = this;
+    const contatti = getFilteredAndSortedContatti.call(app);
 
-        // === METODI DI ORDINAMENTO E FILTRO ===
-
-        sortAnagrafica(column) {
-            if (this.anagraficaSort.column === column) {
-                this.anagraficaSort.direction = this.anagraficaSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.anagraficaSort.column = column;
-                this.anagraficaSort.direction = 'asc';
-            }
-        },
-
-        // ✨ MODIFICATO: aggiunto filtro preferiti e ordinamento prioritario
-        sortedContatti() {
-            if (!Array.isArray(this.data.contatti)) return [];
-            
-            let contatti = [...this.data.contatti];
-            
-            // Applica filtro ricerca
-            if (this.anagraficaFilters.search.trim()) {
-                const query = this.anagraficaFilters.search.toLowerCase();
-                contatti = contatti.filter(c => 
-                    (c.nome || '').toLowerCase().includes(query) ||
-                    (c.cognome || '').toLowerCase().includes(query) ||
-                    (c.azienda || '').toLowerCase().includes(query) ||
-                    (c.email || '').toLowerCase().includes(query)
-                );
-            }
-            
-            // ✨ NUOVO: Applica filtro preferiti
-            if (this.anagraficaFilters.favorites === 'favorites') {
-                contatti = contatti.filter(c => c.isFavorite === true);
-            }
-            
-            // ✨ MODIFICATO: Ordinamento con priorità ai preferiti
-            return contatti.sort((a, b) => {
-                // I preferiti vengono sempre prima quando il filtro non è specifico sui preferiti
-                if (this.anagraficaFilters.favorites !== 'favorites') {
-                    const aFav = a.isFavorite ? 1 : 0;
-                    const bFav = b.isFavorite ? 1 : 0;
-                    if (aFav !== bFav) {
-                        return bFav - aFav; // I preferiti prima
-                    }
-                }
-                
-                // Ordinamento normale
-                const dir = this.anagraficaSort.direction === 'asc' ? 1 : -1;
-                const aVal = (a[this.anagraficaSort.column] || '').toLowerCase();
-                const bVal = (b[this.anagraficaSort.column] || '').toLowerCase();
-                return aVal.localeCompare(bVal, 'it-IT') * dir;
-            });
-        },
-
-        // === METODI UTILITY ===
-
-        resetContattoForm() {
-            this.contattoForm = {
-                nome: '',
-                cognome: '',
-                azienda: '',
-                telefono1: '',
-                telefono2: '',
-                email: '',
-                note: '',
-                isFavorite: false // ✨ AGGIUNTO: reset campo preferito
-            };
-        },
-
-        // === GESTIONE CONTATTI ===
-
-        // ✨ MODIFICATO: aggiunto salvataggio campo preferito
-        saveContatto() {
-            if (!this.contattoForm.nome.trim() && !this.contattoForm.cognome.trim()) {
-                this.showNotification('Nome o cognome sono obbligatori');
-                return;
-            }
-
-            const contatto = {
-                id: this.editingContatto ? this.editingContatto.id : this.generateUniqueId('contatto'),
-                nome: this.contattoForm.nome.trim(),
-                cognome: this.contattoForm.cognome.trim(),
-                azienda: this.contattoForm.azienda.trim(),
-                telefono1: this.contattoForm.telefono1.trim(),
-                telefono2: this.contattoForm.telefono2.trim(),
-                email: this.contattoForm.email.trim(),
-                note: this.contattoForm.note.trim(),
-                isFavorite: this.contattoForm.isFavorite || false, // ✨ AGGIUNTO: salva stato preferito
-                createdAt: this.editingContatto ? this.editingContatto.createdAt : new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            if (this.editingContatto) {
-                const index = this.data.contatti.findIndex(c => c.id === this.editingContatto.id);
-                if (index !== -1) this.data.contatti[index] = contatto;
-                this.showNotification('Contatto aggiornato con successo!');
-            } else {
-                this.data.contatti.push(contatto);
-                this.showNotification('Contatto aggiunto con successo!');
-            }
-
-            this.backToAnagraficaList();
-            this.refreshIcons();
-        },
-
-        deleteContatto(contattoId) {
-            const contatto = this.data.contatti.find(c => c.id === contattoId);
-            if (!contatto) return;
-            
-            const nomeCompleto = [contatto.nome, contatto.cognome].filter(n => n).join(' ') || 'Contatto senza nome';
-            this.showConfirm('Sei sicuro di voler eliminare il contatto "' + nomeCompleto + '"?', () => {
-                this.data.contatti = this.data.contatti.filter(c => c.id !== contattoId);
-                this.showNotification('Contatto eliminato.');
-                this.refreshIcons();
-            });
-        },
-
-        // === ELIMINA RUBRICA COMPLETA ===
-        
-        deleteAllContatti() {
-            if (!Array.isArray(this.data.contatti) || this.data.contatti.length === 0) {
-                this.showNotification('La rubrica è già vuota');
-                return;
-            }
-            
-            const count = this.data.contatti.length;
-            this.showConfirm(
-                `Sei sicuro di voler eliminare TUTTA la rubrica? Verranno eliminati ${count} contatti. Questa azione non può essere annullata.`,
-                () => {
-                    this.data.contatti = [];
-                    this.selectedContatti = [];
-                    this.selectAll = false;
-                    this.showNotification(`Rubrica eliminata: ${count} contatti rimossi`);
-                    this.refreshIcons();
-                }
-            );
-        },
-
-        // === IMPORT/EXPORT FILE - SOLO CSV ===
-
-        async handleFileImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Reset progress
-            this.importProgress = { show: true, message: 'Preparazione import...', progress: 0 };
-
-            try {
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                let contatti = [];
-
-                // Solo supporto CSV
-                if (fileExtension === 'csv') {
-                    contatti = await this.importCSV(file);
-                } else {
-                    throw new Error('Formato file non supportato. Usa solo file CSV.');
-                }
-
-                // Simula progress per UX
-                this.importProgress.message = 'Processamento contatti...';
-                this.importProgress.progress = 50;
-
-                // Merge con contatti esistenti (evita duplicati per email)
-                let added = 0, skipped = 0;
-                
-                contatti.forEach(nuovoContatto => {
-                    const exists = this.data.contatti.some(existing => 
-                        existing.email && nuovoContatto.email && existing.email.toLowerCase() === nuovoContatto.email.toLowerCase()
-                    );
-                    
-                    if (!exists) {
-                        this.data.contatti.push({
-                            ...nuovoContatto,
-                            id: this.generateUniqueId('contatto'),
-                            isFavorite: false, // ✨ AGGIUNTO: i contatti importati non sono preferiti di default
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString()
-                        });
-                        added++;
-                    } else {
-                        skipped++;
-                    }
-                });
-
-                this.importProgress.message = 'Completamento...';
-                this.importProgress.progress = 100;
-
-                setTimeout(() => {
-                    this.importProgress.show = false;
-                    this.showNotification('Import completato: ' + added + ' contatti aggiunti, ' + skipped + ' duplicati ignorati.');
-                    this.backToAnagraficaList();
-                    this.refreshIcons();
-                }, 1000);
-
-            } catch (error) {
-                console.error('Errore durante import:', error);
-                this.importProgress.show = false;
-                this.showNotification('Errore durante importazione: ' + error.message);
-            }
-
-            // Reset input file
-            event.target.value = '';
-        },
-
-        async importCSV(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        // Usa Papa Parse se disponibile, altrimenti parsing manuale
-                        if (typeof Papa !== 'undefined') {
-                            const results = Papa.parse(e.target.result, {
-                                header: true,
-                                skipEmptyLines: true,
-                                transformHeader: (header) => header.trim()
-                            });
-                            
-                            const contatti = results.data.map(row => this.mapCSVRowToContatto(row));
-                            resolve(contatti.filter(c => c !== null));
-                        } else {
-                            // Fallback parsing CSV manuale
-                            const lines = e.target.result.split('\n');
-                            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-                            const contatti = [];
-
-                            for (let i = 1; i < lines.length; i++) {
-                                if (lines[i].trim()) {
-                                    const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-                                    const row = {};
-                                    headers.forEach((header, index) => {
-                                        row[header] = values[index] || '';
-                                    });
-                                    const contatto = this.mapCSVRowToContatto(row);
-                                    if (contatto) contatti.push(contatto);
-                                }
-                            }
-                            resolve(contatti);
-                        }
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                reader.onerror = () => reject(new Error('Errore lettura file CSV'));
-                reader.readAsText(file, 'UTF-8');
-            });
-        },
-
-        mapCSVRowToContatto(row) {
-            // Mappa le colonne CSV ai campi contatto
-            const getNormalizedValue = (row, possibleKeys) => {
-                for (let key of possibleKeys) {
-                    if (row[key] && String(row[key]).trim()) {
-                        return String(row[key]).trim();
-                    }
-                }
-                return '';
-            };
-
-            const nome = getNormalizedValue(row, ['First Name', 'Nome', 'nome']);
-            const cognome = getNormalizedValue(row, ['Last Name', 'Cognome', 'cognome']);
-            const azienda = getNormalizedValue(row, ['Organization Name', 'Azienda', 'azienda', 'Company']);
-            const telefono1 = getNormalizedValue(row, ['Phone 1 - Value', 'Telefono', 'telefono', 'Phone', 'Cellulare']);
-            const email = getNormalizedValue(row, ['E-mail 1 - Value', 'Email', 'email', 'E-mail']);
-            const note = getNormalizedValue(row, ['Notes', 'Note', 'note']);
-
-            // Valida che ci sia almeno nome o cognome
-            if (!nome && !cognome) {
-                return null;
-            }
-
-            return {
-                nome,
-                cognome,
-                azienda,
-                telefono1,
-                telefono2: '', // Non presente nei dati CSV forniti
-                email,
-                note
-                // isFavorite viene aggiunto durante l'import
-            };
-        },
-
-        exportContatti() {
-            if (!Array.isArray(this.data.contatti) || this.data.contatti.length === 0) {
-                this.showNotification('Nessun contatto da esportare');
-                return;
-            }
-
-            // Crea CSV - ✨ AGGIUNTO: colonna Preferito
-            const headers = ['Nome', 'Cognome', 'Azienda', 'Telefono1', 'Telefono2', 'Email', 'Note', 'Preferito'];
-            const csvContent = [
-                headers.join(','),
-                ...this.data.contatti.map(c => [
-                    this.escapeCsvValue(c.nome || ''),
-                    this.escapeCsvValue(c.cognome || ''),
-                    this.escapeCsvValue(c.azienda || ''),
-                    this.escapeCsvValue(c.telefono1 || ''),
-                    this.escapeCsvValue(c.telefono2 || ''),
-                    this.escapeCsvValue(c.email || ''),
-                    this.escapeCsvValue(c.note || ''),
-                    c.isFavorite ? 'Sì' : 'No' // ✨ AGGIUNTO: export campo preferito
-                ].join(','))
-            ].join('\n');
-
-            // Download file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'mystation_contatti_' + this.formatDateForFilename() + '.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            this.showNotification('Contatti esportati con successo');
-        },
-
-        escapeCsvValue(value) {
-            if (typeof value !== 'string') return '';
-            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-                return '"' + value.replace(/"/g, '""') + '"';
-            }
-            return value;
-        },
-
-        // === ✨ TEMPLATE HTML CON PREFERITI ===
-        anagraficaTemplate: `
-            <div class="max-w-7xl mx-auto space-y-6">
-                
-                <!-- VISTA LISTA CONTATTI -->
-                <div x-show="anagraficaViewMode === 'list'" class="view-transition">
-                    
-                    <!-- Statistiche Semplificate con Preferiti -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 no-print">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Totale Contatti</p>
-                                    <p x-text="data.contatti.length" class="text-4xl font-bold text-blue-600 dark:text-blue-400">0</p>
-                                </div>
-                                <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full ml-6">
-                                    <i data-lucide="users" class="w-8 h-8 text-blue-600 dark:text-blue-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- ✨ NUOVO: Card Preferiti -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Preferiti</p>
-                                    <p x-text="getFavoritesCount()" class="text-4xl font-bold text-yellow-600 dark:text-yellow-400">0</p>
-                                </div>
-                                <div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-full ml-6">
-                                    <i data-lucide="star" class="w-8 h-8 text-yellow-600 dark:text-yellow-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Con Email</p>
-                                    <p x-text="data.contatti.filter(c => c.email && c.email.trim()).length" class="text-4xl font-bold text-green-600 dark:text-green-400">0</p>
-                                </div>
-                                <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full ml-6">
-                                    <i data-lucide="mail" class="w-8 h-8 text-green-600 dark:text-green-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Con Telefono</p>
-                                    <p x-text="data.contatti.filter(c => c.telefono1 && c.telefono1.trim()).length" class="text-4xl font-bold text-purple-600 dark:text-purple-400">0</p>
-                                </div>
-                                <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-full ml-6">
-                                    <i data-lucide="phone" class="w-8 h-8 text-purple-600 dark:text-purple-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Filtri e Ricerca con Preferiti -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6 no-print">
-                        <div class="flex flex-wrap items-end gap-4">
-                            <!-- Campo Ricerca -->
-                            <div class="flex-1 min-w-64 max-w-sm">
-                                <label for="contatto-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cerca Contatto</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
-                                    </div>
-                                    <input type="search" id="contatto-search" x-model="anagraficaFilters.search" placeholder="Cerca per nome, cognome, azienda o email..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500">
-                                </div>
-                            </div>
-                            
-                            <!-- ✨ NUOVO: Filtro Preferiti -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mostra</label>
-                                <select x-model="anagraficaFilters.favorites" class="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    <option value="all">Tutti i contatti</option>
-                                    <option value="favorites">Solo preferiti</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Pulsanti Azione -->
-                            <button @click="showCreateContatto()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center">
-                                <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>Nuovo Contatto
-                            </button>
-                            
-                            <!-- Dropdown Azioni -->
-                            <button id="dropdownAzioniButton" data-dropdown-toggle="dropdownAzioni" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
-                                <i data-lucide="settings" class="w-5 h-5 mr-2"></i>Azioni
-                                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                </svg>
-                            </button>
-                            <div id="dropdownAzioni" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-                                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-                                    <li><a href="#" @click.prevent="showImportFile()" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i data-lucide="upload" class="w-4 h-4 inline mr-2"></i>Importa CSV</a></li>
-                                    <li><a href="#" @click.prevent="exportContatti()" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Esporta CSV</a></li>
-                                </ul>
-                                <div class="py-2">
-                                    <a href="#" @click.prevent="deleteAllContatti()" class="block px-4 py-2 text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white"><i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>Elimina Rubrica</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Barra Selezione Multipla -->
-                    <div x-show="selectedContatti.length > 0" x-transition class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6 no-print">
-                        <div class="flex flex-wrap items-center gap-4">
-                            <div class="flex items-center">
-                                <span class="text-sm text-red-700 dark:text-red-300 mr-4">
-                                    <span x-text="selectedContatti.length"></span> contatti selezionati
-                                </span>
-                            </div>
-                            
-                            <button @click="deleteBulkContatti()" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2">
-                                <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i>
-                                Elimina Selezionati
-                            </button>
-                            <button @click="selectedContatti = []; selectAll = false" class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
-                                Deseleziona
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Tabella Contatti con Stelle Preferiti -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden no-print">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Elenco Contatti</h2>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr>
-                                        <!-- Checkbox Seleziona Tutto -->
-                                        <th scope="col" class="p-4">
-                                            <div class="flex items-center">
-                                                <input id="checkbox-all" type="checkbox" x-model="selectAll" @change="toggleSelectAll()" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                                <label for="checkbox-all" class="sr-only">checkbox</label>
-                                            </div>
-                                        </th>
-                                        <!-- ✨ NUOVO: Colonna Stella -->
-                                        <th scope="col" class="px-2 py-3">
-                                            <i data-lucide="star" class="w-4 h-4 text-yellow-500"></i>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">
-                                            <button @click="sortAnagrafica('cognome')" class="flex items-center">
-                                                Cognome <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
-                                            </button>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">
-                                            <button @click="sortAnagrafica('nome')" class="flex items-center">
-                                                Nome <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
-                                            </button>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">
-                                            <button @click="sortAnagrafica('azienda')" class="flex items-center">
-                                                Azienda <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
-                                            </button>
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">Contatti</th>
-                                        <th scope="col" class="px-6 py-3 text-right">Azioni</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template x-for="contatto in sortedContatti()" :key="contatto.id">
-                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" :class="selectedContatti.includes(contatto.id) ? 'bg-blue-50 dark:bg-blue-900/20' : ''">
-                                            <!-- Checkbox Selezione -->
-                                            <td class="w-4 p-4">
-                                                <div class="flex items-center">
-                                                    <input :id="'checkbox-' + contatto.id" type="checkbox" :value="contatto.id" @change="toggleSelectContatto(contatto.id)" :checked="selectedContatti.includes(contatto.id)" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                                    <label :for="'checkbox-' + contatto.id" class="sr-only">checkbox</label>
-                                                </div>
-                                            </td>
-                                            <!-- ✨ NUOVO: Pulsante Stella Preferiti -->
-                                            <td class="px-2 py-4">
-                                                <button @click="toggleFavorite(contatto.id)" 
-                                                        :class="contatto.isFavorite ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-300 hover:text-yellow-500'" 
-                                                        class="transition-colors duration-200 p-1"
-                                                        :title="contatto.isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'">
-                                                    <i data-lucide="star" class="w-4 h-4" :class="contatto.isFavorite ? 'fill-current' : ''"></i>
-                                                </button>
-                                            </td>
-                                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white" x-text="contatto.cognome || '-'"></td>
-                                            <td class="px-6 py-4 text-gray-900 dark:text-white" x-text="contatto.nome || '-'"></td>
-                                            <td class="px-6 py-4 text-gray-900 dark:text-white" x-text="contatto.azienda || '-'"></td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-xs space-y-1">
-                                                    <div x-show="contatto.telefono1" class="flex items-center">
-                                                        <i data-lucide="phone" class="w-3 h-3 mr-1"></i>
-                                                        <span x-text="contatto.telefono1"></span>
-                                                    </div>
-                                                    <div x-show="contatto.email" class="flex items-center">
-                                                        <i data-lucide="mail" class="w-3 h-3 mr-1"></i>
-                                                        <span x-text="contatto.email"></span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-right">
-                                                <div class="flex items-center justify-end space-x-2">
-                                                    <button @click="showEditContatto(contatto)" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 p-1" title="Modifica contatto">
-                                                        <i data-lucide="edit" class="w-4 h-4"></i>
-                                                    </button>
-                                                    <button @click="deleteContatto(contatto.id)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1" title="Elimina contatto">
-                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <tr x-show="sortedContatti().length === 0">
-                                        <td colspan="7" class="text-center py-12">
-                                            <div class="text-gray-500 dark:text-gray-400">
-                                                <i data-lucide="users" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600"></i>
-                                                <p class="text-lg">Nessun contatto trovato</p>
-                                                <p class="text-sm">Aggiungi un nuovo contatto o modifica i filtri di ricerca.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VISTA CREAZIONE/MODIFICA CONTATTO -->
-                <div x-show="anagraficaViewMode === 'create-contatto' || anagraficaViewMode === 'edit-contatto'" class="view-transition">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white" 
-                                x-text="anagraficaViewMode === 'edit-contatto' ? 'Modifica Contatto' : 'Nuovo Contatto'"></h2>
-                            <button @click="backToAnagraficaList()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                                <i data-lucide="x" class="w-6 h-6"></i>
-                            </button>
-                        </div>
-                        <div class="p-6">
-                            <div class="space-y-6">
-                                <!-- Riga 1: Nome, Cognome, Azienda -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label for="contatto-nome" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-                                        <input type="text" x-model="contattoForm.nome" id="contatto-nome" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                                               required>
-                                    </div>
-                                    <div>
-                                        <label for="contatto-cognome" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cognome</label>
-                                        <input type="text" x-model="contattoForm.cognome" id="contatto-cognome" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                                               required>
-                                    </div>
-                                    <div>
-                                        <label for="contatto-azienda" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Azienda</label>
-                                        <input type="text" x-model="contattoForm.azienda" id="contatto-azienda" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </div>
-                                </div>
-
-                                <!-- Riga 2: Telefono, Telefono, Email -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label for="contatto-telefono1" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefono 1</label>
-                                        <input type="tel" x-model="contattoForm.telefono1" id="contatto-telefono1" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </div>
-                                    <div>
-                                        <label for="contatto-telefono2" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefono 2</label>
-                                        <input type="tel" x-model="contattoForm.telefono2" id="contatto-telefono2" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </div>
-                                    <div>
-                                        <label for="contatto-email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                                        <input type="email" x-model="contattoForm.email" id="contatto-email" 
-                                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    </div>
-                                </div>
-
-                                <!-- Riga 3: Note e Preferito -->
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <div class="md:col-span-3">
-                                        <label for="contatto-note" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Note</label>
-                                        <textarea x-model="contattoForm.note" id="contatto-note" rows="3" 
-                                                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" 
-                                                  placeholder="Note aggiuntive sul contatto..."></textarea>
-                                    </div>
-                                    <!-- ✨ NUOVO: Checkbox Preferito -->
-                                    <div class="flex flex-col justify-center">
-                                        <div class="flex items-center">
-                                            <input id="contatto-favorite" type="checkbox" x-model="contattoForm.isFavorite" 
-                                                   class="w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500 dark:focus:ring-yellow-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                            <label for="contatto-favorite" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 flex items-center">
-                                                <i data-lucide="star" class="w-4 h-4 text-yellow-500 mr-1"></i>
-                                                Preferito
-                                            </label>
-                                        </div>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">I contatti preferiti appaiono in cima all'elenco</p>
-                                    </div>
-                                </div>
-
-                                <!-- Pulsanti Azione -->
-                                <div class="flex items-center justify-start space-x-3">
-                                    <button @click="saveContatto()" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
-                                        Salva Contatto
-                                    </button>
-                                    <button @click="backToAnagraficaList()" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
-                                        Annulla
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VISTA IMPORT FILE - SOLO CSV -->
-                <div x-show="anagraficaViewMode === 'import-file'" class="view-transition">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Importa Contatti da File CSV</h2>
-                            <button @click="backToAnagraficaList()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                                <i data-lucide="x" class="w-6 h-6"></i>
-                            </button>
-                        </div>
-                        <div class="p-6">
-                            <div class="space-y-6">
-                                <!-- Area Upload File -->
-                                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
-                                    <i data-lucide="file-text" class="w-12 h-12 mx-auto mb-4 text-gray-400"></i>
-                                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Carica File CSV</h3>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Formato supportato: .csv</p>
-                                    
-                                    <input type="file" x-ref="importFileInput" @change="handleFileImport($event)" 
-                                           accept=".csv" class="hidden">
-                                    <button @click="$refs.importFileInput.click()" 
-                                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center mx-auto">
-                                        <i data-lucide="upload" class="w-4 h-4 mr-2"></i>
-                                        Scegli File CSV
-                                    </button>
-                                </div>
-
-                                <!-- Progress Bar Import -->
-                                <div x-show="importProgress.show" class="space-y-2">
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-700 dark:text-gray-300" x-text="importProgress.message">Importazione in corso...</span>
-                                        <span class="text-gray-700 dark:text-gray-300" x-text="importProgress.progress + '%'">0%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                                             :style="'width: ' + importProgress.progress + '%'"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Istruzioni - Solo CSV -->
-                                <div class="bg-blue-50 dark:bg-gray-900 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                    <div class="flex items-start">
-                                        <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0"></i>
-                                        <div class="text-sm text-blue-700 dark:text-blue-300">
-                                            <p class="font-medium mb-1">Formato File CSV:</p>
-                                            <p class="mb-2">Il file deve contenere le seguenti colonne (ordine non importante):</p>
-                                            <ul class="list-disc list-inside space-y-1 text-xs">
-                                                <li><strong>First Name</strong> o <strong>Nome</strong> - Nome del contatto</li>
-                                                <li><strong>Last Name</strong> o <strong>Cognome</strong> - Cognome del contatto</li>
-                                                <li><strong>Organization Name</strong> o <strong>Azienda</strong> - Nome azienda</li>
-                                                <li><strong>Phone 1 - Value</strong> o <strong>Telefono</strong> - Numero di telefono</li>
-                                                <li><strong>E-mail 1 - Value</strong> o <strong>Email</strong> - Indirizzo email</li>
-                                                <li><strong>Notes</strong> o <strong>Note</strong> - Note aggiuntive</li>
-                                            </ul>
-                                            <p class="mt-2 text-xs text-blue-600 dark:text-blue-400"><strong>Nota:</strong> I contatti importati non saranno automaticamente preferiti.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+    container.innerHTML = `
+        <div class="space-y-6">
+            ${getAnagraficaHeaderHTML(app)}
+            <div id="bulk-actions-container">
+                ${getBulkActionsHTML()}
             </div>
-        `
+            <div class="card">
+                <div id="contatti-table-container" class="table-container">
+                    ${getContattiTableHTML(app, contatti)}
+                </div>
+            </div>
+        </div>
+    `;
+
+    setupAnagraficaEventListeners.call(app);
+    app.refreshIcons();
+}
+// Fine funzione renderAnagraficaSection
+
+// Inizio funzione getAnagraficaHeaderHTML
+function getAnagraficaHeaderHTML(app) {
+    const etichette = app.state.data.etichette || [];
+
+    return `
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label class="form-label">Cerca</label>
+                <div class="input-group">
+                    <i data-lucide="search" class="input-group-icon"></i>
+                    <input type="search" id="anagrafica-search" class="form-control" 
+                           placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Filtra per Etichetta</label>
+                <select id="anagrafica-etichetta-filter" class="form-control" style="max-width: 100%;">
+                    <option value="all">Tutte le etichette</option>
+                    ${etichette.map(e => `<option value="${e.id}" ${anagraficaState.activeEtichettaId === e.id ? 'selected' : ''}>${e.nome}</option>`).join('')}
+                </select>
+            </div>
+            <div class="flex space-x-2">
+                <button id="import-contatti-btn" class="btn btn-secondary">
+                    <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importa
+                </button>
+                <button id="export-contatti-btn" class="btn btn-secondary">
+                    <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
+                </button>
+                <button id="new-contatto-btn" class="btn btn-primary">
+                    <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Nuovo Contatto
+                </button>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getAnagraficaHeaderHTML
+
+// Inizio funzione getBulkActionsHTML
+function getBulkActionsHTML() {
+    const count = anagraficaState.selectedContatti.length;
+    if (count === 0) return '';
+    return `
+        <div class="bulk-actions-bar">
+            <span>${count} contatti selezionati</span>
+            <button id="bulk-delete-btn" class="btn btn-danger btn-sm">
+                <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Selezionati
+            </button>
+        </div>
+    `;
+}
+// Fine funzione getBulkActionsHTML
+
+// Inizio funzione getContattiTableHTML
+function getContattiTableHTML(app, contatti) {
+    const etichette = app.state.data.etichette || [];
+
+    if (contatti.length === 0) {
+        return `
+            <div class="empty-state p-12">
+                <i data-lucide="users"></i>
+                <div class="empty-state-title">Nessun contatto trovato</div>
+                <div class="empty-state-description">Aggiungi un nuovo contatto o cambia il filtro.</div>
+            </div>`;
+    }
+
+    return `
+        <table class="table" id="contatti-table">
+            <thead>
+                <tr>
+                    <th class="p-4 w-4">
+                        <input type="checkbox" id="select-all-contatti" ${anagraficaState.isSelectAllChecked ? 'checked' : ''}>
+                    </th>
+                    <th><button data-sort="cognome">Cognome <i data-lucide="arrow-up-down"></i></button></th>
+                    <th><button data-sort="nome">Nome <i data-lucide="arrow-up-down"></i></button></th>
+                    <th><button data-sort="azienda">Azienda <i data-lucide="arrow-up-down"></i></button></th>
+                    <th>Contatti</th>
+                    <th>Etichetta</th>
+                    <th class="text-right">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${contatti.map(c => {
+                    const etichetta = etichette.find(e => e.id === c.etichettaId);
+                    return `
+                        <tr class="${anagraficaState.selectedContatti.includes(c.id) ? 'selected' : ''}">
+                            <td class="p-4 w-4"><input type="checkbox" class="select-contatto" data-id="${c.id}" ${anagraficaState.selectedContatti.includes(c.id) ? 'checked' : ''}></td>
+                            <td class="font-medium text-primary">${c.cognome || '-'}</td>
+                            <td class="text-primary">${c.nome || '-'}</td>
+                            <td>${c.azienda || '-'}</td>
+                            <td>
+                                <div class="text-xs space-y-1">
+                                    ${c.telefono1 ? `<div><i data-lucide="phone" class="w-3 h-3 inline-block mr-1"></i> ${c.telefono1}</div>` : ''}
+                                    ${c.email ? `<div><i data-lucide="mail" class="w-3 h-3 inline-block mr-1"></i> ${c.email}</div>` : ''}
+                                </div>
+                            </td>
+                            <td>
+                                ${etichetta ? `<span class="etichetta-badge" style="background-color: ${etichetta.colore}33; color: ${etichetta.colore};">${etichetta.nome}</span>` : '-'}
+                            </td>
+                            <td class="text-right">
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button class="btn btn-success btn-sm" onclick="showContattoModal('${c.id}')"><i data-lucide="edit"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteContattoById('${c.id}')"><i data-lucide="trash-2"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+        </table>
+    `;
+}
+// Fine funzione getContattiTableHTML
+
+// Inizio funzione getContattoModalHTML
+function getContattoModalHTML() {
+    const app = getApp();
+    const etichette = app.state.data.etichette || [];
+    const form = anagraficaState.contattoForm;
+    const isEdit = !!anagraficaState.editingContatto;
+    const title = isEdit ? 'Modifica Contatto' : 'Nuovo Contatto';
+
+    return `
+        <div class="card-header">
+            <h2 class="card-title">${title}</h2>
+            <button id="cancel-contatto-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group"><label class="form-label">Cognome</label><input type="text" id="contatto-cognome" class="form-control" style="max-width:100%" value="${form.cognome || ''}"></div>
+                <div class="form-group"><label class="form-label">Nome</label><input type="text" id="contatto-nome" class="form-control" style="max-width:100%" value="${form.nome || ''}"></div>
+                <div class="form-group"><label class="form-label">Azienda</label><input type="text" id="contatto-azienda" class="form-control" style="max-width:100%" value="${form.azienda || ''}"></div>
+                <div class="form-group"><label class="form-label">Etichetta</label>
+                    <select id="contatto-etichettaId" class="form-control" style="max-width:100%">
+                        <option value="">(Nessuna)</option>
+                        ${etichette.map(e => `<option value="${e.id}" ${form.etichettaId === e.id ? 'selected' : ''}>${e.nome}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Telefono 1</label><input type="tel" id="contatto-telefono1" class="form-control" style="max-width:100%" value="${form.telefono1 || ''}"></div>
+                <div class="form-group"><label class="form-label">Telefono 2</label><input type="tel" id="contatto-telefono2" class="form-control" style="max-width:100%" value="${form.telefono2 || ''}"></div>
+                <div class="form-group"><label class="form-label">Email</label><input type="email" id="contatto-email" class="form-control" style="max-width:100%" value="${form.email || ''}"></div>
+                <div class="form-group"><label class="form-label">Note</label><input type="text" id="contatto-note" class="form-control" style="max-width:100%" value="${form.note || ''}"></div>
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+                <button id="cancel-contatto-btn-bottom" class="btn btn-secondary">Annulla</button>
+                <button id="save-contatto-btn" class="btn btn-primary">${isEdit ? 'Salva Modifiche' : 'Crea Contatto'}</button>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getContattoModalHTML
+
+// === GESTIONE EVENTI ===
+
+// Inizio funzione setupAnagraficaEventListeners
+function setupAnagraficaEventListeners() {
+    const app = getApp();
+    
+    document.getElementById('anagrafica-etichetta-filter')?.addEventListener('change', (e) => {
+        filterByEtichetta.call(app, e.target.value);
+    });
+
+    document.getElementById('anagrafica-search')?.addEventListener('input', (e) => {
+        anagraficaState.searchQuery = e.target.value;
+        rerenderContattiList.call(app);
+    });
+
+    document.getElementById('new-contatto-btn')?.addEventListener('click', () => showContattoModal.call(app));
+    document.getElementById('import-contatti-btn')?.addEventListener('click', () => showImportModal.call(app));
+    document.getElementById('export-contatti-btn')?.addEventListener('click', () => exportAnagraficaToCSV.call(app));
+
+    document.querySelectorAll('#contatti-table [data-sort]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            sortAnagrafica.call(app, btn.dataset.sort);
+        });
+    });
+
+    document.getElementById('select-all-contatti')?.addEventListener('change', (e) => toggleSelectAll.call(app, e.target.checked));
+    document.querySelectorAll('.select-contatto').forEach(el => {
+        el.addEventListener('change', () => updateSelectedContatti.call(app));
+    });
+    document.getElementById('bulk-delete-btn')?.addEventListener('click', () => bulkDeleteContatti.call(app));
+}
+// Fine funzione setupAnagraficaEventListeners
+
+
+// === FUNZIONI DI LOGICA ===
+
+// Inizio funzione rerenderAnagraficaView
+function rerenderAnagraficaView() {
+    const app = this;
+    const container = document.getElementById('section-anagrafica');
+    if(container) {
+        renderAnagraficaSection.call(app, container);
+    }
+}
+// Fine funzione rerenderAnagraficaView
+
+// Inizio funzione rerenderContattiList
+function rerenderContattiList() {
+    const app = this;
+    const contatti = getFilteredAndSortedContatti.call(app);
+    const tableContainer = document.getElementById('contatti-table-container');
+    const bulkContainer = document.getElementById('bulk-actions-container');
+
+    if (tableContainer) {
+        tableContainer.innerHTML = getContattiTableHTML(app, contatti);
+    }
+    if (bulkContainer) {
+        bulkContainer.innerHTML = getBulkActionsHTML();
+    }
+
+    document.querySelectorAll('#contatti-table [data-sort]').forEach(btn => btn.addEventListener('click', () => sortAnagrafica.call(app, btn.dataset.sort)));
+    document.getElementById('select-all-contatti')?.addEventListener('change', (e) => toggleSelectAll.call(app, e.target.checked));
+    document.querySelectorAll('.select-contatto').forEach(el => el.addEventListener('change', () => updateSelectedContatti.call(app)));
+    document.getElementById('bulk-delete-btn')?.addEventListener('click', () => bulkDeleteContatti.call(app));
+    app.refreshIcons();
+}
+// Fine funzione rerenderContattiList
+
+// Inizio funzione getFilteredAndSortedContatti
+function getFilteredAndSortedContatti() {
+    const app = this;
+    let contatti = [...(app.state.data.contatti || [])];
+
+    if (anagraficaState.activeEtichettaId !== 'all') {
+        contatti = contatti.filter(c => c.etichettaId === anagraficaState.activeEtichettaId);
+    }
+
+    if (anagraficaState.searchQuery) {
+        const query = anagraficaState.searchQuery.toLowerCase();
+        contatti = contatti.filter(c => 
+            (c.nome || '').toLowerCase().includes(query) ||
+            (c.cognome || '').toLowerCase().includes(query) ||
+            (c.note || '').toLowerCase().includes(query)
+        );
+    }
+    
+    contatti.sort((a, b) => {
+        const col = anagraficaState.sort.column;
+        const dir = anagraficaState.sort.direction === 'asc' ? 1 : -1;
+        const valA = (a[col] || '').toLowerCase();
+        const valB = (b[col] || '').toLowerCase();
+        return valA.localeCompare(valB, 'it-IT') * dir;
+    });
+
+    return contatti;
+}
+// Fine funzione getFilteredAndSortedContatti
+
+// Inizio funzione sortAnagrafica
+function sortAnagrafica(column) {
+    const app = this;
+    if (anagraficaState.sort.column === column) {
+        anagraficaState.sort.direction = anagraficaState.sort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        anagraficaState.sort.column = column;
+        anagraficaState.sort.direction = 'asc';
+    }
+    rerenderContattiList.call(app);
+}
+// Fine funzione sortAnagrafica
+
+// Inizio funzione filterByEtichetta
+function filterByEtichetta(etichettaId) {
+    const app = this;
+    anagraficaState.activeEtichettaId = etichettaId;
+    anagraficaState.selectedContatti = [];
+    anagraficaState.isSelectAllChecked = false;
+    rerenderContattiList.call(app);
+}
+// Fine funzione filterByEtichetta
+
+// === GESTIONE MODALI E FORM ===
+
+// Inizio funzione resetContattoForm
+function resetContattoForm() {
+    anagraficaState.contattoForm = {
+        nome: '', cognome: '', azienda: '',
+        telefono1: '', telefono2: '', email: '',
+        note: '', etichettaId: null
     };
+    anagraficaState.editingContatto = null;
+}
+// Fine funzione resetContattoForm
+
+// Inizio funzione showContattoModal
+function showContattoModal(contattoId = null) {
+    const app = getApp();
+    resetContattoForm();
+
+    if (contattoId) {
+        const contatto = app.state.data.contatti.find(c => c.id === contattoId);
+        if (contatto) {
+            anagraficaState.editingContatto = contatto;
+            anagraficaState.contattoForm = { ...contatto };
+        }
+    }
+
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = getContattoModalHTML();
+    modalContentEl.classList.add('modal-wide');
+    
+    document.getElementById('save-contatto-btn')?.addEventListener('click', () => saveContatto());
+    document.getElementById('cancel-contatto-btn')?.addEventListener('click', () => app.hideFormModal());
+    document.getElementById('cancel-contatto-btn-bottom')?.addEventListener('click', () => app.hideFormModal());
+
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showContattoModal
+
+// Inizio funzione saveContatto
+function saveContatto() {
+    const app = getApp();
+    const form = {};
+    const fields = ['cognome', 'nome', 'azienda', 'etichettaId', 'telefono1', 'telefono2', 'email', 'note'];
+    fields.forEach(f => {
+        const el = document.getElementById(`contatto-${f}`);
+        if (el) form[f] = el.value.trim();
+    });
+    
+    if (form.etichettaId === "") form.etichettaId = null;
+
+    if (!form.nome && !form.cognome) {
+        return app.showNotification('Almeno il nome o il cognome sono richiesti.');
+    }
+
+    if (anagraficaState.editingContatto) {
+        const index = app.state.data.contatti.findIndex(c => c.id === anagraficaState.editingContatto.id);
+        if (index > -1) {
+            app.state.data.contatti[index] = { ...app.state.data.contatti[index], ...form };
+        }
+    } else {
+        const newContatto = { ...form, id: app.generateUniqueId('contatto'), createdAt: new Date().toISOString() };
+        app.state.data.contatti.push(newContatto);
+    }
+    
+    app.saveToStorage('data', app.state.data);
+    app.hideFormModal();
+    rerenderAnagraficaView.call(app);
+    app.showNotification('Contatto salvato con successo.');
+}
+// Fine funzione saveContatto
+
+// Inizio funzione deleteContattoById
+function deleteContattoById(contattoId) {
+    const app = getApp();
+    const contatto = app.state.data.contatti.find(c => c.id === contattoId);
+    if (!contatto) return;
+    
+    const fullName = [contatto.nome, contatto.cognome].filter(Boolean).join(' ');
+    app.showConfirm(`Sei sicuro di voler eliminare il contatto "${fullName}"?`, () => {
+        app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
+        app.saveToStorage('data', app.state.data);
+        rerenderAnagraficaView.call(app);
+        app.showNotification('Contatto eliminato.');
+    });
+}
+// Fine funzione deleteContattoById
+
+// === FUNZIONI SELEZIONE MULTIPLA ===
+
+// Inizio funzione toggleSelectAll
+function toggleSelectAll(isChecked) {
+    anagraficaState.isSelectAllChecked = isChecked;
+    const contattiVisibili = getFilteredAndSortedContatti.call(getApp());
+    if (isChecked) {
+        anagraficaState.selectedContatti = contattiVisibili.map(c => c.id);
+    } else {
+        anagraficaState.selectedContatti = [];
+    }
+    rerenderContattiList.call(getApp());
+}
+// Fine funzione toggleSelectAll
+
+// Inizio funzione updateSelectedContatti
+function updateSelectedContatti() {
+    anagraficaState.selectedContatti = [];
+    document.querySelectorAll('.select-contatto:checked').forEach(el => {
+        anagraficaState.selectedContatti.push(el.dataset.id);
+    });
+    const contattiVisibili = getFilteredAndSortedContatti.call(getApp());
+    anagraficaState.isSelectAllChecked = contattiVisibili.length > 0 && anagraficaState.selectedContatti.length === contattiVisibili.length;
+    rerenderContattiList.call(getApp());
+}
+// Fine funzione updateSelectedContatti
+
+// Inizio funzione bulkDeleteContatti
+function bulkDeleteContatti() {
+    const app = getApp();
+    const count = anagraficaState.selectedContatti.length;
+    if (count === 0) return;
+
+    app.showConfirm(`Sei sicuro di voler eliminare ${count} contatti selezionati?`, () => {
+        app.state.data.contatti = app.state.data.contatti.filter(c => !anagraficaState.selectedContatti.includes(c.id));
+        anagraficaState.selectedContatti = [];
+        anagraficaState.isSelectAllChecked = false;
+        app.saveToStorage('data', app.state.data);
+        rerenderAnagraficaView.call(app);
+        app.showNotification(`${count} contatti eliminati.`);
+    });
+}
+// Fine funzione bulkDeleteContatti
+
+
+// === FUNZIONI DI IMPORT/EXPORT ===
+
+// Inizio funzione showImportModal
+function showImportModal() {
+    const app = getApp();
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = `
+        <div class="card-header">
+            <h2 class="card-title">Importa Contatti da CSV</h2>
+            <button id="cancel-import-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <div class="card-body">
+            <p class="text-secondary mb-4">Seleziona un file CSV. Il nome del file (es. "Autisti.csv") verrà usato come etichetta per tutti i contatti importati.</p>
+            <input type="file" id="csv-file-input" accept=".csv" class="form-control" style="max-width: 100%; height: auto; padding: 0.5rem;">
+            <div class="flex justify-end mt-6">
+                <button id="start-import-btn" class="btn btn-primary">Avvia Importazione</button>
+            </div>
+        </div>
+    `;
+    modalContentEl.classList.add('modal-wide');
+
+    document.getElementById('cancel-import-btn')?.addEventListener('click', () => app.hideFormModal());
+    document.getElementById('start-import-btn')?.addEventListener('click', handleFileImport);
+
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showImportModal
+
+// Inizio funzione handleFileImport
+function handleFileImport() {
+    const app = getApp();
+    const fileInput = document.getElementById('csv-file-input');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        return app.showNotification("Per favore, seleziona un file.");
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const csvText = event.target.result;
+        try {
+            const contattiDaImportare = parseCSV(csvText);
+            if (contattiDaImportare.length === 0) {
+                return app.showNotification("Il file CSV è vuoto o non valido.");
+            }
+
+            const nomeFile = file.name.split('.').slice(0, -1).join('.');
+            const nomeEtichetta = nomeFile.charAt(0).toUpperCase() + nomeFile.slice(1);
+            const etichetta = getOrCreateEtichetta(nomeEtichetta);
+
+            const nuoviContatti = contattiDaImportare.map(c => ({
+                ...mapCSVRowToContatto(c),
+                id: app.generateUniqueId('contatto'),
+                etichettaId: etichetta.id,
+                createdAt: new Date().toISOString()
+            }));
+
+            app.state.data.contatti.push(...nuoviContatti);
+            app.saveToStorage('data', app.state.data);
+            app.hideFormModal();
+            rerenderAnagraficaView.call(app);
+            app.showNotification(`${nuoviContatti.length} contatti importati con l'etichetta "${nomeEtichetta}".`);
+
+        } catch (error) {
+            console.error("Errore durante l'importazione:", error);
+            app.showNotification("Errore nel formato del file CSV.");
+        }
+    };
+    reader.readAsText(file);
+}
+// Fine funzione handleFileImport
+
+// Inizio funzione getOrCreateEtichetta
+function getOrCreateEtichetta(nomeEtichetta) {
+    const app = getApp();
+    const etichette = app.state.data.etichette;
+    let etichettaEsistente = etichette.find(e => e.nome.toLowerCase() === nomeEtichetta.toLowerCase());
+
+    if (etichettaEsistente) {
+        return etichettaEsistente;
+    }
+
+    const colori = ['#2563eb', '#10b981', '#f59e0b', '#dc2626', '#8b5cf6', '#06b6d4'];
+    const coloreNuovo = colori[etichette.length % colori.length];
+    
+    const nuovaEtichetta = {
+        id: app.generateUniqueId('etichetta'),
+        nome: nomeEtichetta,
+        colore: coloreNuovo
+    };
+    etichette.push(nuovaEtichetta);
+    return nuovaEtichetta;
+}
+// Fine funzione getOrCreateEtichetta
+
+// Inizio funzione parseCSV
+function parseCSV(text) {
+    const lines = text.split(/\r\n|\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+        if (!lines[i]) continue;
+        const values = lines[i].split(',').map(v => v.trim());
+        const entry = {};
+        headers.forEach((header, index) => {
+            entry[header] = values[index];
+        });
+        data.push(entry);
+    }
+    return data;
+}
+// Fine funzione parseCSV
+
+// Inizio funzione mapCSVRowToContatto
+function mapCSVRowToContatto(row) {
+    const getVal = (r, keys) => keys.reduce((acc, key) => acc || r[key], undefined) || '';
+    
+    return {
+        cognome: getVal(row, ['Cognome', 'Last Name']),
+        nome: getVal(row, ['Nome', 'First Name']),
+        azienda: getVal(row, ['Azienda', 'Organization', 'Organization Name']),
+        telefono1: getVal(row, ['Telefono 1', 'Phone 1 - Value']),
+        telefono2: getVal(row, ['Telefono 2', 'Phone 2 - Value']),
+        email: getVal(row, ['Email', 'E-mail 1 - Value']),
+        note: getVal(row, ['Note', 'Notes'])
+    };
+}
+// Fine funzione mapCSVRowToContatto
+
+// Inizio funzione exportAnagraficaToCSV
+function exportAnagraficaToCSV() {
+    const app = getApp();
+    const contatti = app.state.data.contatti;
+    const etichette = app.state.data.etichette;
+    
+    if (contatti.length === 0) {
+        return app.showNotification("Nessun contatto da esportare.");
+    }
+
+    const headers = ['Cognome', 'Nome', 'Azienda', 'Telefono 1', 'Telefono 2', 'Email', 'Note', 'Etichetta'];
+    const rows = contatti.map(c => {
+        const etichetta = etichette.find(e => e.id === c.etichettaId);
+        const row = [
+            c.cognome, c.nome, c.azienda,
+            c.telefono1, c.telefono2, c.email,
+            c.note, etichetta ? etichetta.nome : ''
+        ];
+        return row.map(val => `"${(val || '').replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `rubrica_mystation_${app.formatDateForFilename()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+// Fine funzione exportAnagraficaToCSV
+
+// === FUNZIONI GLOBALI ===
+if (typeof window !== 'undefined') {
+    window.initAnagrafica = initAnagrafica;
+    window.renderAnagraficaSection = renderAnagraficaSection;
+    window.showContattoModal = showContattoModal;
+    window.deleteContattoById = deleteContattoById;
 }
