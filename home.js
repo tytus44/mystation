@@ -265,23 +265,15 @@ function renderHomeSection(container) {
 
             <div class="grid grid-cols-3 gap-6">
                 
-                <div class="card">
+                <div class="card" id="notes-card">
                     <div class="card-header">
                         <h3 class="card-title">Note Rapide</h3>
-                        <button id="add-note-btn" class="btn btn-secondary" ${homeState.notes.length >= 5 ? 'disabled' : ''}>
+                        <button id="add-note-btn" class="btn btn-secondary">
                             <i data-lucide="notebook-pen" class="w-4 h-4 mr-2"></i>Aggiungi
                         </button>
                     </div>
                     <div class="card-body">
-                        <div id="notes-grid" class="notes-grid">
-                            ${homeState.notes.map(note => `
-                                <div class="note-item note-${note.color}" onclick="showNoteModalById('${note.id}')">
-                                    <div class="note-title">${note.title}</div>
-                                    <button class="delete-btn" data-note-id="${note.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
-                                </div>
-                            `).join('')}
-                            ${homeState.notes.length === 0 ? '<p class="text-secondary text-sm">Nessuna nota. Aggiungine una!</p>' : ''}
-                        </div>
+                        <div id="notes-grid" class="notes-grid"></div>
                     </div>
                 </div>
 
@@ -315,24 +307,15 @@ function renderHomeSection(container) {
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card" id="todos-card">
                     <div class="card-header">
                         <h3 class="card-title">To-Do List</h3>
-                        <button id="add-todo-btn" class="btn btn-secondary" ${homeState.todos.length >= 5 ? 'disabled' : ''}>
+                        <button id="add-todo-btn" class="btn btn-secondary">
                             <i data-lucide="square-check-big" class="w-4 h-4 mr-2"></i>Aggiungi
                         </button>
                     </div>
                     <div class="card-body">
-                        <div id="todo-list" class="todo-list">
-                            ${homeState.todos.map(todo => `
-                                <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                                    <input type="checkbox" data-todo-id="${todo.id}" ${todo.completed ? 'checked' : ''}>
-                                    <span>${todo.text}</span>
-                                    <button class="delete-btn ml-auto" data-todo-id="${todo.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
-                                </div>
-                            `).join('')}
-                            ${homeState.todos.length === 0 ? '<p class="text-secondary text-sm">Nessuna attività. Aggiungine una!</p>' : ''}
-                        </div>
+                        <div id="todo-list" class="todo-list"></div>
                     </div>
                 </div>
             </div>
@@ -346,6 +329,8 @@ function renderHomeSection(container) {
     renderCalendar.call(app);
     renderTodayDisplay.call(app);
     renderOrdineCarburante.call(app);
+    // CORREZIONE: Chiamata alla nuova funzione di rendering per note e to-do
+    renderNotesAndTodos.call(app); 
     
     // Refresh icone
     app.refreshIcons();
@@ -392,9 +377,13 @@ function setupHomeEventListeners() {
     document.getElementById('add-note-btn')?.addEventListener('click', () => showAddNoteModal.call(app));
     document.getElementById('notes-grid')?.addEventListener('click', (e) => {
         const deleteBtn = e.target.closest('.delete-btn');
+        const noteItem = e.target.closest('.note-item');
+
         if (deleteBtn) {
-            e.stopPropagation(); // Evita che il click si propaghi all'elemento nota
+            e.stopPropagation();
             deleteNote.call(app, deleteBtn.dataset.noteId);
+        } else if (noteItem) {
+            showNoteModalById(noteItem.dataset.noteId);
         }
     });
 
@@ -656,8 +645,8 @@ function updateOrdineCarburanteUI(prodotto) {
     const app = this;
     const quantita = homeState.ordineCarburante[prodotto];
     const importo = calcolaImportoCarburante.call(app, prodotto);
-    const quantitaEl = document.getElementById(`carburante-quantita-${p.key}`);
-    const importoEl = document.getElementById(`carburante-importo-${p.key}`);
+    const quantitaEl = document.getElementById(`carburante-quantita-${prodotto}`);
+    const importoEl = document.getElementById(`carburante-importo-${prodotto}`);
     if (quantitaEl) quantitaEl.value = app.formatInteger(quantita);
     if (importoEl) importoEl.textContent = app.formatCurrency(importo);
     const totaleLitri = getTotaleLitri.call(app), totaleImporto = getTotaleImporto.call(app);
@@ -847,9 +836,51 @@ function updateCalculatorDisplay() {
 // Fine funzione updateCalculatorDisplay
 
 // === FUNZIONI NOTE E TO-DO ===
+// CORREZIONE: Nuova funzione per renderizzare solo le card note e to-do
+// Inizio funzione renderNotesAndTodos
+function renderNotesAndTodos() {
+    const app = this;
+    const notesGrid = document.getElementById('notes-grid');
+    const todoList = document.getElementById('todo-list');
+    const addNoteBtn = document.getElementById('add-note-btn');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+
+    // Render Notes
+    if (notesGrid) {
+        notesGrid.innerHTML = `
+            ${homeState.notes.map(note => `
+                <div class="note-item note-${note.color}" data-note-id="${note.id}">
+                    <div class="note-title">${note.title}</div>
+                    <button class="delete-btn" data-note-id="${note.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            `).join('')}
+            ${homeState.notes.length === 0 ? '<p class="text-secondary text-sm">Nessuna nota. Aggiungine una!</p>' : ''}
+        `;
+    }
+    if(addNoteBtn) addNoteBtn.disabled = homeState.notes.length >= 5;
+
+    // Render To-Dos
+    if (todoList) {
+        todoList.innerHTML = `
+            ${homeState.todos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <input type="checkbox" data-todo-id="${todo.id}" ${todo.completed ? 'checked' : ''}>
+                    <span>${todo.text}</span>
+                    <button class="delete-btn ml-auto" data-todo-id="${todo.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            `).join('')}
+            ${homeState.todos.length === 0 ? '<p class="text-secondary text-sm">Nessuna attività. Aggiungine una!</p>' : ''}
+        `;
+    }
+    if(addTodoBtn) addTodoBtn.disabled = homeState.todos.length >= 5;
+
+    app.refreshIcons();
+}
+// Fine funzione renderNotesAndTodos
+
 // Inizio funzione showAddNoteModal
 function showAddNoteModal() {
-    const app = this;
+    const app = getApp();
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = `
         <div class="card-header"><h2 class="card-title">Nuova Nota</h2><button id="cancel-note-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button></div>
@@ -894,20 +925,22 @@ function saveNote() {
     homeState.notes.push(newNote);
     this.saveToStorage('homeNotes', homeState.notes);
     this.hideFormModal();
-    renderHomeSection.call(this, document.getElementById('section-home'));
+    // CORREZIONE: Chiama il rendering selettivo
+    renderNotesAndTodos.call(this);
 }
 // Fine funzione saveNote
 // Inizio funzione deleteNote
 function deleteNote(noteId) {
     homeState.notes = homeState.notes.filter(note => note.id !== noteId);
     this.saveToStorage('homeNotes', homeState.notes);
-    renderHomeSection.call(this, document.getElementById('section-home'));
+    // CORREZIONE: Chiama il rendering selettivo
+    renderNotesAndTodos.call(this);
 }
 // Fine funzione deleteNote
 
 // Inizio funzione showNoteModal
 function showNoteModal(noteId) {
-    const app = this;
+    const app = getApp();
     const note = homeState.notes.find(n => n.id === noteId);
     if (!note) return;
 
@@ -932,7 +965,7 @@ function showNoteModal(noteId) {
 
 // Inizio funzione showAddTodoModal
 function showAddTodoModal() {
-    const app = this;
+    const app = getApp();
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = `
         <div class="card-header"><h2 class="card-title">Nuova Attività</h2><button id="cancel-todo-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button></div>
@@ -964,14 +997,16 @@ function saveTodo() {
     homeState.todos.push(newTodo);
     this.saveToStorage('homeTodos', homeState.todos);
     this.hideFormModal();
-    renderHomeSection.call(this, document.getElementById('section-home'));
+    // CORREZIONE: Chiama il rendering selettivo
+    renderNotesAndTodos.call(this);
 }
 // Fine funzione saveTodo
 // Inizio funzione deleteTodo
 function deleteTodo(todoId) {
     homeState.todos = homeState.todos.filter(todo => todo.id !== todoId);
     this.saveToStorage('homeTodos', homeState.todos);
-    renderHomeSection.call(this, document.getElementById('section-home'));
+    // CORREZIONE: Chiama il rendering selettivo
+    renderNotesAndTodos.call(this);
 }
 // Fine funzione deleteTodo
 // Inizio funzione toggleTodo
@@ -980,7 +1015,8 @@ function toggleTodo(todoId) {
         todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
     );
     this.saveToStorage('homeTodos', homeState.todos);
-    renderHomeSection.call(this, document.getElementById('section-home'));
+    // CORREZIONE: Chiama il rendering selettivo
+    renderNotesAndTodos.call(this);
 }
 // Fine funzione toggleTodo
 
