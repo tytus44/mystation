@@ -2,7 +2,7 @@
 // FILE: anagrafica.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Anagrafica (contatti, import/export).
-// --- LOGICA DI SELEZIONE OTTIMIZZATA E IMPORT CSV RIMOSSO ---
+// --- UNIFICATA LA CLASSE DEL PULSANTE DI CHIUSURA MODALE ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO ANAGRAFICA ===
@@ -385,7 +385,7 @@ function openContattoModal(contatto = null) {
     const modalHTML = `
         <div class="modal-header">
             <h2>${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
-            <button class="close-modal" aria-label="Chiudi">
+            <button class="btn btn-secondary modal-close-btn" aria-label="Chiudi">
                 <i data-lucide="x"></i>
             </button>
         </div>
@@ -554,7 +554,7 @@ function showCustomModal(contentHTML, modalClass = '') {
     document.body.appendChild(modalElement);
 
     modalElement.addEventListener('click', (e) => {
-        if (e.target === modalElement || e.target.classList.contains('modal-backdrop') || e.target.closest('.close-modal')) {
+        if (e.target === modalElement || e.target.classList.contains('modal-backdrop') || e.target.closest('.modal-close-btn')) {
             closeCustomModal();
         }
     });
