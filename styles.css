@@ -106,11 +106,11 @@ body {
 }
 
 /* =============================================
-   Accessibilità: Stile per Navigazione da Tastiera
+   AccessibilitÃ : Stile per Navigazione da Tastiera
    ============================================= */
 *:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Usando il colore primario con più opacità */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Usando il colore primario con piÃ¹ opacitÃ  */
     border-radius: var(--radius-md); 
 }
 
@@ -264,7 +264,7 @@ body {
 }
 
 .content-section.hidden {
-    display: none;
+    display: none !important;
 }
 
 .content-section.active {
@@ -283,7 +283,8 @@ body {
     overflow: hidden;
 }
 
-.card-header {
+.card-header, .modal-header {
+    position: relative;
     padding: var(--spacing-md) var(--spacing-lg);
     border-bottom: 1px solid var(--border-primary);
     display: flex;
@@ -291,10 +292,11 @@ body {
     justify-content: space-between;
 }
 
-.card-title {
+.card-title, .modal-header h2 {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
+    padding-right: 2.5rem;
 }
 
 .card-body {
@@ -793,7 +795,8 @@ select.form-control {
 .modal-actions {
     display: flex;
     gap: var(--spacing-md);
-    justify-content: center;
+    justify-content: flex-end;
+    margin-top: var(--spacing-lg);
 }
 
 /* =============================================
@@ -803,7 +806,7 @@ select.form-control {
 /* Classe per rendere il modale largo senza wrapper card */
 .modal-content.modal-wide {
     max-width: 720px; /* Nuovo standard per i modali con form */
-    width: 90vw;      /* Adattato per schermi più piccoli */
+    width: 90vw;      /* Adattato per schermi piÃ¹ piccoli */
     text-align: left; /* Ripristina allineamento testo a sinistra per i form */
 }
 
@@ -824,6 +827,14 @@ select.form-control {
     background-color: var(--color-danger) !important;
     border-color: var(--color-danger) !important;
     color: #ffffff !important;
+}
+
+.card-header .modal-close-btn,
+.modal-header .close-modal {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
 }
 
 /* Allineamento perfetto dell'icona X */
@@ -1656,7 +1667,7 @@ select.form-control {
 }
 
 /* Implementazione del ripple effect (richiede JS per un posizionamento preciso) */
-/* Questa è una versione base centrata */
+/* Questa Ã¨ una versione base centrata */
 .btn::after {
     content: '';
     position: absolute;
@@ -1992,4 +2003,472 @@ select.form-control {
 }
 .theme-dark #contatti-table tr.selected {
     background-color: rgba(37, 99, 235, 0.1);
+}
+
+/* =============================================
+   STILI CARD LAYOUT ANAGRAFICA - NUOVI
+   ============================================= */
+
+/* Container principale delle card */
+.cards-container {
+    padding: var(--spacing-md);
+}
+
+/* Select all container */
+.select-all-container {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Custom checkbox styling */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary);
+    gap: var(--spacing-sm);
+}
+
+.checkbox-container input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    background-color: var(--bg-primary);
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.checkmark::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid var(--text-inverse);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark::after {
+    opacity: 1;
+}
+
+.checkbox-container:hover .checkmark {
+    border-color: var(--color-primary);
+}
+
+/* Grid delle card contatti */
+.contatti-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+}
+
+/* Singola card contatto */
+.contatto-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.contatto-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    transform: translateY(-2px);
+}
+
+.theme-dark .contatto-card {
+    background-color: var(--bg-secondary);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .contatto-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.theme-dark .contatto-card.selected {
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+/* Header della card */
+.contatto-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Avatar del contatto */
+.contatto-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-primary), #60a5fa);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-inverse);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+/* MODIFICA: Rimosse le varianti di colore per avatar e accenti */
+
+/* Informazioni principali */
+.contatto-main-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.contatto-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+}
+
+.contatto-company {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem 0;
+    opacity: 0.8;
+}
+
+/* Azioni della card */
+.contatto-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.contatto-card:hover .contatto-actions {
+    opacity: 1;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-primary);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.btn-icon:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.theme-dark .btn-icon {
+    background-color: var(--bg-tertiary);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .btn-icon:hover {
+    background-color: var(--bg-primary);
+    border-color: var(--color-primary);
+}
+
+/* Body della card */
+.contatto-card-body {
+    margin-bottom: var(--spacing-md);
+}
+
+.contatti-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.contatto-info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.contatto-info-item svg {
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+}
+
+/* Footer della card */
+.contatto-card-footer {
+    border-top: 1px solid var(--border-primary);
+    padding-top: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.theme-dark .contatto-card-footer {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.contatto-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.contatto-note svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--text-tertiary);
+}
+
+/* Etichetta badge nella card */
+.contatto-card .etichetta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-width: 1px;
+    border-style: solid;
+    margin-top: 0.25rem;
+}
+
+/* Miglioramenti per la bulk selection bar */
+.bulk-actions-bar {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(220, 38, 38, 0.02));
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-danger);
+    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-md);
+}
+
+.bulk-actions-bar .flex {
+    display: flex;
+    align-items: center;
+}
+
+.bulk-actions-bar .space-x-4 {
+    gap: var(--spacing-md);
+}
+
+/* Animazioni per le card */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* MODIFICA: Semplificato lo stato di selezione della card */
+.contatto-card.selected {
+    border-color: #FFD700; /* Oro */
+    background-color: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+}
+
+/* MODIFICA: Rimosso l'accento superiore sulla selezione, mantenuto solo su hover */
+.contatto-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-primary), #60a5fa);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.contatto-card:hover::before {
+    opacity: 1;
+}
+
+/* Custom checkbox styling for dark theme */
+.theme-dark .checkmark {
+    background-color: var(--bg-tertiary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .select-all-container {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Form grid per modali */
+.form-grid {
+    display: grid;
+    gap: var(--spacing-md);
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.span-2 {
+    grid-column: span 2;
+}
+
+/* Modal header e footer per anagrafica */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-primary);
+    position: relative;
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+.close-modal {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: 10;
+}
+
+.close-modal:hover {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: var(--text-inverse);
+}
+
+.close-modal svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+    text-align: left;
+}
+
+.modal-footer .btn {
+    min-width: 120px;
+}
+
+/* Responsive design per card layout */
+@media (max-width: 768px) {
+    .contatti-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .contatto-card {
+        padding: var(--spacing-md);
+    }
+    
+    .contatto-card-header {
+        gap: var(--spacing-sm);
+    }
+    
+    .contatto-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .contatto-name {
+        font-size: 1rem;
+    }
+    
+    .contatto-actions {
+        opacity: 1; /* Always visible on mobile */
+    }
+    
+    .bulk-actions-bar {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+    
+    .bulk-actions-bar .flex {
+        justify-content: space-between;
+    }
+    
+    .cards-container {
+        padding: var(--spacing-sm);
+    }
+    
+    .select-all-container {
+        padding: var(--spacing-sm);
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .contatti-grid {
+        gap: var(--spacing-sm);
+    }
 }

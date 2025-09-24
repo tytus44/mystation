@@ -2,7 +2,7 @@
 // FILE: impostazioni.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della 
 // sezione Impostazioni (tema, import/export, reset).
-// --- MODIFICATO PER USARE UN MODALE STANDARD ---
+// --- MODIFICATO PER GESTIRE SOLO IMPORT DA JSON DI BACKUP ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
@@ -74,10 +74,10 @@ function getImpostazioniModalHTML() {
                 <div class="grid grid-cols-2 gap-4">
                     <input type="file" id="import-file" accept=".json" class="hidden">
                     <button id="import-btn" class="btn btn-secondary w-full p-4 text-center">
-                        <i data-lucide="upload" class="w-5 h-5 mr-2"></i> Importa Dati (JSON)
+                        <i data-lucide="upload" class="w-5 h-5 mr-2"></i> Importa Backup (JSON)
                     </button>
                     <button id="export-btn" class="btn btn-secondary w-full p-4 text-center">
-                        <i data-lucide="download" class="w-5 h-5 mr-2"></i> Esporta Dati (JSON)
+                        <i data-lucide="download" class="w-5 h-5 mr-2"></i> Esporta Backup (JSON)
                     </button>
                 </div>
             </div>
@@ -217,86 +217,57 @@ function updateFullscreenToggle() {
 function importData(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
             const importedData = JSON.parse(e.target.result);
-            
-            if (importedData.data) {
-                // Formato nuovo
-                console.log('Importazione formato nuovo rilevata');
-                
-                if (importedData.data.turni && Array.isArray(importedData.data.turni)) {
-                    console.log('Normalizzazione turni per formato nuovo...');
-                    importedData.data.turni = window.normalizeTurniData(importedData.data.turni);
-                    console.log('Normalizzati ' + importedData.data.turni.length + ' turni');
-                }
-                
-                Object.assign(this.state.data, importedData.data);
-            } else {
-                // Formato legacy
-                console.log('Importazione formato legacy rilevata');
-                handleLegacyImport.call(this, importedData);
+
+            // Verifica che il file sia un backup valido creato da questa applicazione
+            if (!importedData || !importedData.data || !importedData.version) {
+                this.showNotification('File di backup non valido o corrotto.');
+                return;
             }
-            
-            this.saveToStorage('data', this.state.data);
-            
-            this.showNotification('Dati importati con successo');
-            event.target.value = ''; 
-            
-            this.hideFormModal();
-            setTimeout(() => {
-                const currentSection = this.state.currentSection;
-                this.switchSection(currentSection);
-            }, 500);
-            
+
+            this.showConfirm(
+                'Sei sicuro di voler importare questo file? Tutti i dati attuali verranno sovrascritti.',
+                () => {
+                    // Normalizza i dati dei turni per compatibilità
+                    if (importedData.data.turni && typeof window.normalizeTurniData === 'function') {
+                        importedData.data.turni = window.normalizeTurniData(importedData.data.turni);
+                    }
+
+                    // Sostituisci i dati attuali con quelli importati
+                    this.state.data = importedData.data;
+                    this.saveToStorage('data', this.state.data);
+                    
+                    this.showNotification('Dati importati con successo! Ricaricamento dell\'applicazione...');
+                    
+                    // Ricarica l'applicazione per rendere effettive le modifiche
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+            );
+
         } catch (error) {
-            this.showNotification('Errore durante l\'importazione del file');
+            this.showNotification('Errore durante la lettura del file JSON.');
             console.error('Import error:', error);
+        } finally {
+            event.target.value = ''; // Resetta l'input file
         }
     };
-    
+
     reader.readAsText(file);
 }
 // Fine funzione importData
-
-// Inizio funzione handleLegacyImport
-function handleLegacyImport(importedData) {
-    const merge = confirm('File legacy rilevato. Vuoi unire i dati con quelli esistenti? Annulla per sostituire.');
-    
-    const importSection = (sectionName, legacyName) => {
-        if (importedData[legacyName] && Array.isArray(importedData[legacyName])) {
-            let dataToImport = importedData[legacyName];
-            
-            if (sectionName === 'turni') {
-                console.log('Applicando normalizzazione ai turni importati...');
-                dataToImport = window.normalizeTurniData(dataToImport);
-                console.log('Normalizzati ' + dataToImport.length + ' turni');
-            }
-            
-            if (merge) {
-                this.state.data[sectionName] = [...this.state.data[sectionName], ...dataToImport];
-            } else {
-                this.state.data[sectionName] = dataToImport;
-            }
-        }
-    };
-    
-    importSection('clients', 'clients');
-    importSection('registryEntries', 'registryEntries');
-    importSection('priceHistory', 'priceHistory');
-    importSection('competitorPrices', 'competitorPrices');
-    importSection('turni', 'turni');
-}
-// Fine funzione handleLegacyImport
 
 // Inizio funzione exportData
 function exportData() {
     const exportDate = this.formatDateForFilename();
     const dataToExport = {
         exportDate: new Date().toISOString(),
-        version: '4.0.0',
+        version: '4.1.0', // Versione aggiornata
         framework: 'vanilla-js',
         data: this.state.data
     };
@@ -328,33 +299,28 @@ function confirmReset() {
 
 // Inizio funzione resetAllData
 function resetAllData() {
+    // Svuota i dati principali
     this.state.data = {
         clients: [],
         registryEntries: [],
         priceHistory: [],
         competitorPrices: [],
         turni: [],
-        previousYearStock: {
-            benzina: 0,
-            gasolio: 0,
-            dieselPlus: 0,
-            hvolution: 0
-        }
+        contatti: [],
+        etichette: [],
+        previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
     };
-    
     this.saveToStorage('data', this.state.data);
     
-    localStorage.removeItem('virtualFilterMode');
-    localStorage.removeItem('amministrazioneViewMode');
-    localStorage.removeItem('adminFilters');
-    localStorage.removeItem('registryViewMode');
-    localStorage.removeItem('ordineCarburante');
+    // Rimuovi altre chiavi di configurazione dal localStorage
+    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeNotes', 'homeTodos'];
+    keysToRemove.forEach(key => localStorage.removeItem(`mystation_${key}`));
     
-    this.showNotification('Tutti i dati sono stati eliminati');
+    this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
     
     setTimeout(() => {
         window.location.reload();
-    }, 1000);
+    }, 1500);
 }
 // Fine funzione resetAllData
 

@@ -1,14 +1,13 @@
 // =============================================
 // FILE: anagrafica.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
-// sezione Anagrafica (contatti, etichette, import/export).
-// --- LAYOUT A COLONNA SINGOLA E FILTRO DROPDOWN ---
+// sezione Anagrafica (contatti, import/export).
+// --- LOGICA DI SELEZIONE OTTIMIZZATA E IMPORT CSV RIMOSSO ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO ANAGRAFICA ===
 let anagraficaState = {
     // Filtri e Ordinamento
-    activeEtichettaId: 'all', // 'all' o l'ID di un'etichetta
     searchQuery: '',
     sort: { column: 'cognome', direction: 'asc' },
 
@@ -16,7 +15,7 @@ let anagraficaState = {
     contattoForm: {
         nome: '', cognome: '', azienda: '',
         telefono1: '', telefono2: '', email: '',
-        note: '', etichettaId: null
+        note: ''
     },
     editingContatto: null,
     
@@ -32,7 +31,6 @@ function initAnagrafica() {
     const app = this;
 
     if (!app.state.data.contatti) app.state.data.contatti = [];
-    if (!app.state.data.etichette) app.state.data.etichette = [];
 
     resetContattoForm();
     console.log('✅ Modulo Anagrafica inizializzato');
@@ -44,8 +42,7 @@ function initAnagrafica() {
 // Inizio funzione renderAnagraficaSection
 function renderAnagraficaSection(container) {
     const app = this;
-    const contatti = getFilteredAndSortedContatti.call(app);
-
+    
     container.innerHTML = `
         <div class="space-y-6">
             ${getAnagraficaHeaderHTML(app)}
@@ -53,22 +50,35 @@ function renderAnagraficaSection(container) {
                 ${getBulkActionsHTML()}
             </div>
             <div class="card">
-                <div id="contatti-table-container" class="table-container">
-                    ${getContattiTableHTML(app, contatti)}
-                </div>
+                <div id="contatti-cards-container" class="cards-container">
+                    </div>
             </div>
         </div>
     `;
 
-    setupAnagraficaEventListeners.call(app);
+    renderContattiGrid.call(this);
+    setupAnagraficaEventListeners.call(this);
+    
     app.refreshIcons();
 }
 // Fine funzione renderAnagraficaSection
 
+// Inizio funzione renderContattiGrid
+function renderContattiGrid() {
+    const app = this;
+    const container = document.getElementById('contatti-cards-container');
+    if (!container) return;
+
+    const contatti = getFilteredAndSortedContatti.call(this);
+    container.innerHTML = getContattiCardsHTML(app, contatti);
+    updateBulkActions.call(this);
+    
+    app.refreshIcons();
+}
+// Fine funzione renderContattiGrid
+
 // Inizio funzione getAnagraficaHeaderHTML
 function getAnagraficaHeaderHTML(app) {
-    const etichette = app.state.data.etichette || [];
-
     return `
         <div class="filters-bar">
             <div class="filter-group">
@@ -80,16 +90,14 @@ function getAnagraficaHeaderHTML(app) {
                 </div>
             </div>
             <div class="filter-group">
-                <label class="form-label">Filtra per Etichetta</label>
-                <select id="anagrafica-etichetta-filter" class="form-control" style="max-width: 100%;">
-                    <option value="all">Tutte le etichette</option>
-                    ${etichette.map(e => `<option value="${e.id}" ${anagraficaState.activeEtichettaId === e.id ? 'selected' : ''}>${e.nome}</option>`).join('')}
+                <label class="form-label">Ordina per</label>
+                <select id="anagrafica-sort" class="form-control" style="max-width: 100%;">
+                    <option value="cognome">Cognome</option>
+                    <option value="nome">Nome</option>
+                    <option value="azienda">Azienda</option>
                 </select>
             </div>
             <div class="flex space-x-2">
-                <button id="import-contatti-btn" class="btn btn-secondary">
-                    <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importa
-                </button>
                 <button id="export-contatti-btn" class="btn btn-secondary">
                     <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
                 </button>
@@ -108,7 +116,9 @@ function getBulkActionsHTML() {
     if (count === 0) return '';
     return `
         <div class="bulk-actions-bar">
-            <span>${count} contatti selezionati</span>
+            <div class="flex items-center space-x-4">
+                <span>${count} contatti selezionati</span>
+            </div>
             <button id="bulk-delete-btn" class="btn btn-danger btn-sm">
                 <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Selezionati
             </button>
@@ -117,9 +127,9 @@ function getBulkActionsHTML() {
 }
 // Fine funzione getBulkActionsHTML
 
-// Inizio funzione getContattiTableHTML
-function getContattiTableHTML(app, contatti) {
-    const etichette = app.state.data.etichette || [];
+// Inizio funzione getContattiCardsHTML
+function getContattiCardsHTML(app, contatti) {
+    const colors = ['blue', 'green', 'purple', 'pink', 'orange', 'red', 'cyan'];
 
     if (contatti.length === 0) {
         return `
@@ -131,513 +141,470 @@ function getContattiTableHTML(app, contatti) {
     }
 
     return `
-        <table class="table" id="contatti-table">
-            <thead>
-                <tr>
-                    <th class="p-4 w-4">
-                        <input type="checkbox" id="select-all-contatti" ${anagraficaState.isSelectAllChecked ? 'checked' : ''}>
-                    </th>
-                    <th><button data-sort="cognome">Cognome <i data-lucide="arrow-up-down"></i></button></th>
-                    <th><button data-sort="nome">Nome <i data-lucide="arrow-up-down"></i></button></th>
-                    <th><button data-sort="azienda">Azienda <i data-lucide="arrow-up-down"></i></button></th>
-                    <th>Contatti</th>
-                    <th>Etichetta</th>
-                    <th class="text-right">Azioni</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${contatti.map(c => {
-                    const etichetta = etichette.find(e => e.id === c.etichettaId);
-                    return `
-                        <tr class="${anagraficaState.selectedContatti.includes(c.id) ? 'selected' : ''}">
-                            <td class="p-4 w-4"><input type="checkbox" class="select-contatto" data-id="${c.id}" ${anagraficaState.selectedContatti.includes(c.id) ? 'checked' : ''}></td>
-                            <td class="font-medium text-primary">${c.cognome || '-'}</td>
-                            <td class="text-primary">${c.nome || '-'}</td>
-                            <td>${c.azienda || '-'}</td>
-                            <td>
-                                <div class="text-xs space-y-1">
-                                    ${c.telefono1 ? `<div><i data-lucide="phone" class="w-3 h-3 inline-block mr-1"></i> ${c.telefono1}</div>` : ''}
-                                    ${c.email ? `<div><i data-lucide="mail" class="w-3 h-3 inline-block mr-1"></i> ${c.email}</div>` : ''}
-                                </div>
-                            </td>
-                            <td>
-                                ${etichetta ? `<span class="etichetta-badge" style="background-color: ${etichetta.colore}33; color: ${etichetta.colore};">${etichetta.nome}</span>` : '-'}
-                            </td>
-                            <td class="text-right">
-                                <div class="flex items-center justify-end space-x-2">
-                                    <button class="btn btn-success btn-sm" onclick="showContattoModal('${c.id}')"><i data-lucide="edit"></i></button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteContattoById('${c.id}')"><i data-lucide="trash-2"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('')}
-            </tbody>
-        </table>
-    `;
-}
-// Fine funzione getContattiTableHTML
-
-// Inizio funzione getContattoModalHTML
-function getContattoModalHTML() {
-    const app = getApp();
-    const etichette = app.state.data.etichette || [];
-    const form = anagraficaState.contattoForm;
-    const isEdit = !!anagraficaState.editingContatto;
-    const title = isEdit ? 'Modifica Contatto' : 'Nuovo Contatto';
-
-    return `
-        <div class="card-header">
-            <h2 class="card-title">${title}</h2>
-            <button id="cancel-contatto-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
+        <div class="select-all-container">
+            <label class="checkbox-container">
+                <input type="checkbox" id="select-all-contatti" ${anagraficaState.isSelectAllChecked ? 'checked' : ''}>
+                <span class="checkmark"></span>
+                Seleziona tutti i contatti visualizzati
+            </label>
         </div>
-        <div class="card-body">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="form-group"><label class="form-label">Cognome</label><input type="text" id="contatto-cognome" class="form-control" style="max-width:100%" value="${form.cognome || ''}"></div>
-                <div class="form-group"><label class="form-label">Nome</label><input type="text" id="contatto-nome" class="form-control" style="max-width:100%" value="${form.nome || ''}"></div>
-                <div class="form-group"><label class="form-label">Azienda</label><input type="text" id="contatto-azienda" class="form-control" style="max-width:100%" value="${form.azienda || ''}"></div>
-                <div class="form-group"><label class="form-label">Etichetta</label>
-                    <select id="contatto-etichettaId" class="form-control" style="max-width:100%">
-                        <option value="">(Nessuna)</option>
-                        ${etichette.map(e => `<option value="${e.id}" ${form.etichettaId === e.id ? 'selected' : ''}>${e.nome}</option>`).join('')}
-                    </select>
-                </div>
-                <div class="form-group"><label class="form-label">Telefono 1</label><input type="tel" id="contatto-telefono1" class="form-control" style="max-width:100%" value="${form.telefono1 || ''}"></div>
-                <div class="form-group"><label class="form-label">Telefono 2</label><input type="tel" id="contatto-telefono2" class="form-control" style="max-width:100%" value="${form.telefono2 || ''}"></div>
-                <div class="form-group"><label class="form-label">Email</label><input type="email" id="contatto-email" class="form-control" style="max-width:100%" value="${form.email || ''}"></div>
-                <div class="form-group"><label class="form-label">Note</label><input type="text" id="contatto-note" class="form-control" style="max-width:100%" value="${form.note || ''}"></div>
-            </div>
-            <div class="flex justify-end space-x-4 mt-6">
-                <button id="cancel-contatto-btn-bottom" class="btn btn-secondary">Annulla</button>
-                <button id="save-contatto-btn" class="btn btn-primary">${isEdit ? 'Salva Modifiche' : 'Crea Contatto'}</button>
-            </div>
+        <div class="contatti-grid">
+            ${contatti.map((c, index) => {
+                const isSelected = anagraficaState.selectedContatti.includes(c.id);
+                const colorClass = `color-${colors[index % colors.length]}`;
+                const iniziali = `${(c.nome || '').charAt(0)}${(c.cognome || '').charAt(0)}`.toUpperCase();
+                
+                const contattiInfo = [];
+                if (c.telefono1) contattiInfo.push(`<i data-lucide="phone" class="w-4 h-4"></i> ${c.telefono1}`);
+                if (c.telefono2) contattiInfo.push(`<i data-lucide="phone" class="w-4 h-4"></i> ${c.telefono2}`);
+                if (c.email) contattiInfo.push(`<i data-lucide="mail" class="w-4 h-4"></i> ${c.email}`);
+                
+                return `
+                    <div class="contatto-card ${colorClass} ${isSelected ? 'selected' : ''}" data-contatto-id="${c.id}">
+                        <div class="contatto-card-header">
+                            <label class="checkbox-container" onclick="event.stopPropagation()">
+                                <input type="checkbox" class="contatto-checkbox" data-id="${c.id}" ${isSelected ? 'checked' : ''}>
+                                <span class="checkmark"></span>
+                            </label>
+                            <div class="contatto-avatar">
+                                ${iniziali || '?'}
+                            </div>
+                            <div class="contatto-main-info">
+                                <h3 class="contatto-name">${c.cognome} ${c.nome}</h3>
+                                ${c.azienda ? `<p class="contatto-company">${c.azienda}</p>` : ''}
+                            </div>
+                            <div class="contatto-actions">
+                                <button class="btn-icon edit-contatto-btn" data-id="${c.id}" title="Modifica">
+                                    <i data-lucide="edit-2"></i>
+                                </button>
+                                <button class="btn-icon delete-contatto-btn" data-id="${c.id}" title="Elimina">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${contattiInfo.length > 0 ? `
+                            <div class="contatto-card-body">
+                                <div class="contatti-info">
+                                    ${contattiInfo.map(info => `<div class="contatto-info-item">${info}</div>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${c.note ? `
+                            <div class="contatto-card-footer">
+                                <div class="contatto-note">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                    <span>${c.note}</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('')}
         </div>
     `;
 }
-// Fine funzione getContattoModalHTML
+// Fine funzione getContattiCardsHTML
 
-// === GESTIONE EVENTI ===
-
-// Inizio funzione setupAnagraficaEventListeners
-function setupAnagraficaEventListeners() {
-    const app = getApp();
-    
-    document.getElementById('anagrafica-etichetta-filter')?.addEventListener('change', (e) => {
-        filterByEtichetta.call(app, e.target.value);
-    });
-
-    document.getElementById('anagrafica-search')?.addEventListener('input', (e) => {
-        anagraficaState.searchQuery = e.target.value;
-        rerenderContattiList.call(app);
-    });
-
-    document.getElementById('new-contatto-btn')?.addEventListener('click', () => showContattoModal.call(app));
-    document.getElementById('import-contatti-btn')?.addEventListener('click', () => showImportModal.call(app));
-    document.getElementById('export-contatti-btn')?.addEventListener('click', () => exportAnagraficaToCSV.call(app));
-
-    document.querySelectorAll('#contatti-table [data-sort]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            sortAnagrafica.call(app, btn.dataset.sort);
-        });
-    });
-
-    document.getElementById('select-all-contatti')?.addEventListener('change', (e) => toggleSelectAll.call(app, e.target.checked));
-    document.querySelectorAll('.select-contatto').forEach(el => {
-        el.addEventListener('change', () => updateSelectedContatti.call(app));
-    });
-    document.getElementById('bulk-delete-btn')?.addEventListener('click', () => bulkDeleteContatti.call(app));
-}
-// Fine funzione setupAnagraficaEventListeners
-
-
-// === FUNZIONI DI LOGICA ===
-
-// Inizio funzione rerenderAnagraficaView
-function rerenderAnagraficaView() {
-    const app = this;
-    const container = document.getElementById('section-anagrafica');
-    if(container) {
-        renderAnagraficaSection.call(app, container);
-    }
-}
-// Fine funzione rerenderAnagraficaView
-
-// Inizio funzione rerenderContattiList
-function rerenderContattiList() {
-    const app = this;
-    const contatti = getFilteredAndSortedContatti.call(app);
-    const tableContainer = document.getElementById('contatti-table-container');
-    const bulkContainer = document.getElementById('bulk-actions-container');
-
-    if (tableContainer) {
-        tableContainer.innerHTML = getContattiTableHTML(app, contatti);
-    }
-    if (bulkContainer) {
-        bulkContainer.innerHTML = getBulkActionsHTML();
-    }
-
-    document.querySelectorAll('#contatti-table [data-sort]').forEach(btn => btn.addEventListener('click', () => sortAnagrafica.call(app, btn.dataset.sort)));
-    document.getElementById('select-all-contatti')?.addEventListener('change', (e) => toggleSelectAll.call(app, e.target.checked));
-    document.querySelectorAll('.select-contatto').forEach(el => el.addEventListener('change', () => updateSelectedContatti.call(app)));
-    document.getElementById('bulk-delete-btn')?.addEventListener('click', () => bulkDeleteContatti.call(app));
-    app.refreshIcons();
-}
-// Fine funzione rerenderContattiList
+// === FUNZIONI DI UTILITÀ ===
 
 // Inizio funzione getFilteredAndSortedContatti
 function getFilteredAndSortedContatti() {
     const app = this;
     let contatti = [...(app.state.data.contatti || [])];
 
-    if (anagraficaState.activeEtichettaId !== 'all') {
-        contatti = contatti.filter(c => c.etichettaId === anagraficaState.activeEtichettaId);
-    }
-
     if (anagraficaState.searchQuery) {
         const query = anagraficaState.searchQuery.toLowerCase();
         contatti = contatti.filter(c => 
-            (c.nome || '').toLowerCase().includes(query) ||
-            (c.cognome || '').toLowerCase().includes(query) ||
-            (c.note || '').toLowerCase().includes(query)
+            (c.nome?.toLowerCase() || '').includes(query) ||
+            (c.cognome?.toLowerCase() || '').includes(query) ||
+            (c.azienda?.toLowerCase() || '').includes(query) ||
+            (c.telefono1?.toLowerCase() || '').includes(query) ||
+            (c.telefono2?.toLowerCase() || '').includes(query) ||
+            (c.email?.toLowerCase() || '').includes(query) ||
+            (c.note?.toLowerCase() || '').includes(query)
         );
     }
-    
+
+    const { column, direction } = anagraficaState.sort;
     contatti.sort((a, b) => {
-        const col = anagraficaState.sort.column;
-        const dir = anagraficaState.sort.direction === 'asc' ? 1 : -1;
-        const valA = (a[col] || '').toLowerCase();
-        const valB = (b[col] || '').toLowerCase();
-        return valA.localeCompare(valB, 'it-IT') * dir;
+        const aVal = (a[column] || '').toString().toLowerCase();
+        const bVal = (b[column] || '').toString().toLowerCase();
+        const comparison = aVal.localeCompare(bVal);
+        return direction === 'asc' ? comparison : -comparison;
     });
 
     return contatti;
 }
 // Fine funzione getFilteredAndSortedContatti
 
-// Inizio funzione sortAnagrafica
-function sortAnagrafica(column) {
+// === EVENT LISTENERS ===
+
+// Inizio funzione setupAnagraficaEventListeners
+function setupAnagraficaEventListeners() {
     const app = this;
-    if (anagraficaState.sort.column === column) {
-        anagraficaState.sort.direction = anagraficaState.sort.direction === 'asc' ? 'desc' : 'asc';
+    const container = document.getElementById('section-anagrafica');
+    if (!container) return;
+
+    // Listener unico per azioni multiple (Event Delegation)
+    container.addEventListener('click', (e) => {
+        const newContattoBtn = e.target.closest('#new-contatto-btn');
+        const exportBtn = e.target.closest('#export-contatti-btn');
+        const editBtn = e.target.closest('.edit-contatto-btn');
+        const deleteBtn = e.target.closest('.delete-contatto-btn');
+        const bulkDeleteBtn = e.target.closest('#bulk-delete-btn');
+
+        if (newContattoBtn) openContattoModal.call(app);
+        if (exportBtn) exportAnagraficaToCSV.call(app);
+        if (editBtn) editContatto.call(app, editBtn.dataset.id);
+        if (deleteBtn) deleteContatto.call(app, deleteBtn.dataset.id);
+        
+        if (bulkDeleteBtn) {
+            if (anagraficaState.selectedContatti.length === 0) return;
+            app.showConfirm(`Sei sicuro di voler eliminare ${anagraficaState.selectedContatti.length} contatti selezionati?`, () => {
+                app.state.data.contatti = app.state.data.contatti.filter(c => !anagraficaState.selectedContatti.includes(c.id));
+                anagraficaState.selectedContatti = [];
+                anagraficaState.isSelectAllChecked = false;
+                app.saveToStorage('data', app.state.data);
+                renderContattiGrid.call(app);
+                app.showNotification('Contatti eliminati con successo');
+            });
+        }
+    });
+
+    // Listener per input e select
+    container.addEventListener('input', (e) => {
+        if (e.target.id === 'anagrafica-search') {
+            anagraficaState.searchQuery = e.target.value;
+            renderContattiGrid.call(app);
+        }
+    });
+    
+    container.addEventListener('change', (e) => {
+        if (e.target.id === 'anagrafica-sort') {
+            anagraficaState.sort.column = e.target.value;
+            renderContattiGrid.call(app);
+        } else if (e.target.id === 'select-all-contatti') {
+            handleSelectAll.call(app, e.target.checked);
+        } else if (e.target.classList.contains('contatto-checkbox')) {
+            handleSelectContatto.call(app, e.target.dataset.id, e.target.checked);
+        }
+    });
+}
+// Fine funzione setupAnagraficaEventListeners
+
+// Inizio funzione handleSelectAll
+function handleSelectAll(isChecked) {
+    anagraficaState.isSelectAllChecked = isChecked;
+    const contattiVisibiliIds = getFilteredAndSortedContatti.call(this).map(c => c.id);
+
+    if (isChecked) {
+        anagraficaState.selectedContatti = [...new Set([...anagraficaState.selectedContatti, ...contattiVisibiliIds])];
     } else {
-        anagraficaState.sort.column = column;
-        anagraficaState.sort.direction = 'asc';
+        anagraficaState.selectedContatti = anagraficaState.selectedContatti.filter(id => !contattiVisibiliIds.includes(id));
     }
-    rerenderContattiList.call(app);
+    
+    updateBulkActions.call(this);
+    updateCardSelections();
 }
-// Fine funzione sortAnagrafica
+// Fine funzione handleSelectAll
 
-// Inizio funzione filterByEtichetta
-function filterByEtichetta(etichettaId) {
-    const app = this;
-    anagraficaState.activeEtichettaId = etichettaId;
-    anagraficaState.selectedContatti = [];
-    anagraficaState.isSelectAllChecked = false;
-    rerenderContattiList.call(app);
+// Inizio funzione handleSelectContatto
+function handleSelectContatto(contattoId, isChecked) {
+    if (isChecked) {
+        if (!anagraficaState.selectedContatti.includes(contattoId)) {
+            anagraficaState.selectedContatti.push(contattoId);
+        }
+    } else {
+        anagraficaState.selectedContatti = anagraficaState.selectedContatti.filter(id => id !== contattoId);
+    }
+    anagraficaState.isSelectAllChecked = false; // Deseleziona il "select all" generale se si deseleziona manualmente un elemento
+    
+    updateBulkActions.call(this);
+    updateCardSelections();
 }
-// Fine funzione filterByEtichetta
+// Fine funzione handleSelectContatto
 
-// === GESTIONE MODALI E FORM ===
+// Inizio funzione updateBulkActions
+function updateBulkActions() {
+    const container = document.getElementById('bulk-actions-container');
+    if (container) {
+        container.innerHTML = getBulkActionsHTML();
+    }
+}
+// Fine funzione updateBulkActions
+
+// Inizio funzione updateCardSelections
+function updateCardSelections() {
+    document.querySelectorAll('.contatto-card').forEach(card => {
+        const contattoId = card.dataset.contattoId;
+        const isSelected = anagraficaState.selectedContatti.includes(contattoId);
+        card.classList.toggle('selected', isSelected);
+        
+        const checkbox = card.querySelector('.contatto-checkbox');
+        if (checkbox) checkbox.checked = isSelected;
+    });
+    
+    const selectAllCheckbox = document.getElementById('select-all-contatti');
+    if (selectAllCheckbox) {
+        const allVisibleCards = document.querySelectorAll('.contatto-card');
+        if (allVisibleCards.length > 0) {
+            const allVisibleSelected = Array.from(allVisibleCards).every(card => anagraficaState.selectedContatti.includes(card.dataset.contattoId));
+            selectAllCheckbox.checked = allVisibleSelected;
+        } else {
+            selectAllCheckbox.checked = false;
+        }
+    }
+}
+// Fine funzione updateCardSelections
+
+// === GESTIONE FORM CONTATTO ===
 
 // Inizio funzione resetContattoForm
 function resetContattoForm() {
     anagraficaState.contattoForm = {
         nome: '', cognome: '', azienda: '',
         telefono1: '', telefono2: '', email: '',
-        note: '', etichettaId: null
+        note: ''
     };
     anagraficaState.editingContatto = null;
 }
 // Fine funzione resetContattoForm
 
-// Inizio funzione showContattoModal
-function showContattoModal(contattoId = null) {
-    const app = getApp();
-    resetContattoForm();
-
-    if (contattoId) {
-        const contatto = app.state.data.contatti.find(c => c.id === contattoId);
-        if (contatto) {
-            anagraficaState.editingContatto = contatto;
-            anagraficaState.contattoForm = { ...contatto };
-        }
-    }
-
-    const modalContentEl = document.getElementById('form-modal-content');
-    modalContentEl.innerHTML = getContattoModalHTML();
-    modalContentEl.classList.add('modal-wide');
+// Inizio funzione openContattoModal
+function openContattoModal(contatto = null) {
+    const app = this;
+    const isEditing = !!contatto;
     
-    document.getElementById('save-contatto-btn')?.addEventListener('click', () => saveContatto());
-    document.getElementById('cancel-contatto-btn')?.addEventListener('click', () => app.hideFormModal());
-    document.getElementById('cancel-contatto-btn-bottom')?.addEventListener('click', () => app.hideFormModal());
-
-    app.refreshIcons();
-    app.showFormModal();
-}
-// Fine funzione showContattoModal
-
-// Inizio funzione saveContatto
-function saveContatto() {
-    const app = getApp();
-    const form = {};
-    const fields = ['cognome', 'nome', 'azienda', 'etichettaId', 'telefono1', 'telefono2', 'email', 'note'];
-    fields.forEach(f => {
-        const el = document.getElementById(`contatto-${f}`);
-        if (el) form[f] = el.value.trim();
-    });
-    
-    if (form.etichettaId === "") form.etichettaId = null;
-
-    if (!form.nome && !form.cognome) {
-        return app.showNotification('Almeno il nome o il cognome sono richiesti.');
-    }
-
-    if (anagraficaState.editingContatto) {
-        const index = app.state.data.contatti.findIndex(c => c.id === anagraficaState.editingContatto.id);
-        if (index > -1) {
-            app.state.data.contatti[index] = { ...app.state.data.contatti[index], ...form };
-        }
+    if (isEditing) {
+        anagraficaState.editingContatto = contatto;
+        Object.assign(anagraficaState.contattoForm, contatto);
     } else {
-        const newContatto = { ...form, id: app.generateUniqueId('contatto'), createdAt: new Date().toISOString() };
-        app.state.data.contatti.push(newContatto);
+        resetContattoForm();
     }
-    
-    app.saveToStorage('data', app.state.data);
-    app.hideFormModal();
-    rerenderAnagraficaView.call(app);
-    app.showNotification('Contatto salvato con successo.');
-}
-// Fine funzione saveContatto
 
-// Inizio funzione deleteContattoById
-function deleteContattoById(contattoId) {
-    const app = getApp();
-    const contatto = app.state.data.contatti.find(c => c.id === contattoId);
-    if (!contatto) return;
-    
-    const fullName = [contatto.nome, contatto.cognome].filter(Boolean).join(' ');
-    app.showConfirm(`Sei sicuro di voler eliminare il contatto "${fullName}"?`, () => {
-        app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
-        app.saveToStorage('data', app.state.data);
-        rerenderAnagraficaView.call(app);
-        app.showNotification('Contatto eliminato.');
-    });
-}
-// Fine funzione deleteContattoById
-
-// === FUNZIONI SELEZIONE MULTIPLA ===
-
-// Inizio funzione toggleSelectAll
-function toggleSelectAll(isChecked) {
-    anagraficaState.isSelectAllChecked = isChecked;
-    const contattiVisibili = getFilteredAndSortedContatti.call(getApp());
-    if (isChecked) {
-        anagraficaState.selectedContatti = contattiVisibili.map(c => c.id);
-    } else {
-        anagraficaState.selectedContatti = [];
-    }
-    rerenderContattiList.call(getApp());
-}
-// Fine funzione toggleSelectAll
-
-// Inizio funzione updateSelectedContatti
-function updateSelectedContatti() {
-    anagraficaState.selectedContatti = [];
-    document.querySelectorAll('.select-contatto:checked').forEach(el => {
-        anagraficaState.selectedContatti.push(el.dataset.id);
-    });
-    const contattiVisibili = getFilteredAndSortedContatti.call(getApp());
-    anagraficaState.isSelectAllChecked = contattiVisibili.length > 0 && anagraficaState.selectedContatti.length === contattiVisibili.length;
-    rerenderContattiList.call(getApp());
-}
-// Fine funzione updateSelectedContatti
-
-// Inizio funzione bulkDeleteContatti
-function bulkDeleteContatti() {
-    const app = getApp();
-    const count = anagraficaState.selectedContatti.length;
-    if (count === 0) return;
-
-    app.showConfirm(`Sei sicuro di voler eliminare ${count} contatti selezionati?`, () => {
-        app.state.data.contatti = app.state.data.contatti.filter(c => !anagraficaState.selectedContatti.includes(c.id));
-        anagraficaState.selectedContatti = [];
-        anagraficaState.isSelectAllChecked = false;
-        app.saveToStorage('data', app.state.data);
-        rerenderAnagraficaView.call(app);
-        app.showNotification(`${count} contatti eliminati.`);
-    });
-}
-// Fine funzione bulkDeleteContatti
-
-
-// === FUNZIONI DI IMPORT/EXPORT ===
-
-// Inizio funzione showImportModal
-function showImportModal() {
-    const app = getApp();
-    const modalContentEl = document.getElementById('form-modal-content');
-    modalContentEl.innerHTML = `
-        <div class="card-header">
-            <h2 class="card-title">Importa Contatti da CSV</h2>
-            <button id="cancel-import-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
+    const modalHTML = `
+        <div class="modal-header">
+            <h2>${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
+            <button class="close-modal" aria-label="Chiudi">
+                <i data-lucide="x"></i>
+            </button>
         </div>
-        <div class="card-body">
-            <p class="text-secondary mb-4">Seleziona un file CSV. Il nome del file (es. "Autisti.csv") verrà usato come etichetta per tutti i contatti importati.</p>
-            <input type="file" id="csv-file-input" accept=".csv" class="form-control" style="max-width: 100%; height: auto; padding: 0.5rem;">
-            <div class="flex justify-end mt-6">
-                <button id="start-import-btn" class="btn btn-primary">Avvia Importazione</button>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Nome *</label>
+                    <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cognome *</label>
+                    <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Azienda</label>
+                    <input type="text" id="contatto-azienda" class="form-control" value="${anagraficaState.contattoForm.azienda}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="contatto-email" class="form-control" value="${anagraficaState.contattoForm.email}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefono 1</label>
+                    <input type="tel" id="contatto-telefono1" class="form-control" value="${anagraficaState.contattoForm.telefono1}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefono 2</label>
+                    <input type="tel" id="contatto-telefono2" class="form-control" value="${anagraficaState.contattoForm.telefono2}">
+                </div>
+                <div class="form-group span-2">
+                    <label class="form-label">Note</label>
+                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeCustomModal()">Annulla</button>
+                <button type="button" id="save-contatto-btn" class="btn btn-primary">
+                    ${isEditing ? 'Aggiorna' : 'Salva'}
+                </button>
             </div>
         </div>
     `;
-    modalContentEl.classList.add('modal-wide');
 
-    document.getElementById('cancel-import-btn')?.addEventListener('click', () => app.hideFormModal());
-    document.getElementById('start-import-btn')?.addEventListener('click', handleFileImport);
-
-    app.refreshIcons();
-    app.showFormModal();
+    showCustomModal(modalHTML, 'modal-wide');
+    setupContattoFormListeners.call(this);
 }
-// Fine funzione showImportModal
+// Fine funzione openContattoModal
 
-// Inizio funzione handleFileImport
-function handleFileImport() {
-    const app = getApp();
-    const fileInput = document.getElementById('csv-file-input');
-    const file = fileInput.files[0];
+// Inizio funzione setupContattoFormListeners
+function setupContattoFormListeners() {
+    const app = this;
 
-    if (!file) {
-        return app.showNotification("Per favore, seleziona un file.");
-    }
+    const inputs = {
+        nome: document.getElementById('contatto-nome'),
+        cognome: document.getElementById('contatto-cognome'),
+        azienda: document.getElementById('contatto-azienda'),
+        telefono1: document.getElementById('contatto-telefono1'),
+        telefono2: document.getElementById('contatto-telefono2'),
+        email: document.getElementById('contatto-email'),
+        note: document.getElementById('contatto-note')
+    };
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const csvText = event.target.result;
-        try {
-            const contattiDaImportare = parseCSV(csvText);
-            if (contattiDaImportare.length === 0) {
-                return app.showNotification("Il file CSV è vuoto o non valido.");
-            }
-
-            const nomeFile = file.name.split('.').slice(0, -1).join('.');
-            const nomeEtichetta = nomeFile.charAt(0).toUpperCase() + nomeFile.slice(1);
-            const etichetta = getOrCreateEtichetta(nomeEtichetta);
-
-            const nuoviContatti = contattiDaImportare.map(c => ({
-                ...mapCSVRowToContatto(c),
-                id: app.generateUniqueId('contatto'),
-                etichettaId: etichetta.id,
-                createdAt: new Date().toISOString()
-            }));
-
-            app.state.data.contatti.push(...nuoviContatti);
-            app.saveToStorage('data', app.state.data);
-            app.hideFormModal();
-            rerenderAnagraficaView.call(app);
-            app.showNotification(`${nuoviContatti.length} contatti importati con l'etichetta "${nomeEtichetta}".`);
-
-        } catch (error) {
-            console.error("Errore durante l'importazione:", error);
-            app.showNotification("Errore nel formato del file CSV.");
+    Object.entries(inputs).forEach(([key, input]) => {
+        if (input) {
+            input.addEventListener('input', () => {
+                anagraficaState.contattoForm[key] = input.value;
+            });
         }
-    };
-    reader.readAsText(file);
+    });
+
+    document.getElementById('save-contatto-btn')?.addEventListener('click', () => {
+        saveContatto.call(this);
+    });
 }
-// Fine funzione handleFileImport
+// Fine funzione setupContattoFormListeners
 
-// Inizio funzione getOrCreateEtichetta
-function getOrCreateEtichetta(nomeEtichetta) {
-    const app = getApp();
-    const etichette = app.state.data.etichette;
-    let etichettaEsistente = etichette.find(e => e.nome.toLowerCase() === nomeEtichetta.toLowerCase());
+// Inizio funzione saveContatto
+function saveContatto() {
+    const app = this;
+    const form = anagraficaState.contattoForm;
 
-    if (etichettaEsistente) {
-        return etichettaEsistente;
+    if (!form.nome.trim() || !form.cognome.trim()) {
+        return app.showNotification('Nome e cognome sono obbligatori', 'error');
     }
 
-    const colori = ['#2563eb', '#10b981', '#f59e0b', '#dc2626', '#8b5cf6', '#06b6d4'];
-    const coloreNuovo = colori[etichette.length % colori.length];
-    
-    const nuovaEtichetta = {
-        id: app.generateUniqueId('etichetta'),
-        nome: nomeEtichetta,
-        colore: coloreNuovo
+    const contattoData = {
+        nome: form.nome.trim(),
+        cognome: form.cognome.trim(),
+        azienda: form.azienda.trim(),
+        telefono1: form.telefono1.trim(),
+        telefono2: form.telefono2.trim(),
+        email: form.email.trim(),
+        note: form.note.trim(),
     };
-    etichette.push(nuovaEtichetta);
-    return nuovaEtichetta;
-}
-// Fine funzione getOrCreateEtichetta
 
-// Inizio funzione parseCSV
-function parseCSV(text) {
-    const lines = text.split(/\r\n|\n/);
-    const headers = lines[0].split(',').map(h => h.trim());
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-        if (!lines[i]) continue;
-        const values = lines[i].split(',').map(v => v.trim());
-        const entry = {};
-        headers.forEach((header, index) => {
-            entry[header] = values[index];
+    if (anagraficaState.editingContatto) {
+        const index = app.state.data.contatti.findIndex(c => c.id === anagraficaState.editingContatto.id);
+        if (index !== -1) {
+            app.state.data.contatti[index] = { ...app.state.data.contatti[index], ...contattoData };
+        }
+        app.showNotification('Contatto aggiornato con successo');
+    } else {
+        const nuovoContatto = {
+            id: app.generateUniqueId('contatto'),
+            ...contattoData
+        };
+        app.state.data.contatti.push(nuovoContatto);
+        app.showNotification('Contatto aggiunto con successo');
+    }
+
+    app.saveToStorage('data', app.state.data);
+    closeCustomModal();
+    resetContattoForm();
+    renderContattiGrid.call(this);
+}
+// Fine funzione saveContatto
+
+// Inizio funzione editContatto
+function editContatto(contattoId) {
+    const app = this;
+    const contatto = app.state.data.contatti.find(c => c.id === contattoId);
+    if (contatto) {
+        openContattoModal.call(this, contatto);
+    }
+}
+// Fine funzione editContatto
+
+// Inizio funzione deleteContatto
+function deleteContatto(contattoId) {
+    const app = this;
+    const contatto = app.state.data.contatti.find(c => c.id === contattoId);
+    
+    if (contatto) {
+        app.showConfirm(`Sei sicuro di voler eliminare il contatto "${contatto.cognome} ${contatto.nome}"?`, () => {
+            app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
+            app.saveToStorage('data', app.state.data);
+            app.showNotification('Contatto eliminato con successo');
+            
+            anagraficaState.selectedContatti = anagraficaState.selectedContatti.filter(id => id !== contattoId);
+            
+            renderContattiGrid.call(this);
         });
-        data.push(entry);
     }
-    return data;
 }
-// Fine funzione parseCSV
+// Fine funzione deleteContatto
 
-// Inizio funzione mapCSVRowToContatto
-function mapCSVRowToContatto(row) {
-    const getVal = (r, keys) => keys.reduce((acc, key) => acc || r[key], undefined) || '';
-    
-    return {
-        cognome: getVal(row, ['Cognome', 'Last Name']),
-        nome: getVal(row, ['Nome', 'First Name']),
-        azienda: getVal(row, ['Azienda', 'Organization', 'Organization Name']),
-        telefono1: getVal(row, ['Telefono 1', 'Phone 1 - Value']),
-        telefono2: getVal(row, ['Telefono 2', 'Phone 2 - Value']),
-        email: getVal(row, ['Email', 'E-mail 1 - Value']),
-        note: getVal(row, ['Note', 'Notes'])
-    };
+// === FUNZIONI DI UTILITÀ GLOBALI ===
+
+// Inizio funzione showCustomModal
+function showCustomModal(contentHTML, modalClass = '') {
+    const existingModal = document.getElementById('custom-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modalElement = document.createElement('div');
+    modalElement.id = 'custom-modal';
+    modalElement.className = 'modal show';
+    modalElement.innerHTML = `
+        <div class="modal-backdrop"></div>
+        <div class="modal-content ${modalClass}">
+            ${contentHTML}
+        </div>
+    `;
+
+    document.body.appendChild(modalElement);
+
+    modalElement.addEventListener('click', (e) => {
+        if (e.target === modalElement || e.target.classList.contains('modal-backdrop') || e.target.closest('.close-modal')) {
+            closeCustomModal();
+        }
+    });
+
+    const app = getApp();
+    if (app && app.refreshIcons) {
+        setTimeout(() => app.refreshIcons(), 100);
+    }
 }
-// Fine funzione mapCSVRowToContatto
+// Fine funzione showCustomModal
+
+// Inizio funzione closeCustomModal
+function closeCustomModal() {
+    const modal = document.getElementById('custom-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+// Fine funzione closeCustomModal
+
+// === FUNZIONI EXPORT ===
 
 // Inizio funzione exportAnagraficaToCSV
 function exportAnagraficaToCSV() {
     const app = getApp();
     const contatti = app.state.data.contatti;
-    const etichette = app.state.data.etichette;
     
     if (contatti.length === 0) {
         return app.showNotification("Nessun contatto da esportare.");
     }
 
-    const headers = ['Cognome', 'Nome', 'Azienda', 'Telefono 1', 'Telefono 2', 'Email', 'Note', 'Etichetta'];
+    const headers = ['Cognome', 'Nome', 'Azienda', 'Telefono 1', 'Telefono 2', 'Email', 'Note'];
     const rows = contatti.map(c => {
-        const etichetta = etichette.find(e => e.id === c.etichettaId);
-        const row = [
+        return [
             c.cognome, c.nome, c.azienda,
             c.telefono1, c.telefono2, c.email,
-            c.note, etichetta ? etichetta.nome : ''
+            c.note
         ];
-        return row.map(val => `"${(val || '').replace(/"/g, '""')}"`).join(',');
     });
 
-    const csvContent = [headers.join(','), ...rows].join('\n');
+    const csvContent = [headers, ...rows].map(row => 
+        row.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `rubrica_mystation_${app.formatDateForFilename()}.csv`);
-    document.body.appendChild(link);
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `anagrafica_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
-    document.body.removeChild(link);
+    
+    app.showNotification("Anagrafica esportata con successo");
 }
 // Fine funzione exportAnagraficaToCSV
-
-// === FUNZIONI GLOBALI ===
-if (typeof window !== 'undefined') {
-    window.initAnagrafica = initAnagrafica;
-    window.renderAnagraficaSection = renderAnagraficaSection;
-    window.showContattoModal = showContattoModal;
-    window.deleteContattoById = deleteContattoById;
-}
