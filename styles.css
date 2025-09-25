@@ -196,8 +196,8 @@ body {
 }
 
 .sidebar-logo svg {
-    width: 2rem;
-    height: 2rem;
+    width: 3rem;
+    height: 3rem;
     color: var(--color-primary);
     margin-right: var(--spacing-md);
 }
@@ -842,15 +842,16 @@ select.form-control {
     color: #ffffff !important;
 }
 
-/* REGOLA UNIFICATA PER POSIZIONAMENTO PULSANTE CHIUSURA MODALI */
+/* Inizio Modifica */
+/* REGOLA CORRETTA CON SPECIFICITÀ MAGGIORE */
 .card-header .modal-close-btn,
 .modal-header .modal-close-btn {
     position: absolute;
-    top: 50%;
-    right: var(--spacing-sm);
-    transform: translateY(-50%);
+    top: 50%; /* Allinea il punto superiore del pulsante al centro verticale dell'header */
+    transform: translateY(-20%);
     z-index: 10;
 }
+/* Fine Modifica */
 
 
 /* Allineamento perfetto dell'icona X */
@@ -2457,5 +2458,161 @@ select.form-control {
 @media (max-width: 480px) {
     .contatti-grid {
         gap: var(--spacing-sm);
+    }
+}
+
+/* =============================================
+   ANIMAZIONI MYSTATION - DA AGGIUNGERE ALLA FINE DEL CSS
+   ============================================= */
+
+/* === KEYFRAMES === */
+@keyframes swing {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(15deg); }
+    40% { transform: rotate(-12deg); }
+    60% { transform: rotate(8deg); }
+    80% { transform: rotate(-5deg); }
+}
+
+@keyframes spin-continuous {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-hover {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+@keyframes shake-hover {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes ripple-wave {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.5;
+    }
+    50% {
+        width: 200px;
+        height: 200px;
+        opacity: 0.3;
+    }
+    100% {
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+}
+
+/* === ANIMAZIONI APPLICATE === */
+
+/* 1. Swing continuo sulle icone delle card riepilogo */
+.stat-icon svg {
+    animation: swing 3s ease-in-out infinite;
+}
+
+/* 2. Rotazione continua sul logo della sidebar */
+.sidebar-logo svg {
+    animation: spin-continuous 8s linear infinite;
+}
+
+/* 3. Pulse hover sulle icone dei menu sidebar */
+.sidebar-link:hover svg {
+    animation: pulse-hover 0.6s ease-in-out infinite;
+}
+
+/* 4. Spin hover specifico sull'icona impostazioni */
+.sidebar-link[data-section="impostazioni"]:hover svg {
+    animation: spin-continuous 1s linear infinite !important;
+}
+
+/* 5. Shake sulle icone dei pulsanti eliminazione */
+.btn-danger:hover svg {
+    animation: shake-hover 0.5s ease-in-out infinite;
+}
+
+/* 6. Grow sulle icone dei pulsanti normali + Ripple effect */
+.btn:not(.btn-danger):hover svg {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Ripple effect sui pulsanti normali */
+.btn:not(.btn-danger) {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:not(.btn-danger)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+
+.btn:not(.btn-danger):hover::after {
+    animation: ripple-wave 0.8s ease-out;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .stat-icon svg {
+        animation-duration: 4s;
+    }
+    
+    .sidebar-logo svg {
+        animation-duration: 10s;
+    }
+    
+    .btn:not(.btn-danger):hover svg {
+        transform: scale(1.05);
+    }
+}
+
+/* === CORREZIONE DIMENSIONI LOGO === */
+.sidebar-logo svg {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    animation: spin-continuous 8s linear infinite;
+}
+
+/* === CORREZIONE TEMA DARK === */
+.theme-dark .btn-danger {
+    color: #ffffff !important;
+}
+
+.theme-dark .btn-danger svg {
+    color: #ffffff !important;
+}
+
+/* Ripple effect tema dark */
+.theme-dark .btn:not(.btn-danger)::after {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* === ACCESSIBILITÀ === */
+@media (prefers-reduced-motion: reduce) {
+    .stat-icon svg,
+    .sidebar-logo svg {
+        animation: none;
+    }
+    
+    .sidebar-link:hover svg,
+    .btn-danger:hover svg {
+        animation: none;
+    }
+    
+    .btn:not(.btn-danger):hover svg {
+        transform: none;
     }
 }

@@ -239,6 +239,15 @@ function importData(event) {
 
                     // Sostituisci i dati attuali con quelli importati
                     this.state.data = importedData.data;
+                    
+                    // CORREZIONE: Importa anche note e to-do, se presenti
+                    if (importedData.data.homeNotes) {
+                        this.saveToStorage('homeNotes', importedData.data.homeNotes);
+                    }
+                    if (importedData.data.homeTodos) {
+                        this.saveToStorage('homeTodos', importedData.data.homeTodos);
+                    }
+                    
                     this.saveToStorage('data', this.state.data);
                     
                     this.showNotification('Dati importati con successo! Ricaricamento dell\'applicazione...');
@@ -265,11 +274,20 @@ function importData(event) {
 // Inizio funzione exportData
 function exportData() {
     const exportDate = this.formatDateForFilename();
+    
+    // CORREZIONE: Carica note e to-do dal localStorage per includerli nel backup
+    const homeNotes = this.loadFromStorage('homeNotes', []);
+    const homeTodos = this.loadFromStorage('homeTodos', []);
+
     const dataToExport = {
         exportDate: new Date().toISOString(),
         version: '4.1.0', // Versione aggiornata
         framework: 'vanilla-js',
-        data: this.state.data
+        data: {
+            ...this.state.data,
+            homeNotes: homeNotes,
+            homeTodos: homeTodos
+        }
     };
     
     const dataStr = JSON.stringify(dataToExport, null, 2);
