@@ -653,26 +653,21 @@ function settleAccountInline(clientId) {
     const container = document.getElementById('section-amministrazione');
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client || client.balance === 0) return;
-    
-    const balanceToSettle = client.balance;
-    const newTransaction = {
-        id: app.generateUniqueId('tx'),
-        date: new Date().toISOString(),
-        description: 'Saldo Conto',
-        amount: -balanceToSettle
-    };
-    
+
+    // --- MODIFICA RICHIESTA DALL'UTENTE ---
+    // Azzera il saldo e cancella tutte le transazioni esistenti.
     app.state.data.clients = app.state.data.clients.map(c => {
         if (c.id === clientId) {
             return {
                 ...c,
                 balance: 0,
-                transactions: [...c.transactions, newTransaction]
+                transactions: [] // Cancella la cronologia delle transazioni
             };
         }
         return c;
     });
-    
+    // --- FINE MODIFICA ---
+
     app.saveToStorage('data', app.state.data);
     renderAmministrazioneSection.call(app, container);
 }
