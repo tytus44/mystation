@@ -96,7 +96,7 @@ function renderAmministrazioneListView(container) {
                     <div class="input-group">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-group-icon lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         <input type="search" id="client-search" placeholder="Cerca per nome..." 
-                               class="form-control" value="${amministrazioneState.adminFilters.search}">
+                               class="form-control" value="${amministrazioneState.adminFilters.search}" autocomplete="off">
                     </div>
                 </div>
                 <div class="filter-group">
@@ -170,7 +170,7 @@ function getAmministrazioneFormHTML() {
             <div class="form-group">
                 <label class="form-label">Nome Cliente</label>
                 <input type="text" id="client-name-input" class="form-control" 
-                       placeholder="es. Mario Rossi" value="${clientName}" style="max-width: 100%;">
+                       placeholder="es. Mario Rossi" value="${clientName}" style="max-width: 100%;" autocomplete="off">
             </div>
             <div class="flex items-center justify-end space-x-4 mt-6">
                 <button id="cancel-client-btn-bottom" class="btn btn-secondary">Annulla</button>
@@ -196,11 +196,11 @@ function getExpandedRowHTML(client) {
                         <div class="grid grid-cols-12 gap-2 items-center">
                             <div class="col-span-3">
                                 <input type="text" id="transaction-description-${client.id}" class="form-control" 
-                                       placeholder="Descrizione (es. Carburante)" value="${amministrazioneState.transactionForm.description}">
+                                       placeholder="Descrizione (es. Carburante)" value="${amministrazioneState.transactionForm.description}" autocomplete="off">
                             </div>
                             <div class="col-span-1">
                                 <input type="number" id="transaction-amount-${client.id}" step="0.01" class="form-control" 
-                                       placeholder="€" value="${amministrazioneState.transactionForm.amount || ''}">
+                                       placeholder="€" value="${amministrazioneState.transactionForm.amount || ''}" autocomplete="off">
                             </div>
                             <div class="col-span-2">
                                 <button class="btn btn-danger w-full" onclick="addTransactionInline('${client.id}', 'debit')">
@@ -252,19 +252,19 @@ function getExpandedRowHTML(client) {
                                                     <span class="editable-cell" data-field="date" data-client-id="${client.id}" data-tx-id="${tx.id}">
                                                         ${app.formatDate(tx.date)}
                                                     </span>
-                                                    <input type="text" class="form-control edit-input hidden" value="${app.formatToItalianDate(tx.date)}" style="font-size: 0.75rem; padding: 0.25rem;">
+                                                    <input type="text" class="form-control edit-input hidden" value="${app.formatToItalianDate(tx.date)}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
                                                 </td>
                                                 <td>
                                                     <span class="editable-cell" data-field="description" data-client-id="${client.id}" data-tx-id="${tx.id}">
                                                         ${tx.description}
                                                     </span>
-                                                    <input type="text" class="form-control edit-input hidden" value="${tx.description}" style="font-size: 0.75rem; padding: 0.25rem;">
+                                                    <input type="text" class="form-control edit-input hidden" value="${tx.description}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
                                                 </td>
                                                 <td>
                                                     <span class="editable-cell font-bold ${tx.amount > 0 ? 'text-success' : 'text-danger'}" data-field="amount" data-client-id="${client.id}" data-tx-id="${tx.id}">
                                                         ${formatTransactionAmount.call(app, tx.amount)}
                                                     </span>
-                                                    <input type="number" step="0.01" class="form-control edit-input hidden" value="${tx.amount}" style="font-size: 0.75rem; padding: 0.25rem;">
+                                                    <input type="number" step="0.01" class="form-control edit-input hidden" value="${tx.amount}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
                                                 </td>
                                                 <td class="text-right">
                                                     <div class="flex items-center justify-end space-x-1">
@@ -647,31 +647,37 @@ function addTransactionInline(clientId, type) {
 }
 // Fine funzione addTransactionInline
 
+// Inizio Modifica: Aggiunta modale di conferma
 // NUOVO: Inizio funzione settleAccountInline
 function settleAccountInline(clientId) {
     const app = getApp();
-    const container = document.getElementById('section-amministrazione');
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client || client.balance === 0) return;
 
-    // --- MODIFICA RICHIESTA DALL'UTENTE ---
-    // Azzera il saldo e cancella tutte le transazioni esistenti.
-    app.state.data.clients = app.state.data.clients.map(c => {
-        if (c.id === clientId) {
-            return {
-                ...c,
-                balance: 0,
-                transactions: [] // Cancella la cronologia delle transazioni
-            };
-        }
-        return c;
-    });
-    // --- FINE MODIFICA ---
+    app.showConfirm(
+        `Sei sicuro di voler saldare il conto di "${client.name}"? Tutte le transazioni verranno eliminate definitivamente e il saldo sarà azzerato.`,
+        () => {
+            const container = document.getElementById('section-amministrazione');
+            
+            app.state.data.clients = app.state.data.clients.map(c => {
+                if (c.id === clientId) {
+                    return {
+                        ...c,
+                        balance: 0,
+                        transactions: []
+                    };
+                }
+                return c;
+            });
 
-    app.saveToStorage('data', app.state.data);
-    renderAmministrazioneSection.call(app, container);
+            app.saveToStorage('data', app.state.data);
+            renderAmministrazioneSection.call(app, container);
+            app.showNotification(`Conto di ${client.name} saldato con successo.`);
+        }
+    );
 }
 // Fine funzione settleAccountInline
+// Fine Modifica
 
 // NUOVO: Inizio funzione deleteTransactionInline
 function deleteTransactionInline(clientId, transactionId) {
