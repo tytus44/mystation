@@ -573,11 +573,16 @@ select.form-control {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 4rem;
-    height: 4rem;
+    width: 5rem;
+    height: 5rem;
     flex-shrink: 0;
     border-radius: 50%;
     margin-left: var(--spacing-lg);
+}
+
+.stat-icon svg {
+    width: 2.5rem;  
+    height: 2.5rem; 
 }
 
 .stat-icon.blue {
