@@ -445,21 +445,27 @@ function competitorPrices() {
 // === FUNZIONI FORM ===
 // Inizio funzione resetListinoForm
 function resetListinoForm() {
+    const latest = currentPrices.call(this);
     prezziState.listinoForm = {
         date: this.getTodayFormatted(),
         variazione: 'Entrambi',
-        benzina: '', gasolio: '', dieselPlus: '', hvolution: '', adblue: ''
+        benzina: latest.benzina || '',
+        gasolio: latest.gasolio || '',
+        dieselPlus: latest.dieselPlus || '',
+        hvolution: latest.hvolution || '',
+        adblue: latest.adblue || ''
     };
 }
 // Fine funzione resetListinoForm
 
 // Inizio funzione resetConcorrenzaForm
 function resetConcorrenzaForm() {
+    const latest = competitorPrices.call(this);
     prezziState.concorrenzaForm = {
         date: this.getTodayFormatted(),
-        myoil: { benzina: '', gasolio: '' },
-        esso: { benzina: '', gasolio: '' },
-        q8: { benzina: '', gasolio: '' }
+        myoil: { benzina: latest.myoil.benzina || '', gasolio: latest.myoil.gasolio || '' },
+        esso: { benzina: latest.esso.benzina || '', gasolio: latest.esso.gasolio || '' },
+        q8: { benzina: latest.q8.benzina || '', gasolio: latest.q8.gasolio || '' }
     };
 }
 // Fine funzione resetConcorrenzaForm
@@ -617,6 +623,7 @@ function renderConcorrenzaCard() {
         }
     };
 
+    // Inizio Modifica: Corretto ordine colonne
     container.innerHTML = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4 text-sm">
@@ -627,13 +634,6 @@ function renderConcorrenzaCard() {
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-                <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
-                    <div class="space-y-1 mt-2">
-                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
-                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
-                    </div>
-                </div>
                 <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                     <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger);">Esso</h4>
                     <div class="space-y-1 mt-2">
@@ -641,29 +641,37 @@ function renderConcorrenzaCard() {
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
+                <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
+                    <div class="space-y-1 mt-2">
+                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
+                    </div>
+                </div>
             </div>
             <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="product-box text-center p-2">
+                <div class="product-box text-center p-2" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
                     <div class="text-xs">Benzina</div>
                     ${formatDiff(diffs.myoil.benzina)}
                     <div class="text-xs mt-1">Gasolio</div>
                     ${formatDiff(diffs.myoil.gasolio)}
                 </div>
-                <div class="product-box text-center p-2">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.q8.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.q8.gasolio)}
-                </div>
-                <div class="product-box text-center p-2">
+                <div class="product-box text-center p-2" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                     <div class="text-xs">Benzina</div>
                     ${formatDiff(diffs.esso.benzina)}
                     <div class="text-xs mt-1">Gasolio</div>
                     ${formatDiff(diffs.esso.gasolio)}
                 </div>
+                <div class="product-box text-center p-2" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                    <div class="text-xs">Benzina</div>
+                    ${formatDiff(diffs.q8.benzina)}
+                    <div class="text-xs mt-1">Gasolio</div>
+                    ${formatDiff(diffs.q8.gasolio)}
+                </div>
             </div>
         </div>
     `;
+    // Fine Modifica
 }
 // Fine funzione renderConcorrenzaCard
 
