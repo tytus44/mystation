@@ -86,7 +86,7 @@ function getAnagraficaHeaderHTML(app) {
                 <div class="input-group">
                     <i data-lucide="search" class="input-group-icon"></i>
                     <input type="search" id="anagrafica-search" class="form-control" 
-                           placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" style="max-width: 100%;">
+                           placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" style="max-width: 100%;" autocomplete="off">
                 </div>
             </div>
             <div class="filter-group">
@@ -127,10 +127,44 @@ function getBulkActionsHTML() {
 }
 // Fine funzione getBulkActionsHTML
 
+// Inizio Modifica: Funzione per generare colori tenui
+// Inizio funzione generateHslColorFromString
+function generateHslColorFromString(str) {
+    const isDarkMode = document.body.classList.contains('theme-dark');
+    let hash = 0;
+    if (str.length === 0) return hash;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    const h = Math.abs(hash % 360);
+    
+    if (isDarkMode) {
+        // Colori tenui per il tema scuro: bassa saturazione, bassa luminosità
+        const s = 30;
+        const l_bg = 20;
+        const l_border = 30;
+        return {
+            background: `hsl(${h}, ${s}%, ${l_bg}%)`,
+            border: `hsl(${h}, ${s}%, ${l_border}%)`
+        };
+    } else {
+        // Colori pastello per il tema chiaro: alta saturazione, alta luminosità
+        const s = 80;
+        const l_bg = 95;
+        const l_border = 85;
+        return {
+            background: `hsl(${h}, ${s}%, ${l_bg}%)`,
+            border: `hsl(${h}, ${s}%, ${l_border}%)`
+        };
+    }
+}
+// Fine funzione generateHslColorFromString
+// Fine Modifica
+
 // Inizio funzione getContattiCardsHTML
 function getContattiCardsHTML(app, contatti) {
-    const colors = ['blue', 'green', 'purple', 'pink', 'orange', 'red', 'cyan'];
-
     if (contatti.length === 0) {
         return `
             <div class="empty-state p-12">
@@ -149,9 +183,8 @@ function getContattiCardsHTML(app, contatti) {
             </label>
         </div>
         <div class="contatti-grid">
-            ${contatti.map((c, index) => {
+            ${contatti.map((c) => {
                 const isSelected = anagraficaState.selectedContatti.includes(c.id);
-                const colorClass = `color-${colors[index % colors.length]}`;
                 const iniziali = `${(c.nome || '').charAt(0)}${(c.cognome || '').charAt(0)}`.toUpperCase();
                 
                 const contattiInfo = [];
@@ -159,8 +192,13 @@ function getContattiCardsHTML(app, contatti) {
                 if (c.telefono2) contattiInfo.push(`<i data-lucide="phone" class="w-4 h-4"></i> ${c.telefono2}`);
                 if (c.email) contattiInfo.push(`<i data-lucide="mail" class="w-4 h-4"></i> ${c.email}`);
                 
+                // Inizio Modifica: Genera colori e applica stile inline
+                const contactColors = generateHslColorFromString(c.id);
+                const cardStyle = `background-color: ${contactColors.background}; border-color: ${contactColors.border};`;
+                // Fine Modifica
+                
                 return `
-                    <div class="contatto-card ${colorClass} ${isSelected ? 'selected' : ''}" data-contatto-id="${c.id}">
+                    <div class="contatto-card ${isSelected ? 'selected' : ''}" data-contatto-id="${c.id}" style="${cardStyle}">
                         <div class="contatto-card-header">
                             <label class="checkbox-container" onclick="event.stopPropagation()">
                                 <input type="checkbox" class="contatto-checkbox" data-id="${c.id}" ${isSelected ? 'checked' : ''}>
@@ -393,31 +431,31 @@ function openContattoModal(contatto = null) {
             <div class="form-grid">
                 <div class="form-group">
                     <label class="form-label">Nome *</label>
-                    <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}" required>
+                    <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}" required autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Cognome *</label>
-                    <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}" required>
+                    <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}" required autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Azienda</label>
-                    <input type="text" id="contatto-azienda" class="form-control" value="${anagraficaState.contattoForm.azienda}">
+                    <input type="text" id="contatto-azienda" class="form-control" value="${anagraficaState.contattoForm.azienda}" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" id="contatto-email" class="form-control" value="${anagraficaState.contattoForm.email}">
+                    <input type="email" id="contatto-email" class="form-control" value="${anagraficaState.contattoForm.email}" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Telefono 1</label>
-                    <input type="tel" id="contatto-telefono1" class="form-control" value="${anagraficaState.contattoForm.telefono1}">
+                    <input type="tel" id="contatto-telefono1" class="form-control" value="${anagraficaState.contattoForm.telefono1}" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Telefono 2</label>
-                    <input type="tel" id="contatto-telefono2" class="form-control" value="${anagraficaState.contattoForm.telefono2}">
+                    <input type="tel" id="contatto-telefono2" class="form-control" value="${anagraficaState.contattoForm.telefono2}" autocomplete="off">
                 </div>
                 <div class="form-group span-2">
                     <label class="form-label">Note</label>
-                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}">
+                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}" autocomplete="off" spellcheck="false">
                 </div>
             </div>
             <div class="modal-actions">

@@ -159,7 +159,7 @@ function renderHomeSection(container) {
                             <div class="space-y-4">
                                 <div class="form-group">
                                     <label class="form-label">Importo Lordo (€)</label>
-                                    <input type="number" id="iva-importo" step="0.01" placeholder="0.00" class="form-control text-lg" value="${homeState.ivaCalculator.importoLordo || ''}" style="max-width: 100%;">
+                                    <input type="number" id="iva-importo" step="0.01" placeholder="0.00" class="form-control text-lg" value="${homeState.ivaCalculator.importoLordo || ''}" style="max-width: 100%;" autocomplete="off">
                                 </div>
                                 <div id="iva-risultati" class="space-y-4">
                                     <div class="product-box p-3" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
@@ -188,27 +188,27 @@ function renderHomeSection(container) {
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="form-group mb-0">
                                         <label class="form-label">€ 500</label>
-                                        <input type="number" data-taglio="500" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[500] || ''}" placeholder="0">
+                                        <input type="number" data-taglio="500" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[500] || ''}" placeholder="0" autocomplete="off">
                                     </div>
                                     <div class="form-group mb-0">
                                         <label class="form-label">€ 200</label>
-                                        <input type="number" data-taglio="200" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[200] || ''}" placeholder="0">
+                                        <input type="number" data-taglio="200" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[200] || ''}" placeholder="0" autocomplete="off">
                                     </div>
                                     <div class="form-group mb-0">
                                         <label class="form-label">€ 100</label>
-                                        <input type="number" data-taglio="100" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[100] || ''}" placeholder="0">
+                                        <input type="number" data-taglio="100" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[100] || ''}" placeholder="0" autocomplete="off">
                                     </div>
                                     <div class="form-group mb-0">
                                         <label class="form-label">€ 50</label>
-                                        <input type="number" data-taglio="50" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[50] || ''}" placeholder="0">
+                                        <input type="number" data-taglio="50" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[50] || ''}" placeholder="0" autocomplete="off">
                                     </div>
                                     <div class="form-group mb-0">
                                         <label class="form-label">€ 20</label>
-                                        <input type="number" data-taglio="20" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[20] || ''}" placeholder="0">
+                                        <input type="number" data-taglio="20" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[20] || ''}" placeholder="0" autocomplete="off">
                                     </div>
                                     <div class="form-group mb-0">
                                         <label class="form-label">€ 10</label>
-                                        <input type="number" data-taglio="10" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[10] || ''}" placeholder="0">
+                                        <input type="number" data-taglio="10" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[10] || ''}" placeholder="0" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="product-box p-4">
@@ -885,8 +885,8 @@ function showAddNoteModal() {
     modalContentEl.innerHTML = `
         <div class="card-header"><h2 class="card-title">Nuova Nota</h2><button id="cancel-note-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button></div>
         <div class="card-body">
-            <div class="form-group"><label class="form-label">Titolo</label><input type="text" id="note-title" class="form-control" style="max-width: 100%;"></div>
-            <div class="form-group"><label class="form-label">Testo nota</label><textarea id="note-text" class="form-control form-textarea" style="max-width: 100%;"></textarea></div>
+            <div class="form-group"><label class="form-label">Titolo</label><input type="text" id="note-title" class="form-control" style="max-width: 100%;" autocomplete="off"></div>
+            <div class="form-group"><label class="form-label">Testo nota</label><textarea id="note-text" class="form-control form-textarea" style="max-width: 100%;" autocomplete="off" spellcheck="false"></textarea></div>
             <div class="form-group"><label class="form-label">Colore</label><div id="note-color-selector" class="note-color-selector">
                 <div class="note-color-option note-yellow selected" data-color="yellow"></div><div class="note-color-option note-green" data-color="green"></div>
                 <div class="note-color-option note-blue" data-color="blue"></div><div class="note-color-option note-pink" data-color="pink"></div>
@@ -970,7 +970,7 @@ function showAddTodoModal() {
     modalContentEl.innerHTML = `
         <div class="card-header"><h2 class="card-title">Nuova Attività</h2><button id="cancel-todo-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button></div>
         <div class="card-body">
-            <div class="form-group"><label class="form-label">Descrizione attività</label><input type="text" id="todo-text" class="form-control" style="max-width: 100%;"></div>
+            <div class="form-group"><label class="form-label">Descrizione attività</label><input type="text" id="todo-text" class="form-control" style="max-width: 100%;" autocomplete="off"></div>
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-todo-btn" class="btn btn-primary">Salva Attività</button></div>
         </div>`;
     modalContentEl.classList.remove('modal-wide');

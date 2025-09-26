@@ -13,6 +13,9 @@
 html {
     font-size: 16px;
     scroll-behavior: smooth;
+    /* Stile scrollbar per Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
 }
 
 body {
@@ -20,6 +23,26 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
 }
+
+/* === Stile Globale Scrollbar (per Chrome, Safari, Edge) === */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-primary-hover);
+}
+
 
 /* === VARIABILI CSS PER TEMI === */
 :root {
@@ -226,6 +249,17 @@ body {
     border-radius: var(--radius-md);
     transition: background-color 0.2s ease;
     font-weight: 500;
+}
+
+/* Stile per i nuovi pulsanti della sidebar */
+button.sidebar-link {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .sidebar-link:hover {
@@ -702,11 +736,13 @@ select.form-control {
     position: fixed;
     bottom: 1.25rem;
     right: 1.25rem;
-    z-index: 50;
+    transition: all 0.3s ease;
+    /* Inizio Modifica */
+    z-index: 70; /* Aumentato per essere sempre in primo piano */
+    /* Fine Modifica */
     max-width: 24rem;
     opacity: 0;
     transform: translateY(1rem);
-    transition: all 0.3s ease;
 }
 
 .notification.show {
@@ -740,14 +776,23 @@ select.form-control {
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 50;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--animation-duration-fast) var(--animation-timing);
+    /* Inizio Modifica */
+    z-index: 50; /* z-index di base per i modali */
+    /* Fine Modifica */
 }
+
+/* Inizio Modifica: Nuova regola per il modale di conferma */
+#confirm-modal {
+    z-index: 60; /* Valore più alto per stare sopra gli altri modali */
+}
+/* Fine Modifica */
+
 
 .modal.show {
     opacity: 1;
@@ -842,16 +887,14 @@ select.form-control {
     color: #ffffff !important;
 }
 
-/* Inizio Modifica */
-/* REGOLA CORRETTA CON SPECIFICITÀ MAGGIORE */
 .card-header .modal-close-btn,
 .modal-header .modal-close-btn {
     position: absolute;
-    top: 50%; /* Allinea il punto superiore del pulsante al centro verticale dell'header */
-    transform: translateY(-20%);
+    top: 50%;
+    right: 0.75rem; /* Ridotto il valore per avvicinarlo al bordo */
+    transform: translateY(-50%);
     z-index: 10;
 }
-/* Fine Modifica */
 
 
 /* Allineamento perfetto dell'icona X */
@@ -1310,8 +1353,7 @@ select.form-control {
 }
 
 .expanded-row .table-container::-webkit-scrollbar-track {
-    background: var(--bg-tertiary);
-    border-radius: 4px;
+    background: transparent;
 }
 
 .expanded-row .table-container::-webkit-scrollbar-thumb {
@@ -2561,7 +2603,7 @@ select.form-control {
 }
 
 .btn:not(.btn-danger):hover::after {
-    animation: ripple-wave 0.8s ease-out;
+    animation: ripple-wave 0.8s ease-out infinite;
 }
 
 /* === RESPONSIVE === */

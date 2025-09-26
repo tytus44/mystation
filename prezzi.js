@@ -163,7 +163,7 @@ function getListinoFormHTML() {
                         <label class="form-label">Data</label>
                         <div class="input-group">
                             <i data-lucide="calendar" class="input-group-icon"></i>
-                            <input type="text" id="listino-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.listinoForm.date}">
+                            <input type="text" id="listino-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.listinoForm.date}" autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group">
@@ -179,23 +179,23 @@ function getListinoFormHTML() {
                 <div class="grid grid-cols-5 gap-4">
                     <div class="product-box" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
                         <label class="form-label font-medium" style="color: var(--color-success);">Benzina</label>
-                        <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina || ''}">
+                        <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina || ''}" autocomplete="off">
                     </div>
                      <div class="product-box" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
                         <label class="form-label font-medium" style="color: var(--color-warning);">Gasolio</label>
-                        <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio || ''}">
+                        <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio || ''}" autocomplete="off">
                     </div>
                      <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                         <label class="form-label font-medium" style="color: var(--color-danger);">Diesel+</label>
-                        <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus || ''}">
+                        <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus || ''}" autocomplete="off">
                     </div>
                      <div class="product-box" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
                         <label class="form-label font-medium" style="color: var(--color-info);">Hvolution</label>
-                        <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution || ''}">
+                        <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution || ''}" autocomplete="off">
                     </div>
                      <div class="product-box" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
                         <label class="form-label font-medium" style="color: var(--color-secondary);">AdBlue</label>
-                        <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue || ''}">
+                        <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue || ''}" autocomplete="off">
                     </div>
                 </div>
 
@@ -222,24 +222,24 @@ function getConcorrenzaFormHTML() {
                     <label class="form-label">Data</label>
                     <div class="input-group">
                         <i data-lucide="calendar" class="input-group-icon"></i>
-                        <input type="text" id="concorrenza-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.concorrenzaForm.date}">
+                        <input type="text" id="concorrenza-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.concorrenzaForm.date}" autocomplete="off">
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-6">
                     <div class="product-box" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
                         <h4 class="product-title text-center" style="color: #8b5cf6;">MyOil</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina || ''}"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio || ''}"></div>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina || ''}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio || ''}" autocomplete="off"></div>
                     </div>
                     <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                         <h4 class="product-title text-center" style="color: var(--color-danger);">Esso</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina || ''}"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio || ''}"></div>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina || ''}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio || ''}" autocomplete="off"></div>
                     </div>
                     <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                         <h4 class="product-title text-center" style="color: var(--color-primary);">Q8</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina || ''}"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio || ''}"></div>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina || ''}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio || ''}" autocomplete="off"></div>
                     </div>
                 </div>
                 <div class="flex items-center justify-end space-x-4">
@@ -621,6 +621,7 @@ function renderConcorrenzaCard() {
         }
     };
 
+    // Inizio Modifica
     container.innerHTML = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4 text-sm">
@@ -631,18 +632,18 @@ function renderConcorrenzaCard() {
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-                <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
-                    <div class="space-y-1 mt-2">
-                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
-                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
-                    </div>
-                </div>
                 <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                     <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger);">Esso</h4>
                     <div class="space-y-1 mt-2">
                         <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
+                    </div>
+                </div>
+                <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
+                    <div class="space-y-1 mt-2">
+                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
             </div>
@@ -655,19 +656,20 @@ function renderConcorrenzaCard() {
                 </div>
                 <div class="product-box text-center p-2">
                     <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.q8.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.q8.gasolio)}
-                </div>
-                <div class="product-box text-center p-2">
-                    <div class="text-xs">Benzina</div>
                     ${formatDiff(diffs.esso.benzina)}
                     <div class="text-xs mt-1">Gasolio</div>
                     ${formatDiff(diffs.esso.gasolio)}
                 </div>
+                <div class="product-box text-center p-2">
+                    <div class="text-xs">Benzina</div>
+                    ${formatDiff(diffs.q8.benzina)}
+                    <div class="text-xs mt-1">Gasolio</div>
+                    ${formatDiff(diffs.q8.gasolio)}
+                </div>
             </div>
         </div>
     `;
+    // Fine Modifica
 }
 // Fine funzione renderConcorrenzaCard
 
