@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    path { 
+      /* Colore primario per il tema chiaro */
+      stroke: #2563eb; 
+    }
+    @media (prefers-color-scheme: dark) {
+      path { 
+        /* Colore del testo per il tema scuro */
+        stroke: #f9fafb; 
+      }
+    }
+  </style>
+  <path d="M21.17 8.83a11.02 11.02 0 0 0-18.34 0"/>
+  <path d="M12 12v8"/>
+  <path d="M16.83 13.17a7.02 7.02 0 0 0-9.66 0"/>
+  <circle cx="12" cy="12" r="2"/>
+</svg>
