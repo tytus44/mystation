@@ -92,7 +92,7 @@ function renderRegistroListView(container) {
                                 <td class="text-danger">${app.formatInteger(summary.benzina.diff_neg)}</td>
                                 <td>
                                     <input type="number" id="prev-year-benzina" class="form-control w-24" 
-                                           value="${app.state.data.previousYearStock.benzina}">
+                                           value="${app.state.data.previousYearStock.benzina}" autocomplete="off">
                                 </td>
                                 <td class="font-bold text-primary">${app.formatInteger(summary.benzina.carico + (app.state.data.previousYearStock.benzina || 0) + summary.benzina.diff_pos + summary.benzina.diff_neg)}</td>
                             </tr>
@@ -103,7 +103,7 @@ function renderRegistroListView(container) {
                                 <td class="text-danger">${app.formatInteger(summary.gasolio.diff_neg)}</td>
                                 <td>
                                     <input type="number" id="prev-year-gasolio" class="form-control w-24" 
-                                           value="${app.state.data.previousYearStock.gasolio}">
+                                           value="${app.state.data.previousYearStock.gasolio}" autocomplete="off">
                                 </td>
                                 <td class="font-bold text-primary">${app.formatInteger(summary.gasolio.carico + (app.state.data.previousYearStock.gasolio || 0) + summary.gasolio.diff_pos + summary.gasolio.diff_neg)}</td>
                             </tr>
@@ -114,7 +114,7 @@ function renderRegistroListView(container) {
                                 <td class="text-danger">${app.formatInteger(summary.dieselPlus.diff_neg)}</td>
                                 <td>
                                     <input type="number" id="prev-year-dieselPlus" class="form-control w-24" 
-                                           value="${app.state.data.previousYearStock.dieselPlus}">
+                                           value="${app.state.data.previousYearStock.dieselPlus}" autocomplete="off">
                                 </td>
                                 <td class="font-bold text-primary">${app.formatInteger(summary.dieselPlus.carico + (app.state.data.previousYearStock.dieselPlus || 0) + summary.dieselPlus.diff_pos + summary.dieselPlus.diff_neg)}</td>
                             </tr>
@@ -125,7 +125,7 @@ function renderRegistroListView(container) {
                                 <td class="text-danger">${app.formatInteger(summary.hvolution.diff_neg)}</td>
                                 <td>
                                     <input type="number" id="prev-year-hvolution" class="form-control w-24" 
-                                           value="${app.state.data.previousYearStock.hvolution}">
+                                           value="${app.state.data.previousYearStock.hvolution}" autocomplete="off">
                                 </td>
                                 <td class="font-bold text-primary">${app.formatInteger(summary.hvolution.carico + (app.state.data.previousYearStock.hvolution || 0) + summary.hvolution.diff_pos + summary.hvolution.diff_neg)}</td>
                             </tr>
@@ -158,7 +158,7 @@ function renderRegistroListView(container) {
                     <div class="input-group">
                         <i data-lucide="search" class="input-group-icon"></i>
                         <input type="search" id="registry-search" placeholder="Cerca per autista..." 
-                               class="form-control" value="${registroState.registrySearchQuery}">
+                               class="form-control" value="${registroState.registrySearchQuery}" autocomplete="off">
                     </div>
                 </div>
                 <div class="filter-group">
@@ -239,9 +239,6 @@ function getRegistroFormHTML() {
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
-            <button id="cancel-carico-btn" class="btn btn-secondary modal-close-btn">
-                <i data-lucide="x"></i>
-            </button>
         </div>
         <div class="card-body">
             <div class="space-y-6">
@@ -251,13 +248,13 @@ function getRegistroFormHTML() {
                         <div class="input-group">
                             <i data-lucide="calendar" class="input-group-icon"></i>
                             <input type="text" id="carico-date" class="form-control" 
-                                   placeholder="gg.mm.aaaa" value="${registroState.registryForm.date}">
+                                   placeholder="gg.mm.aaaa" value="${registroState.registryForm.date}" autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nome Autista</label>
                         <input type="text" id="carico-autista" class="form-control" 
-                               placeholder="Nome Cognome" value="${registroState.registryForm.autistaName}">
+                               placeholder="Nome Cognome" value="${registroState.registryForm.autistaName}" autocomplete="off">
                     </div>
                 </div>
                 
@@ -365,13 +362,11 @@ function setupRegistroEventListeners() {
 function setupRegistroFormEventListeners() {
     const app = getApp();
     const saveBtn = document.getElementById('save-carico-btn');
-    const cancelBtn = document.getElementById('cancel-carico-btn');
     const cancelBtnBottom = document.getElementById('cancel-carico-btn-bottom');
 
     if (saveBtn) saveBtn.addEventListener('click', () => saveCarico.call(app));
     
     const close = () => app.hideFormModal();
-    if (cancelBtn) cancelBtn.addEventListener('click', close);
     if (cancelBtnBottom) cancelBtnBottom.addEventListener('click', close);
 
     // Listener per i campi di testo normali

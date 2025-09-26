@@ -162,9 +162,6 @@ function getAmministrazioneFormHTML() {
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
-            <button id="cancel-client-btn" class="btn btn-secondary modal-close-btn">
-                <i data-lucide="x"></i>
-            </button>
         </div>
         <div class="card-body">
             <div class="form-group">
@@ -298,7 +295,6 @@ function getExpandedRowHTML(client) {
 function setupAmministrazioneFormEventListeners() {
     const app = getApp();
     const saveBtn = document.getElementById('save-client-btn');
-    const cancelBtn = document.getElementById('cancel-client-btn');
     const cancelBtnBottom = document.getElementById('cancel-client-btn-bottom');
     const nameInput = document.getElementById('client-name-input');
 
@@ -328,7 +324,6 @@ function setupAmministrazioneFormEventListeners() {
     }
 
     const close = () => app.hideFormModal();
-    if (cancelBtn) cancelBtn.addEventListener('click', close);
     if (cancelBtnBottom) cancelBtnBottom.addEventListener('click', close);
 }
 // Fine funzione setupAmministrazioneFormEventListeners
@@ -647,7 +642,6 @@ function addTransactionInline(clientId, type) {
 }
 // Fine funzione addTransactionInline
 
-// Inizio Modifica: Aggiunta modale di conferma
 // NUOVO: Inizio funzione settleAccountInline
 function settleAccountInline(clientId) {
     const app = getApp();
@@ -677,7 +671,6 @@ function settleAccountInline(clientId) {
     );
 }
 // Fine funzione settleAccountInline
-// Fine Modifica
 
 // NUOVO: Inizio funzione deleteTransactionInline
 function deleteTransactionInline(clientId, transactionId) {

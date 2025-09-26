@@ -154,7 +154,6 @@ function getListinoFormHTML() {
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
-            <button id="cancel-listino-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="card-body">
             <div class="space-y-6">
@@ -214,7 +213,6 @@ function getConcorrenzaFormHTML() {
     return `
         <div class="card-header">
             <h2 class="card-title">Aggiorna Prezzi Concorrenza</h2>
-            <button id="cancel-concorrenza-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="card-body">
             <div class="space-y-6">
@@ -274,7 +272,6 @@ function setupListinoFormEventListeners() {
     document.getElementById('save-listino-btn')?.addEventListener('click', () => saveListino.call(app));
     
     const close = () => app.hideFormModal();
-    document.getElementById('cancel-listino-btn')?.addEventListener('click', close);
     document.getElementById('cancel-listino-btn-bottom')?.addEventListener('click', close);
     
     // Listener per i tab Variazione
@@ -313,7 +310,6 @@ function setupConcorrenzaFormEventListeners() {
     document.getElementById('save-concorrenza-btn')?.addEventListener('click', () => saveConcorrenza.call(app));
 
     const close = () => app.hideFormModal();
-    document.getElementById('cancel-concorrenza-btn')?.addEventListener('click', close);
     document.getElementById('cancel-concorrenza-btn-bottom')?.addEventListener('click', close);
 
     const concorrenzaInputs = [
@@ -621,7 +617,6 @@ function renderConcorrenzaCard() {
         }
     };
 
-    // Inizio Modifica
     container.innerHTML = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4 text-sm">
@@ -632,18 +627,18 @@ function renderConcorrenzaCard() {
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-                <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger);">Esso</h4>
-                    <div class="space-y-1 mt-2">
-                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
-                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
-                    </div>
-                </div>
                 <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                     <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
                     <div class="space-y-1 mt-2">
                         <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
+                    </div>
+                </div>
+                <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger);">Esso</h4>
+                    <div class="space-y-1 mt-2">
+                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
             </div>
@@ -656,20 +651,19 @@ function renderConcorrenzaCard() {
                 </div>
                 <div class="product-box text-center p-2">
                     <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.esso.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.esso.gasolio)}
-                </div>
-                <div class="product-box text-center p-2">
-                    <div class="text-xs">Benzina</div>
                     ${formatDiff(diffs.q8.benzina)}
                     <div class="text-xs mt-1">Gasolio</div>
                     ${formatDiff(diffs.q8.gasolio)}
                 </div>
+                <div class="product-box text-center p-2">
+                    <div class="text-xs">Benzina</div>
+                    ${formatDiff(diffs.esso.benzina)}
+                    <div class="text-xs mt-1">Gasolio</div>
+                    ${formatDiff(diffs.esso.gasolio)}
+                </div>
             </div>
         </div>
     `;
-    // Fine Modifica
 }
 // Fine funzione renderConcorrenzaCard
 

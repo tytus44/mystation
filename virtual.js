@@ -202,9 +202,6 @@ function getVirtualFormHTML() {
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
-            <button id="cancel-turno-btn" class="btn btn-secondary modal-close-btn">
-                <i data-lucide="x"></i>
-            </button>
         </div>
         <div class="card-body">
             <div class="grid grid-cols-12 gap-4 items-end mb-4">
@@ -213,7 +210,7 @@ function getVirtualFormHTML() {
                         <label class="form-label">Data</label>
                         <div class="input-group">
                             <i data-lucide="calendar" class="input-group-icon"></i>
-                            <input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}">
+                            <input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}" autocomplete="off">
                         </div>
                     </div>
                 </div>
@@ -244,44 +241,44 @@ function getVirtualFormHTML() {
                         <tr>
                             <td class="font-medium text-primary">Gasolio</td>
                             <td>
-                                <input type="number" id="iperself-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.gasolio || ''}">
+                                <input type="number" id="iperself-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.gasolio || ''}" autocomplete="off">
                             </td>
                             <td>
-                                <input type="number" id="servito-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.gasolio || ''}">
+                                <input type="number" id="servito-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.gasolio || ''}" autocomplete="off">
                             </td>
                         </tr>
                         <tr>
                             <td class="font-medium text-primary">Diesel+</td>
                             <td>
-                                <input type="number" id="iperself-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.dieselplus || ''}">
+                                <input type="number" id="iperself-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.dieselplus || ''}" autocomplete="off">
                             </td>
                             <td>
-                                <input type="number" id="servito-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.dieselplus || ''}">
+                                <input type="number" id="servito-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.dieselplus || ''}" autocomplete="off">
                             </td>
                         </tr>
                         <tr>
                             <td class="font-medium text-primary">AdBlue</td>
                             <td></td>
                             <td>
-                                <input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}">
+                                <input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}" autocomplete="off">
                             </td>
                         </tr>
                         <tr>
                             <td class="font-medium text-primary">Benzina</td>
                             <td>
-                                <input type="number" id="iperself-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.benzina || ''}">
+                                <input type="number" id="iperself-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.benzina || ''}" autocomplete="off">
                             </td>
                             <td>
-                                <input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}">
+                                <input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}" autocomplete="off">
                             </td>
                         </tr>
                         <tr>
                             <td class="font-medium text-primary">Hvolution</td>
                             <td>
-                                <input type="number" id="iperself-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.hvolution || ''}">
+                                <input type="number" id="iperself-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.iperself.hvolution || ''}" autocomplete="off">
                             </td>
                             <td>
-                                <input type="number" id="servito-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.hvolution || ''}">
+                                <input type="number" id="servito-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.hvolution || ''}" autocomplete="off">
                             </td>
                         </tr>
                     </tbody>
@@ -328,7 +325,6 @@ function setupVirtualListViewEventListeners() {
 function setupVirtualFormEventListeners() {
     const app = getApp();
     document.getElementById('save-turno-btn')?.addEventListener('click', () => saveTurno());
-    document.getElementById('cancel-turno-btn')?.addEventListener('click', () => app.hideFormModal());
     document.getElementById('cancel-turno-btn-bottom')?.addEventListener('click', () => app.hideFormModal());
 
     // Event listeners per i campi input

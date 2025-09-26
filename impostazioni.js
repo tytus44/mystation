@@ -35,9 +35,6 @@ function getImpostazioniModalHTML() {
     return `
         <div class="card-header">
             <h2 class="card-title">Impostazioni</h2>
-            <button id="cancel-impostazioni-btn" class="btn btn-secondary modal-close-btn">
-                <i data-lucide="x"></i>
-            </button>
         </div>
         <div class="card-body space-y-6">
             
@@ -107,6 +104,16 @@ function showImpostazioniModal() {
     modalContentEl.innerHTML = getImpostazioniModalHTML();
     modalContentEl.classList.add('modal-wide');
 
+    // Aggiunto un pulsante di chiusura generico se necessario, o si affida al backdrop
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = `<i data-lucide="x"></i>`;
+    closeButton.className = 'btn btn-secondary modal-close-btn'; // Assicurati che questa classe esista e sia stilizzata
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '1rem';
+    closeButton.style.right = '1rem';
+    closeButton.onclick = () => app.hideFormModal();
+    // Non lo aggiungiamo più
+    
     setupImpostazioniEventListeners();
     app.refreshIcons();
     app.showFormModal();
@@ -118,11 +125,11 @@ function showImpostazioniModal() {
 function setupImpostazioniEventListeners() {
     const app = getApp();
     
-    // Pulsante chiusura modale
-    const cancelBtn = document.getElementById('cancel-impostazioni-btn');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => app.hideFormModal());
-    }
+    // Dato che il pulsante con ID è stato rimosso, non possiamo più usare questo listener
+    // const cancelBtn = document.getElementById('cancel-impostazioni-btn');
+    // if (cancelBtn) {
+    //     cancelBtn.addEventListener('click', () => app.hideFormModal());
+    // }
 
     // Toggle tema scuro
     const darkModeToggle = document.getElementById('dark-mode-toggle');

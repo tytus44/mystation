@@ -127,7 +127,6 @@ function getBulkActionsHTML() {
 }
 // Fine funzione getBulkActionsHTML
 
-// Inizio Modifica: Funzione per generare colori tenui
 // Inizio funzione generateHslColorFromString
 function generateHslColorFromString(str) {
     const isDarkMode = document.body.classList.contains('theme-dark');
@@ -161,7 +160,6 @@ function generateHslColorFromString(str) {
     }
 }
 // Fine funzione generateHslColorFromString
-// Fine Modifica
 
 // Inizio funzione getContattiCardsHTML
 function getContattiCardsHTML(app, contatti) {
@@ -192,10 +190,8 @@ function getContattiCardsHTML(app, contatti) {
                 if (c.telefono2) contattiInfo.push(`<i data-lucide="phone" class="w-4 h-4"></i> ${c.telefono2}`);
                 if (c.email) contattiInfo.push(`<i data-lucide="mail" class="w-4 h-4"></i> ${c.email}`);
                 
-                // Inizio Modifica: Genera colori e applica stile inline
                 const contactColors = generateHslColorFromString(c.id);
                 const cardStyle = `background-color: ${contactColors.background};`;
-                // Fine Modifica
                 
                 return `
                     <div class="contatto-card ${isSelected ? 'selected' : ''}" data-contatto-id="${c.id}" style="${cardStyle}">
@@ -423,9 +419,6 @@ function openContattoModal(contatto = null) {
     const modalHTML = `
         <div class="modal-header">
             <h2>${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
-            <button class="btn btn-secondary modal-close-btn" aria-label="Chiudi">
-                <i data-lucide="x"></i>
-            </button>
         </div>
         <div class="modal-body">
             <div class="form-grid">

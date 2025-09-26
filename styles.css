@@ -330,7 +330,7 @@ button.sidebar-link {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
-    padding-right: 2.5rem;
+    /* Rimosso padding-right per consentire al titolo di occupare lo spazio */
 }
 
 .card-body {
@@ -573,8 +573,8 @@ select.form-control {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 5rem;
-    height: 5rem;
+    width: 4rem;
+    height: 4rem;
     flex-shrink: 0;
     border-radius: 50%;
     margin-left: var(--spacing-lg);
@@ -603,11 +603,6 @@ select.form-control {
 .stat-icon.purple {
     background-color: rgba(139, 92, 246, 0.1);
     color: #8b5cf6;
-}
-
-.stat-icon svg {
-    width: 2.5rem;
-    height: 2.5rem;
 }
 
 /* Filtri e controlli */
@@ -742,9 +737,7 @@ select.form-control {
     bottom: 1.25rem;
     right: 1.25rem;
     transition: all 0.3s ease;
-    /* Inizio Modifica */
     z-index: 70; /* Aumentato per essere sempre in primo piano */
-    /* Fine Modifica */
     max-width: 24rem;
     opacity: 0;
     transform: translateY(1rem);
@@ -787,16 +780,12 @@ select.form-control {
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--animation-duration-fast) var(--animation-timing);
-    /* Inizio Modifica */
     z-index: 50; /* z-index di base per i modali */
-    /* Fine Modifica */
 }
 
-/* Inizio Modifica: Nuova regola per il modale di conferma */
 #confirm-modal {
     z-index: 60; /* Valore più alto per stare sopra gli altri modali */
 }
-/* Fine Modifica */
 
 
 .modal.show {
@@ -871,42 +860,6 @@ select.form-control {
     max-width: 720px; /* Nuovo standard per i modali con form */
     width: 90vw;      /* Adattato per schermi piÃ¹ piccoli */
     text-align: left; /* Ripristina allineamento testo a sinistra per i form */
-}
-
-/* Pulsante di chiusura circolare */
-.modal-close-btn {
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    border-radius: 50% !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: auto !important;
-    transition: all 0.2s ease !important;
-}
-
-.modal-close-btn:hover {
-    background-color: var(--color-danger) !important;
-    border-color: var(--color-danger) !important;
-    color: #ffffff !important;
-}
-
-.card-header .modal-close-btn,
-.modal-header .modal-close-btn {
-    position: absolute;
-    top: 50%;
-    right: 0.75rem; /* Ridotto il valore per avvicinarlo al bordo */
-    transform: translateY(-50%);
-    z-index: 10;
-}
-
-
-/* Allineamento perfetto dell'icona X */
-.modal-close-btn svg {
-    margin: 0 !important;
-    width: 1.25rem !important;
-    height: 1.25rem !important;
 }
 
 /* Grid System */
@@ -2378,6 +2331,10 @@ select.form-control {
     border-color: #FFD700; /* Oro */
     background-color: rgba(255, 215, 0, 0.1);
     box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+}
+
+.contatto-card:hover::before {
+    opacity: 1;
 }
 
 /* Custom checkbox styling for dark theme */
