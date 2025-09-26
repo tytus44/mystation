@@ -883,7 +883,7 @@ function showAddNoteModal() {
     const app = getApp();
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = `
-        <div class="card-header"><h2 class="card-title">Nuova Nota</h2><button id="cancel-note-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button></div>
+        <div class="card-header"><h2 class="card-title">Nuova Nota</h2></div>
         <div class="card-body">
             <div class="form-group"><label class="form-label">Titolo</label><input type="text" id="note-title" class="form-control" style="max-width: 100%;" autocomplete="off"></div>
             <div class="form-group"><label class="form-label">Testo nota</label><textarea id="note-text" class="form-control form-textarea" style="max-width: 100%;" autocomplete="off" spellcheck="false"></textarea></div>
@@ -904,7 +904,6 @@ function setupNoteModalEventListeners() {
     const app = this;
     document.getElementById('save-note-btn')?.addEventListener('click', () => saveNote.call(app));
     const close = () => app.hideFormModal();
-    document.getElementById('cancel-note-btn')?.addEventListener('click', close);
     document.getElementById('cancel-note-btn-bottom')?.addEventListener('click', close);
     document.getElementById('note-color-selector')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('note-color-option')) {
@@ -948,7 +947,6 @@ function showNoteModal(noteId) {
     modalContentEl.innerHTML = `
         <div class="card-header">
             <h2 class="card-title">${note.title}</h2>
-            <button id="close-note-view-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button>
         </div>
         <div class="card-body note-content-view">
             ${note.text.replace(/\n/g, '<br>')}
@@ -956,7 +954,7 @@ function showNoteModal(noteId) {
     `;
     modalContentEl.classList.add('modal-wide');
     
-    document.getElementById('close-note-view-btn')?.addEventListener('click', () => app.hideFormModal());
+    // Non c'è più un pulsante di chiusura specifico, si usa il backdrop
     
     app.refreshIcons();
     app.showFormModal();
@@ -968,7 +966,7 @@ function showAddTodoModal() {
     const app = getApp();
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = `
-        <div class="card-header"><h2 class="card-title">Nuova Attività</h2><button id="cancel-todo-btn" class="btn btn-secondary modal-close-btn"><i data-lucide="x"></i></button></div>
+        <div class="card-header"><h2 class="card-title">Nuova Attività</h2></div>
         <div class="card-body">
             <div class="form-group"><label class="form-label">Descrizione attività</label><input type="text" id="todo-text" class="form-control" style="max-width: 100%;" autocomplete="off"></div>
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-todo-btn" class="btn btn-primary">Salva Attività</button></div>
@@ -984,7 +982,6 @@ function setupTodoModalEventListeners() {
     const app = this;
     document.getElementById('save-todo-btn')?.addEventListener('click', () => saveTodo.call(app));
     const close = () => app.hideFormModal();
-    document.getElementById('cancel-todo-btn')?.addEventListener('click', close);
     document.getElementById('cancel-todo-btn-bottom')?.addEventListener('click', close);
 }
 // Fine funzione setupTodoModalEventListeners
