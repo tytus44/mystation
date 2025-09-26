@@ -1912,6 +1912,13 @@ select.form-control {
     background-color: rgba(37, 99, 235, 0.05);
     border-color: rgba(37, 99, 235, 0.3);
     color: var(--text-primary);
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Riga da aggiungere */
+}
+
+/* Nuova regola da aggiungere per l'effetto al passaggio del mouse */
+.todo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .todo-item input[type="checkbox"] {
