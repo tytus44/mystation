@@ -455,7 +455,7 @@ function openContattoModal(contatto = null) {
                 </div>
                 <div class="form-group span-2">
                     <label class="form-label">Note</label>
-                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}" autocomplete="off" spellcheck="false">
+                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}" autocomplete="off" spellcheck="false" style="max-width: 100%;">
                 </div>
             </div>
             <div class="modal-actions">
