@@ -1,18 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <style>
-    path { 
+    /* Applica lo stile a tutti gli elementi del tracciato (linee e cerchi) */
+    path, circle { 
       /* Colore primario per il tema chiaro */
       stroke: #2563eb; 
     }
     @media (prefers-color-scheme: dark) {
-      path { 
+      path, circle { 
         /* Colore del testo per il tema scuro */
         stroke: #f9fafb; 
       }
     }
   </style>
-  <path d="M21.17 8.83a11.02 11.02 0 0 0-18.34 0"/>
-  <path d="M12 12v8"/>
-  <path d="M16.83 13.17a7.02 7.02 0 0 0-9.66 0"/>
+  <path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/>
+  <path d="M4 6h.01"/>
+  <path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/>
+  <path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/>
+  <path d="M12 18h.01"/>
+  <path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/>
   <circle cx="12" cy="12" r="2"/>
+  <path d="m13.41 10.59 5.66-5.66"/>
 </svg>
