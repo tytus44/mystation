@@ -2380,23 +2380,6 @@ select.form-control {
     box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
 }
 
-/* MODIFICA: Rimosso l'accento superiore sulla selezione, mantenuto solo su hover */
-.contatto-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--color-primary), #60a5fa);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.contatto-card:hover::before {
-    opacity: 1;
-}
-
 /* Custom checkbox styling for dark theme */
 .theme-dark .checkmark {
     background-color: var(--bg-tertiary);

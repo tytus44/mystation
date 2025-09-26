@@ -194,7 +194,7 @@ function getContattiCardsHTML(app, contatti) {
                 
                 // Inizio Modifica: Genera colori e applica stile inline
                 const contactColors = generateHslColorFromString(c.id);
-                const cardStyle = `background-color: ${contactColors.background}; border-color: ${contactColors.border};`;
+                const cardStyle = `background-color: ${contactColors.background};`;
                 // Fine Modifica
                 
                 return `
