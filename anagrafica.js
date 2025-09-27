@@ -102,7 +102,7 @@ function getAnagraficaHeaderHTML(app) {
                     <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
                 </button>
                 <button id="new-contatto-btn" class="btn btn-primary">
-                    <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Nuovo Contatto
+                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Contatto
                 </button>
             </div>
         </div>
@@ -191,7 +191,7 @@ function getContattiCardsHTML(app, contatti) {
                 if (c.email) contattiInfo.push(`<i data-lucide="mail" class="w-4 h-4"></i> ${c.email}`);
                 
                 const contactColors = generateHslColorFromString(c.id);
-                const cardStyle = `background-color: ${contactColors.background};`;
+                const cardStyle = `background-color: ${contactColors.background}; border-color: ${contactColors.border};`;
                 
                 return `
                     <div class="contatto-card ${isSelected ? 'selected' : ''}" data-contatto-id="${c.id}" style="${cardStyle}">
