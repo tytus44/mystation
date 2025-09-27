@@ -62,7 +62,7 @@ function renderAmministrazioneListView(container) {
         <div class="space-y-6">
             
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                     <div class="stat-content">
                         <div class="stat-label">Clienti Attivi</div>
                         <div class="stat-value">${app.state.data.clients.length}</div>
@@ -71,7 +71,7 @@ function renderAmministrazioneListView(container) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
                     <div class="stat-content">
                         <div class="stat-label">Totale Credito</div>
                         <div class="stat-value">${app.formatCurrency(totalCredit.call(app))}</div>
@@ -80,7 +80,7 @@ function renderAmministrazioneListView(container) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                     <div class="stat-content">
                         <div class="stat-label">Totale Debito</div>
                         <div class="stat-value">${app.formatCurrency(totalDebit.call(app))}</div>

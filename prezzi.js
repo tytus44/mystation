@@ -70,28 +70,28 @@ function renderPrezziListView(container) {
             <div class="grid grid-cols-2 gap-6">
                 
                 <div class="grid grid-cols-2 gap-6">
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
                         <div class="stat-content">
                             <div class="stat-label">Benzina Iperself</div>
                             <div class="stat-value text-success">${app.formatCurrency(latestPrices.benzina, true)}</div>
                         </div>
                         <div class="stat-icon green"><i data-lucide="droplets"></i></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
                         <div class="stat-content">
                             <div class="stat-label">Gasolio Iperself</div>
                             <div class="stat-value text-warning">${app.formatCurrency(latestPrices.gasolio, true)}</div>
                         </div>
                         <div class="stat-icon yellow"><i data-lucide="droplets"></i></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                         <div class="stat-content">
                             <div class="stat-label">Diesel+ Iperself</div>
                             <div class="stat-value text-danger">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
                         </div>
                         <div class="stat-icon red"><i data-lucide="droplets"></i></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
                         <div class="stat-content">
                             <div class="stat-label">Hvolution Iperself</div>
                             <div class="stat-value text-info">${app.formatCurrency(latestPrices.hvolution, true)}</div>
