@@ -68,6 +68,36 @@ function renderRegistroListView(container) {
     container.innerHTML = `
         <div class="space-y-6">
             
+            <div id="registry-stats-container" class="stats-grid no-print">
+            </div>
+
+            <div class="filters-bar no-print">
+                <div class="filter-group">
+                    <label class="form-label">Cerca Autista</label>
+                    <div class="input-group">
+                        <i data-lucide="search" class="input-group-icon"></i>
+                        <input type="search" id="registry-search" placeholder="Cerca per autista..." 
+                               class="form-control" value="${registroState.registrySearchQuery}" autocomplete="off">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="form-label">Filtro Temporale</label>
+                    <div class="btn-group w-full">
+                        <button class="btn ${registroState.registryTimeFilter === 'none' ? 'btn-primary active' : 'btn-secondary'}" 
+                                data-time-filter="none">Nessun Filtro</button>
+                        <button class="btn ${registroState.registryTimeFilter === 'month' ? 'btn-primary active' : 'btn-secondary'}" 
+                                data-time-filter="month">Ultimo Mese</button>
+                        <button class="btn ${registroState.registryTimeFilter === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" 
+                                data-time-filter="quarter">Ultimo Trimestre</button>
+                        <button class="btn ${registroState.registryTimeFilter === 'semester' ? 'btn-primary active' : 'btn-secondary'}" 
+                                data-time-filter="semester">Ultimo Semestre</button>
+                    </div>
+                </div>
+                <button id="new-carico-btn" class="btn btn-primary">
+                    <i data-lucide="truck"></i> Nuovo Carico
+                </button>
+            </div>
+
             <div class="card no-print">
                 <div class="card-header">
                     <h2 class="card-title">Riepilogo totali ${new Date().getFullYear()}</h2>
@@ -149,36 +179,6 @@ function renderRegistroListView(container) {
                 </div>
             </div>
 
-            <div id="registry-stats-container" class="stats-grid no-print">
-                </div>
-
-            <div class="filters-bar no-print">
-                <div class="filter-group">
-                    <label class="form-label">Cerca Autista</label>
-                    <div class="input-group">
-                        <i data-lucide="search" class="input-group-icon"></i>
-                        <input type="search" id="registry-search" placeholder="Cerca per autista..." 
-                               class="form-control" value="${registroState.registrySearchQuery}" autocomplete="off">
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <label class="form-label">Filtro Temporale</label>
-                    <div class="btn-group w-full">
-                        <button class="btn ${registroState.registryTimeFilter === 'none' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="none">Nessun Filtro</button>
-                        <button class="btn ${registroState.registryTimeFilter === 'month' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="month">Ultimo Mese</button>
-                        <button class="btn ${registroState.registryTimeFilter === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="quarter">Ultimo Trimestre</button>
-                        <button class="btn ${registroState.registryTimeFilter === 'semester' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="semester">Ultimo Semestre</button>
-                    </div>
-                </div>
-                <button id="new-carico-btn" class="btn btn-primary">
-                    <i data-lucide="plus-circle"></i> Nuovo Carico
-                </button>
-            </div>
-
             <div class="card no-print">
                 <div class="card-header">
                     <h2 class="card-title">Elenco Carichi</h2>
@@ -201,7 +201,7 @@ function renderRegistroListView(container) {
                             </tr>
                         </thead>
                         <tbody id="registry-tbody">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>

@@ -117,7 +117,7 @@ function renderPrezziListView(container) {
                 <div class="card-header">
                     <h2 class="card-title">Storico Listini Prezzi</h2>
                     <button id="new-listino-btn" class="btn btn-primary">
-                        <i data-lucide="plus-circle"></i> Nuovo Listino
+                        <i data-lucide="tag"></i> Nuovo Listino
                     </button>
                 </div>
                 <div class="table-container">
