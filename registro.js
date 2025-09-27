@@ -13,7 +13,7 @@ let registroState = {
     // Stato locale
     registrySort: { column: 'date', direction: 'desc' },
     registrySearchQuery: '',
-    registryTimeFilter: 'none',
+    registryTimeFilter: 'all', 
     editingRegistry: null,
     registryForm: { 
         date: '', 
@@ -31,7 +31,7 @@ function initRegistroDiCarico() {
     console.log('📋 Inizializzazione modulo Registro di Carico...');
     
     // Carica stato persistente
-    registroState.registryTimeFilter = this.loadFromStorage('registryTimeFilter', 'none');
+    registroState.registryTimeFilter = this.loadFromStorage('registryTimeFilter', 'all');
     
     // Inizializza form
     resetRegistryForm.call(this);
@@ -73,7 +73,6 @@ function renderRegistroListView(container) {
 
             <div class="filters-bar no-print">
                 <div class="filter-group">
-                    <label class="form-label">Cerca Autista</label>
                     <div class="input-group">
                         <i data-lucide="search" class="input-group-icon"></i>
                         <input type="search" id="registry-search" placeholder="Cerca per autista..." 
@@ -81,10 +80,9 @@ function renderRegistroListView(container) {
                     </div>
                 </div>
                 <div class="filter-group">
-                    <label class="form-label">Filtro Temporale</label>
-                    <div class="btn-group w-full">
-                        <button class="btn ${registroState.registryTimeFilter === 'none' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="none">Nessun Filtro</button>
+                    <div class="btn-group">
+                        <button class="btn ${registroState.registryTimeFilter === 'all' ? 'btn-primary active' : 'btn-secondary'}" 
+                                data-time-filter="all">Tutto</button>
                         <button class="btn ${registroState.registryTimeFilter === 'month' ? 'btn-primary active' : 'btn-secondary'}" 
                                 data-time-filter="month">Ultimo Mese</button>
                         <button class="btn ${registroState.registryTimeFilter === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" 
@@ -503,7 +501,7 @@ function getFilteredRegistryEntries() {
     
     let filteredEntries = [...this.state.data.registryEntries];
     
-    if (registroState.registryTimeFilter !== 'none') {
+    if (registroState.registryTimeFilter !== 'all') {
         const now = new Date();
         let startDate = new Date();
         switch(registroState.registryTimeFilter) {

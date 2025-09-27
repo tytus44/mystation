@@ -3,6 +3,7 @@
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Home / Dashboard con layout ottimizzato.
 // Convertito da Alpine.js a vanilla JavaScript
+// --- MODIFICATO PER GESTIRE I TASK TRAMITE CALENDARIO ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===
@@ -34,7 +35,8 @@ let homeState = {
     calendar: {
         currentDate: new Date(),
         monthYear: '',
-        days: []
+        days: [],
+        selectedDate: null // Data selezionata in formato YYYY-MM-DD
     },
     
     // Ordine carburante (persistente)
@@ -48,8 +50,8 @@ let homeState = {
         waitingForSecondOperand: false,
         operator: null
     },
-    notes: [], // Sarà caricato dal localStorage
-    todos: []  // Sarà caricato dal localStorage
+    todos: [],  // Sarà caricato dal localStorage
+    editingTodo: null // Stato per il To-Do in modifica
 };
 
 // === INIZIALIZZAZIONE MODULO HOME ===
@@ -58,7 +60,6 @@ function initHome() {
     console.log('🏠 Inizializzazione modulo Home...');
     const app = this;
     
-    // Carica stato ordine carburante
     homeState.ordineCarburante = app.loadFromStorage('ordineCarburante', {
         benzina: 0,
         gasolio: 0,
@@ -66,11 +67,11 @@ function initHome() {
         hvolution: 0
     });
 
-    // Carica note e to-do dal localStorage
-    homeState.notes = app.loadFromStorage('homeNotes', []);
     homeState.todos = app.loadFromStorage('homeTodos', []);
     
-    // Inizializza calendario
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    homeState.calendar.selectedDate = today.toISOString().split('T')[0];
     initCalendar.call(app);
     
     console.log('✅ Modulo Home inizializzato');
@@ -97,7 +98,6 @@ function renderHomeSection(container) {
     
     container.innerHTML = `
         <div class="space-y-6">
-
             <div class="grid grid-cols-3 gap-6">
                 <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                     <div class="stat-content">
@@ -144,9 +144,37 @@ function renderHomeSection(container) {
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
             </div>
-
+            <div class="grid grid-cols-2 gap-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="flex items-center justify-between w-full">
+                            <h3 class="card-title">Calendario</h3>
+                            <div class="flex items-center space-x-2">
+                                <button id="calendar-prev" class="calendar-nav-btn"><i data-lucide="chevron-left"></i></button>
+                                <span id="calendar-month-year" class="calendar-title"></span>
+                                <button id="calendar-next" class="calendar-nav-btn"><i data-lucide="chevron-right"></i></button>
+                                <button id="calendar-today-btn" class="btn btn-primary ml-4"><i data-lucide="calendar"></i>Oggi</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="calendar-container" class="calendar-grid">
+                            <div class="calendar-day-header">Lun</div>
+                            <div class="calendar-day-header">Mar</div>
+                            <div class="calendar-day-header">Mer</div>
+                            <div class="calendar-day-header">Gio</div>
+                            <div class="calendar-day-header">Ven</div>
+                            <div class="calendar-day-header">Sab</div>
+                            <div class="calendar-day-header sunday">Dom</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="todos-card">
+                    <div class="card-header"><h3 class="card-title">To-Do List</h3></div>
+                    <div class="card-body"><div id="todo-list" class="todo-list"></div></div>
+                </div>
+            </div>
             <div class="grid grid-cols-3 gap-6">
-                
                 <div class="card">
                     <div class="card-header">
                         <div class="btn-group w-full">
@@ -186,30 +214,12 @@ function renderHomeSection(container) {
                         <div id="banconote-counter-content" class="${homeState.activeHomeCardTab === 'banconote' ? '' : 'hidden'}">
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div class="form-group mb-0">
-                                        <label class="form-label">€ 500</label>
-                                        <input type="number" data-taglio="500" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[500] || ''}" placeholder="0" autocomplete="off">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label class="form-label">€ 200</label>
-                                        <input type="number" data-taglio="200" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[200] || ''}" placeholder="0" autocomplete="off">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label class="form-label">€ 100</label>
-                                        <input type="number" data-taglio="100" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[100] || ''}" placeholder="0" autocomplete="off">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label class="form-label">€ 50</label>
-                                        <input type="number" data-taglio="50" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[50] || ''}" placeholder="0" autocomplete="off">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label class="form-label">€ 20</label>
-                                        <input type="number" data-taglio="20" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[20] || ''}" placeholder="0" autocomplete="off">
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label class="form-label">€ 10</label>
-                                        <input type="number" data-taglio="10" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[10] || ''}" placeholder="0" autocomplete="off">
-                                    </div>
+                                    <div class="form-group mb-0"><label class="form-label">€ 500</label><input type="number" data-taglio="500" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[500] || ''}" placeholder="0" autocomplete="off"></div>
+                                    <div class="form-group mb-0"><label class="form-label">€ 200</label><input type="number" data-taglio="200" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[200] || ''}" placeholder="0" autocomplete="off"></div>
+                                    <div class="form-group mb-0"><label class="form-label">€ 100</label><input type="number" data-taglio="100" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[100] || ''}" placeholder="0" autocomplete="off"></div>
+                                    <div class="form-group mb-0"><label class="form-label">€ 50</label><input type="number" data-taglio="50" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[50] || ''}" placeholder="0" autocomplete="off"></div>
+                                    <div class="form-group mb-0"><label class="form-label">€ 20</label><input type="number" data-taglio="20" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[20] || ''}" placeholder="0" autocomplete="off"></div>
+                                    <div class="form-group mb-0"><label class="form-label">€ 10</label><input type="number" data-taglio="10" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[10] || ''}" placeholder="0" autocomplete="off"></div>
                                 </div>
                                 <div class="product-box p-4">
                                     <div class="flex justify-between items-center">
@@ -221,62 +231,6 @@ function renderHomeSection(container) {
                         </div>
                     </div>
                 </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="flex items-center justify-between w-full">
-                            <h3 class="card-title">Calendario</h3>
-                            <div class="flex items-center space-x-2">
-                                <button id="calendar-prev" class="calendar-nav-btn">
-                                    <i data-lucide="chevron-left"></i>
-                                </button>
-                                <span id="calendar-month-year" class="calendar-title"></span>
-                                <button id="calendar-next" class="calendar-nav-btn">
-                                    <i data-lucide="chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div id="calendar-container" class="calendar-grid">
-                            <div class="calendar-day-header">Lun</div>
-                            <div class="calendar-day-header">Mar</div>
-                            <div class="calendar-day-header">Mer</div>
-                            <div class="calendar-day-header">Gio</div>
-                            <div class="calendar-day-header">Ven</div>
-                            <div class="calendar-day-header">Sab</div>
-                            <div class="calendar-day-header sunday">Dom</div>
-                            </div>
-                    </div>
-                    <div class="p-4 pt-2">
-                        <div id="calendar-today-display-box" class="product-box p-3 text-center" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                            </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Calcolo Ordine Carburante</h3>
-                    </div>
-                    <div class="card-body space-y-4" id="carburante-container">
-                        </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-6">
-                
-                <div class="card" id="notes-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Note Rapide</h3>
-                        <button id="add-note-btn" class="btn btn-secondary">
-                            <i data-lucide="notebook-pen" class="w-4 h-4 mr-2"></i>Aggiungi
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="notes-grid" class="notes-grid"></div>
-                    </div>
-                </div>
-
                 <div class="card">
                     <div class="card-body calculator">
                         <div id="calculator-display-container" class="calculator-display">
@@ -306,33 +260,20 @@ function renderHomeSection(container) {
                         </div>
                     </div>
                 </div>
-
-                <div class="card" id="todos-card">
-                    <div class="card-header">
-                        <h3 class="card-title">To-Do List</h3>
-                        <button id="add-todo-btn" class="btn btn-secondary">
-                            <i data-lucide="square-check-big" class="w-4 h-4 mr-2"></i>Aggiungi
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="todo-list" class="todo-list"></div>
-                    </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Calcolo Ordine Carburante</h3></div>
+                    <div class="card-body space-y-4" id="carburante-container"></div>
                 </div>
             </div>
         </div>
     `;
     
-    // Setup event listeners
     setupHomeEventListeners.call(app);
     
-    // Render componenti dinamici
     renderCalendar.call(app);
-    renderTodayDisplay.call(app);
+    renderTodos.call(app);
     renderOrdineCarburante.call(app);
-    // CORREZIONE: Chiamata alla nuova funzione di rendering per note e to-do
-    renderNotesAndTodos.call(app); 
     
-    // Refresh icone
     app.refreshIcons();
 }
 // Fine funzione renderHomeSection
@@ -342,18 +283,15 @@ function renderHomeSection(container) {
 function setupHomeEventListeners() {
     const app = this;
     
-    // Listener per le schede IVA/Banconote
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => setActiveHomeCardTab(btn.dataset.tab));
     });
     
-    // Calcolatore IVA
     document.getElementById('iva-importo')?.addEventListener('input', (e) => {
         homeState.ivaCalculator.importoLordo = parseFloat(e.target.value) || null;
         calcolaIva.call(app);
     });
 
-    // Conta Banconote
     document.querySelectorAll('.banconote-input').forEach(input => {
         input.addEventListener('input', (e) => {
             const taglio = e.target.dataset.taglio;
@@ -362,40 +300,50 @@ function setupHomeEventListeners() {
         });
     });
 
-    // Calendario navigation
     document.getElementById('calendar-prev')?.addEventListener('click', () => changeMonth.call(app, -1));
     document.getElementById('calendar-next')?.addEventListener('click', () => changeMonth.call(app, 1));
+    document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
+        homeState.calendar.currentDate = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        homeState.calendar.selectedDate = today.toISOString().split('T')[0];
+        renderCalendar.call(app);
+    });
 
-    // Calcolatrice
+    document.getElementById('calendar-container')?.addEventListener('click', (e) => {
+        const dayEl = e.target.closest('.calendar-day:not(.empty)');
+        if (dayEl) {
+            homeState.calendar.selectedDate = dayEl.dataset.date;
+            renderCalendarDays();
+            showAddTodoModal.call(app, dayEl.dataset.date);
+        }
+    });
+
     document.getElementById('calc-buttons')?.addEventListener('click', (e) => {
         if (e.target.matches('button')) {
             handleCalculatorInput.call(app, e.target.dataset.value);
         }
     });
 
-    // Note
-    document.getElementById('add-note-btn')?.addEventListener('click', () => showAddNoteModal.call(app));
-    document.getElementById('notes-grid')?.addEventListener('click', (e) => {
-        const deleteBtn = e.target.closest('.delete-btn');
-        const noteItem = e.target.closest('.note-item');
-
-        if (deleteBtn) {
-            e.stopPropagation();
-            deleteNote.call(app, deleteBtn.dataset.noteId);
-        } else if (noteItem) {
-            showNoteModalById(noteItem.dataset.noteId);
-        }
-    });
-
-    // To-Do
-    document.getElementById('add-todo-btn')?.addEventListener('click', () => showAddTodoModal.call(app));
     document.getElementById('todo-list')?.addEventListener('click', (e) => {
+        const todoItem = e.target.closest('.todo-item');
+        if (!todoItem) return;
+
         if (e.target.matches('input[type="checkbox"]')) {
-            toggleTodo.call(app, e.target.dataset.todoId);
+            toggleTodo.call(app, todoItem.dataset.todoId);
+            return;
         }
+
         const deleteBtn = e.target.closest('.delete-btn');
         if (deleteBtn) {
             deleteTodo.call(app, deleteBtn.dataset.todoId);
+            return;
+        }
+
+        const todoId = todoItem.dataset.todoId;
+        const todoToEdit = homeState.todos.find(t => t.id === todoId);
+        if (todoToEdit) {
+            showEditTodoModal.call(app, todoToEdit);
         }
     });
 }
@@ -406,7 +354,6 @@ function setupHomeEventListeners() {
 function setActiveHomeCardTab(tab) {
     homeState.activeHomeCardTab = tab;
 
-    // Aggiorna stile pulsanti
     document.querySelectorAll('[data-tab]').forEach(btn => {
         const isActive = btn.dataset.tab === tab;
         btn.classList.toggle('btn-primary', isActive);
@@ -414,7 +361,6 @@ function setActiveHomeCardTab(tab) {
         btn.classList.toggle('btn-secondary', !isActive);
     });
 
-    // Mostra/nascondi contenuto
     document.getElementById('iva-calculator-content').classList.toggle('hidden', tab !== 'iva');
     document.getElementById('banconote-counter-content').classList.toggle('hidden', tab !== 'banconote');
 }
@@ -482,7 +428,7 @@ function initCalendar() {
 function renderCalendar() {
     const date = homeState.calendar.currentDate;
     const year = date.getFullYear();
-    const month = date.getMonth();
+    const month = date.getMonth(); // 0-indexed (Gennaio = 0)
     
     const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
                        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
@@ -499,18 +445,26 @@ function renderCalendar() {
     
     let daysArray = [];
     for (let i = 0; i < firstDayIndex; i++) {
-        daysArray.push({ value: '', isToday: false, isHoliday: false, isSunday: false });
+        daysArray.push({ value: '', isToday: false, isHoliday: false, isSunday: false, todos: [], date: null });
     }
     
     const oggi = new Date();
-    const oggiItalia = new Date(oggi.toLocaleString("en-US", {timeZone: "Europe/Rome"}));
+    oggi.setHours(0, 0, 0, 0);
+    const oggiString = oggi.toISOString().split('T')[0];
     
     for (let i = 1; i <= lastDateOfMonth; i++) {
-        const dataCorrente = new Date(year, month, i);
-        const isToday = i === oggiItalia.getDate() && month === oggiItalia.getMonth() && year === oggiItalia.getFullYear();
+        const monthString = String(month + 1).padStart(2, '0');
+        const dayString = String(i).padStart(2, '0');
+        const dateString = `${year}-${monthString}-${dayString}`;
+        
+        const dataCorrente = new Date(year, month, i); // Usata solo per i check festivi/domenica
+        const isToday = dateString === oggiString;
         const isSunday = isDomenica(dataCorrente);
         const isHoliday = isFestivaItaliana.call(this, dataCorrente);
-        daysArray.push({ value: i, isToday: isToday, isHoliday: isHoliday, isSunday: isSunday });
+        
+        const todosForDay = homeState.todos.filter(todo => todo.dueDate === dateString);
+        
+        daysArray.push({ value: i, isToday, isHoliday, isSunday, todos: todosForDay, date: dateString });
     }
     
     homeState.calendar.days = daysArray;
@@ -523,34 +477,57 @@ function renderCalendarDays() {
     const container = document.getElementById('calendar-container');
     if (!container) return;
     
-    const dayElements = container.querySelectorAll('.calendar-day');
-    dayElements.forEach(el => el.remove());
+    container.querySelectorAll('.calendar-day').forEach(el => el.remove());
     
     homeState.calendar.days.forEach(day => {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        dayEl.textContent = day.value;
+        
+        const dayNumber = document.createElement('span');
+        dayNumber.textContent = day.value;
+        dayEl.appendChild(dayNumber);
+
+        if (day.date) dayEl.dataset.date = day.date;
         if (day.isToday) dayEl.classList.add('today');
         if (day.isHoliday) dayEl.classList.add('holiday');
         if (day.isSunday) dayEl.classList.add('sunday');
+        if (day.date === homeState.calendar.selectedDate) dayEl.classList.add('selected');
         if (!day.value) dayEl.classList.add('empty');
+        
+        if (day.todos && day.todos.length > 0) {
+            dayEl.classList.add('has-todo');
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'todo-dots-container';
+            
+            const importanceOrder = { 'urgent': 1, 'priority': 2, 'standard': 3 };
+            const sortedTodos = [...day.todos].sort((a, b) => {
+                return (importanceOrder[a.color] || 3) - (importanceOrder[b.color] || 3);
+            });
+
+            const colorToDotClass = {
+                'urgent': 'dot-1',   // Rosso
+                'priority': 'dot-2', // Arancione
+                'standard': 'dot-3'  // Blu
+            };
+
+            sortedTodos.slice(0, 3).forEach(todo => {
+                const dot = document.createElement('span');
+                const dotClass = colorToDotClass[todo.color] || 'dot-3';
+                
+                dot.className = `todo-dot ${dotClass}`;
+
+                if (todo.completed) {
+                    dot.classList.add('completed');
+                }
+                dotsContainer.appendChild(dot);
+            });
+            dayEl.appendChild(dotsContainer);
+        }
+
         container.appendChild(dayEl);
     });
 }
 // Fine funzione renderCalendarDays
-
-// Inizio funzione renderTodayDisplay
-function renderTodayDisplay() {
-    const today = new Date();
-    const options = { weekday: 'long', day: 'numeric', month: 'long' };
-    const formattedDate = today.toLocaleDateString('it-IT', options);
-    const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-    const container = document.getElementById('calendar-today-display-box');
-    if (container) {
-        container.innerHTML = `<span class="font-medium text-primary">${capitalizedDate}</span>`;
-    }
-}
-// Fine funzione renderTodayDisplay
 
 // Inizio funzione changeMonth
 function changeMonth(offset) {
@@ -811,7 +788,7 @@ function performCalculation(isChained = false) {
     }
     
     calc.display = String(parseFloat(result.toPrecision(12)));
-    calc.firstOperand = result; // Per calcoli concatenati
+    calc.firstOperand = result;
     if (!isChained) {
        calc.operator = null;
        calc.waitingForSecondOperand = true;
@@ -835,148 +812,141 @@ function updateCalculatorDisplay() {
 }
 // Fine funzione updateCalculatorDisplay
 
-// === FUNZIONI NOTE E TO-DO ===
-// CORREZIONE: Nuova funzione per renderizzare solo le card note e to-do
-// Inizio funzione renderNotesAndTodos
-function renderNotesAndTodos() {
+// === FUNZIONI TO-DO ===
+// Inizio funzione renderTodos
+function renderTodos() {
     const app = this;
-    const notesGrid = document.getElementById('notes-grid');
     const todoList = document.getElementById('todo-list');
-    const addNoteBtn = document.getElementById('add-note-btn');
-    const addTodoBtn = document.getElementById('add-todo-btn');
 
-    // Render Notes
-    if (notesGrid) {
-        notesGrid.innerHTML = `
-            ${homeState.notes.map(note => `
-                <div class="note-item note-${note.color}" data-note-id="${note.id}">
-                    <div class="note-title">${note.title}</div>
-                    <button class="delete-btn" data-note-id="${note.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            `).join('')}
-            ${homeState.notes.length === 0 ? '<p class="text-secondary text-sm">Nessuna nota. Aggiungine una!</p>' : ''}
-        `;
-    }
-    if(addNoteBtn) addNoteBtn.disabled = homeState.notes.length >= 5;
-
-    // Render To-Dos
     if (todoList) {
+        const sortedTodos = [...homeState.todos].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
         todoList.innerHTML = `
-            ${homeState.todos.map(todo => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                    <input type="checkbox" data-todo-id="${todo.id}" ${todo.completed ? 'checked' : ''}>
-                    <span>${todo.text}</span>
+            ${sortedTodos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''} color-${todo.color || 'standard'}" data-todo-id="${todo.id}" style="cursor: pointer;">
+                    <input type="checkbox" data-todo-id="${todo.id}" ${todo.completed ? 'checked' : ''} onclick="event.stopPropagation();">
+                    <div class="flex-grow">
+                        <span>${todo.text}</span>
+                        ${todo.dueDate ? `<div class="text-xs text-secondary">Scadenza: ${app.formatDate(todo.dueDate)}</div>` : ''}
+                    </div>
                     <button class="delete-btn ml-auto" data-todo-id="${todo.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
             `).join('')}
-            ${homeState.todos.length === 0 ? '<p class="text-secondary text-sm">Nessuna attività. Aggiungine una!</p>' : ''}
+            ${homeState.todos.length === 0 ? '<p class="text-secondary text-sm">Nessuna attività. Clicca un giorno sul calendario per aggiungerne una!</p>' : ''}
         `;
     }
-    if(addTodoBtn) addTodoBtn.disabled = homeState.todos.length >= 5;
 
     app.refreshIcons();
 }
-// Fine funzione renderNotesAndTodos
-
-// Inizio funzione showAddNoteModal
-function showAddNoteModal() {
-    const app = getApp();
-    const modalContentEl = document.getElementById('form-modal-content');
-    modalContentEl.innerHTML = `
-        <div class="card-header"><h2 class="card-title">Nuova Nota</h2></div>
-        <div class="card-body">
-            <div class="form-group"><label class="form-label">Titolo</label><input type="text" id="note-title" class="form-control" style="max-width: 100%;" autocomplete="off"></div>
-            <div class="form-group"><label class="form-label">Testo nota</label><textarea id="note-text" class="form-control form-textarea" style="max-width: 100%;" autocomplete="off" spellcheck="false"></textarea></div>
-            <div class="form-group"><label class="form-label">Colore</label><div id="note-color-selector" class="note-color-selector">
-                <div class="note-color-option note-yellow selected" data-color="yellow"></div><div class="note-color-option note-green" data-color="green"></div>
-                <div class="note-color-option note-blue" data-color="blue"></div><div class="note-color-option note-pink" data-color="pink"></div>
-            </div></div>
-            <div class="flex justify-end space-x-4 mt-6"><button id="cancel-note-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-note-btn" class="btn btn-primary">Salva Nota</button></div>
-        </div>`;
-    modalContentEl.classList.add('modal-wide');
-    setupNoteModalEventListeners.call(app);
-    app.refreshIcons();
-    app.showFormModal();
-}
-// Fine funzione showAddNoteModal
-// Inizio funzione setupNoteModalEventListeners
-function setupNoteModalEventListeners() {
-    const app = this;
-    document.getElementById('save-note-btn')?.addEventListener('click', () => saveNote.call(app));
-    const close = () => app.hideFormModal();
-    document.getElementById('cancel-note-btn-bottom')?.addEventListener('click', close);
-    document.getElementById('note-color-selector')?.addEventListener('click', (e) => {
-        if (e.target.classList.contains('note-color-option')) {
-            document.querySelectorAll('.note-color-option').forEach(el => el.classList.remove('selected'));
-            e.target.classList.add('selected');
-        }
-    });
-}
-// Fine funzione setupNoteModalEventListeners
-// Inizio funzione saveNote
-function saveNote() {
-    const title = document.getElementById('note-title').value.trim();
-    const text = document.getElementById('note-text').value.trim();
-    if (!title) { this.showNotification('Il titolo della nota non può essere vuoto.'); return; }
-    if (homeState.notes.length >= 5) { this.showNotification('Puoi aggiungere un massimo di 5 note.'); this.hideFormModal(); return; }
-    const color = document.querySelector('.note-color-option.selected').dataset.color;
-    const newNote = { id: this.generateUniqueId('note'), title, text, color };
-    homeState.notes.push(newNote);
-    this.saveToStorage('homeNotes', homeState.notes);
-    this.hideFormModal();
-    // CORREZIONE: Chiama il rendering selettivo
-    renderNotesAndTodos.call(this);
-}
-// Fine funzione saveNote
-// Inizio funzione deleteNote
-function deleteNote(noteId) {
-    homeState.notes = homeState.notes.filter(note => note.id !== noteId);
-    this.saveToStorage('homeNotes', homeState.notes);
-    // CORREZIONE: Chiama il rendering selettivo
-    renderNotesAndTodos.call(this);
-}
-// Fine funzione deleteNote
-
-// Inizio funzione showNoteModal
-function showNoteModal(noteId) {
-    const app = getApp();
-    const note = homeState.notes.find(n => n.id === noteId);
-    if (!note) return;
-
-    const modalContentEl = document.getElementById('form-modal-content');
-    modalContentEl.innerHTML = `
-        <div class="card-header">
-            <h2 class="card-title">${note.title}</h2>
-        </div>
-        <div class="card-body note-content-view">
-            ${note.text.replace(/\n/g, '<br>')}
-        </div>
-    `;
-    modalContentEl.classList.add('modal-wide');
-    
-    // Non c'è più un pulsante di chiusura specifico, si usa il backdrop
-    
-    app.refreshIcons();
-    app.showFormModal();
-}
-// Fine funzione showNoteModal
+// Fine funzione renderTodos
 
 // Inizio funzione showAddTodoModal
-function showAddTodoModal() {
+function showAddTodoModal(dateString) {
     const app = getApp();
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = `
         <div class="card-header"><h2 class="card-title">Nuova Attività</h2></div>
         <div class="card-body">
-            <div class="form-group"><label class="form-label">Descrizione attività</label><input type="text" id="todo-text" class="form-control" style="max-width: 100%;" autocomplete="off"></div>
+            <div class="form-group">
+                <label class="form-label">Descrizione attività</label>
+                <input type="text" id="todo-text" class="form-control" style="max-width: 100%;" autocomplete="off">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label">Scadenza</label>
+                    <input type="text" class="form-control" style="max-width: 120px;" value="${app.formatToItalianDate(dateString)}" readonly>
+                    <input type="hidden" id="todo-due-date-iso" value="${dateString}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Importanza</label>
+                    <div class="color-picker-group" style="flex-direction: row; gap: 1rem;">
+                        <div class="flex items-center">
+                            <label class="color-radio standard" title="Standard">
+                                <input type="radio" name="todo-color" value="standard" checked><span></span>
+                            </label>
+                            <span class="text-sm text-secondary" style="margin-left: 0.5rem;">Standard</span>
+                        </div>
+                        <div class="flex items-center">
+                            <label class="color-radio priority" title="Priorità">
+                                <input type="radio" name="todo-color" value="priority"><span></span>
+                            </label>
+                            <span class="text-sm text-secondary" style="margin-left: 0.5rem;">Priorità</span>
+                        </div>
+                        <div class="flex items-center">
+                            <label class="color-radio urgent" title="Urgente">
+                                <input type="radio" name="todo-color" value="urgent"><span></span>
+                            </label>
+                            <span class="text-sm text-secondary" style="margin-left: 0.5rem;">Urgente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-todo-btn" class="btn btn-primary">Salva Attività</button></div>
         </div>`;
-    modalContentEl.classList.remove('modal-wide');
+    modalContentEl.classList.add('modal-wide');
     setupTodoModalEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
 }
 // Fine funzione showAddTodoModal
+
+// Inizio funzione showEditTodoModal
+function showEditTodoModal(todo) {
+    const app = getApp();
+    homeState.editingTodo = todo;
+    const modalContentEl = document.getElementById('form-modal-content');
+    
+    const currentColor = todo.color || 'standard';
+
+    modalContentEl.innerHTML = `
+        <div class="card-header"><h2 class="card-title">Modifica Attività</h2></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Descrizione attività</label>
+                <input type="text" id="edit-todo-text" class="form-control" style="max-width: 100%;" value="${todo.text}" autocomplete="off">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label">Scadenza</label>
+                    <input type="text" id="edit-todo-due-date-display" class="form-control" style="max-width: 120px;" value="${app.formatToItalianDate(todo.dueDate)}" placeholder="gg.mm.aaaa" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Importanza</label>
+                    <div class="color-picker-group" style="flex-direction: row; gap: 1rem;">
+                        <div class="flex items-center">
+                            <label class="color-radio standard" title="Standard">
+                                <input type="radio" name="todo-color" value="standard" ${currentColor === 'standard' ? 'checked' : ''}><span></span>
+                            </label>
+                            <span class="text-sm text-secondary" style="margin-left: 0.5rem;">Standard</span>
+                        </div>
+                        <div class="flex items-center">
+                            <label class="color-radio priority" title="Priorità">
+                                <input type="radio" name="todo-color" value="priority" ${currentColor === 'priority' ? 'checked' : ''}><span></span>
+                            </label>
+                            <span class="text-sm text-secondary" style="margin-left: 0.5rem;">Priorità</span>
+                        </div>
+                        <div class="flex items-center">
+                            <label class="color-radio urgent" title="Urgente">
+                                <input type="radio" name="todo-color" value="urgent" ${currentColor === 'urgent' ? 'checked' : ''}><span></span>
+                            </label>
+                            <span class="text-sm text-secondary" style="margin-left: 0.5rem;">Urgente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-6"><button id="cancel-edit-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="update-todo-btn" class="btn btn-primary">Aggiorna Attività</button></div>
+        </div>`;
+        
+    modalContentEl.classList.add('modal-wide');
+    setupEditTodoModalEventListeners.call(app);
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showEditTodoModal
+
 // Inizio funzione setupTodoModalEventListeners
 function setupTodoModalEventListeners() {
     const app = this;
@@ -985,35 +955,96 @@ function setupTodoModalEventListeners() {
     document.getElementById('cancel-todo-btn-bottom')?.addEventListener('click', close);
 }
 // Fine funzione setupTodoModalEventListeners
+
+// Inizio funzione setupEditTodoModalEventListeners
+function setupEditTodoModalEventListeners() {
+    const app = this;
+    document.getElementById('update-todo-btn')?.addEventListener('click', () => updateTodo.call(app));
+    const close = () => {
+        homeState.editingTodo = null;
+        app.hideFormModal();
+    };
+    document.getElementById('cancel-edit-todo-btn-bottom')?.addEventListener('click', close);
+}
+// Fine funzione setupEditTodoModalEventListeners
+
 // Inizio funzione saveTodo
 function saveTodo() {
+    const app = this;
     const text = document.getElementById('todo-text').value.trim();
-    if (!text) { this.showNotification('La descrizione non può essere vuota.'); return; }
-    if (homeState.todos.length >= 5) { this.showNotification('Puoi aggiungere un massimo di 5 attività.'); this.hideFormModal(); return; }
-    const newTodo = { id: this.generateUniqueId('todo'), text, completed: false };
+    const dueDate = document.getElementById('todo-due-date-iso').value;
+    const color = document.querySelector('input[name="todo-color"]:checked').value;
+
+    if (!text || !dueDate) { 
+        app.showNotification('Descrizione e data sono obbligatorie.'); 
+        return; 
+    }
+    if (homeState.todos.length >= 5) { 
+        app.showNotification('Puoi aggiungere un massimo di 5 attività.'); 
+        app.hideFormModal(); 
+        return; 
+    }
+    const newTodo = { id: app.generateUniqueId('todo'), text, dueDate, completed: false, color: color };
     homeState.todos.push(newTodo);
-    this.saveToStorage('homeTodos', homeState.todos);
-    this.hideFormModal();
-    // CORREZIONE: Chiama il rendering selettivo
-    renderNotesAndTodos.call(this);
+    app.saveToStorage('homeTodos', homeState.todos);
+    app.hideFormModal();
+    
+    renderCalendar.call(app);
+    renderTodos.call(app);
 }
 // Fine funzione saveTodo
+
+// Inizio funzione updateTodo
+function updateTodo() {
+    const app = this;
+    const text = document.getElementById('edit-todo-text').value.trim();
+    const dateString = document.getElementById('edit-todo-due-date-display').value;
+    const color = document.querySelector('input[name="todo-color"]:checked').value;
+
+    if (!text || !dateString) {
+        app.showNotification('Descrizione e data sono obbligatorie.');
+        return;
+    }
+
+    if (!app.validateItalianDate(dateString)) {
+        app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
+        return;
+    }
+
+    const dueDate = app.parseItalianDate(dateString).toISOString().split('T')[0];
+    const todoId = homeState.editingTodo.id;
+    homeState.todos = homeState.todos.map(todo =>
+        todo.id === todoId ? { ...todo, text, dueDate, color } : todo
+    );
+
+    app.saveToStorage('homeTodos', homeState.todos);
+    app.hideFormModal();
+    homeState.editingTodo = null;
+    
+    renderCalendar.call(app);
+    renderTodos.call(app);
+}
+// Fine funzione updateTodo
+
 // Inizio funzione deleteTodo
 function deleteTodo(todoId) {
+    const app = this;
     homeState.todos = homeState.todos.filter(todo => todo.id !== todoId);
-    this.saveToStorage('homeTodos', homeState.todos);
-    // CORREZIONE: Chiama il rendering selettivo
-    renderNotesAndTodos.call(this);
+    app.saveToStorage('homeTodos', homeState.todos);
+    renderCalendar.call(app);
+    renderTodos.call(app);
 }
 // Fine funzione deleteTodo
+
 // Inizio funzione toggleTodo
 function toggleTodo(todoId) {
+    const app = this;
     homeState.todos = homeState.todos.map(todo => 
         todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
     );
-    this.saveToStorage('homeTodos', homeState.todos);
-    // CORREZIONE: Chiama il rendering selettivo
-    renderNotesAndTodos.call(this);
+    app.saveToStorage('homeTodos', homeState.todos);
+    renderCalendar.call(app);
+    renderTodos.call(app);
 }
 // Fine funzione toggleTodo
 
@@ -1022,5 +1053,4 @@ if (typeof window !== 'undefined') {
     window.initHome = initHome;
     window.renderHomeSection = renderHomeSection;
     window.homeState = homeState;
-    window.showNoteModalById = (id) => showNoteModal(id);
 }

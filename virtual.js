@@ -133,8 +133,9 @@ function renderVirtualListView(container) {
                             <button id="chart-back-btn" class="btn btn-secondary btn-sm hidden" title="Indietro">
                                 <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Indietro
                             </button>
-                            <button id="export-products-chart-btn" class="btn btn-secondary btn-sm" title="Esporta immagine">
-                                <i data-lucide="image" class="w-4 h-4"></i>
+                            
+                            <button id="export-products-chart-btn" class="btn btn-primary">
+                                <i data-lucide="image"></i> Salva Immagine
                             </button>
                         </div>
                     </div>
@@ -145,8 +146,9 @@ function renderVirtualListView(container) {
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Iperself vs Servito</h3>
-                         <button id="export-service-chart-btn" class="btn btn-secondary btn-sm" title="Esporta immagine">
-                            <i data-lucide="image" class="w-4 h-4"></i>
+                         
+                         <button id="export-service-chart-btn" class="btn btn-primary">
+                            <i data-lucide="image"></i> Salva Immagine
                         </button>
                     </div>
                     <div class="card-body">
@@ -164,8 +166,9 @@ function renderVirtualListView(container) {
                         <button class="btn btn-sm ${virtualState.trendChartTab === 'dieselplus' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="dieselplus">Diesel+</button>
                         <button class="btn btn-sm ${virtualState.trendChartTab === 'hvolution' ? 'btn-primary active' : 'btn-secondary'}" data-trend-tab="hvolution">Hvolution</button>
                     </div>
-                    <button id="export-trend-chart-btn" class="btn btn-secondary btn-sm" title="Esporta immagine">
-                        <i data-lucide="image" class="w-4 h-4"></i>
+                    
+                    <button id="export-trend-chart-btn" class="btn btn-primary">
+                        <i data-lucide="image"></i> Salva Immagine
                     </button>
                 </div>
                 <div class="card-body">

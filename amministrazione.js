@@ -104,14 +104,14 @@ function renderAmministrazioneListView(container) {
                         <button class="btn ${amministrazioneState.adminFilters.filter === 'all' ? 'btn-primary active' : 'btn-secondary'}" 
                                 data-filter-type="all">Tutti i clienti</button>
                         <button class="btn ${amministrazioneState.adminFilters.filter === 'credit' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-filter-type="credit">Clienti a credito</button>
+                                data-filter-type="credit">A credito</button>
                         <button class="btn ${amministrazioneState.adminFilters.filter === 'debit' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-filter-type="debit">Clienti a debito</button>
+                                data-filter-type="debit">A debito</button>
                     </div>
                 </div>
                 <div class="flex space-x-2">
                     <button id="new-client-btn" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg> Nuovo Cliente
+                        <i data-lucide="handshake"></i> Nuovo Cliente
                     </button>
                     <button id="print-clients-btn" class="btn btn-secondary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> Stampa Elenco

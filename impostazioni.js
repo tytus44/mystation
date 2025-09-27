@@ -39,7 +39,6 @@ function getImpostazioniModalHTML() {
         <div class="card-body space-y-6">
             
             <div class="space-y-4">
-                <h3 class="text-md font-medium text-primary">Aspetto e Display</h3>
                 
                 <div class="flex items-center justify-between w-full">
                     <span class="font-medium text-primary">Tema scuro</span>
@@ -67,7 +66,7 @@ function getImpostazioniModalHTML() {
             </div>
             
             <div class="border-t border-primary pt-6">
-                <h3 class="text-md font-medium text-primary mb-4">Gestione Dati</h3>
+                
                 <div class="grid grid-cols-2 gap-4">
                     <input type="file" id="import-file" accept=".json" class="hidden">
                     <button id="import-btn" class="btn btn-secondary w-full p-4 text-center">
@@ -81,7 +80,7 @@ function getImpostazioniModalHTML() {
             
             <div class="card border-danger mt-6">
                 <div class="card-body">
-                    <h3 class="font-semibold text-danger mb-2">Zona Pericolosa</h3>
+                    
                     <p class="text-sm text-danger mb-4">
                         Questa azione eliminerà permanentemente tutti i dati dell'applicazione. Non può essere annullata.
                     </p>
@@ -89,6 +88,10 @@ function getImpostazioniModalHTML() {
                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Reset Tutti i Dati
                     </button>
                 </div>
+            </div>
+            
+            <div class="modal-actions border-t border-primary pt-6 mt-6">
+                <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
             </div>
         </div>
     `;
@@ -125,11 +128,11 @@ function showImpostazioniModal() {
 function setupImpostazioniEventListeners() {
     const app = getApp();
     
-    // Dato che il pulsante con ID è stato rimosso, non possiamo più usare questo listener
-    // const cancelBtn = document.getElementById('cancel-impostazioni-btn');
-    // if (cancelBtn) {
-    //     cancelBtn.addEventListener('click', () => app.hideFormModal());
-    // }
+    // MODIFICA: Aggiunto listener per il nuovo pulsante di chiusura
+    const closeBtn = document.getElementById('close-impostazioni-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => app.hideFormModal());
+    }
 
     // Toggle tema scuro
     const darkModeToggle = document.getElementById('dark-mode-toggle');

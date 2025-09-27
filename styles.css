@@ -68,7 +68,7 @@ body {
     --border-focus: var(--color-primary);
     
     /* Testo */
-    --text-primary: #111827;
+    --text-primary: #6b7280;
     --text-secondary: #6b7280;
     --text-tertiary: #9ca3af;
     --text-inverse: #ffffff;
@@ -111,7 +111,7 @@ body {
     --border-primary: #374151;
     --border-secondary: #4b5563;
     
-    --text-primary: #f9fafb;
+    --text-primary: #d1d5db;
     --text-secondary: #d1d5db;
     --text-tertiary: #9ca3af;
     --text-inverse: #111827;
@@ -129,12 +129,12 @@ body {
 }
 
 /* =============================================
-   AccessibilitÃ : Stile per Navigazione da Tastiera
+   Stile per Navigazione da Tastiera disabilitato
    ============================================= */
 *:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Usando il colore primario con piÃ¹ opacitÃ  */
-    border-radius: var(--radius-md); 
+    box-shadow: none;
+    border-radius: 0;
 }
 
 /* === HEADER MOBILE === */
@@ -862,10 +862,11 @@ select.form-control {
    ============================================= */
 
 /* Classe per rendere il modale largo senza wrapper card */
+/* MODIFICA: Ristretto il modale come richiesto */
 .modal-content.modal-wide {
-    max-width: 720px; /* Nuovo standard per i modali con form */
-    width: 90vw;      /* Adattato per schermi piÃ¹ piccoli */
-    text-align: left; /* Ripristina allineamento testo a sinistra per i form */
+    max-width: 600px; /* Ridotto da 720px */
+    width: 90vw;
+    text-align: left;
 }
 
 /* Grid System */
@@ -910,6 +911,7 @@ select.form-control {
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
 .ml-auto { margin-left: auto; }
+.gap-4 { gap: 1rem; }
 .space-x-2 > :not(:first-child) { margin-left: 0.5rem; }
 .space-x-4 > :not(:first-child) { margin-left: 1rem; }
 .space-y-4 > :not(:first-child) { margin-top: 1rem; }
@@ -986,7 +988,7 @@ select.form-control {
     background-color: var(--bg-primary);
 }
 
-/* Calendar Component */
+/* ====== INIZIO MODIFICHE CALENDARIO ====== */
 .calendar {
     background-color: var(--bg-primary);
     border: 1px solid var(--border-primary);
@@ -1047,22 +1049,25 @@ select.form-control {
     padding: var(--spacing-sm);
     font-size: 0.75rem;
     cursor: pointer;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-lg);
     aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-primary);
 }
 
-.calendar-day:hover:not(.empty):not(.today):not(.holiday):not(.sunday) {
-    background-color: var(--bg-tertiary);
+.calendar-day:hover:not(.empty):not(.today):not(.selected) {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
 }
 
 .calendar-day.today {
     background-color: rgba(37, 99, 235, 0.1);
     color: var(--color-primary);
     font-weight: 700;
+    border-color: rgba(37, 99, 235, 0.3);
 }
 
 .calendar-day.holiday,
@@ -1075,6 +1080,8 @@ select.form-control {
 .calendar-day.sunday:hover {
     background-color: rgba(220, 38, 38, 0.05);
 }
+/* ====== FINE MODIFICHE CALENDARIO ====== */
+
 
 /* Product boxes per form */
 .product-box {
@@ -1752,7 +1759,7 @@ select.form-control {
 
 /* === COMPONENTI HOME AGGIUNTIVI === */
 
-/* Stili per la Nuova Calcolatrice */
+/* ====== INIZIO MODIFICHE CALCOLATRICE ====== */
 .calculator {
     padding: var(--spacing-sm);
 }
@@ -1798,14 +1805,14 @@ select.form-control {
 }
 
 .calc-btn {
-    background-color: transparent;
-    border: none;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
     padding: 1rem 0;
     font-size: 1.1rem;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 .theme-dark .calc-btn {
     color: var(--text-primary);
@@ -1813,15 +1820,19 @@ select.form-control {
 
 .calc-btn:hover {
     background-color: var(--bg-tertiary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
 }
 
 .calc-btn.operator {
     background-color: var(--color-accent-calc);
+    border-color: transparent;
     color: white;
     font-size: 1.3rem;
 }
 .calc-btn.operator:hover {
     opacity: 0.9;
+    transform: translateY(-2px);
 }
 
 .calc-btn.function {
@@ -1831,48 +1842,98 @@ select.form-control {
 .calc-btn.equal {
     grid-column: span 2;
 }
+/* ====== FINE MODIFICHE CALCOLATRICE ====== */
 
-/* Stili per le card Notes e To-Do */
-.notes-grid, .todo-list {
+
+/* === NUOVI STILI CALENDARIO === */
+.calendar-day.selected {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    font-weight: 700;
+    border-color: var(--color-primary) !important;
+    transform: scale(1.1);
+}
+
+.calendar-day.has-todo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 12px;
+}
+
+.todo-dots-container {
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    height: 7px;
+}
+
+.todo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.todo-dot.dot-1 { background-color: var(--color-danger); }
+.todo-dot.dot-2 { background-color: var(--color-warning); }
+.todo-dot.dot-3 { background-color: var(--color-info); }
+
+.todo-dot.completed {
+    background-color: var(--color-success);
+    opacity: 0.6;
+}
+
+.calendar-day.selected .todo-dot {
+    background-color: white;
+}
+
+.calendar-day.selected .todo-dot.completed {
+    background-color: #d1fae5;
+    opacity: 1;
+}
+
+/* Stili specifici per To-Do */
+.todo-list {
     display: grid;
     gap: 0.75rem;
 }
 
-.note-item, .todo-item {
-    padding: var(--spacing-md);
+.todo-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(37, 99, 235, 0.05);
+    border-left: 4px solid transparent; /* Aggiunto per il colore */
+    color: var(--text-primary);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
     position: relative;
     word-wrap: break-word;
-    border: 1px solid;
 }
 
-.note-item {
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* NUOVO: Colori per la barra laterale dei To-Do */
+.todo-item.color-standard { border-left-color: var(--color-info); }
+.todo-item.color-priority { border-left-color: var(--color-warning); }
+.todo-item.color-urgent { border-left-color: var(--color-danger); }
+
+
+.todo-item .flex-grow {
+    flex-grow: 1;
 }
 
-.note-item:hover {
+.todo-item:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-.note-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.note-content-view {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    text-align: left;
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.note-item .delete-btn, .todo-item .delete-btn {
+.todo-item .delete-btn {
     position: absolute;
     top: 50%;
     right: 0.5rem;
@@ -1885,40 +1946,11 @@ select.form-control {
     border-radius: 50%;
     transition: background-color 0.2s ease;
 }
-.note-item .delete-btn:hover, .todo-item .delete-btn:hover {
+.todo-item .delete-btn:hover {
     background-color: rgba(0,0,0,0.1);
 }
-.theme-dark .note-item .delete-btn:hover, .theme-dark .todo-item .delete-btn:hover {
+.theme-dark .todo-item .delete-btn:hover {
     background-color: rgba(255,255,255,0.1);
-}
-
-
-/* Colori per le note */
-.note-yellow { background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: #b45309; }
-.note-blue   { background-color: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #1d4ed8; }
-.note-green  { background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #065f46; }
-.note-pink   { background-color: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: #9d174d; }
-
-.theme-dark .note-yellow { color: #fcd34d; }
-.theme-dark .note-blue   { color: #93c5fd; }
-.theme-dark .note-green  { color: #6ee7b7; }
-.theme-dark .note-pink   { color: #f9a8d4; }
-
-
-/* Stili specifici per To-Do */
-.todo-item {
-    display: flex;
-    align-items: center;
-    background-color: rgba(37, 99, 235, 0.05);
-    border-color: rgba(37, 99, 235, 0.3);
-    color: var(--text-primary);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Riga da aggiungere */
-}
-
-/* Nuova regola da aggiungere per l'effetto al passaggio del mouse */
-.todo-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
 }
 
 .todo-item input[type="checkbox"] {
@@ -1934,28 +1966,49 @@ select.form-control {
     text-decoration: line-through;
 }
 
-/* Stili per il modale delle note */
-.note-color-selector {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-.note-color-option {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid transparent;
-}
-.note-color-option.selected {
-    border-color: var(--color-primary);
-}
-
 .form-textarea {
     min-height: 100px;
     height: auto;
     padding-top: 0.75rem;
 }
+
+/* NUOVO: Stili per il selettore di colore del task */
+.color-picker-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.color-radio {
+    cursor: pointer;
+    position: relative;
+}
+
+.color-radio input[type="radio"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.color-radio span {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.color-radio.standard span { background-color: var(--color-info); }
+.color-radio.priority span { background-color: var(--color-warning); }
+.color-radio.urgent span { background-color: var(--color-danger); }
+
+.color-radio input[type="radio"]:checked + span {
+    border-color: var(--bg-primary);
+    box-shadow: 0 0 0 2px var(--color-primary);
+}
+
 
 /* =============================================
    STILI PER LA SEZIONE ANAGRAFICA
