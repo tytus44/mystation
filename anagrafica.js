@@ -9,8 +9,8 @@
 let anagraficaState = {
     // Filtri e Ordinamento
     searchQuery: '',
-    sort: { column: 'cognome', direction: 'asc' },
-
+    // MODIFICA: Rimosso lo stato per l'ordinamento
+    
     // Form
     contattoForm: {
         nome: '', cognome: '', azienda: '',
@@ -79,23 +79,15 @@ function renderContattiGrid() {
 
 // Inizio funzione getAnagraficaHeaderHTML
 function getAnagraficaHeaderHTML(app) {
+    // MODIFICA: Rimosso il gruppo di pulsanti per l'ordinamento
     return `
         <div class="filters-bar">
             <div class="filter-group">
-                <label class="form-label">Cerca</label>
                 <div class="input-group">
                     <i data-lucide="search" class="input-group-icon"></i>
                     <input type="search" id="anagrafica-search" class="form-control" 
-                           placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" style="max-width: 100%;" autocomplete="off">
+       placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" autocomplete="off">
                 </div>
-            </div>
-            <div class="filter-group">
-                <label class="form-label">Ordina per</label>
-                <select id="anagrafica-sort" class="form-control" style="max-width: 100%;">
-                    <option value="cognome">Cognome</option>
-                    <option value="nome">Nome</option>
-                    <option value="azienda">Azienda</option>
-                </select>
             </div>
             <div class="flex space-x-2">
                 <button id="export-contatti-btn" class="btn btn-secondary">
@@ -259,14 +251,7 @@ function getFilteredAndSortedContatti() {
         );
     }
 
-    const { column, direction } = anagraficaState.sort;
-    contatti.sort((a, b) => {
-        const aVal = (a[column] || '').toString().toLowerCase();
-        const bVal = (b[column] || '').toString().toLowerCase();
-        const comparison = aVal.localeCompare(bVal);
-        return direction === 'asc' ? comparison : -comparison;
-    });
-
+    // MODIFICA: Rimossa tutta la logica di ordinamento
     return contatti;
 }
 // Fine funzione getFilteredAndSortedContatti
@@ -286,6 +271,7 @@ function setupAnagraficaEventListeners() {
         const editBtn = e.target.closest('.edit-contatto-btn');
         const deleteBtn = e.target.closest('.delete-contatto-btn');
         const bulkDeleteBtn = e.target.closest('#bulk-delete-btn');
+        // MODIFICA: Rimossa la variabile e la logica per i pulsanti di ordinamento
 
         if (newContattoBtn) openContattoModal.call(app);
         if (exportBtn) exportAnagraficaToCSV.call(app);
@@ -314,10 +300,7 @@ function setupAnagraficaEventListeners() {
     });
     
     container.addEventListener('change', (e) => {
-        if (e.target.id === 'anagrafica-sort') {
-            anagraficaState.sort.column = e.target.value;
-            renderContattiGrid.call(app);
-        } else if (e.target.id === 'select-all-contatti') {
+        if (e.target.id === 'select-all-contatti') {
             handleSelectAll.call(app, e.target.checked);
         } else if (e.target.classList.contains('contatto-checkbox')) {
             handleSelectContatto.call(app, e.target.dataset.id, e.target.checked);
@@ -423,12 +406,12 @@ function openContattoModal(contatto = null) {
         <div class="modal-body">
             <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label">Nome *</label>
-                    <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}" required autocomplete="off">
+                    <label class="form-label">Nome</label>
+                    <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}" autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Cognome *</label>
-                    <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}" required autocomplete="off">
+                    <label class="form-label">Cognome</label>
+                    <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Azienda</label>
@@ -498,8 +481,8 @@ function saveContatto() {
     const app = this;
     const form = anagraficaState.contattoForm;
 
-    if (!form.nome.trim() || !form.cognome.trim()) {
-        return app.showNotification('Nome e cognome sono obbligatori', 'error');
+    if (!form.nome.trim() && !form.cognome.trim()) {
+        return app.showNotification('È obbligatorio inserire almeno il nome o il cognome.', 'error');
     }
 
     const contattoData = {
