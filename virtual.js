@@ -93,7 +93,7 @@ function renderVirtualListView(container) {
                 </div></div>
                 <div style="display: flex; gap: 0.5rem;">
                     <button id="new-turno-btn" class="btn btn-primary">
-                        <i data-lucide="plus-circle"></i> Nuovo Turno
+                        <i data-lucide="monitor-dot"></i> Nuovo Turno
                     </button>
                     <button id="print-virtual-btn" class="btn btn-secondary">
                         <i data-lucide="printer"></i> Stampa Periodo
