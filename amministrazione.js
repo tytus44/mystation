@@ -238,7 +238,7 @@ function getClientModalHTML(client) {
                     </div>
                     
                     ${transactions.length > 0 ? 
-                        `<div class="table-container" style="max-height: 180px; overflow-y: auto;">
+                        `<div class="table-container" style="max-height: 220px; overflow-y: auto;">
                             <table class="table editable-table">
                                 <thead>
                                     <tr>
