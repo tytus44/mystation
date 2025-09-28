@@ -2,7 +2,6 @@
 // FILE: impostazioni.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della 
 // sezione Impostazioni (tema, import/export, reset).
-// --- MODIFICATO PER GESTIRE SOLO IMPORT DA JSON DI BACKUP ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===

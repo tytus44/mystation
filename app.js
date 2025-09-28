@@ -2,7 +2,6 @@
 // FILE: app.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Core dell'applicazione MyStation.
 // Gestisce stato globale, routing, temi e funzioni comuni.
-// --- MODIFICATO PER GESTIRE I MODALI DEI FORM E STAMPE CENTRALIZZATE ---
 // =============================================
 
 // === STATO GLOBALE DELL'APPLICAZIONE ===

@@ -2,7 +2,6 @@
 // FILE: prezzi.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della 
 // sezione Gestione Prezzi (listini e concorrenza).
-// --- RI-PROGETTATO CON LAYOUT A GRID E MODALI AGGIORNATI ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO PREZZI ===

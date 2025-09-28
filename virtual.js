@@ -2,8 +2,6 @@
 // FILE: virtual.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione VirtualStation (turni, statistiche, grafici).
-// --- RIFATTORIZZATO COMPLETAMENTE PER USARE I MODALI ---
-// --- POTENZIATO CON GRAFICI INTERATTIVI AVANZATI ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO VIRTUAL ===

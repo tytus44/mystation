@@ -2,8 +2,6 @@
 // FILE: home.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Home / Dashboard con layout ottimizzato.
-// Convertito da Alpine.js a vanilla JavaScript
-// --- MODIFICATO PER GESTIRE I TASK TRAMITE CALENDARIO ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===

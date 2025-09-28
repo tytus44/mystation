@@ -2,7 +2,6 @@
 // FILE: registro.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della 
 // sezione Registro di Carico.
-// --- MODIFICATO PER USARE LO STANDARD A MODALI ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO REGISTRO ===

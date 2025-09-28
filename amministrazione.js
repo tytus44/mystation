@@ -2,10 +2,11 @@
 // FILE: amministrazione.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Amministrazione (clienti, conti).
-// --- MODIFICATO PER USARE TABELLA ESPANDIBILE ---
+// --- MODIFICATO PER USARE MODALE UNICO PER GESTIONE CLIENTE ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO AMMINISTRAZIONE ===
+// Inizio funzione amministrazioneState
 let amministrazioneState = {
     // View mode e filtri (persistenti)
     amministrazioneViewMode: null, // Ora sempre 'list'
@@ -14,13 +15,15 @@ let amministrazioneState = {
     // Stato locale
     adminSort: { column: 'name', direction: 'asc' },
     newClientName: '',
-    editingClient: null,
-    editClientName: '',
     
-    // NUOVO: Stato per riga espandibile
-    expandedClientId: null, // ID del cliente attualmente espanso
+    // MODIFICA: Rimosso lo stato per la riga espandibile e per la modifica separata del cliente
+    // expandedClientId: null,
+    // editingClient: null,
+    // editClientName: '',
+    
     transactionForm: { description: 'Carburante', amount: null }
 };
+// Fine funzione amministrazioneState
 
 // === INIZIALIZZAZIONE MODULO AMMINISTRAZIONE ===
 // Inizio funzione initAmministrazione
@@ -155,9 +158,9 @@ function renderAmministrazioneListView(container) {
 
 // Inizio funzione getAmministrazioneFormHTML
 function getAmministrazioneFormHTML() {
-    const isEdit = !!amministrazioneState.editingClient;
-    const title = isEdit ? 'Modifica Cliente' : 'Nuovo Cliente';
-    const clientName = isEdit ? amministrazioneState.editClientName : amministrazioneState.newClientName;
+    // MODIFICA: Questa funzione ora serve solo per creare un nuovo cliente.
+    const title = 'Nuovo Cliente';
+    const clientName = amministrazioneState.newClientName;
 
     return `
         <div class="card-header">
@@ -171,125 +174,130 @@ function getAmministrazioneFormHTML() {
             </div>
             <div class="flex items-center justify-end space-x-4 mt-6">
                 <button id="cancel-client-btn-bottom" class="btn btn-secondary">Annulla</button>
-                <button id="save-client-btn" class="btn btn-primary">${isEdit ? 'Aggiorna' : 'Salva'} Cliente</button>
+                <button id="save-client-btn" class="btn btn-primary">Salva Cliente</button>
             </div>
         </div>
     `;
 }
 // Fine funzione getAmministrazioneFormHTML
 
-// NUOVO: Inizio funzione getExpandedRowHTML
-function getExpandedRowHTML(client) {
+// NUOVO: Inizio funzione getClientModalHTML
+function getClientModalHTML(client) {
     const app = getApp();
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
     
     return `
-        <tr id="expanded-row-${client.id}" class="expanded-row" style="background-color: rgba(37, 99, 235, 0.05);">
-            <td colspan="5" style="padding: 1rem 0.5rem;">
-                <div class="expanded-content-frame" style="padding: 1.5rem;">
+        <div class="modal-header">
+            <div class="flex items-center gap-4 w-full">
+                <input type="text" id="modal-client-name-input" class="form-control" value="${client.name}" style="max-width: 100%;" autocomplete="off">
+                <button class="btn btn-primary btn-sm" onclick="updateClientNameFromModal('${client.id}')" title="Salva Nome">
+                    <i data-lucide="save" style="margin-right: 0;"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="expanded-content-frame" style="padding: 1.5rem; border: none;">
+                
+                <div class="space-y-4 mb-6">
+                    <h4 class="text-lg font-medium text-primary">Nuova Transazione</h4>
                     
-                    <div class="space-y-4 mb-6">
-                        <h4 class="text-lg font-medium text-primary">Nuova Transazione</h4>
-                        <div class="grid grid-cols-12 gap-2 items-center">
-                            <div class="col-span-3">
-                                <input type="text" id="transaction-description-${client.id}" class="form-control" 
-                                       placeholder="Descrizione (es. Carburante)" value="${amministrazioneState.transactionForm.description}" autocomplete="off">
-                            </div>
-                            <div class="col-span-1">
-                                <input type="number" id="transaction-amount-${client.id}" step="0.01" class="form-control" 
-                                       placeholder="€" value="${amministrazioneState.transactionForm.amount || ''}" autocomplete="off">
-                            </div>
-                            <div class="col-span-2">
-                                <button class="btn btn-danger w-full" onclick="addTransactionInline('${client.id}', 'debit')">
-                                    <i data-lucide="minus-circle"></i> Addebita
-                                </button>
-                            </div>
-                            <div class="col-span-2">
-                                <button class="btn btn-success w-full" onclick="addTransactionInline('${client.id}', 'credit')">
-                                    <i data-lucide="plus-circle"></i> Accredita
-                                </button>
-                            </div>
-                            <div class="col-span-2">
-                                <button class="btn btn-info w-full" onclick="settleAccountInline('${client.id}')">
-                                    <i data-lucide="receipt"></i> Salda
-                                </button>
-                            </div>
-                            <div class="col-span-2">
-                                <button class="btn btn-secondary w-full" onclick="printAccountInline('${client.id}')">
-                                    <i data-lucide="printer"></i> Stampa
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h4 class="text-lg font-medium text-primary">Estratto Conto</h4>
-                            <div class="text-right">
-                                <div class="text-sm text-secondary">Saldo Attuale:</div>
-                                <span class="font-bold text-lg ${app.getBalanceClass(client.balance)}">${app.formatCurrency(client.balance)}</span>
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-4 w-full expanded-row">
+                        <input type="text" id="transaction-description-${client.id}" class="form-control" 
+                               placeholder="Descrizione (es. Carburante)" value="${amministrazioneState.transactionForm.description}" autocomplete="off">
                         
-                        ${transactions.length > 0 ? 
-                            `<div class="table-container" style="max-height: 400px; overflow-y: auto;">
-                                <table class="table editable-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 20%;">Data</th>
-                                            <th style="width: 50%;">Descrizione</th>
-                                            <th style="width: 20%;">Importo</th>
-                                            <th style="width: 10%;">Azioni</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${transactions.map(tx => `
-                                            <tr data-transaction-id="${tx.id}">
-                                                <td>
-                                                    <span class="editable-cell" data-field="date" data-client-id="${client.id}" data-tx-id="${tx.id}">
-                                                        ${app.formatDate(tx.date)}
-                                                    </span>
-                                                    <input type="text" class="form-control edit-input hidden" value="${app.formatToItalianDate(tx.date)}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
-                                                </td>
-                                                <td>
-                                                    <span class="editable-cell" data-field="description" data-client-id="${client.id}" data-tx-id="${tx.id}">
-                                                        ${tx.description}
-                                                    </span>
-                                                    <input type="text" class="form-control edit-input hidden" value="${tx.description}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
-                                                </td>
-                                                <td>
-                                                    <span class="editable-cell font-bold ${tx.amount > 0 ? 'text-success' : 'text-danger'}" data-field="amount" data-client-id="${client.id}" data-tx-id="${tx.id}">
-                                                        ${formatTransactionAmount.call(app, tx.amount)}
-                                                    </span>
-                                                    <input type="number" step="0.01" class="form-control edit-input hidden" value="${tx.amount}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
-                                                </td>
-                                                <td class="text-right">
-                                                    <div class="flex items-center justify-end space-x-1">
-                                                        <button class="btn btn-success btn-xs edit-btn" onclick="toggleEditTransaction('${client.id}', '${tx.id}')" title="Modifica">
-                                                            <i data-lucide="edit"></i>
-                                                        </button>
-                                                        <button class="btn btn-success btn-xs save-btn hidden" onclick="saveEditTransaction('${client.id}', '${tx.id}')" title="Salva">
-                                                            <i data-lucide="check"></i>
-                                                        </button>
-                                                        <button class="btn btn-danger btn-xs" onclick="deleteTransactionInline('${client.id}', '${tx.id}')" title="Elimina">
-                                                            <i data-lucide="trash-2"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>` : 
-                            '<div class="p-4 text-center text-secondary border border-primary rounded-lg">Nessuna transazione.</div>'
-                        }
+                        <div class="flex items-center gap-4">
+                            <input type="number" id="transaction-amount-${client.id}" step="0.01" class="form-control" 
+                                   placeholder="€" value="${amministrazioneState.transactionForm.amount || ''}" autocomplete="off" style="width: 120px;">
+                            
+                            <div class="flex items-center space-x-2">
+                                <button class="btn btn-danger" onclick="addTransactionInline('${client.id}', 'debit')" title="Addebita">
+                                    <i data-lucide="circle-minus" style="margin-right: 0;"></i>
+                                </button>
+                                <button class="btn btn-warning" onclick="addTransactionInline('${client.id}', 'credit')" title="Accredita">
+                                    <i data-lucide="circle-plus" style="margin-right: 0;"></i>
+                                </button>
+                                <button class="btn btn-success" onclick="settleAccountInline('${client.id}')" title="Salda Conto">
+                                    <i data-lucide="euro" style="margin-right: 0;"></i>
+                                </button>
+                                <button class="btn btn-secondary" onclick="printAccountInline('${client.id}')" title="Stampa">
+                                    <i data-lucide="printer" style="margin-right: 0;"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    
                 </div>
-            </td>
-        </tr>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-lg font-medium text-primary">Estratto Conto</h4>
+                        <div class="text-right">
+                            <div class="text-sm text-secondary">Saldo Attuale:</div>
+                            <span class="font-bold text-lg ${app.getBalanceClass(client.balance)}">${app.formatCurrency(client.balance)}</span>
+                        </div>
+                    </div>
+                    
+                    ${transactions.length > 0 ? 
+                        `<div class="table-container" style="max-height: 180px; overflow-y: auto;">
+                            <table class="table editable-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Data</th>
+                                        <th style="width: 50%;">Descrizione</th>
+                                        <th style="width: 20%;">Importo</th>
+                                        <th style="width: 10%;">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${transactions.map(tx => `
+                                        <tr data-transaction-id="${tx.id}">
+                                            <td>
+                                                <span class="editable-cell" data-field="date" data-client-id="${client.id}" data-tx-id="${tx.id}">
+                                                    ${app.formatDate(tx.date)}
+                                                </span>
+                                                <input type="text" class="form-control edit-input hidden" value="${app.formatToItalianDate(tx.date)}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
+                                            </td>
+                                            <td>
+                                                <span class="editable-cell" data-field="description" data-client-id="${client.id}" data-tx-id="${tx.id}">
+                                                    ${tx.description}
+                                                </span>
+                                                <input type="text" class="form-control edit-input hidden" value="${tx.description}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
+                                            </td>
+                                            <td>
+                                                <span class="editable-cell font-bold ${tx.amount > 0 ? 'text-success' : 'text-danger'}" data-field="amount" data-client-id="${client.id}" data-tx-id="${tx.id}">
+                                                    ${formatTransactionAmount.call(app, tx.amount)}
+                                                </span>
+                                                <input type="number" step="0.01" class="form-control edit-input hidden" value="${tx.amount}" style="font-size: 0.75rem; padding: 0.25rem;" autocomplete="off">
+                                            </td>
+                                            <td class="text-right">
+                                                <div class="flex items-center justify-end space-x-1">
+                                                    <button class="btn btn-success btn-xs edit-btn" onclick="toggleEditTransaction('${client.id}', '${tx.id}')" title="Modifica">
+                                                        <i data-lucide="edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-success btn-xs save-btn hidden" onclick="saveEditTransaction('${client.id}', '${tx.id}')" title="Salva">
+                                                        <i data-lucide="check"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger btn-xs" onclick="deleteTransactionInline('${client.id}', '${tx.id}')" title="Elimina">
+                                                        <i data-lucide="trash-2"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>` : 
+                        '<div class="p-4 text-center text-secondary border border-primary rounded-lg">Nessuna transazione.</div>'
+                    }
+                </div>
+            </div>
+            <div class="modal-actions">
+                 <button class="btn btn-secondary" onclick="getApp().hideFormModal()">Chiudi</button>
+            </div>
+        </div>
     `;
 }
-// Fine funzione getExpandedRowHTML
+// Fine funzione getClientModalHTML
 
 // Inizio funzione setupAmministrazioneFormEventListeners
 function setupAmministrazioneFormEventListeners() {
@@ -300,21 +308,13 @@ function setupAmministrazioneFormEventListeners() {
 
     if (saveBtn) {
         saveBtn.addEventListener('click', () => {
-            if (amministrazioneState.editingClient) {
-                updateClient.call(app);
-            } else {
-                addNewClient.call(app);
-            }
+            addNewClient.call(app);
         });
     }
 
     if (nameInput) {
         nameInput.addEventListener('input', (e) => {
-            if (amministrazioneState.editingClient) {
-                amministrazioneState.editClientName = e.target.value;
-            } else {
-                amministrazioneState.newClientName = e.target.value;
-            }
+            amministrazioneState.newClientName = e.target.value;
         });
         nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -382,7 +382,6 @@ function setupAmministrazioneEventListeners() {
 // Inizio funzione showCreateClient
 function showCreateClient() {
     const app = this;
-    amministrazioneState.editingClient = null;
     amministrazioneState.newClientName = '';
     
     const modalContentEl = document.getElementById('form-modal-content');
@@ -397,43 +396,27 @@ function showCreateClient() {
 }
 // Fine funzione showCreateClient
 
-// Inizio funzione showEditClient
-function showEditClient(client) {
+// MODIFICA: La funzione showEditClient non è più necessaria.
+// NUOVO: Inizio funzione showClientModal
+function showClientModal(clientId) {
     const app = this;
-    amministrazioneState.editingClient = client;
-    amministrazioneState.editClientName = client.name;
-    
-    const modalContentEl = document.getElementById('form-modal-content');
-    modalContentEl.innerHTML = getAmministrazioneFormHTML();
-
-    modalContentEl.classList.add('modal-wide');
-    
-    setupAmministrazioneFormEventListeners.call(app);
-    app.refreshIcons();
-    app.showFormModal();
-    document.getElementById('client-name-input')?.focus();
-}
-// Fine funzione showEditClient
-
-// NUOVO: Inizio funzione toggleClientExpansion
-function toggleClientExpansion(clientId) {
-    const app = getApp();
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
+
+    // Reset del form transazione prima di aprire il modale
+    amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
+
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = getClientModalHTML(client);
     
-    if (amministrazioneState.expandedClientId === clientId) {
-        // Chiudi l'espansione
-        amministrazioneState.expandedClientId = null;
-    } else {
-        // Apri l'espansione
-        amministrazioneState.expandedClientId = clientId;
-        // Reset form
-        amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
-    }
+    modalContentEl.classList.add('modal-wide');
     
-    renderClientsTable.call(app);
+    app.refreshIcons();
+    app.showFormModal();
 }
-// Fine funzione toggleClientExpansion
+// Fine funzione showClientModal
+
+// MODIFICA: Funzione toggleClientExpansion non più necessaria e rimossa.
 
 // === FUNZIONI ORDINAMENTO E FILTRI ===
 
@@ -557,26 +540,31 @@ function addNewClient() {
 }
 // Fine funzione addNewClient
 
-// Inizio funzione updateClient
-function updateClient() {
-    if (amministrazioneState.editClientName.trim() === '') {
-        this.showNotification('Il nome del cliente non può essere vuoto.');
+// NUOVO: Inizio funzione updateClientNameFromModal
+function updateClientNameFromModal(clientId) {
+    const app = getApp();
+    const nameInput = document.getElementById('modal-client-name-input');
+    const newName = nameInput ? nameInput.value.trim() : '';
+
+    if (newName === '') {
+        app.showNotification('Il nome del cliente non può essere vuoto.');
         return;
     }
     
-    this.state.data.clients = this.state.data.clients.map(client => {
-        if (client.id === amministrazioneState.editingClient.id) {
-            return { ...client, name: amministrazioneState.editClientName.trim() };
+    app.state.data.clients = app.state.data.clients.map(client => {
+        if (client.id === clientId) {
+            return { ...client, name: newName };
         }
         return client;
     });
     
-    this.saveToStorage('data', this.state.data);
-    this.showNotification('Cliente aggiornato con successo!');
-    this.hideFormModal();
-    renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
+    app.saveToStorage('data', app.state.data);
+    app.showNotification('Nome cliente aggiornato con successo!');
+    
+    // Ricarica solo la tabella dei clienti per mostrare il nuovo nome
+    renderClientsTable.call(app);
 }
-// Fine funzione updateClient
+// Fine funzione updateClientNameFromModal
 
 // Inizio funzione deleteClient
 function deleteClient(clientId) {
@@ -584,11 +572,6 @@ function deleteClient(clientId) {
     if (!client) return;
     
     this.showConfirm(`Sei sicuro di voler eliminare il cliente "${client.name}"? Verranno eliminate anche tutte le sue transazioni.`, () => {
-        // Chiudi espansione se era aperta per questo cliente
-        if (amministrazioneState.expandedClientId === clientId) {
-            amministrazioneState.expandedClientId = null;
-        }
-        
         this.state.data.clients = this.state.data.clients.filter(c => c.id !== clientId);
         this.saveToStorage('data', this.state.data);
         this.showNotification('Cliente eliminato.');
@@ -598,11 +581,10 @@ function deleteClient(clientId) {
 }
 // Fine funzione deleteClient
 
-// === GESTIONE TRANSAZIONI INLINE ===
-// NUOVO: Inizio funzione addTransactionInline
+// === GESTIONE TRANSAZIONI INLINE (ORA NEL MODALE) ===
+// Inizio funzione addTransactionInline
 function addTransactionInline(clientId, type) {
     const app = getApp();
-    const container = document.getElementById('section-amministrazione');
     const descInput = document.getElementById(`transaction-description-${clientId}`);
     const amountInput = document.getElementById(`transaction-amount-${clientId}`);
     
@@ -635,14 +617,14 @@ function addTransactionInline(clientId, type) {
     
     app.saveToStorage('data', app.state.data);
     
-    // Reset form for next transaction
+    // Reset form for next transaction and re-render modal
     amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
-    
-    renderAmministrazioneSection.call(app, container);
+    showClientModal.call(app, clientId); 
+    renderClientsTable.call(app); // Aggiorna anche la tabella principale
 }
 // Fine funzione addTransactionInline
 
-// NUOVO: Inizio funzione settleAccountInline
+// Inizio funzione settleAccountInline
 function settleAccountInline(clientId) {
     const app = getApp();
     const client = app.state.data.clients.find(c => c.id === clientId);
@@ -651,31 +633,25 @@ function settleAccountInline(clientId) {
     app.showConfirm(
         `Sei sicuro di voler saldare il conto di "${client.name}"? Tutte le transazioni verranno eliminate definitivamente e il saldo sarà azzerato.`,
         () => {
-            const container = document.getElementById('section-amministrazione');
-            
             app.state.data.clients = app.state.data.clients.map(c => {
                 if (c.id === clientId) {
-                    return {
-                        ...c,
-                        balance: 0,
-                        transactions: []
-                    };
+                    return { ...c, balance: 0, transactions: [] };
                 }
                 return c;
             });
 
             app.saveToStorage('data', app.state.data);
-            renderAmministrazioneSection.call(app, container);
+            showClientModal.call(app, clientId); // Aggiorna il modale
+            renderClientsTable.call(app); // Aggiorna la tabella principale
             app.showNotification(`Conto di ${client.name} saldato con successo.`);
         }
     );
 }
 // Fine funzione settleAccountInline
 
-// NUOVO: Inizio funzione deleteTransactionInline
+// Inizio funzione deleteTransactionInline
 function deleteTransactionInline(clientId, transactionId) {
     const app = getApp();
-    const container = document.getElementById('section-amministrazione');
     
     app.state.data.clients = app.state.data.clients.map(client => {
         if (client.id === clientId) {
@@ -693,7 +669,8 @@ function deleteTransactionInline(clientId, transactionId) {
     });
 
     app.saveToStorage('data', app.state.data);
-    renderAmministrazioneSection.call(app, container);
+    showClientModal.call(app, clientId); // Aggiorna il modale
+    renderClientsTable.call(app); // Aggiorna la tabella principale
 }
 // Fine funzione deleteTransactionInline
 
@@ -739,7 +716,6 @@ function printAccountInline(clientId) {
     document.getElementById('print-clients-content').classList.add('hidden');
     document.getElementById('virtual-print-content').classList.add('hidden');
 
-    // Modifica il titolo del documento per suggerire il nome del file
     const originalTitle = document.title;
     const today = app.formatToItalianDate(new Date());
     const clientNameForFile = client.name.replace(/\s+/g, '_');
@@ -747,7 +723,6 @@ function printAccountInline(clientId) {
 
     setTimeout(() => {
         window.print();
-        // Ripristina lo stato e il titolo originale dopo la stampa
         setTimeout(() => {
             document.getElementById('print-content').classList.add('hidden');
             document.title = originalTitle;
@@ -756,7 +731,7 @@ function printAccountInline(clientId) {
 }
 // Fine funzione printAccountInline
 
-// NUOVO: Inizio funzione toggleEditTransaction
+// Inizio funzione toggleEditTransaction
 function toggleEditTransaction(clientId, transactionId) {
     const app = getApp();
     const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
@@ -770,38 +745,31 @@ function toggleEditTransaction(clientId, transactionId) {
     const isEditing = editBtn.classList.contains('hidden');
     
     if (isEditing) {
-        // Annulla editing
         editableCells.forEach(cell => cell.classList.remove('hidden'));
         editInputs.forEach(input => input.classList.add('hidden'));
         editBtn.classList.remove('hidden');
         saveBtn.classList.add('hidden');
     } else {
-        // Attiva editing
         editableCells.forEach(cell => cell.classList.add('hidden'));
         editInputs.forEach(input => input.classList.remove('hidden'));
         editBtn.classList.add('hidden');
         saveBtn.classList.remove('hidden');
-        
-        // Focus sul primo input
         const firstInput = editInputs[0];
         if (firstInput) firstInput.focus();
     }
-    
     app.refreshIcons();
 }
 // Fine funzione toggleEditTransaction
 
-// NUOVO: Inizio funzione saveEditTransaction
+// Inizio funzione saveEditTransaction
 function saveEditTransaction(clientId, transactionId) {
     const app = getApp();
-    const container = document.getElementById('section-amministrazione');
     const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
     if (!row) return;
     
     const editInputs = row.querySelectorAll('.edit-input');
     const [dateInput, descInput, amountInput] = editInputs;
     
-    // Valida i dati
     const newDate = dateInput.value.trim();
     const newDescription = descInput.value.trim();
     const newAmount = parseFloat(amountInput.value);
@@ -810,38 +778,30 @@ function saveEditTransaction(clientId, transactionId) {
         app.showNotification('Tutti i campi sono obbligatori e l\'importo deve essere valido.');
         return;
     }
-    
     if (!app.validateItalianDate(newDate)) {
         app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
         return;
     }
     
-    // Trova la transazione e il cliente
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
-    
     const transaction = client.transactions.find(tx => tx.id === transactionId);
     if (!transaction) return;
     
-    // Calcola la differenza per aggiornare il saldo
     const oldAmount = transaction.amount;
     const amountDifference = newAmount - oldAmount;
     
-    // Aggiorna la transazione
     const parsedDate = app.parseItalianDate(newDate);
     transaction.date = parsedDate.toISOString();
     transaction.description = newDescription;
     transaction.amount = newAmount;
     
-    // Aggiorna il saldo del cliente
     app.state.data.clients = app.state.data.clients.map(c => {
         if (c.id === clientId) {
             return {
                 ...c,
                 balance: c.balance + amountDifference,
-                transactions: c.transactions.map(tx => 
-                    tx.id === transactionId ? transaction : tx
-                )
+                transactions: c.transactions.map(tx => tx.id === transactionId ? transaction : tx)
             };
         }
         return c;
@@ -850,7 +810,8 @@ function saveEditTransaction(clientId, transactionId) {
     app.saveToStorage('data', app.state.data);
     app.showNotification('Transazione aggiornata con successo!');
     
-    renderAmministrazioneSection.call(app, container);
+    showClientModal.call(app, clientId);
+    renderClientsTable.call(app);
 }
 // Fine funzione saveEditTransaction
 
@@ -882,46 +843,28 @@ function renderClientsTable() {
             </tr>
         `;
     } else {
-        let tableHTML = '';
-        
-        clients.forEach(client => {
-            const isExpanded = amministrazioneState.expandedClientId === client.id;
-            
-            // Riga principale del cliente
-            tableHTML += `
-                <tr class="hover:bg-secondary ${isExpanded ? 'expanded-client' : ''}">
-                    <td class="font-medium text-primary">${client.name}</td>
-                    <td>
-                        <span class="font-bold ${app.getBalanceClass(client.balance)}">${app.formatCurrency(client.balance)}</span>
-                    </td>
-                    <td class="text-primary">${client.transactions.length}</td>
-                    <td class="text-primary">${app.formatDate(client.lastTransactionDate)}</td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end space-x-2">
-                            <button class="btn btn-info ${isExpanded ? 'btn-primary' : ''}" onclick="toggleClientExpansionById('${client.id}')" title="${isExpanded ? 'Chiudi conto' : 'Apri conto'}">
-                                <i data-lucide="${isExpanded ? 'chevron-up' : 'eye'}"></i>
-                            </button>
-                            <button class="btn btn-success" onclick="showEditClientById('${client.id}')" title="Modifica cliente">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteClientById('${client.id}')" title="Elimina cliente">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            
-            // Riga espansa se attiva
-            if (isExpanded) {
-                tableHTML += getExpandedRowHTML(client);
-            }
-        });
-        
-        tbody.innerHTML = tableHTML;
+        tbody.innerHTML = clients.map(client => `
+            <tr class="hover:bg-secondary">
+                <td class="font-medium text-primary">${client.name}</td>
+                <td>
+                    <span class="font-bold ${app.getBalanceClass(client.balance)}">${app.formatCurrency(client.balance)}</span>
+                </td>
+                <td class="text-primary">${client.transactions.length}</td>
+                <td class="text-primary">${app.formatDate(client.lastTransactionDate)}</td>
+                <td class="text-right">
+                    <div class="flex items-center justify-end space-x-2">
+                        <button class="btn btn-info" onclick="showClientModalById('${client.id}')" title="Gestisci Cliente">
+                            <i data-lucide="user-cog"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteClientById('${client.id}')" title="Elimina cliente">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
     }
     
-    // Refresh icone
     this.refreshIcons();
 }
 // Fine funzione renderClientsTable
@@ -952,7 +895,6 @@ function printClientsList() {
         </tr>
     `).join('');
     
-    // CORREZIONE: Usa le classi hidden invece di style.display
     document.getElementById('print-clients-content').classList.remove('hidden');
     document.getElementById('print-content').classList.add('hidden');
     document.getElementById('virtual-print-content').classList.add('hidden');
@@ -960,7 +902,6 @@ function printClientsList() {
     setTimeout(() => {
         window.print();
         setTimeout(() => {
-            // CORREZIONE: Ripristina lo stato hidden
             document.getElementById('print-clients-content').classList.add('hidden');
         }, 100);
     }, 100);
@@ -1018,17 +959,10 @@ function showSkeletonLoader(container) {
 // Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ===
-function toggleClientExpansionById(clientId) {
+// MODIFICA: Funzioni globali aggiornate per il nuovo sistema a modale
+function showClientModalById(clientId) {
     const app = getApp();
-    toggleClientExpansion.call(app, clientId);
-}
-
-function showEditClientById(clientId) {
-    const app = getApp();
-    const client = app.state.data.clients.find(c => c.id === clientId);
-    if (client) {
-        showEditClient.call(app, client);
-    }
+    showClientModal.call(app, clientId);
 }
 
 function deleteClientById(clientId) {
@@ -1036,12 +970,17 @@ function deleteClientById(clientId) {
     deleteClient.call(app, clientId);
 }
 
+function updateClientNameFromModal(clientId) {
+    const app = getApp();
+    updateClientNameFromModal.call(app, clientId);
+}
+
+
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {
     window.initAmministrazione = initAmministrazione;
     window.renderAmministrazioneSection = renderAmministrazioneSection;
-    window.toggleClientExpansionById = toggleClientExpansionById;
-    window.showEditClientById = showEditClientById;
+    window.showClientModalById = showClientModalById;
     window.deleteClientById = deleteClientById;
     window.addTransactionInline = addTransactionInline;
     window.settleAccountInline = settleAccountInline;
@@ -1049,5 +988,6 @@ if (typeof window !== 'undefined') {
     window.printAccountInline = printAccountInline;
     window.toggleEditTransaction = toggleEditTransaction;
     window.saveEditTransaction = saveEditTransaction;
+    window.updateClientNameFromModal = updateClientNameFromModal;
     window.amministrazioneState = amministrazioneState;
 }

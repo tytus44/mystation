@@ -864,9 +864,9 @@ select.form-control {
    ============================================= */
 
 /* Classe per rendere il modale largo senza wrapper card */
-/* MODIFICA: Ristretto il modale come richiesto */
+/* MODIFICA: Ampliato il modale come richiesto */
 .modal-content.modal-wide {
-    max-width: 600px; /* Ridotto da 720px */
+    max-width: 800px; /* Aumentato da 600px */
     width: 90vw;
     text-align: left;
 }

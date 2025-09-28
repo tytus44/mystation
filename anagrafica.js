@@ -2,7 +2,6 @@
 // FILE: anagrafica.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Anagrafica (contatti, import/export).
-// --- UNIFICATA LA CLASSE DEL PULSANTE DI CHIUSURA MODALE ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO ANAGRAFICA ===
