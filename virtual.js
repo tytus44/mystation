@@ -884,6 +884,7 @@ function getProductsChartData() {
     const app = this;
     const filteredTurni = getFilteredTurniForPeriod.call(app);
     
+    // INIZIO MODIFICA: Utilizzo dei colori standard del tema
     if (virtualState.chartDrilldown.active && virtualState.chartDrilldown.product) {
         const productKey = virtualState.chartDrilldown.product.toLowerCase().replace('+', 'plus');
         const breakdown = getProductBreakdown.call(app, productKey);
@@ -892,7 +893,7 @@ function getProductsChartData() {
             labels: [`Iperself`, `Servito`],
             datasets: [{
                 data: [breakdown.iperself, breakdown.servito],
-                backgroundColor: ['#3b82f6', '#22c55e'],
+                backgroundColor: ['#8B93FF', '#2563eb'], 
                 borderWidth: 2,
                 borderColor: document.body.classList.contains('theme-dark') ? '#111827' : '#ffffff'
             }]
@@ -900,6 +901,7 @@ function getProductsChartData() {
     }
 
     const totals = { benzina: 0, gasolio: 0, dieselplus: 0, hvolution: 0, adblue: 0 };
+    // FINE MODIFICA
     
     filteredTurni.forEach(turno => {
         Object.keys(totals).forEach(product => {
@@ -914,10 +916,12 @@ function getProductsChartData() {
     return {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
         datasets: [{
+            // INIZIO MODIFICA: Aggiornamento palette colori prodotti
             data: Object.values(totals),
-            backgroundColor: [ '#10b981', '#f59e0b', '#dc2626', '#06b6d4', '#6b7280' ],
+            backgroundColor: [ '#10b981', '#FFB100', '#FF204E', '#00A9FF', '#6b7280' ],
             borderWidth: 2,
             borderColor: document.body.classList.contains('theme-dark') ? '#111827' : '#ffffff'
+            // FINE MODIFICA
         }]
     };
 }
@@ -943,8 +947,10 @@ function getServiceChartData() {
     return {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
         datasets: [
-            { label: 'Iperself', data: [iperself.benzina, iperself.gasolio, iperself.dieselplus, iperself.hvolution, 0], backgroundColor: '#3b82f6' },
-            { label: 'Servito', data: [servito.benzina, servito.gasolio, servito.dieselplus, servito.hvolution, servito.adblue], backgroundColor: '#22c55e' }
+            // INIZIO MODIFICA: Sostituzione colori personalizzati con quelli del tema
+            { label: 'Iperself', data: [iperself.benzina, iperself.gasolio, iperself.dieselplus, iperself.hvolution, 0], backgroundColor: '#FF204E' }, 
+            { label: 'Servito', data: [servito.benzina, servito.gasolio, servito.dieselplus, servito.hvolution, servito.adblue], backgroundColor: '#00A9FF' }   
+            // FINE MODIFICA
         ]
     };
 }
@@ -973,14 +979,16 @@ function getMonthlyTrendChartData() {
         data[monthIndex] += totalLiters;
     });
 
+    // INIZIO MODIFICA: Aggiornamento palette colori e armonizzazione colore "Generale"
     const productColors = {
-        generale: '#2563eb',   // blue
-        benzina: '#10b981',    // green
-        gasolio: '#f59e0b',    // yellow
-        dieselplus: '#dc2626', // red
-        hvolution: '#06b6d4'   // cyan/info
+        generale: '#3ABEF9',   // Grigio Secondario
+        benzina: '#10b981',    // Verde
+        gasolio: '#FFB100',    // Giallo
+        dieselplus: '#FF204E', // Rosso
+        hvolution: '#00A9FF'   // Azzurro
     };
-    const selectedColor = productColors[tab] || '#6b7280';
+    // FINE MODIFICA
+    const selectedColor = productColors[tab] || '#3ABEF9';
 
     return {
         labels: labels,

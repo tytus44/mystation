@@ -51,9 +51,11 @@ body {
     --color-primary-hover: #1d4ed8;
     --color-secondary: #6b7280;
     --color-success: #10b981;
-    --color-warning: #f59e0b;
-    --color-danger: #dc2626;
-    --color-info: #06b6d4;
+    /* INIZIO MODIFICA: Aggiornamento colori come richiesto */
+    --color-warning: #FFB100;
+    --color-danger: #FF204E;
+    --color-info: #00A9FF;
+    /* FINE MODIFICA */
     --color-accent-calc: #29c7b9;
     
     /* Background */
