@@ -69,10 +69,10 @@ function getImpostazioniModalHTML() {
                 <div class="grid grid-cols-2 gap-4">
                     <input type="file" id="import-file" accept=".json" class="hidden">
                     <button id="import-btn" class="btn btn-secondary w-full p-4 text-center">
-                        <i data-lucide="upload" class="w-5 h-5 mr-2"></i> Importa Backup (JSON)
+                        <i data-lucide="upload" class="w-5 h-5 mr-2"></i> Importa Backup
                     </button>
                     <button id="export-btn" class="btn btn-secondary w-full p-4 text-center">
-                        <i data-lucide="download" class="w-5 h-5 mr-2"></i> Esporta Backup (JSON)
+                        <i data-lucide="download" class="w-5 h-5 mr-2"></i> Esporta Backup
                     </button>
                 </div>
             </div>
@@ -104,7 +104,9 @@ function showImpostazioniModal() {
     const modalContentEl = document.getElementById('form-modal-content');
     
     modalContentEl.innerHTML = getImpostazioniModalHTML();
-    modalContentEl.classList.add('modal-wide');
+    // INIZIO MODIFICA: Rimosso allargamento del modale
+    // modalContentEl.classList.add('modal-wide');
+    // FINE MODIFICA
 
     // Aggiunto un pulsante di chiusura generico se necessario, o si affida al backdrop
     const closeButton = document.createElement('button');
@@ -350,6 +352,52 @@ function resetAllData() {
     }, 1500);
 }
 // Fine funzione resetAllData
+
+// === FUNZIONI DI UTILITÀ GLOBALI PER IMPOSTAZIONI ===
+
+// Inizio funzione showCustomModal
+function showCustomModal(contentHTML, modalClass = '') {
+    const existingModal = document.getElementById('custom-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modalElement = document.createElement('div');
+    modalElement.id = 'custom-modal';
+    modalElement.className = 'modal show';
+    modalElement.innerHTML = `
+        <div class="modal-backdrop"></div>
+        <div class="modal-content ${modalClass}">
+            ${contentHTML}
+        </div>
+    `;
+
+    document.body.appendChild(modalElement);
+    
+    // INIZIO MODIFICA: Rimosso listener per chiusura modale al click sul backdrop
+    modalElement.addEventListener('click', (e) => {
+        if (e.target.closest('.modal-close-btn')) {
+            closeCustomModal();
+        }
+    });
+    // FINE MODIFICA
+
+    const app = getApp();
+    if (app && app.refreshIcons) {
+        setTimeout(() => app.refreshIcons(), 100);
+    }
+}
+// Fine funzione showCustomModal
+
+// Inizio funzione closeCustomModal
+function closeCustomModal() {
+    const modal = document.getElementById('custom-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+// Fine funzione closeCustomModal
+
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {

@@ -110,6 +110,8 @@ class MyStationApp {
         const confirmYes = document.getElementById('confirm-yes');
         const confirmNo = document.getElementById('confirm-no');
         
+        // INIZIO MODIFICA: Rimosso listener per chiusura modale al click sul backdrop
+        /*
         const modalBackdrops = document.querySelectorAll('.modal-backdrop');
         modalBackdrops.forEach(backdrop => {
             backdrop.addEventListener('click', () => {
@@ -117,6 +119,8 @@ class MyStationApp {
                 this.hideFormModal();
             });
         });
+        */
+        // FINE MODIFICA
 
         if (confirmYes) {
             confirmYes.addEventListener('click', () => {
