@@ -187,20 +187,16 @@ function getClientModalHTML(client) {
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
     
     return `
+        
         <div class="modal-header">
-            <div class="flex items-center gap-4 w-full">
-                <input type="text" id="modal-client-name-input" class="form-control" value="${client.name}" style="max-width: 100%;" autocomplete="off">
-                <button class="btn btn-primary btn-sm" onclick="updateClientNameFromModal('${client.id}')" title="Salva Nome">
-                    <i data-lucide="save" style="margin-right: 0;"></i>
-                </button>
-            </div>
+            <h2 class="card-title">${client.name}</h2>
         </div>
+
         <div class="modal-body">
             <div class="expanded-content-frame" style="padding: 1.5rem; border: none;">
                 
                 <div class="space-y-4 mb-6">
                     <h4 class="text-lg font-medium text-primary">Nuova Transazione</h4>
-                    
                     <div class="flex items-center gap-4 w-full expanded-row">
                         <input type="text" id="transaction-description-${client.id}" class="form-control" 
                                placeholder="Descrizione (es. Carburante)" value="${amministrazioneState.transactionForm.description}" autocomplete="off">
@@ -213,7 +209,7 @@ function getClientModalHTML(client) {
                                 <button class="btn btn-danger" onclick="addTransactionInline('${client.id}', 'debit')" title="Addebita">
                                     <i data-lucide="circle-minus" style="margin-right: 0;"></i>
                                 </button>
-                                <button class="btn btn-warning" onclick="addTransactionInline('${client.id}', 'credit')" title="Accredita">
+                                <button class="btn btn-warning" onclick="addTransactionInline('${client.id}', 'credit')" title="Acconto">
                                     <i data-lucide="circle-plus" style="margin-right: 0;"></i>
                                 </button>
                                 <button class="btn btn-success" onclick="settleAccountInline('${client.id}')" title="Salda Conto">
@@ -225,7 +221,6 @@ function getClientModalHTML(client) {
                             </div>
                         </div>
                     </div>
-                    
                 </div>
 
                 <div class="space-y-4">
@@ -540,30 +535,7 @@ function addNewClient() {
 }
 // Fine funzione addNewClient
 
-// NUOVO: Inizio funzione updateClientNameFromModal
-function updateClientNameFromModal(clientId) {
-    const app = getApp();
-    const nameInput = document.getElementById('modal-client-name-input');
-    const newName = nameInput ? nameInput.value.trim() : '';
-
-    if (newName === '') {
-        app.showNotification('Il nome del cliente non può essere vuoto.');
-        return;
-    }
-    
-    app.state.data.clients = app.state.data.clients.map(client => {
-        if (client.id === clientId) {
-            return { ...client, name: newName };
-        }
-        return client;
-    });
-    
-    app.saveToStorage('data', app.state.data);
-    app.showNotification('Nome cliente aggiornato con successo!');
-    
-    // Ricarica solo la tabella dei clienti per mostrare il nuovo nome
-    renderClientsTable.call(app);
-}
+// INIZIO MODIFICA: Funzione rimossa in quanto il nome non è più modificabile dal modale
 // Fine funzione updateClientNameFromModal
 
 // Inizio funzione deleteClient
@@ -970,10 +942,14 @@ function deleteClientById(clientId) {
     deleteClient.call(app, clientId);
 }
 
+// INIZIO MODIFICA: Rimuovo la funzione globale perché non più necessaria
+/*
 function updateClientNameFromModal(clientId) {
     const app = getApp();
     updateClientNameFromModal.call(app, clientId);
 }
+*/
+// FINE MODIFICA
 
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
@@ -988,6 +964,8 @@ if (typeof window !== 'undefined') {
     window.printAccountInline = printAccountInline;
     window.toggleEditTransaction = toggleEditTransaction;
     window.saveEditTransaction = saveEditTransaction;
-    window.updateClientNameFromModal = updateClientNameFromModal;
+    // INIZIO MODIFICA: Rimuovo export della funzione non più utilizzata
+    // window.updateClientNameFromModal = updateClientNameFromModal;
+    // FINE MODIFICA
     window.amministrazioneState = amministrazioneState;
 }
