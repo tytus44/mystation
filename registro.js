@@ -205,7 +205,6 @@ function renderRegistroListView(container) {
         </div>
     `;
     
-    // Render componenti dinamici
     renderRegistryStats.call(app);
     renderRegistryTable.call(app);
 }
@@ -215,9 +214,8 @@ function renderRegistroListView(container) {
 function getRegistroFormHTML() {
     const isEdit = !!registroState.editingRegistry;
     const title = isEdit ? 'Modifica Carico' : 'Nuovo Carico';
-    const app = getApp(); // Per formattare i numeri
+    const app = getApp();
 
-    // Funzione helper per creare un gruppo di input con pulsanti
     const createNumberInput = (product, field, step) => {
         const value = registroState.registryForm[product][field];
         return `
@@ -304,7 +302,6 @@ function getRegistroFormHTML() {
 function setupRegistroEventListeners() {
     const app = this;
     
-    // Ricerca
     const searchInput = document.getElementById('registry-search');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -313,7 +310,6 @@ function setupRegistroEventListeners() {
         });
     }
     
-    // Filtri temporali
     const timeFilterButtons = document.querySelectorAll('[data-time-filter]');
     timeFilterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -322,21 +318,18 @@ function setupRegistroEventListeners() {
         });
     });
     
-    // Anno precedente inputs
     const prevYearInputs = ['benzina', 'gasolio', 'dieselPlus', 'hvolution'];
     prevYearInputs.forEach(product => {
         const input = document.getElementById(`prev-year-${product}`);
         if (input) {
-            input.addEventListener('change', (e) => { // 'change' è più efficiente di 'input' per questo caso
+            input.addEventListener('change', (e) => {
                 app.state.data.previousYearStock[product] = parseFloat(e.target.value) || 0;
                 app.saveToStorage('data', app.state.data);
-                // Ricarica solo la tabella del riepilogo annuale
                 renderRegistroListView.call(app, document.getElementById('section-registro'));
             });
         }
     });
     
-    // Pulsanti navigazione
     const newCaricoBtn = document.getElementById('new-carico-btn');
     if (newCaricoBtn) {
         newCaricoBtn.addEventListener('click', () => {
@@ -344,7 +337,6 @@ function setupRegistroEventListeners() {
         });
     }
     
-    // Sorting tabella
     const sortButtons = document.querySelectorAll('#registry-table [data-sort]');
     sortButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -366,7 +358,6 @@ function setupRegistroFormEventListeners() {
     const close = () => app.hideFormModal();
     if (cancelBtnBottom) cancelBtnBottom.addEventListener('click', close);
 
-    // Listener per i campi di testo normali
     const textInputs = [
         { id: 'carico-date', path: 'date' },
         { id: 'carico-autista', path: 'autistaName' },
@@ -380,7 +371,6 @@ function setupRegistroFormEventListeners() {
         }
     });
 
-    // Listener per i nuovi pulsanti + e -
     const numberInputBtns = document.querySelectorAll('.number-input-btn');
     numberInputBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -401,7 +391,6 @@ function setupRegistroFormEventListeners() {
 
             registroState.registryForm[product][field] = newValue;
             
-            // Aggiorna il valore nel campo di testo readonly
             const inputField = button.parentElement.querySelector('.number-input-field');
             if (inputField) {
                 inputField.value = app.formatInteger(newValue);
@@ -460,7 +449,6 @@ function setTimeFilter(filter) {
     registroState.registryTimeFilter = filter;
     this.saveToStorage('registryTimeFilter', filter);
     
-    // Aggiorna i componenti della UI in modo selettivo
     updateRegistroFilterButtons(filter);
     renderRegistryStats.call(this);
     renderRegistryTable.call(this);
@@ -692,7 +680,7 @@ function saveCarico() {
     
     this.saveToStorage('data', this.state.data);
     this.hideFormModal();
-    renderRegistroListView.call(this, document.getElementById('section-registro')); // Aggiorna l'intera vista per ricalcolare i totali
+    renderRegistroListView.call(this, document.getElementById('section-registro'));
 }
 // Fine funzione saveCarico
 
@@ -704,7 +692,7 @@ function deleteCarico(caricoId) {
     this.showConfirm(`Sei sicuro di voler eliminare il carico del ${this.formatDate(carico.date)} di ${carico.autistaName}?`, () => {
         this.state.data.registryEntries = this.state.data.registryEntries.filter(c => c.id !== caricoId);
         this.saveToStorage('data', this.state.data);
-        renderRegistroListView.call(this, document.getElementById('section-registro')); // Ricarica per aggiornare totali
+        renderRegistroListView.call(this, document.getElementById('section-registro'));
     });
 }
 // Fine funzione deleteCarico
@@ -776,10 +764,10 @@ function renderRegistryTable() {
             <tr class="hover:bg-secondary">
                 <td class="font-medium text-primary">${app.formatDate(carico.date)}</td>
                 <td class="text-primary">${carico.autistaName || '-'}</td>
-                <td>${formatProductColumn(carico.benzina)}</td>
-                <td>${formatProductColumn(carico.gasolio)}</td>
-                <td>${formatProductColumn(carico.dieselPlus)}</td>
-                <td>${formatProductColumn(carico.hvolution)}</td>
+                <td>${formatRegistryProductColumn(carico.benzina)}</td>
+                <td>${formatRegistryProductColumn(carico.gasolio)}</td>
+                <td>${formatRegistryProductColumn(carico.dieselPlus)}</td>
+                <td>${formatRegistryProductColumn(carico.hvolution)}</td>
                 <td class="text-right">
                     <div class="flex items-center justify-end space-x-2">
                         <button class="btn btn-success btn-sm" onclick="editCaricoById('${carico.id}')" title="Modifica carico">
@@ -798,8 +786,9 @@ function renderRegistryTable() {
 }
 // Fine funzione renderRegistryTable
 
-// Inizio funzione formatProductColumn
-function formatProductColumn(product) {
+// INIZIO MODIFICA: Rinominata la funzione per evitare conflitti
+// Inizio funzione formatRegistryProductColumn
+function formatRegistryProductColumn(product) {
     if (!product) return '-';
     
     const carico = product.carico || 0;
@@ -811,7 +800,8 @@ function formatProductColumn(product) {
         <div class="${diffClass}">Diff: ${differenza >= 0 ? '+' : ''}${differenza.toLocaleString('it-IT')} L</div>
     </div>`;
 }
-// Fine funzione formatProductColumn
+// Fine funzione formatRegistryProductColumn
+// FINE MODIFICA
 
 // Inizio funzione showSkeletonLoader
 function showSkeletonLoader(container) {

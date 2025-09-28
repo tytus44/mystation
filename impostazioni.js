@@ -14,10 +14,8 @@ let impostazioniState = {
 // Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
-    // CORREZIONE: Durante l'init, si usa 'this' perché la variabile globale 'app' non è ancora pronta.
     impostazioniState.isSidebarCollapsed = this.loadFromStorage('isSidebarCollapsed', false);
     
-    // Listener per cambiamenti fullscreen
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
         updateFullscreenToggle();
@@ -104,19 +102,6 @@ function showImpostazioniModal() {
     const modalContentEl = document.getElementById('form-modal-content');
     
     modalContentEl.innerHTML = getImpostazioniModalHTML();
-    // INIZIO MODIFICA: Rimosso allargamento del modale
-    // modalContentEl.classList.add('modal-wide');
-    // FINE MODIFICA
-
-    // Aggiunto un pulsante di chiusura generico se necessario, o si affida al backdrop
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = `<i data-lucide="x"></i>`;
-    closeButton.className = 'btn btn-secondary modal-close-btn'; // Assicurati che questa classe esista e sia stilizzata
-    closeButton.style.position = 'absolute';
-    closeButton.style.top = '1rem';
-    closeButton.style.right = '1rem';
-    closeButton.onclick = () => app.hideFormModal();
-    // Non lo aggiungiamo più
     
     setupImpostazioniEventListeners();
     app.refreshIcons();
@@ -125,71 +110,52 @@ function showImpostazioniModal() {
 // Fine funzione showImpostazioniModal
 
 // === SETUP EVENT LISTENERS ===
+// INIZIO MODIFICA: La logica dei listener è stata riscritta per maggiore robustezza
 // Inizio funzione setupImpostazioniEventListeners
 function setupImpostazioniEventListeners() {
     const app = getApp();
-    
-    // MODIFICA: Aggiunto listener per il nuovo pulsante di chiusura
-    const closeBtn = document.getElementById('close-impostazioni-btn');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => app.hideFormModal());
-    }
+    const modalContent = document.getElementById('form-modal-content');
+    if (!modalContent) return;
 
-    // Toggle tema scuro
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('change', () => {
-            app.toggleTheme();
-        });
-    }
-    
-    // Toggle fullscreen
-    const fullscreenToggle = document.getElementById('fullscreen-toggle');
-    if (fullscreenToggle) {
-        fullscreenToggle.addEventListener('change', () => {
-            toggleFullscreen();
-        });
-    }
-
-    // Toggle sidebar collapse
-    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
-    if (sidebarCollapseToggle) {
-        sidebarCollapseToggle.addEventListener('change', () => {
-            toggleSidebarCollapse.call(app);
-        });
-    }
-    
-    // Import dati
-    const importBtn = document.getElementById('import-btn');
-    const importFile = document.getElementById('import-file');
-    
-    if (importBtn && importFile) {
-        importBtn.addEventListener('click', () => {
-            importFile.click();
-        });
+    // Listener centralizzato per tutti i click all'interno del modale
+    modalContent.addEventListener('click', (event) => {
+        const target = event.target;
         
-        importFile.addEventListener('change', (event) => {
-            importData.call(app, event);
-        });
-    }
-    
-    // Export dati
-    const exportBtn = document.getElementById('export-btn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
+        // Gestione dei pulsanti principali
+        if (target.closest('#import-btn')) {
+            modalContent.querySelector('#import-file')?.click();
+        }
+        if (target.closest('#export-btn')) {
             exportData.call(app);
-        });
-    }
-    
-    // Reset dati
-    const resetBtn = document.getElementById('reset-data-btn');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
+        }
+        if (target.closest('#reset-data-btn')) {
             confirmReset.call(app);
-        });
-    }
+        }
+        if (target.closest('#close-impostazioni-btn')) {
+            app.hideFormModal();
+        }
+    });
+
+    // Listener per gli input (toggle e file)
+    modalContent.addEventListener('change', (event) => {
+        const target = event.target;
+
+        if (target.matches('#dark-mode-toggle')) {
+            app.toggleTheme();
+        }
+        if (target.matches('#fullscreen-toggle')) {
+            toggleFullscreen();
+        }
+        if (target.matches('#sidebar-collapse-toggle')) {
+            toggleSidebarCollapse.call(app);
+        }
+        if (target.matches('#import-file')) {
+            importData.call(app, event);
+        }
+    });
 }
 // Fine funzione setupImpostazioniEventListeners
+// FINE MODIFICA
 
 // === FUNZIONI TEMA E DISPLAY ===
 // Inizio funzione toggleSidebarCollapse
@@ -224,6 +190,44 @@ function updateFullscreenToggle() {
 // Fine funzione updateFullscreenToggle
 
 // === FUNZIONI IMPORT/EXPORT ===
+
+// INIZIO MODIFICA: Funzione di normalizzazione resa più completa per gestire tutte le casistiche
+// Inizio funzione normalizeImportedData
+function normalizeImportedData(data) {
+    console.log('Normalizzazione dati importati...');
+    let normalizedData = JSON.parse(JSON.stringify(data));
+
+    // 1. Normalizza i turni usando la funzione dedicata da virtual.js
+    if (normalizedData.turni && typeof window.normalizeTurniData === 'function') {
+        normalizedData.turni = window.normalizeTurniData(normalizedData.turni);
+    }
+
+    // 2. Normalizza le transazioni dei clienti (rimuove la vecchia proprietà 'type')
+    if (normalizedData.clients && Array.isArray(normalizedData.clients)) {
+        normalizedData.clients.forEach(client => {
+            if (client.transactions && Array.isArray(client.transactions)) {
+                client.transactions.forEach(tx => {
+                    if (tx.type) {
+                        delete tx.type;
+                    }
+                });
+            }
+        });
+    }
+    
+    // 3. Assicura che i campi opzionali esistano
+    if (!normalizedData.contatti) normalizedData.contatti = [];
+    if (!normalizedData.etichette) normalizedData.etichette = [];
+    if (!normalizedData.previousYearStock) {
+        normalizedData.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
+    }
+
+    console.log('Normalizzazione completata.');
+    return normalizedData;
+}
+// Fine funzione normalizeImportedData
+// FINE MODIFICA
+
 // Inizio funzione importData
 function importData(event) {
     const file = event.target.files[0];
@@ -234,7 +238,6 @@ function importData(event) {
         try {
             const importedData = JSON.parse(e.target.result);
 
-            // Verifica che il file sia un backup valido creato da questa applicazione
             if (!importedData || !importedData.data || !importedData.version) {
                 this.showNotification('File di backup non valido o corrotto.');
                 return;
@@ -243,18 +246,9 @@ function importData(event) {
             this.showConfirm(
                 'Sei sicuro di voler importare questo file? Tutti i dati attuali verranno sovrascritti.',
                 () => {
-                    // Normalizza i dati dei turni per compatibilità
-                    if (importedData.data.turni && typeof window.normalizeTurniData === 'function') {
-                        importedData.data.turni = window.normalizeTurniData(importedData.data.turni);
-                    }
-
-                    // Sostituisci i dati attuali con quelli importati
-                    this.state.data = importedData.data;
+                    const normalizedData = normalizeImportedData(importedData.data);
+                    this.state.data = normalizedData;
                     
-                    // CORREZIONE: Importa anche note e to-do, se presenti
-                    if (importedData.data.homeNotes) {
-                        this.saveToStorage('homeNotes', importedData.data.homeNotes);
-                    }
                     if (importedData.data.homeTodos) {
                         this.saveToStorage('homeTodos', importedData.data.homeTodos);
                     }
@@ -263,7 +257,6 @@ function importData(event) {
                     
                     this.showNotification('Dati importati con successo! Ricaricamento dell\'applicazione...');
                     
-                    // Ricarica l'applicazione per rendere effettive le modifiche
                     setTimeout(() => {
                         window.location.reload();
                     }, 1500);
@@ -274,7 +267,7 @@ function importData(event) {
             this.showNotification('Errore durante la lettura del file JSON.');
             console.error('Import error:', error);
         } finally {
-            event.target.value = ''; // Resetta l'input file
+            event.target.value = '';
         }
     };
 
@@ -286,17 +279,14 @@ function importData(event) {
 function exportData() {
     const exportDate = this.formatDateForFilename();
     
-    // CORREZIONE: Carica note e to-do dal localStorage per includerli nel backup
-    const homeNotes = this.loadFromStorage('homeNotes', []);
     const homeTodos = this.loadFromStorage('homeTodos', []);
 
     const dataToExport = {
         exportDate: new Date().toISOString(),
-        version: '4.1.0', // Versione aggiornata
+        version: '4.1.0',
         framework: 'vanilla-js',
         data: {
             ...this.state.data,
-            homeNotes: homeNotes,
             homeTodos: homeTodos
         }
     };
@@ -328,7 +318,6 @@ function confirmReset() {
 
 // Inizio funzione resetAllData
 function resetAllData() {
-    // Svuota i dati principali
     this.state.data = {
         clients: [],
         registryEntries: [],
@@ -341,8 +330,7 @@ function resetAllData() {
     };
     this.saveToStorage('data', this.state.data);
     
-    // Rimuovi altre chiavi di configurazione dal localStorage
-    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeNotes', 'homeTodos'];
+    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeTodos'];
     keysToRemove.forEach(key => localStorage.removeItem(`mystation_${key}`));
     
     this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
@@ -352,8 +340,6 @@ function resetAllData() {
     }, 1500);
 }
 // Fine funzione resetAllData
-
-// === FUNZIONI DI UTILITÀ GLOBALI PER IMPOSTAZIONI ===
 
 // Inizio funzione showCustomModal
 function showCustomModal(contentHTML, modalClass = '') {
@@ -374,13 +360,11 @@ function showCustomModal(contentHTML, modalClass = '') {
 
     document.body.appendChild(modalElement);
     
-    // INIZIO MODIFICA: Rimosso listener per chiusura modale al click sul backdrop
     modalElement.addEventListener('click', (e) => {
         if (e.target.closest('.modal-close-btn')) {
             closeCustomModal();
         }
     });
-    // FINE MODIFICA
 
     const app = getApp();
     if (app && app.refreshIcons) {
