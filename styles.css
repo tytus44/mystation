@@ -54,7 +54,7 @@ body {
     /* INIZIO MODIFICA: Aggiornamento colori come richiesto */
     --color-warning: #FFB100;
     --color-danger: #FF204E;
-    --color-info: #00A9FF;
+    --color-info: #6FE6FC;
     /* FINE MODIFICA */
     --color-accent-calc: #29c7b9;
     
@@ -1843,6 +1843,10 @@ select.form-control {
 
 .calc-btn.equal {
     grid-column: span 2;
+    /* INIZIO MODIFICA: Colore tasto uguale */
+    background-color: #F75270;
+    border-color: transparent;
+    /* FINE MODIFICA */
 }
 /* ====== FINE MODIFICHE CALCOLATRICE ====== */
 
@@ -1855,6 +1859,16 @@ select.form-control {
     border-color: var(--color-primary) !important;
     transform: scale(1.1);
 }
+
+/* INIZIO MODIFICA: Regola specifica per giorno odierno festivo o domenicale */
+/* Assicura che lo SFONDO sia rosso quando il giorno odierno è una festività o una domenica */
+.calendar-day.today.holiday,
+.calendar-day.today.sunday {
+    background-color: rgba(255, 32, 78, 0.1); /* Sfondo rosso chiaro basato su --color-danger */
+    color: var(--color-danger);
+    border-color: rgba(255, 32, 78, 0.3);
+}
+/* FINE MODIFICA */
 
 .calendar-day.has-todo {
     position: relative;
@@ -1892,14 +1906,7 @@ select.form-control {
     opacity: 0.6;
 }
 
-.calendar-day.selected .todo-dot {
-    background-color: white;
-}
 
-.calendar-day.selected .todo-dot.completed {
-    background-color: #d1fae5;
-    opacity: 1;
-}
 
 /* Stili specifici per To-Do */
 .todo-list {

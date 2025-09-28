@@ -70,8 +70,12 @@ function initHome() {
     homeState.todos = app.loadFromStorage('homeTodos', []);
     
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    homeState.calendar.selectedDate = today.toISOString().split('T')[0];
+    // CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario con toISOString()
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    homeState.calendar.selectedDate = `${year}-${month}-${day}`;
+    
     initCalendar.call(app);
     
     console.log('✅ Modulo Home inizializzato');
@@ -302,13 +306,16 @@ function setupHomeEventListeners() {
 
     document.getElementById('calendar-prev')?.addEventListener('click', () => changeMonth.call(app, -1));
     document.getElementById('calendar-next')?.addEventListener('click', () => changeMonth.call(app, 1));
-    document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
-        homeState.calendar.currentDate = new Date();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        homeState.calendar.selectedDate = today.toISOString().split('T')[0];
-        renderCalendar.call(app);
-    });
+document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
+    homeState.calendar.currentDate = new Date();
+    const today = new Date();
+    // CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    homeState.calendar.selectedDate = `${year}-${month}-${day}`;
+    renderCalendar.call(app);
+});
 
     document.getElementById('calendar-container')?.addEventListener('click', (e) => {
         const dayEl = e.target.closest('.calendar-day:not(.empty)');
@@ -449,8 +456,11 @@ function renderCalendar() {
     }
     
     const oggi = new Date();
-    oggi.setHours(0, 0, 0, 0);
-    const oggiString = oggi.toISOString().split('T')[0];
+    // CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario con toISOString()
+    const oggiYear = oggi.getFullYear();
+    const oggiMonth = String(oggi.getMonth() + 1).padStart(2, '0');
+    const oggiDay = String(oggi.getDate()).padStart(2, '0');
+    const oggiString = `${oggiYear}-${oggiMonth}-${oggiDay}`;
     
     for (let i = 1; i <= lastDateOfMonth; i++) {
         const monthString = String(month + 1).padStart(2, '0');
@@ -491,6 +501,16 @@ function renderCalendarDays() {
         if (day.isToday) dayEl.classList.add('today');
         if (day.isHoliday) dayEl.classList.add('holiday');
         if (day.isSunday) dayEl.classList.add('sunday');
+        
+        // INIZIO MODIFICA: Applica stile inline se oggi è festivo, senza aggiungere classi
+if (day.isToday && (day.isHoliday || day.isSunday)) {
+    // --color-danger: #FF204E -> rgb(255, 32, 78)
+    dayEl.style.setProperty('background-color', 'rgba(255, 32, 78, 0.1)', 'important');
+    dayEl.style.setProperty('border-color', 'rgba(255, 32, 78, 0.3)', 'important');
+    dayEl.style.setProperty('color', 'var(--color-danger)', 'important');
+}
+        // FINE MODIFICA
+
         if (day.date === homeState.calendar.selectedDate) dayEl.classList.add('selected');
         if (!day.value) dayEl.classList.add('empty');
         
