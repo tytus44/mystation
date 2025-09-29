@@ -95,8 +95,6 @@ function renderHomeSection(container) {
         hvolution: '#06b6d4',
         adblue: '#6b7280'
     };
-
-    const turniText = stats.shiftCount > 0 ? `(${stats.shiftNames})` : '';
     
     container.innerHTML = `
         <div class="space-y-6">
@@ -141,7 +139,7 @@ function renderHomeSection(container) {
                     <div class="stat-content">
                         <div class="stat-label">Fatturato giornaliero</div>
                         <div class="stat-value">${app.formatCurrency(stats.totalRevenueToday)}</div>
-                        <div class="text-xs text-secondary mt-1">${stats.shiftCount} turni ${turniText}</div>
+                        <div class="text-xs text-secondary mt-1">Margine stimato: <strong class="text-success">${app.formatCurrency(stats.totalMarginToday)}</strong></div>
                     </div>
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
@@ -304,16 +302,16 @@ function setupHomeEventListeners() {
 
     document.getElementById('calendar-prev')?.addEventListener('click', () => changeMonth.call(app, -1));
     document.getElementById('calendar-next')?.addEventListener('click', () => changeMonth.call(app, 1));
-document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
-    homeState.calendar.currentDate = new Date();
-    const today = new Date();
-    // CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    homeState.calendar.selectedDate = `${year}-${month}-${day}`;
-    renderCalendar.call(app);
-});
+	document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
+		homeState.calendar.currentDate = new Date();
+		const today = new Date();
+		// CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');
+		homeState.calendar.selectedDate = `${year}-${month}-${day}`;
+		renderCalendar.call(app);
+	});
 
     document.getElementById('calendar-container')?.addEventListener('click', (e) => {
         const dayEl = e.target.closest('.calendar-day:not(.empty)');
@@ -500,14 +498,11 @@ function renderCalendarDays() {
         if (day.isHoliday) dayEl.classList.add('holiday');
         if (day.isSunday) dayEl.classList.add('sunday');
         
-        // INIZIO MODIFICA: Applica stile inline se oggi è festivo, senza aggiungere classi
-if (day.isToday && (day.isHoliday || day.isSunday)) {
-    // --color-danger: #FF204E -> rgb(255, 32, 78)
-    dayEl.style.setProperty('background-color', 'rgba(255, 32, 78, 0.1)', 'important');
-    dayEl.style.setProperty('border-color', 'rgba(255, 32, 78, 0.3)', 'important');
-    dayEl.style.setProperty('color', 'var(--color-danger)', 'important');
-}
-        // FINE MODIFICA
+		if (day.isToday && (day.isHoliday || day.isSunday)) {
+			dayEl.style.setProperty('background-color', 'rgba(255, 32, 78, 0.1)', 'important');
+			dayEl.style.setProperty('border-color', 'rgba(255, 32, 78, 0.3)', 'important');
+			dayEl.style.setProperty('color', 'var(--color-danger)', 'important');
+		}
 
         if (day.date === homeState.calendar.selectedDate) dayEl.classList.add('selected');
         if (!day.value) dayEl.classList.add('empty');
@@ -523,9 +518,9 @@ if (day.isToday && (day.isHoliday || day.isSunday)) {
             });
 
             const colorToDotClass = {
-                'urgent': 'dot-1',   // Rosso
-                'priority': 'dot-2', // Arancione
-                'standard': 'dot-3'  // Blu
+                'urgent': 'dot-1',
+                'priority': 'dot-2',
+                'standard': 'dot-3'
             };
 
             sortedTodos.slice(0, 3).forEach(todo => {
@@ -693,41 +688,95 @@ function getHomeDashboardStats() {
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const todayTurni = app.state.data.turni.filter(t => new Date(t.date) >= today && new Date(t.date) < tomorrow);
+
+    const todayTurni = (app.state.data.turni || []).filter(t => {
+        const turnoDate = new Date(t.date);
+        return turnoDate >= today && turnoDate < tomorrow;
+    });
+
     const shiftCount = todayTurni.length;
     const shiftNames = todayTurni.map(t => t.turno).join(', ');
     const prices = getLatestPrices.call(this);
-    let totalIperself = 0, totalServito = 0, totalRevenue = 0;
+    
+    let totalIperself = 0;
+    let totalServito = 0;
+    let totalRevenue = 0;
+    let totalMarginToday = 0;
+    const margineFdtPay = 0.035 + 0.005;
+    const margineServito = 0.065 + 0.015;
+    const margineAdblue = 0.40;
+
     const productTotals = { benzina: { servito: 0, iperself: 0 }, gasolio: { servito: 0, iperself: 0 }, dieselplus: { servito: 0, iperself: 0 }, hvolution: { servito: 0, iperself: 0 }, adblue: { servito: 0, iperself: 0 }};
+    
     todayTurni.forEach(turno => {
+        const isRiepilogo = turno.turno === 'Riepilogo Mensile';
+
         for (const product in productTotals) {
-            const iperselfL = parseFloat(turno.iperself?.[product]) || 0;
-            const servitoL = parseFloat(turno.servito?.[product]) || 0;
+            let fdtL = 0;
+            let prepayL = 0;
+            let servitoL = 0;
+
+            if (isRiepilogo) {
+                fdtL = parseFloat(turno.fdt?.[product]) || 0;
+                prepayL = parseFloat(turno.prepay?.[product]) || 0;
+                servitoL = parseFloat(turno.servito?.[product]) || 0;
+            } else {
+                prepayL = parseFloat(turno.prepay?.[product]) || 0;
+                servitoL = parseFloat(turno.servito?.[product]) || 0;
+            }
+
+            const iperselfL = fdtL + prepayL;
+            
             productTotals[product].iperself += iperselfL;
             productTotals[product].servito += servitoL;
-            if (product !== 'adblue') totalIperself += iperselfL;
+
+            if (product !== 'adblue') {
+                totalIperself += iperselfL;
+            }
             totalServito += servitoL;
+            
             const priceKey = product === 'dieselplus' ? 'dieselPlus' : product;
             const basePrice = prices[priceKey] || 0;
             if (basePrice > 0) {
-                if (product === 'adblue') totalRevenue += servitoL * basePrice;
-                else {
+                if (product === 'adblue') {
+                    totalRevenue += servitoL * basePrice;
+                } else {
                     const prezzo_iperself = basePrice + 0.005;
                     const prezzo_servito = basePrice + 0.015 + 0.210;
                     totalRevenue += (iperselfL * prezzo_iperself) + (servitoL * prezzo_servito);
                 }
             }
+
+            if (product === 'adblue') {
+                totalMarginToday += servitoL * margineAdblue;
+            } else {
+                totalMarginToday += iperselfL * margineFdtPay;
+                totalMarginToday += servitoL * margineServito;
+            }
         }
     });
+
     const totalLitersToday = totalIperself + totalServito;
     const overallServitoPercentage = totalLitersToday > 0 ? Math.round((totalServito / totalLitersToday) * 100) : 0;
-    const productLiters = {}, productServitoPercentages = {};
+    const productLiters = {};
+    const productServitoPercentages = {};
+
     for (const product in productTotals) {
         const pTotal = productTotals[product].servito + productTotals[product].iperself;
         productLiters[product] = pTotal;
         productServitoPercentages[product] = pTotal > 0 ? Math.round((productTotals[product].servito / pTotal) * 100) : 0;
     }
-    return { totalLitersToday, overallServitoPercentage, productServitoPercentages, totalRevenueToday: totalRevenue, shiftCount, shiftNames, productLiters };
+
+    return { 
+        totalLitersToday, 
+        overallServitoPercentage, 
+        productServitoPercentages, 
+        totalRevenueToday: totalRevenue, 
+        shiftCount, 
+        shiftNames, 
+        productLiters,
+        totalMarginToday
+    };
 }
 // Fine funzione getHomeDashboardStats
 
