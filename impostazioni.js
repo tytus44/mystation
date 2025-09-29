@@ -87,6 +87,10 @@ function getImpostazioniModalHTML() {
                 </div>
             </div>
             
+            <div style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1.5rem;">
+                <a href="https://github.com/tytus44/mystation" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">MyStation</a>, programmato con ❤️ da NeRO.
+            </div>
+            
             <div class="modal-actions border-t border-primary pt-6 mt-6">
                 <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
             </div>
