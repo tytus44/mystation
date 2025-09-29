@@ -148,6 +148,7 @@ class MyStationApp {
         if (typeof initRegistroDiCarico === 'function') initRegistroDiCarico.call(this);
         if (typeof initGestionePrezzi === 'function') initGestionePrezzi.call(this);
         if (typeof initImpostazioni === 'function') initImpostazioni.call(this);
+        if (typeof initInfo === 'function') initInfo.call(this);
     }
     // Fine funzione initializeModules
     
@@ -224,6 +225,7 @@ class MyStationApp {
                 case 'anagrafica': if (typeof renderAnagraficaSection === 'function') renderAnagraficaSection.call(this, sectionEl); break;
                 case 'registro': if (typeof renderRegistroSection === 'function') renderRegistroSection.call(this, sectionEl); break;
                 case 'prezzi': if (typeof renderPrezziSection === 'function') renderPrezziSection.call(this, sectionEl); break;
+                case 'info': if (typeof renderInfoSection === 'function') renderInfoSection.call(this, sectionEl); break;
             }
         } catch (error) {
             console.error(`❌ Errore nel render della sezione ${section}:`, error);
