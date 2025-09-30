@@ -2,7 +2,6 @@
 // FILE: prezzi.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Gestione Prezzi (listini e concorrenza).
-// AGGIORNATO CON REPORT GIORNALIERO CARBURANTI 
 // =============================================
 
 // === STATO LOCALE DEL MODULO PREZZI ===
@@ -24,33 +23,6 @@ let prezziState = {
         myoil: { benzina: '', gasolio: '' },
         esso: { benzina: '', gasolio: '' },
         q8: { benzina: '', gasolio: '' }
-    },
-    // INIZIO MODIFICA: Aggiunto stato per l'istanza del grafico Chart.js
-    reportChartInstance: null
-    // FINE MODIFICA
-};
-
-// === DATI STATICI REPORT CARBURANTI ===
-const quotazioniData = {
-    petrolio: {
-        wti: 65.18,
-        brent: 69.67,
-        variazione_wti: 0.31,
-        variazione_brent: 0.36
-    },
-    lazio: {
-        benzina_self: 1.698,
-        gasolio_self: 1.627,
-        benzina_servito: 1.77,
-        gasolio_servito: 1.70
-    },
-    concorrenti: {
-        prezzi: [
-            { nome: 'MyOil', benzina: 1.675, gasolio: 1.605, distanza: '800m' },
-            { nome: 'Esso', benzina: 1.699, gasolio: 1.629, distanza: '1.2km' },
-            { nome: 'Q8', benzina: 1.719, gasolio: 1.649, distanza: '900m' },
-            { nome: 'IP', benzina: 1.689, gasolio: 1.619, distanza: '1.5km' }
-        ]
     }
 };
 
@@ -71,13 +43,8 @@ function renderPrezziSection(container) {
     console.log('🎨 Rendering sezione Gestione Prezzi...');
     const app = this;
     
-    // La sezione ora renderizza sempre e solo la vista a lista
     renderPrezziListView.call(app, container);
-    
-    // Setup event listeners
     setupPrezziEventListeners.call(app);
-    
-    // Refresh icone
     app.refreshIcons();
 }
 // Fine funzione renderPrezziSection
@@ -137,8 +104,6 @@ function renderPrezziListView(container) {
 
             </div>
 
-            ${renderReportGiornaliero()}
-
             <div class="card no-print">
                 <div class="card-header">
                     <h2 class="card-title">Storico Listini Prezzi</h2>
@@ -169,330 +134,8 @@ function renderPrezziListView(container) {
     
     renderListiniTable.call(app);
     renderConcorrenzaCard.call(app);
-    
-    // Setup event listeners per il report
-    setupReportEventListeners();
 }
 // Fine funzione renderPrezziListView
-
-// === FUNZIONE RENDER REPORT GIORNALIERO ===
-// Inizio funzione renderReportGiornaliero
-function renderReportGiornaliero() {
-    const now = new Date();
-    const timestamp = now.toLocaleString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    return `
-        <div class="card mb-4" id="report-carburanti">
-            <div class="card-header">
-                <h5 class="card-title mb-0 flex items-center">
-                    <i data-lucide="line-chart" class="mr-2"></i>
-                    Report Giornaliero Carburanti
-                </h5>
-                <div class="flex items-center space-x-2">
-                    <small class="text-secondary">Ultimo aggiornamento: ${timestamp}</small>
-                    <button id="btn-aggiorna-report" class="btn btn-primary btn-sm">
-                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card-body">
-                <div id="report-loading" class="text-center py-4" style="display: none;">
-                    <p class="mt-2 text-secondary">Aggiornamento dati in corso...</p>
-                </div>
-
-                <div id="report-content">
-                    <div class="grid grid-cols-2 gap-6 mb-4">
-                        <div class="space-y-4">
-                            <h6 class="font-medium text-primary flex items-center"><i data-lucide="globe" class="w-4 h-4 mr-2"></i>Quotazioni Internazionali</h6>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="stat-card" style="background-color: rgba(0, 123, 255, 0.05); border-color: rgba(0, 123, 255, 0.3);">
-                                    <div class="stat-content">
-                                        <div class="stat-label">WTI (USD/bbl)</div>
-                                        <div id="wti-price" class="stat-value text-primary">$${quotazioniData.petrolio.wti}</div>
-                                        <small class="text-success">+${quotazioniData.petrolio.variazione_wti}%</small>
-                                    </div>
-                                    <div class="stat-icon blue"><i data-lucide="trending-up"></i></div>
-                                </div>
-                                <div class="stat-card" style="background-color: rgba(255, 152, 0, 0.05); border-color: rgba(255, 152, 0, 0.3);">
-                                    <div class="stat-content">
-                                        <div class="stat-label">Brent (USD/bbl)</div>
-                                        <div id="brent-price" class="stat-value text-warning">$${quotazioniData.petrolio.brent}</div>
-                                        <small class="text-success">+${quotazioniData.petrolio.variazione_brent}%</small>
-                                    </div>
-                                    <div class="stat-icon yellow"><i data-lucide="trending-up"></i></div>
-                                </div>
-                            </div>
-
-                            <h6 class="font-medium text-primary flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>Prezzi Medi Regione Lazio</h6>
-                            <div class="table-container">
-                                <table class="table text-sm">
-                                    <thead><tr><th>Carburante</th><th>Self</th><th>Servito</th></tr></thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><strong>Benzina</strong></td>
-                                            <td id="lazio-benzina-self">€${quotazioniData.lazio.benzina_self}/l</td>
-                                            <td id="lazio-benzina-servito">€${quotazioniData.lazio.benzina_servito}/l</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Gasolio</strong></td>
-                                            <td id="lazio-gasolio-self">€${quotazioniData.lazio.gasolio_self}/l</td>
-                                            <td id="lazio-gasolio-servito">€${quotazioniData.lazio.gasolio_servito}/l</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                             <h6 class="font-medium text-primary flex items-center"><i data-lucide="bar-chart-2" class="w-4 h-4 mr-2"></i>Andamento Quotazioni</h6>
-                             <div id="grafico-quotazioni" class="p-2 rounded card" style="height: 380px;">
-                                <canvas id="chart-quotazioni"></canvas>
-                             </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                         <h6 class="font-medium text-primary flex items-center"><i data-lucide="search" class="w-4 h-4 mr-2"></i>Analisi Concorrenza per CAP</h6>
-                         <div class="flex items-end space-x-2">
-                            <div class="form-group mb-0">
-                                <input type="text" id="input-cap" class="form-control" placeholder="es. 00100" maxlength="5">
-                            </div>
-                            <div class="form-group mb-0">
-                                <button id="btn-cerca-cap" class="btn btn-secondary">Cerca</button>
-                            </div>
-                         </div>
-                         <small class="text-secondary">Inserisci il CAP per visualizzare i prezzi dei concorrenti nella zona</small>
-                         <div id="concorrenti-container" class="mt-2">
-                             <div class="table-container">
-                                 <table class="table text-sm">
-                                     <thead><tr><th>Distributore</th><th>Benzina Self</th><th>Gasolio Self</th><th>Distanza</th></tr></thead>
-                                     <tbody id="concorrenti-table-body">
-                                         <tr><td colspan="4" class="text-center text-secondary">Inserisci un CAP per iniziare</td></tr>
-                                     </tbody>
-                                 </table>
-                             </div>
-                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-// Fine funzione renderReportGiornaliero
-
-
-// === SETUP EVENT LISTENERS REPORT ===
-// Inizio funzione setupReportEventListeners
-function setupReportEventListeners() {
-    document.getElementById('btn-aggiorna-report')?.addEventListener('click', () => aggiornaReportCompleto());
-
-    const btnCercaCAP = document.getElementById('btn-cerca-cap');
-    const inputCAP = document.getElementById('input-cap');
-    
-    if (btnCercaCAP && inputCAP) {
-        btnCercaCAP.addEventListener('click', () => {
-            const cap = inputCAP.value.trim();
-            if (cap && cap.length === 5 && /^[0-9]{5}$/.test(cap)) {
-                cercaPrezziPerCAP(cap);
-            } else {
-                getApp().showNotification('Inserisci un CAP valido (5 cifre)');
-            }
-        });
-
-        inputCAP.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                btnCercaCAP.click();
-            }
-        });
-    }
-
-    setTimeout(() => {
-        initReportChartJS();
-    }, 100);
-}
-// Fine funzione setupReportEventListeners
-
-// INIZIO MODIFICA: Sostituita la funzione di disegno manuale con Chart.js
-// Inizio funzione initReportChartJS
-function initReportChartJS() {
-    const canvas = document.getElementById('chart-quotazioni');
-    if (!canvas) return;
-    
-    // Distrugge un'eventuale istanza precedente per evitare conflitti
-    if (prezziState.reportChartInstance) {
-        prezziState.reportChartInstance.destroy();
-    }
-
-    const ctx = canvas.getContext('2d');
-    
-    // Dati di esempio per il grafico
-    const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
-    const wtiData = [64.2, 64.8, 65.1, 64.9, 65.3, 65.6, 65.18];
-    const brentData = [68.9, 69.2, 69.5, 69.1, 69.8, 70.1, 69.67];
-
-    prezziState.reportChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: giorni,
-            datasets: [
-                {
-                    label: 'WTI',
-                    data: wtiData,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#007bff',
-                    pointRadius: 4
-                },
-                {
-                    label: 'Brent',
-                    data: brentData,
-                    borderColor: '#ff9800',
-                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#ff9800',
-                    pointRadius: 4
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'end',
-                    labels: {
-                        boxWidth: 12,
-                        font: { size: 10 }
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    grid: { color: 'rgba(0,0,0,0.05)' },
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toFixed(2);
-                        }
-                    }
-                },
-                x: {
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-}
-// Fine funzione initReportChartJS
-
-// === FUNZIONI REPORT ===
-// Inizio funzione cercaPrezziPerCAP
-function cercaPrezziPerCAP(cap) {
-    const loading = document.getElementById('report-loading');
-    const content = document.getElementById('report-content');
-    
-    if (loading && content) {
-        loading.style.display = 'block';
-        content.style.opacity = '0.5';
-    }
-
-    setTimeout(() => {
-        const baseVariation = (cap.charCodeAt(0) % 10) * 0.003;
-        const prezziConcorrenti = quotazioniData.concorrenti.prezzi.map(distributore => ({
-            ...distributore,
-            benzina: parseFloat((distributore.benzina + baseVariation).toFixed(3)),
-            gasolio: parseFloat((distributore.gasolio + baseVariation).toFixed(3))
-        }));
-        
-        prezziConcorrenti.sort((a, b) => {
-            if (a.nome === 'MyOil') return -1;
-            if (b.nome === 'MyOil') return 1;
-            return parseFloat(a.distanza) - parseFloat(b.distanza);
-        });
-        
-        const tbody = document.getElementById('concorrenti-table-body');
-        if (tbody) {
-            tbody.innerHTML = prezziConcorrenti.map(distributore => `
-                <tr>
-                    <td><strong>${distributore.nome}</strong></td>
-                    <td>€${distributore.benzina.toFixed(3)}/l</td>
-                    <td>€${distributore.gasolio.toFixed(3)}/l</td>
-                    <td>
-                        <small class="text-secondary flex items-center">
-                            <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>
-                            ${distributore.distanza}
-                        </small>
-                    </td>
-                </tr>
-            `).join('');
-            getApp().refreshIcons();
-        }
-
-        if (loading && content) {
-            loading.style.display = 'none';
-            content.style.opacity = '1';
-        }
-    }, 800);
-}
-// Fine funzione cercaPrezziPerCAP
-
-// Inizio funzione aggiornaReportCompleto
-function aggiornaReportCompleto() {
-    const loading = document.getElementById('report-loading');
-    const content = document.getElementById('report-content');
-    
-    if (loading && content) {
-        loading.style.display = 'block';
-        content.style.opacity = '0.5';
-    }
-
-    setTimeout(() => {
-        const variation = (Math.random() - 0.5) * 0.04;
-        quotazioniData.petrolio.wti += variation;
-        quotazioniData.petrolio.brent += variation * 1.1;
-        
-        const elements = {
-            'wti-price': `$${quotazioniData.petrolio.wti.toFixed(2)}`,
-            'brent-price': `$${quotazioniData.petrolio.brent.toFixed(2)}`,
-            'lazio-benzina-self': `€${quotazioniData.lazio.benzina_self}/l`,
-            'lazio-gasolio-self': `€${quotazioniData.lazio.gasolio_self}/l`,
-            'lazio-benzina-servito': `€${quotazioniData.lazio.benzina_servito}/l`,
-            'lazio-gasolio-servito': `€${quotazioniData.lazio.gasolio_servito}/l`
-        };
-
-        Object.entries(elements).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.textContent = value;
-            }
-        });
-
-        initReportChartJS(); // Ridisegna il grafico con i nuovi dati (simulati)
-
-        if (loading && content) {
-            loading.style.display = 'none';
-            content.style.opacity = '1';
-        }
-    }, 1000);
-}
-// Fine funzione aggiornaReportCompleto
-// FINE MODIFICA
-
-// === TUTTE LE FUNZIONI ORIGINALI RIMANGONO IDENTICHE ===
 
 // Inizio funzione getListinoFormHTML
 function getListinoFormHTML() {
@@ -602,17 +245,13 @@ function getConcorrenzaFormHTML() {
 }
 // Fine funzione getConcorrenzaFormHTML
 
-// === SETUP EVENT LISTENERS ===
-// INIZIO MODIFICA: Corretto l'assegnamento degli event listener
 // Inizio funzione setupPrezziEventListeners
 function setupPrezziEventListeners() {
     const app = this;
     
-    // Pulsanti per aprire i modali
     document.getElementById('new-listino-btn')?.addEventListener('click', () => showCreateListino.call(app));
     document.getElementById('update-concorrenza-btn')?.addEventListener('click', () => showUpdateConcorrenza.call(app));
     
-    // Sorting tabella
     document.querySelectorAll('#listini-table [data-sort]').forEach(btn => {
         btn.addEventListener('click', () => sortPrices.call(app, btn.getAttribute('data-sort')));
     });
@@ -627,13 +266,11 @@ function setupListinoFormEventListeners() {
     const close = () => app.hideFormModal();
     document.getElementById('cancel-listino-btn-bottom')?.addEventListener('click', close);
 
-    // Listener per i tab Variazione
     document.querySelectorAll('[data-variazione]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const newVariazione = e.currentTarget.dataset.variazione;
             prezziState.listinoForm.variazione = newVariazione;
             
-            // Aggiorna UI
             document.querySelectorAll('[data-variazione]').forEach(b => {
                 b.classList.toggle('btn-primary', b.dataset.variazione === newVariazione);
                 b.classList.toggle('active', b.dataset.variazione === newVariazione);  
@@ -643,19 +280,14 @@ function setupListinoFormEventListeners() {
     });
 
     const listinoInputs = [
-        { id: 'listino-date', path: 'date' },
-        { id: 'listino-benzina', path: 'benzina' },
-        { id: 'listino-gasolio', path: 'gasolio' },
-        { id: 'listino-dieselPlus', path: 'dieselPlus' },
-        { id: 'listino-hvolution', path: 'hvolution' },
-        { id: 'listino-adblue', path: 'adblue' }
+        { id: 'listino-date', path: 'date' }, { id: 'listino-benzina', path: 'benzina' },
+        { id: 'listino-gasolio', path: 'gasolio' }, { id: 'listino-dieselPlus', path: 'dieselPlus' },
+        { id: 'listino-hvolution', path: 'hvolution' }, { id: 'listino-adblue', path: 'adblue' }
     ];
     
     listinoInputs.forEach(({ id, path }) => {
         const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', () => updateListinoFormValue(path, input.value));
-        }
+        if (input) input.addEventListener('input', () => updateListinoFormValue(path, input.value));
     });
 }
 // Fine funzione setupListinoFormEventListeners
@@ -669,26 +301,19 @@ function setupConcorrenzaFormEventListeners() {
     document.getElementById('cancel-concorrenza-btn-bottom')?.addEventListener('click', close);
 
     const concorrenzaInputs = [
-        { id: 'concorrenza-date', path: 'date' },
-        { id: 'myoil-benzina', path: 'myoil.benzina' },
-        { id: 'myoil-gasolio', path: 'myoil.gasolio' },
-        { id: 'esso-benzina', path: 'esso.benzina' },
-        { id: 'esso-gasolio', path: 'esso.gasolio' },
-        { id: 'q8-benzina', path: 'q8.benzina' },
+        { id: 'concorrenza-date', path: 'date' }, { id: 'myoil-benzina', path: 'myoil.benzina' },
+        { id: 'myoil-gasolio', path: 'myoil.gasolio' }, { id: 'esso-benzina', path: 'esso.benzina' },
+        { id: 'esso-gasolio', path: 'esso.gasolio' }, { id: 'q8-benzina', path: 'q8.benzina' },
         { id: 'q8-gasolio', path: 'q8.gasolio' }
     ];
 
     concorrenzaInputs.forEach(({ id, path }) => {
         const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', () => updateConcorrenzaFormValue(path, input.value));
-        }
+        if (input) input.addEventListener('input', () => updateConcorrenzaFormValue(path, input.value));
     });
 }
 // Fine funzione setupConcorrenzaFormEventListeners
-// FINE MODIFICA
 
-// === FUNZIONI GESTIONE MODALI ===
 // Inizio funzione showCreateListino
 function showCreateListino() {
     const app = this;
@@ -712,10 +337,8 @@ function showEditListino(listino) {
     prezziState.listinoForm = {
         date: app.formatToItalianDate(listino.date),
         variazione: listino.variazione || 'Entrambi',
-        benzina: listino.benzina || '',
-        gasolio: listino.gasolio || '',
-        dieselPlus: listino.dieselPlus || '',
-        hvolution: listino.hvolution || '',
+        benzina: listino.benzina || '', gasolio: listino.gasolio || '',
+        dieselPlus: listino.dieselPlus || '', hvolution: listino.hvolution || '',
         adblue: listino.adblue || ''
     };
     
@@ -744,7 +367,6 @@ function showUpdateConcorrenza() {
 }
 // Fine funzione showUpdateConcorrenza
 
-// === FUNZIONI ORDINAMENTO ===
 // Inizio funzione sortPrices
 function sortPrices(column) {
     if (prezziState.priceSort.column === column) {
@@ -757,7 +379,6 @@ function sortPrices(column) {
 }
 // Fine funzione sortPrices
 
-// === FUNZIONI DATI ===
 // Inizio funzione sortedPriceHistory
 function sortedPriceHistory() {
     if (!Array.isArray(this.state.data.priceHistory)) return [];
@@ -796,11 +417,7 @@ function currentPrices() {
 // Inizio funzione competitorPrices
 function competitorPrices() {
     if (!Array.isArray(this.state.data.competitorPrices) || this.state.data.competitorPrices.length === 0) {
-        return {
-            myoil: { benzina: 0, gasolio: 0 },
-            esso: { benzina: 0, gasolio: 0 },
-            q8: { benzina: 0, gasolio: 0 }
-        };
+        return { myoil: { benzina: 0, gasolio: 0 }, esso: { benzina: 0, gasolio: 0 }, q8: { benzina: 0, gasolio: 0 } };
     }
     
     const latest = { ...this.state.data.competitorPrices.sort((a, b) => new Date(b.date) - new Date(a.date))[0] };
@@ -813,7 +430,6 @@ function competitorPrices() {
 }
 // Fine funzione competitorPrices
 
-// === FUNZIONI FORM ===
 // Inizio funzione resetListinoForm
 function resetListinoForm() {
     const latest = currentPrices.call(this);
@@ -834,18 +450,9 @@ function resetConcorrenzaForm() {
     const latest = competitorPrices.call(this);
     prezziState.concorrenzaForm = {
         date: this.getTodayFormatted(),
-        myoil: {
-            benzina: latest.myoil.benzina || '',
-            gasolio: latest.myoil.gasolio || ''
-        },
-        esso: {
-            benzina: latest.esso.benzina || '',
-            gasolio: latest.esso.gasolio || ''
-        },
-        q8: {
-            benzina: latest.q8.benzina || '',
-            gasolio: latest.q8.gasolio || ''
-        }
+        myoil: { benzina: latest.myoil.benzina || '', gasolio: latest.myoil.gasolio || '' },
+        esso: { benzina: latest.esso.benzina || '', gasolio: latest.esso.gasolio || '' },
+        q8: { benzina: latest.q8.benzina || '', gasolio: latest.q8.gasolio || '' }
     };
 }
 // Fine funzione resetConcorrenzaForm
@@ -867,20 +474,16 @@ function updateConcorrenzaFormValue(path, value) {
 }
 // Fine funzione updateConcorrenzaFormValue
 
-// === SALVATAGGIO DATI ===
 // Inizio funzione saveListino
 function saveListino() {
     const app = getApp();
     if (!prezziState.listinoForm.date || !prezziState.listinoForm.benzina || !prezziState.listinoForm.gasolio) {
         return app.showNotification('Data, prezzo benzina e gasolio sono obbligatori');
     }
-    
     if (!app.validateItalianDate(prezziState.listinoForm.date)) {
         return app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
     }
-    
     const parsedDate = app.parseItalianDate(prezziState.listinoForm.date);
-    
     const listino = {
         id: prezziState.editingListino ? prezziState.editingListino.id : app.generateUniqueId('listino'),
         date: parsedDate.toISOString(),
@@ -891,16 +494,12 @@ function saveListino() {
         hvolution: parseFloat(prezziState.listinoForm.hvolution) || null,
         adblue: parseFloat(prezziState.listinoForm.adblue) || null
     };
-    
     if (prezziState.editingListino) {
         const index = app.state.data.priceHistory.findIndex(l => l.id === prezziState.editingListino.id);
-        if (index !== -1) {
-            app.state.data.priceHistory[index] = listino;
-        }
+        if (index !== -1) app.state.data.priceHistory[index] = listino;
     } else {
         app.state.data.priceHistory.push(listino);
     }
-    
     app.saveToStorage('data', app.state.data);
     app.hideFormModal();
     renderPrezziListView.call(app, document.getElementById('section-prezzi'));
@@ -913,26 +512,14 @@ function saveConcorrenza() {
     if (!prezziState.concorrenzaForm.date || !app.validateItalianDate(prezziState.concorrenzaForm.date)) {
         return app.showNotification('Data obbligatoria in formato gg.mm.aaaa');
     }
-    
     const parsedDate = app.parseItalianDate(prezziState.concorrenzaForm.date);
-    
     const concorrenza = {
         id: app.generateUniqueId('concorrenza'),
         date: parsedDate.toISOString(),
-        myoil: {
-            benzina: parseFloat(prezziState.concorrenzaForm.myoil.benzina) || null,
-            gasolio: parseFloat(prezziState.concorrenzaForm.myoil.gasolio) || null
-        },
-        esso: {
-            benzina: parseFloat(prezziState.concorrenzaForm.esso.benzina) || null,
-            gasolio: parseFloat(prezziState.concorrenzaForm.esso.gasolio) || null
-        },
-        q8: {
-            benzina: parseFloat(prezziState.concorrenzaForm.q8.benzina) || null,
-            gasolio: parseFloat(prezziState.concorrenzaForm.q8.gasolio) || null
-        }
+        myoil: { benzina: parseFloat(prezziState.concorrenzaForm.myoil.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.myoil.gasolio) || null },
+        esso: { benzina: parseFloat(prezziState.concorrenzaForm.esso.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.esso.gasolio) || null },
+        q8: { benzina: parseFloat(prezziState.concorrenzaForm.q8.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.q8.gasolio) || null }
     };
-    
     app.state.data.competitorPrices.push(concorrenza);
     app.saveToStorage('data', app.state.data);
     app.hideFormModal();
@@ -945,7 +532,6 @@ function deleteListino(listinoId) {
     const app = getApp();
     const listino = app.state.data.priceHistory.find(l => l.id === listinoId);
     if (!listino) return;
-    
     app.showConfirm(`Sei sicuro di voler eliminare il listino del ${app.formatDate(listino.date)}?`, () => {
         app.state.data.priceHistory = app.state.data.priceHistory.filter(l => l.id !== listinoId);
         app.saveToStorage('data', app.state.data);
@@ -954,15 +540,12 @@ function deleteListino(listinoId) {
 }
 // Fine funzione deleteListino
 
-// === RENDER FUNZIONI SPECIFICHE ===
 // Inizio funzione renderListiniTable
 function renderListiniTable() {
     const tbody = document.getElementById('listini-tbody');
     if (!tbody) return;
-    
     const app = this;
     const listini = sortedPriceHistory.call(app);
-    
     if (listini.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-12"><div class="empty-state"><i data-lucide="euro"></i><div class="empty-state-title">Nessun listino trovato</div></div></td></tr>`;
     } else {
@@ -984,7 +567,6 @@ function renderListiniTable() {
             </tr>
         `).join('');
     }
-    
     this.refreshIcons();
 }
 // Fine funzione renderListiniTable
@@ -996,8 +578,6 @@ function renderConcorrenzaCard() {
     const competitorPricesData = competitorPrices.call(app);
     const container = document.getElementById('concorrenza-card-content');
     if (!container) return;
-
-    // Funzione locale per formattare la differenza di prezzo
     const formatDiff = (diff) => {
         const roundedDiff = Math.round(diff * 1000) / 1000;
         const colorClass = roundedDiff < 0 ? 'text-success' : roundedDiff > 0 ? 'text-danger' : 'text-secondary';
@@ -1005,23 +585,11 @@ function renderConcorrenzaCard() {
         const text = `${sign}${app.formatCurrency(roundedDiff, true)}`.replace('€', '').trim();
         return `<div class="font-bold ${colorClass}">${text}</div>`;
     };
-
     const diffs = {
-        myoil: {
-            benzina: (competitorPricesData.myoil?.benzina || 0) - (myPrices.benzina || 0),
-            gasolio: (competitorPricesData.myoil?.gasolio || 0) - (myPrices.gasolio || 0)
-        },
-        q8: {
-            benzina: (competitorPricesData.q8?.benzina || 0) - (myPrices.benzina || 0),
-            gasolio: (competitorPricesData.q8?.gasolio || 0) - (myPrices.gasolio || 0)
-        },
-        esso: {
-            benzina: (competitorPricesData.esso?.benzina || 0) - (myPrices.benzina || 0),
-            gasolio: (competitorPricesData.esso?.gasolio || 0) - (myPrices.gasolio || 0)
-        }
+        myoil: { benzina: (competitorPricesData.myoil?.benzina || 0) - (myPrices.benzina || 0), gasolio: (competitorPricesData.myoil?.gasolio || 0) - (myPrices.gasolio || 0) },
+        q8: { benzina: (competitorPricesData.q8?.benzina || 0) - (myPrices.benzina || 0), gasolio: (competitorPricesData.q8?.gasolio || 0) - (myPrices.gasolio || 0) },
+        esso: { benzina: (competitorPricesData.esso?.benzina || 0) - (myPrices.benzina || 0), gasolio: (competitorPricesData.esso?.gasolio || 0) - (myPrices.gasolio || 0) }
     };
-
-    // Inizio Modifica: Corretto ordine colonne
     container.innerHTML = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4 text-sm">
@@ -1032,7 +600,6 @@ function renderConcorrenzaCard() {
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-
                 <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                     <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger)">Esso</h4>
                     <div class="space-y-1 mt-2">
@@ -1040,7 +607,6 @@ function renderConcorrenzaCard() {
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-
                 <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                     <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary)">Q8</h4>
                     <div class="space-y-1 mt-2">
@@ -1049,93 +615,39 @@ function renderConcorrenzaCard() {
                     </div>
                 </div>
             </div>
-
             <div class="grid grid-cols-3 gap-4 text-sm">
                 <div class="product-box text-center p-2" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.myoil.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.myoil.gasolio)}
+                    <div class="text-xs">Benzina</div>${formatDiff(diffs.myoil.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.myoil.gasolio)}
                 </div>
-
                 <div class="product-box text-center p-2" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.esso.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.esso.gasolio)}
+                    <div class="text-xs">Benzina</div>${formatDiff(diffs.esso.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.esso.gasolio)}
                 </div>
-
                 <div class="product-box text-center p-2" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.q8.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.q8.gasolio)}
+                    <div class="text-xs">Benzina</div>${formatDiff(diffs.q8.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.q8.gasolio)}
                 </div>
             </div>
         </div>
     `;
-    // Fine Modifica
 }
 // Fine funzione renderConcorrenzaCard
 
 // Inizio funzione showSkeletonLoader
 function showSkeletonLoader(container) {
-    const skeletonHTML = `
-        <div class="space-y-6">
-            <div class="grid grid-cols-2 gap-6">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div>
-                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div>
-                </div>
-                <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div>
-                <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="skeleton-loader" style="height: 1.5rem; width: 200px"></div>
-                </div>
-                <div class="p-6 space-y-2">
-                    <div class="skeleton-loader" style="height: 5rem; width: 100%"></div>
-                    <div class="skeleton-loader" style="height: 3rem; width: 100%"></div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header" style="justify-content: space-between; align-items: center;">
-                    <div class="skeleton-loader" style="height: 1.5rem; width: 250px"></div>
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 150px; border-radius: var(--radius-md)"></div>
-                </div>
-                <div class="p-6 space-y-2">
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div>
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div>
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div>
-                </div>
-            </div>
-        </div>
-    `;
-    
+    const skeletonHTML = `<div class="space-y-6"><div class="grid grid-cols-2 gap-6"><div class="grid grid-cols-2 gap-6"><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div></div><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div></div><div class="card"><div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 200px"></div></div><div class="p-6 space-y-2"><div class="skeleton-loader" style="height: 5rem; width: 100%"></div><div class="skeleton-loader" style="height: 3rem; width: 100%"></div></div></div><div class="card"><div class="card-header" style="justify-content: space-between; align-items: center;"><div class="skeleton-loader" style="height: 1.5rem; width: 250px"></div><div class="skeleton-loader" style="height: 2.5rem; width: 150px; border-radius: var(--radius-md)"></div></div><div class="p-6 space-y-2"><div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div></div></div></div>`;
     container.innerHTML = skeletonHTML;
 }
 // Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ONCLICK ===
-// Inizio funzione editListinoById
 function editListinoById(listinoId) {
     const app = getApp();
     const listino = app.state.data.priceHistory.find(l => l.id === listinoId);
-    if (listino) {
-        showEditListino.call(app, listino);
-    }
+    if (listino) showEditListino.call(app, listino);
 }
-// Fine funzione editListinoById
-
-// Inizio funzione deleteListinoById
 function deleteListinoById(listinoId) {
     const app = getApp();
     deleteListino.call(app, listinoId);
 }
-// Fine funzione deleteListinoById
 
 // EXPORT FUNCTIONS FOR GLOBAL ACCESS
 if (typeof window !== 'undefined') {
