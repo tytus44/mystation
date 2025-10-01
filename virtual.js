@@ -65,6 +65,7 @@ function renderVirtualListView(container) {
 
     const stats = virtualStats.call(app);
     
+    // INIZIO MODIFICA: Aggiunto stile con colori di sfondo e bordo alle stat cards
     container.innerHTML = `
         <div class="space-y-6">
             <div class="filters-bar no-print">
@@ -83,9 +84,9 @@ function renderVirtualListView(container) {
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div><div class="stat-icon blue"><i data-lucide="fuel"></i></div></div>
-                <div class="stat-card"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div></div><div class="stat-icon green"><i data-lucide="euro"></i></div></div>
-                <div class="stat-card"><div class="stat-content"><div class="stat-label">% Servito</div><div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div></div><div class="stat-icon purple"><i data-lucide="user-check"></i></div></div>
+                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div><div class="stat-icon blue"><i data-lucide="fuel"></i></div></div>
+                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div></div><div class="stat-icon green"><i data-lucide="euro"></i></div></div>
+                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);"><div class="stat-content"><div class="stat-label">% Servito</div><div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div></div><div class="stat-icon purple"><i data-lucide="user-check"></i></div></div>
             </div>
             <div class="grid grid-cols-2 gap-6">
                 <div class="card"><div class="card-header"><h3 id="products-chart-title" class="card-title">Vendite per Prodotto</h3><div class="flex items-center space-x-2"><button id="chart-back-btn" class="btn btn-secondary btn-sm hidden" title="Indietro"><i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Indietro</button><button id="export-products-chart-btn" class="btn btn-primary"><i data-lucide="image"></i> Salva Immagine</button></div></div><div class="card-body"><canvas id="productsChart" height="300"></canvas></div></div>
@@ -95,6 +96,7 @@ function renderVirtualListView(container) {
             <div class="card no-print"><div class="card-header" style="padding: 1rem 1.5rem;"><h2 class="card-title">Storico Turni</h2></div><div class="table-container"><table class="table" id="turni-table"><thead><tr><th><button data-sort="date">Data <i data-lucide="arrow-up-down"></i></button></th><th>Turno</th><th>Benzina</th><th>Gasolio</th><th>Diesel+</th><th>Hvolution</th><th>AdBlue</th><th><button data-sort="total">Totale <i data-lucide="arrow-up-down"></i></button></th><th class="text-right">Azioni</th></tr></thead><tbody id="turni-tbody"></tbody></table></div></div>
         </div>
     `;
+    // FINE MODIFICA
     renderTurniTable.call(app);
 }
 // Fine funzione renderVirtualListView
