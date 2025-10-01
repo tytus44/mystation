@@ -65,6 +65,7 @@ function renderVirtualListView(container) {
 
     const stats = virtualStats.call(app);
     
+    // INIZIO MODIFICA: Rimossi i pulsanti di import/export
     container.innerHTML = `
         <div class="space-y-6">
             <div class="filters-bar no-print">
@@ -78,8 +79,6 @@ function renderVirtualListView(container) {
                 <div class="flex items-center space-x-2">
                     <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
                     <button id="new-mese-btn" class="btn btn-primary"><i data-lucide="calendar"></i> Mese</button>
-                    <button id="import-btn" class="btn btn-secondary" title="Importa Riepilogo Mensile"><i data-lucide="upload" style="margin-right: 0;"></i></button>
-                    <button id="export-btn" class="btn btn-secondary" title="Esporta Turni Visualizzati"><i data-lucide="download" style="margin-right: 0;"></i></button>
                     <button id="print-virtual-btn" class="btn btn-secondary" title="Stampa Periodo"><i data-lucide="printer" style="margin-right: 0;"></i></button>
                 </div>
             </div>
@@ -96,6 +95,7 @@ function renderVirtualListView(container) {
             <div class="card no-print"><div class="card-header" style="padding: 1rem 1.5rem;"><h2 class="card-title">Storico Turni</h2></div><div class="table-container"><table class="table" id="turni-table"><thead><tr><th><button data-sort="date">Data <i data-lucide="arrow-up-down"></i></button></th><th>Turno</th><th>Benzina</th><th>Gasolio</th><th>Diesel+</th><th>Hvolution</th><th>AdBlue</th><th><button data-sort="total">Totale <i data-lucide="arrow-up-down"></i></button></th><th class="text-right">Azioni</th></tr></thead><tbody id="turni-tbody"></tbody></table></div></div>
         </div>
     `;
+    // FINE MODIFICA
     renderTurniTable.call(app);
 }
 // Fine funzione renderVirtualListView
@@ -206,17 +206,8 @@ function setupVirtualListViewEventListeners() {
     document.querySelectorAll('[data-filter-mode]').forEach(btn => btn.addEventListener('click', () => setFilterMode.call(app, btn.getAttribute('data-filter-mode'))));
     document.getElementById('new-turno-btn')?.addEventListener('click', () => showCreateTurno());
     document.getElementById('new-mese-btn')?.addEventListener('click', () => showCreateMeseModal());
-    document.getElementById('import-btn')?.addEventListener('click', () => {
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.json, .txt';
-        fileInput.style.display = 'none';
-        fileInput.addEventListener('change', (event) => handleFileUpload.call(app, event));
-        document.body.appendChild(fileInput);
-        fileInput.click();
-        document.body.removeChild(fileInput);
-    });
-    document.getElementById('export-btn')?.addEventListener('click', () => exportVirtualData.call(app));
+    // INIZIO MODIFICA: Rimossi i listener per i pulsanti di import/export
+    // FINE MODIFICA
     document.getElementById('print-virtual-btn')?.addEventListener('click', () => printVirtualReport.call(app));
     document.querySelectorAll('#turni-table [data-sort]').forEach(btn => btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort'))));
     document.querySelectorAll('[data-trend-tab]').forEach(btn => btn.addEventListener('click', () => setTrendChartTab.call(app, btn.dataset.trendTab)));
@@ -227,111 +218,9 @@ function setupVirtualListViewEventListeners() {
 }
 // Fine funzione setupVirtualListViewEventListeners
 
-// Inizio funzione handleFileUpload
-function handleFileUpload(event) {
-    const app = this;
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const fileContent = e.target.result;
-            const reportData = JSON.parse(fileContent);
-            const newTurno = processMonthlyReport(reportData);
-            
-            if (newTurno) {
-                const existingIndex = app.state.data.turni.findIndex(t => t.id === newTurno.id);
-                if (existingIndex > -1) app.state.data.turni[existingIndex] = newTurno;
-                else app.state.data.turni.push(newTurno);
-
-                app.saveToStorage('data', app.state.data);
-                app.showNotification(`Riepilogo mensile "${newTurno.id}" importato con successo.`);
-                
-                renderTurniTable.call(app);
-                renderVirtualStats.call(app);
-                safeUpdateCharts.call(app);
-            } else {
-                 app.showNotification("Errore: formato file non riconosciuto o dati mancanti.");
-            }
-        } catch (error) {
-            console.error("Errore durante l'importazione del file:", error);
-            app.showNotification("Errore: il file non è un report JSON valido.");
-        }
-    };
-    reader.readAsText(file);
-}
-// Fine funzione handleFileUpload
-
-// Inizio funzione processMonthlyReport
-function processMonthlyReport(reportData) {
-    if (!reportData || !reportData.periodo || !reportData.riepilogo_segmento_vendita) return null;
-
-    const periodoParts = reportData.periodo.split(' Al ');
-    const endDateString = periodoParts[1];
-    const [day, month, year] = endDateString.split('/');
-    const lastDayOfMonth = new Date(year, month - 1, day);
-
-    const newTurno = {
-        id: `riepilogo_${year}-${month}`,
-        date: lastDayOfMonth.toISOString(),
-        turno: 'Riepilogo Mensile',
-        fdt: {},
-        prepay: {},
-        servito: {},
-        createdAt: new Date().toISOString()
-    };
-
-    const productMap = { 'SenzaPb': 'benzina', 'Gasolio': 'gasolio', 'BluDiesel': 'dieselplus', 'HVO': 'hvolution', 'ADBLU': 'adblue' };
-
-    reportData.riepilogo_segmento_vendita.prodotti.forEach(p => {
-        const mappedProduct = productMap[p.prodotto];
-        if (mappedProduct) {
-            const fdtVolume = p.FaiDaTe?.Volume || 0; 
-            const prepayVolume = p.Prepay?.Volume || 0;
-            const servitoVolume = p.Servito?.Volume || 0;
-
-            if (mappedProduct === 'adblue') {
-                newTurno.servito.adblue = servitoVolume;
-                newTurno.fdt.adblue = 0;
-                newTurno.prepay.adblue = 0;
-            } else {
-                newTurno.fdt[mappedProduct] = fdtVolume;
-                newTurno.prepay[mappedProduct] = prepayVolume;
-                newTurno.servito[mappedProduct] = servitoVolume;
-            }
-        }
-    });
-    return newTurno;
-}
-// Fine funzione processMonthlyReport
-
-// Inizio funzione exportVirtualData
-function exportVirtualData() {
-    const app = this;
-    const dataToExport = sortedTurni.call(app);
-
-    if (dataToExport.length === 0) {
-        app.showNotification("Nessun dato da esportare per il periodo selezionato.");
-        return;
-    }
-
-    const filename = `virtualstation_${app.formatDateForFilename(new Date())}.json`;
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    app.showNotification('Dati esportati con successo.');
-}
-// Fine funzione exportVirtualData
+// INIZIO MODIFICA: Rimosse le funzioni handleFileUpload, processMonthlyReport, exportVirtualData
+// Fine delle funzioni rimosse
+// FINE MODIFICA
 
 // Inizio funzione setupVirtualFormEventListeners
 function setupVirtualFormEventListeners() {
@@ -809,13 +698,10 @@ function formatVirtualProductColumn(turno, product) {
         const fdt = Math.round(turno.fdt?.[product] || 0);
         const serv = Math.round(turno.servito?.[product] || 0);
         const pay = Math.round(turno.prepay?.[product] || 0);
-        // INIZIO MODIFICA: Rimossa la "L"
         if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(serv)}</div>`;
         return `<div class="text-xs">FDT: ${app.formatInteger(fdt)}</div><div class="text-xs">SERV: ${app.formatInteger(serv)}</div><div class="text-xs">PAY: ${app.formatInteger(pay)}</div>`;
-        // FINE MODIFICA
     }
 
-    // INIZIO MODIFICA: Mostra sia Prepay che Servito per i turni normali e rimuove la "L"
     const servito = Math.round(turno.servito?.[product] || 0);
     const prepay = Math.round(turno.prepay?.[product] || 0);
 
@@ -832,7 +718,6 @@ function formatVirtualProductColumn(turno, product) {
     }
 
     return parts.length > 0 ? parts.join('') : '-';
-    // FINE MODIFICA
 }
 // Fine funzione formatVirtualProductColumn
 
