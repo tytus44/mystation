@@ -314,14 +314,46 @@ function setupInlineFormEventListeners() {
         const isClienteRelated = newCategory === 'accredito_cliente' || newCategory === 'addebito_cliente';
         clientContainer?.classList.toggle('hidden', !isClienteRelated);
     });
+
+    // INIZIO MODIFICA: Aggiunto listener per il cambio data per filtrare i risultati
+    container.querySelector('#inline-op-date')?.addEventListener('change', (e) => {
+        cassaState.operazioneForm.date = e.target.value;
+        renderCassaSection.call(app, container);
+    });
+    // FINE MODIFICA
 }
 // Fine funzione setupInlineFormEventListeners
 
 
 // === FUNZIONI DATI E STATO ===
+// INIZIO MODIFICA: Nuova funzione per filtrare le operazioni in base alla data del form
+// Inizio funzione getFilteredCassaEntries
+function getFilteredCassaEntries() {
+    const app = this;
+    const allEntries = app.state.data.cassaEntries || [];
+    const filterDateStr = cassaState.operazioneForm.date;
+
+    if (!filterDateStr || !app.validateItalianDate(filterDateStr)) {
+        return [];
+    }
+
+    const filterDate = app.parseItalianDate(filterDateStr);
+    filterDate.setHours(0, 0, 0, 0);
+
+    return allEntries.filter(entry => {
+        const entryDate = new Date(entry.date);
+        entryDate.setHours(0, 0, 0, 0);
+        return entryDate.getTime() === filterDate.getTime();
+    });
+}
+// Fine funzione getFilteredCassaEntries
+// FINE MODIFICA
+
 // Inizio funzione getCassaStats
 function getCassaStats() {
-    const entries = this.state.data.cassaEntries || [];
+    // INIZIO MODIFICA: La funzione ora calcola le statistiche solo sulle operazioni filtrate
+    const entries = getFilteredCassaEntries.call(this);
+    // FINE MODIFICA
     const stats = {
         totalEntrate: 0,
         totalUscite: 0,
@@ -343,7 +375,9 @@ function getCassaStats() {
 
 // Inizio funzione getSortedCassaEntries
 function getSortedCassaEntries() {
-    const entries = [...(this.state.data.cassaEntries || [])];
+    // INIZIO MODIFICA: La funzione ora ordina solo le operazioni già filtrate per data
+    const entries = getFilteredCassaEntries.call(this);
+    // FINE MODIFICA
     return entries.sort((a, b) => {
         const dir = cassaState.cassaSort.direction === 'asc' ? 1 : -1;
         if (cassaState.cassaSort.column === 'date') {
