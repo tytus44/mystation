@@ -65,7 +65,6 @@ function renderVirtualListView(container) {
 
     const stats = virtualStats.call(app);
     
-    // INIZIO MODIFICA: Aggiunto stile con colori di sfondo e bordo alle stat cards
     container.innerHTML = `
         <div class="space-y-6">
             <div class="filters-bar no-print">
@@ -76,11 +75,12 @@ function renderVirtualListView(container) {
                     <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Ultimo Semestre</button>
                     <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Ultimo Anno</button>
                 </div></div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Nuovo Turno</button>
+                <div class="flex items-center space-x-2">
+                    <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
+                    <button id="new-mese-btn" class="btn btn-primary"><i data-lucide="calendar"></i> Mese</button>
                     <button id="import-btn" class="btn btn-secondary" title="Importa Riepilogo Mensile"><i data-lucide="upload" style="margin-right: 0;"></i></button>
                     <button id="export-btn" class="btn btn-secondary" title="Esporta Turni Visualizzati"><i data-lucide="download" style="margin-right: 0;"></i></button>
-                    <button id="print-virtual-btn" class="btn btn-secondary"><i data-lucide="printer"></i> Stampa Periodo</button>
+                    <button id="print-virtual-btn" class="btn btn-secondary" title="Stampa Periodo"><i data-lucide="printer" style="margin-right: 0;"></i></button>
                 </div>
             </div>
             <div class="stats-grid">
@@ -96,7 +96,6 @@ function renderVirtualListView(container) {
             <div class="card no-print"><div class="card-header" style="padding: 1rem 1.5rem;"><h2 class="card-title">Storico Turni</h2></div><div class="table-container"><table class="table" id="turni-table"><thead><tr><th><button data-sort="date">Data <i data-lucide="arrow-up-down"></i></button></th><th>Turno</th><th>Benzina</th><th>Gasolio</th><th>Diesel+</th><th>Hvolution</th><th>AdBlue</th><th><button data-sort="total">Totale <i data-lucide="arrow-up-down"></i></button></th><th class="text-right">Azioni</th></tr></thead><tbody id="turni-tbody"></tbody></table></div></div>
         </div>
     `;
-    // FINE MODIFICA
     renderTurniTable.call(app);
 }
 // Fine funzione renderVirtualListView
@@ -130,12 +129,83 @@ function getVirtualFormHTML() {
 }
 // Fine funzione getVirtualFormHTML
 
+// Inizio funzione getMeseFormHTML
+function getMeseFormHTML(turno = null) {
+    const isEdit = !!turno;
+    const title = isEdit ? 'Modifica Riepilogo Mensile' : 'Nuovo Riepilogo Mensile';
+    const app = getApp();
+    let dateValue = app.getTodayFormatted();
+    if (isEdit) {
+        dateValue = app.formatToItalianDate(turno.date);
+    }
+    
+    const fdt = isEdit ? turno.fdt || {} : {};
+    const prepay = isEdit ? turno.prepay || {} : {};
+    const servito = isEdit ? turno.servito || {} : {};
+
+    return `
+        <div class="card-header"><h2 class="card-title">${title}</h2></div>
+        <div class="card-body">
+            <div class="form-group" style="max-width: 20rem;">
+                <label class="form-label">Data di Riferimento</label>
+                <div class="input-group">
+                    <i data-lucide="calendar" class="input-group-icon"></i>
+                    <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
+                </div>
+            </div>
+            <div class="table-container mt-4">
+                <table class="table">
+                    <thead><tr>
+                        <th style="width: 25%;">Prodotto</th>
+                        <th style="width: 25%;">FaiDaTe</th>
+                        <th style="width: 25%;">Prepay</th>
+                        <th style="width: 25%;">Servito</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr><td class="font-medium text-primary">Gasolio</td>
+                            <td><input type="number" id="fdt-gasolio" class="form-control" step="0.01" placeholder="0" value="${fdt.gasolio || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.gasolio || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${servito.gasolio || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">Diesel+</td>
+                            <td><input type="number" id="fdt-dieselplus" class="form-control" step="0.01" placeholder="0" value="${fdt.dieselplus || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.dieselplus || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${servito.dieselplus || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">AdBlue</td>
+                            <td></td>
+                            <td></td>
+                            <td><input type="number" id="servito-adblue-mese" class="form-control" step="0.01" placeholder="0" value="${servito.adblue || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">Benzina</td>
+                            <td><input type="number" id="fdt-benzina" class="form-control" step="0.01" placeholder="0" value="${fdt.benzina || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.benzina || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${servito.benzina || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">Hvolution</td>
+                            <td><input type="number" id="fdt-hvolution" class="form-control" step="0.01" placeholder="0" value="${fdt.hvolution || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.hvolution || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${servito.hvolution || ''}" autocomplete="off"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end space-x-4 mt-4">
+                <button id="cancel-mese-btn" class="btn btn-secondary">Annulla</button>
+                <button id="save-mese-btn" class="btn btn-primary">Salva Riepilogo</button>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getMeseFormHTML
+
 // === SETUP EVENT LISTENERS VISTA LISTA ===
 // Inizio funzione setupVirtualListViewEventListeners
 function setupVirtualListViewEventListeners() {
     const app = this;
     document.querySelectorAll('[data-filter-mode]').forEach(btn => btn.addEventListener('click', () => setFilterMode.call(app, btn.getAttribute('data-filter-mode'))));
     document.getElementById('new-turno-btn')?.addEventListener('click', () => showCreateTurno());
+    document.getElementById('new-mese-btn')?.addEventListener('click', () => showCreateMeseModal());
     document.getElementById('import-btn')?.addEventListener('click', () => {
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
@@ -298,6 +368,14 @@ function setupVirtualFormEventListeners() {
 }
 // Fine funzione setupVirtualFormEventListeners
 
+// Inizio funzione setupMeseFormEventListeners
+function setupMeseFormEventListeners() {
+    const app = getApp();
+    document.getElementById('save-mese-btn')?.addEventListener('click', () => saveMese());
+    document.getElementById('cancel-mese-btn')?.addEventListener('click', () => app.hideFormModal());
+}
+// Fine funzione setupMeseFormEventListeners
+
 // Inizio funzione showCreateTurno
 function showCreateTurno() {
     const app = getApp();
@@ -311,6 +389,19 @@ function showCreateTurno() {
     app.showFormModal();
 }
 // Fine funzione showCreateTurno
+
+// Inizio funzione showCreateMeseModal
+function showCreateMeseModal() {
+    const app = getApp();
+    virtualState.editingTurno = null;
+    document.getElementById('form-modal-content').innerHTML = getMeseFormHTML();
+    const modalContent = document.querySelector('#form-modal-content');
+    if (modalContent) modalContent.classList.add('modal-wide');
+    setupMeseFormEventListeners();
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showCreateMeseModal
 
 // Inizio funzione showEditTurno
 function showEditTurno(turno) {
@@ -330,6 +421,19 @@ function showEditTurno(turno) {
     app.showFormModal();
 }
 // Fine funzione showEditTurno
+
+// Inizio funzione showEditMeseModal
+function showEditMeseModal(turno) {
+    const app = getApp();
+    virtualState.editingTurno = turno;
+    document.getElementById('form-modal-content').innerHTML = getMeseFormHTML(turno);
+    const modalContent = document.querySelector('#form-modal-content');
+    if (modalContent) modalContent.classList.add('modal-wide');
+    setupMeseFormEventListeners();
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showEditMeseModal
 
 // Inizio funzione saveTurno
 function saveTurno() {
@@ -374,6 +478,87 @@ function saveTurno() {
     safeUpdateCharts.call(app);
 }
 // Fine funzione saveTurno
+
+// Inizio funzione saveMese
+function saveMese() {
+    const app = getApp();
+    const isEdit = !!virtualState.editingTurno;
+    const dateInput = document.getElementById('mese-data-input').value;
+
+    if (!dateInput || !app.validateItalianDate(dateInput)) {
+        return app.showNotification('Formato data non valido. Usa gg.mm.aaaa.');
+    }
+
+    const parsedDate = app.parseItalianDate(dateInput);
+    const year = parsedDate.getFullYear();
+    const month = parsedDate.getMonth() + 1;
+    const lastDayOfMonth = new Date(year, month, 0);
+
+    const turnoData = {
+        date: lastDayOfMonth.toISOString(),
+        turno: 'Riepilogo Mensile',
+        fdt: {
+            benzina: parseFloat(document.getElementById('fdt-benzina').value) || 0,
+            gasolio: parseFloat(document.getElementById('fdt-gasolio').value) || 0,
+            dieselplus: parseFloat(document.getElementById('fdt-dieselplus').value) || 0,
+            hvolution: parseFloat(document.getElementById('fdt-hvolution').value) || 0,
+        },
+        prepay: {
+            benzina: parseFloat(document.getElementById('prepay-benzina-mese').value) || 0,
+            gasolio: parseFloat(document.getElementById('prepay-gasolio-mese').value) || 0,
+            dieselplus: parseFloat(document.getElementById('prepay-dieselplus-mese').value) || 0,
+            hvolution: parseFloat(document.getElementById('prepay-hvolution-mese').value) || 0,
+        },
+        servito: {
+            benzina: parseFloat(document.getElementById('servito-benzina-mese').value) || 0,
+            gasolio: parseFloat(document.getElementById('servito-gasolio-mese').value) || 0,
+            dieselplus: parseFloat(document.getElementById('servito-dieselplus-mese').value) || 0,
+            hvolution: parseFloat(document.getElementById('servito-hvolution-mese').value) || 0,
+            adblue: parseFloat(document.getElementById('servito-adblue-mese').value) || 0,
+        }
+    };
+
+    const saveAction = () => {
+        if (isEdit) {
+            const updatedTurno = { ...virtualState.editingTurno, ...turnoData };
+            const index = app.state.data.turni.findIndex(t => t.id === updatedTurno.id);
+            if (index > -1) {
+                app.state.data.turni[index] = updatedTurno;
+            }
+            app.showNotification('Riepilogo mensile aggiornato con successo!');
+        } else {
+            const newTurno = {
+                id: `riepilogo_${year}-${String(month).padStart(2, '0')}`,
+                ...turnoData,
+                createdAt: new Date().toISOString()
+            };
+            const existingIndex = app.state.data.turni.findIndex(t => t.id === newTurno.id);
+            if (existingIndex > -1) {
+                app.state.data.turni[existingIndex] = newTurno;
+            } else {
+                app.state.data.turni.push(newTurno);
+            }
+            app.showNotification('Riepilogo mensile salvato con successo!');
+        }
+        
+        app.saveToStorage('data', app.state.data);
+        app.hideFormModal();
+        virtualState.editingTurno = null;
+        renderTurniTable.call(app);
+        renderVirtualStats.call(app);
+        safeUpdateCharts.call(app);
+    };
+    
+    const newId = `riepilogo_${year}-${String(month).padStart(2, '0')}`;
+    const existingTurno = app.state.data.turni.find(t => t.id === newId);
+
+    if (!isEdit && existingTurno) {
+        app.showConfirm('Un riepilogo per questo mese esiste già. Vuoi sovrascriverlo?', saveAction);
+    } else {
+        saveAction();
+    }
+}
+// Fine funzione saveMese
 
 // Inizio funzione deleteTurno
 function deleteTurno(turnoId) {
@@ -606,11 +791,11 @@ function renderTurniTable() {
             const isRiepilogo = turno.turno === 'Riepilogo Mensile';
             let actionsHTML = '';
             if (isRiepilogo) {
-                actionsHTML = `<div class="flex items-center justify-end"><button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina riepilogo"><i data-lucide="trash-2"></i></button></div>`;
+                actionsHTML = `<div class="flex items-center justify-end space-x-2"><button class="btn btn-success" onclick="editTurnoById('${turno.id}')" title="Modifica riepilogo"><i data-lucide="edit"></i></button><button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina riepilogo"><i data-lucide="trash-2"></i></button></div>`;
             } else {
                 actionsHTML = `<div class="flex items-center justify-end space-x-2"><button class="btn btn-success" onclick="editTurnoById('${turno.id}')" title="Modifica turno"><i data-lucide="edit"></i></button><button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina turno"><i data-lucide="trash-2"></i></button></div>`;
             }
-            return `<tr class="hover:bg-secondary"><td class="font-medium text-primary">${app.formatDate(turno.date)}</td><td>${turno.turno}</td><td>${formatVirtualProductColumn.call(app, turno, 'benzina')}</td><td>${formatVirtualProductColumn.call(app, turno, 'gasolio')}</td><td>${formatVirtualProductColumn.call(app, turno, 'dieselplus')}</td><td>${formatVirtualProductColumn.call(app, turno, 'hvolution')}</td><td>${formatVirtualProductColumn.call(app, turno, 'adblue')}</td><td class="font-bold">${app.formatInteger(turno.total)} L</td><td class="text-right">${actionsHTML}</td></tr>`;
+            return `<tr class="hover:bg-secondary"><td class="font-medium text-primary">${app.formatDate(turno.date)}</td><td>${turno.turno}</td><td>${formatVirtualProductColumn.call(app, turno, 'benzina')}</td><td>${formatVirtualProductColumn.call(app, turno, 'gasolio')}</td><td>${formatVirtualProductColumn.call(app, turno, 'dieselplus')}</td><td>${formatVirtualProductColumn.call(app, turno, 'hvolution')}</td><td>${formatVirtualProductColumn.call(app, turno, 'adblue')}</td><td class="font-bold">${app.formatInteger(turno.total)}</td><td class="text-right">${actionsHTML}</td></tr>`;
         }).join('');
     }
     app.refreshIcons();
@@ -624,16 +809,30 @@ function formatVirtualProductColumn(turno, product) {
         const fdt = Math.round(turno.fdt?.[product] || 0);
         const serv = Math.round(turno.servito?.[product] || 0);
         const pay = Math.round(turno.prepay?.[product] || 0);
-        if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(serv)} L</div>`;
-        return `<div class="text-xs">FDT: ${app.formatInteger(fdt)} L</div><div class="text-xs">SERV: ${app.formatInteger(serv)} L</div><div class="text-xs">PAY: ${app.formatInteger(pay)} L</div>`;
+        // INIZIO MODIFICA: Rimossa la "L"
+        if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(serv)}</div>`;
+        return `<div class="text-xs">FDT: ${app.formatInteger(fdt)}</div><div class="text-xs">SERV: ${app.formatInteger(serv)}</div><div class="text-xs">PAY: ${app.formatInteger(pay)}</div>`;
+        // FINE MODIFICA
     }
+
+    // INIZIO MODIFICA: Mostra sia Prepay che Servito per i turni normali e rimuove la "L"
     const servito = Math.round(turno.servito?.[product] || 0);
     const prepay = Math.round(turno.prepay?.[product] || 0);
-    const turnoTipo = turno.turno;
-    if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(servito)} L</div>`;
-    if (['Notte', 'Pausa', 'Weekend'].includes(turnoTipo)) return `<div class="text-xs">PAY: ${app.formatInteger(prepay)} L</div>`;
-    if (['Mattina', 'Pomeriggio'].includes(turnoTipo)) return `<div class="text-xs">SERV: ${app.formatInteger(servito)} L</div>`;
-    return '-';
+
+    if (product === 'adblue') {
+        return servito > 0 ? `<div class="text-xs">SERV: ${app.formatInteger(servito)}</div>` : '-';
+    }
+
+    const parts = [];
+    if (prepay > 0) {
+        parts.push(`<div class="text-xs">PAY: ${app.formatInteger(prepay)}</div>`);
+    }
+    if (servito > 0) {
+        parts.push(`<div class="text-xs">SERV: ${app.formatInteger(servito)}</div>`);
+    }
+
+    return parts.length > 0 ? parts.join('') : '-';
+    // FINE MODIFICA
 }
 // Fine funzione formatVirtualProductColumn
 
@@ -1066,13 +1265,27 @@ function showSkeletonLoader(container) {
 }
 // Fine funzione showSkeletonLoader
 
+// Inizio funzione editTurnoByIdRouter
+function editTurnoByIdRouter(id) {
+    const app = getApp();
+    const turno = app.state.data.turni.find(t => t.id === id);
+    if (!turno) return;
+
+    if (turno.turno === 'Riepilogo Mensile') {
+        showEditMeseModal(turno);
+    } else {
+        showEditTurno(turno);
+    }
+}
+// Fine funzione editTurnoByIdRouter
+
 // === ESPORTAZIONI GLOBALI ===
 if (typeof window !== 'undefined') {
     window.initVirtualStation = initVirtualStation;
     window.renderVirtualSection = renderVirtualSection;
     window.onVirtualSectionOpen = onVirtualSectionOpen;
     window.updateChartsTheme = updateChartsTheme;
-    window.editTurnoById = (id) => { const turno = getApp().state.data.turni.find(t => t.id === id); if (turno) showEditTurno(turno); };
+    window.editTurnoById = editTurnoByIdRouter;
     window.deleteTurnoById = deleteTurno;
     window.virtualState = virtualState;
     window.normalizeTurniData = normalizeTurniData;
