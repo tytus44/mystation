@@ -752,7 +752,7 @@ select.form-control {
     bottom: 0.125rem;
     background-color: white;
     transition: 0.3s;
-    border-radius: 50%;
+    border-radius: var(--radius-md);
 }
 
 .switch input:checked + .switch-slider {
