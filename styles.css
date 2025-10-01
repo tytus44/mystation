@@ -740,7 +740,7 @@ select.form-control {
     bottom: 0;
     background-color: var(--bg-tertiary);
     transition: 0.3s;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-md);
 }
 
 .switch-slider:before {
