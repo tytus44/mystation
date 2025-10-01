@@ -138,7 +138,11 @@ function renderCassaTable() {
 // Inizio funzione getInlineFormHTML
 function getInlineFormHTML(app) {
     const { type, category, clientId, date, amount, description } = cassaState.operazioneForm;
-    const clients = app.state.data.clients || [];
+    
+    // INIZIO MODIFICA: Viene creata una copia ordinata alfabeticamente dell'array dei clienti
+    const allClients = app.state.data.clients || [];
+    const clients = [...allClients].sort((a, b) => a.name.localeCompare(b.name, 'it'));
+    // FINE MODIFICA
 
     const categorie = getCategorie();
     const isClienteRelated = category === 'accredito_cliente' || category === 'addebito_cliente';
@@ -315,18 +319,15 @@ function setupInlineFormEventListeners() {
         clientContainer?.classList.toggle('hidden', !isClienteRelated);
     });
 
-    // INIZIO MODIFICA: Aggiunto listener per il cambio data per filtrare i risultati
     container.querySelector('#inline-op-date')?.addEventListener('change', (e) => {
         cassaState.operazioneForm.date = e.target.value;
         renderCassaSection.call(app, container);
     });
-    // FINE MODIFICA
 }
 // Fine funzione setupInlineFormEventListeners
 
 
 // === FUNZIONI DATI E STATO ===
-// INIZIO MODIFICA: Nuova funzione per filtrare le operazioni in base alla data del form
 // Inizio funzione getFilteredCassaEntries
 function getFilteredCassaEntries() {
     const app = this;
@@ -347,13 +348,10 @@ function getFilteredCassaEntries() {
     });
 }
 // Fine funzione getFilteredCassaEntries
-// FINE MODIFICA
 
 // Inizio funzione getCassaStats
 function getCassaStats() {
-    // INIZIO MODIFICA: La funzione ora calcola le statistiche solo sulle operazioni filtrate
     const entries = getFilteredCassaEntries.call(this);
-    // FINE MODIFICA
     const stats = {
         totalEntrate: 0,
         totalUscite: 0,
@@ -375,9 +373,7 @@ function getCassaStats() {
 
 // Inizio funzione getSortedCassaEntries
 function getSortedCassaEntries() {
-    // INIZIO MODIFICA: La funzione ora ordina solo le operazioni già filtrate per data
     const entries = getFilteredCassaEntries.call(this);
-    // FINE MODIFICA
     return entries.sort((a, b) => {
         const dir = cassaState.cassaSort.direction === 'asc' ? 1 : -1;
         if (cassaState.cassaSort.column === 'date') {
@@ -493,7 +489,6 @@ function deleteOperazioneById(opId) {
 
 // Inizio funzione getCategorie
 function getCategorie() {
-    // INIZIO MODIFICA: Aggiornamento delle categorie come richiesto
     return {
         entrata: {
             accredito_cliente: 'Accredito Cliente',
@@ -511,7 +506,6 @@ function getCategorie() {
             altra_uscita: 'Altra Uscita'
         }
     };
-    // FINE MODIFICA
 }
 // Fine funzione getCategorie
 
