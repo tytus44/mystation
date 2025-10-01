@@ -21,6 +21,7 @@ function initInfo() {
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     
+    // INIZIO MODIFICA: Aggiunti colori alle icone delle card per migliorare l'estetica
     container.innerHTML = `
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-primary">Informazioni Utili</h1>
@@ -32,7 +33,7 @@ function renderInfoSection(container) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Enilive</h3>
-                    <i data-lucide="fuel"></i>
+                    <i data-lucide="fuel" style="color: var(--color-success);"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -49,7 +50,7 @@ function renderInfoSection(container) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Multicard</h3>
-                    <i data-lucide="credit-card"></i>
+                    <i data-lucide="credit-card" style="color: var(--color-warning);"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -62,7 +63,7 @@ function renderInfoSection(container) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Servizi Esterni</h3>
-                    <i data-lucide="briefcase"></i>
+                    <i data-lucide="briefcase" style="color: var(--color-info);"></i>
                 </div>
                 <div class="card-body">
                      <ul class="info-list">
@@ -77,7 +78,7 @@ function renderInfoSection(container) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Banche</h3>
-                    <i data-lucide="landmark"></i>
+                    <i data-lucide="landmark" style="color: var(--color-primary);"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -91,7 +92,7 @@ function renderInfoSection(container) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Enti e Dogane</h3>
-                    <i data-lucide="building-2"></i>
+                    <i data-lucide="building-2" style="color: var(--text-secondary);"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -103,7 +104,7 @@ function renderInfoSection(container) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Numeri Utili</h3>
-                    <i data-lucide="phone"></i>
+                    <i data-lucide="phone" style="color: var(--color-danger);"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -117,6 +118,7 @@ function renderInfoSection(container) {
 
         </div>
     `;
+    // FINE MODIFICA
 
     // Setup event listeners
     setupInfoEventListeners.call(this);

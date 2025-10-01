@@ -8,7 +8,6 @@
 let anagraficaState = {
     // Filtri e Ordinamento
     searchQuery: '',
-    // MODIFICA: Rimosso lo stato per l'ordinamento
     
     // Form
     contattoForm: {
@@ -78,7 +77,6 @@ function renderContattiGrid() {
 
 // Inizio funzione getAnagraficaHeaderHTML
 function getAnagraficaHeaderHTML(app) {
-    // MODIFICA: Rimosso il gruppo di pulsanti per l'ordinamento
     return `
         <div class="filters-bar">
             <div class="filter-group">
@@ -89,11 +87,14 @@ function getAnagraficaHeaderHTML(app) {
                 </div>
             </div>
             <div class="flex space-x-2">
+                <button id="new-contatto-btn" class="btn btn-primary">
+                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Contatto
+                </button>
                 <button id="export-contatti-btn" class="btn btn-secondary">
                     <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
                 </button>
-                <button id="new-contatto-btn" class="btn btn-primary">
-                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Contatto
+                <button id="print-anagrafica-btn" class="btn btn-secondary">
+                    <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Stampa
                 </button>
             </div>
         </div>
@@ -250,10 +251,23 @@ function getFilteredAndSortedContatti() {
         );
     }
 
-    // MODIFICA: Rimossa tutta la logica di ordinamento
+    // Ordinamento alfabetico per cognome e poi nome
+    contatti.sort((a, b) => {
+        const cognomeA = a.cognome?.toLowerCase() || '';
+        const cognomeB = b.cognome?.toLowerCase() || '';
+        const nomeA = a.nome?.toLowerCase() || '';
+        const nomeB = b.nome?.toLowerCase() || '';
+        if (cognomeA < cognomeB) return -1;
+        if (cognomeA > cognomeB) return 1;
+        if (nomeA < nomeB) return -1;
+        if (nomeA > nomeB) return 1;
+        return 0;
+    });
+
     return contatti;
 }
 // Fine funzione getFilteredAndSortedContatti
+
 
 // === EVENT LISTENERS ===
 
@@ -267,13 +281,14 @@ function setupAnagraficaEventListeners() {
     container.addEventListener('click', (e) => {
         const newContattoBtn = e.target.closest('#new-contatto-btn');
         const exportBtn = e.target.closest('#export-contatti-btn');
+        const printBtn = e.target.closest('#print-anagrafica-btn');
         const editBtn = e.target.closest('.edit-contatto-btn');
         const deleteBtn = e.target.closest('.delete-contatto-btn');
         const bulkDeleteBtn = e.target.closest('#bulk-delete-btn');
-        // MODIFICA: Rimossa la variabile e la logica per i pulsanti di ordinamento
-
+        
         if (newContattoBtn) openContattoModal.call(app);
         if (exportBtn) exportAnagraficaToCSV.call(app);
+        if (printBtn) printAnagrafica.call(app);
         if (editBtn) editContatto.call(app, editBtn.dataset.id);
         if (deleteBtn) deleteContatto.call(app, deleteBtn.dataset.id);
         
@@ -588,7 +603,67 @@ function closeCustomModal() {
 }
 // Fine funzione closeCustomModal
 
-// === FUNZIONI EXPORT ===
+// === FUNZIONI EXPORT E STAMPA ===
+
+// Inizio funzione printAnagrafica
+function printAnagrafica() {
+    const app = getApp();
+    const contatti = getFilteredAndSortedContatti.call(app);
+
+    if (contatti.length === 0) {
+        return app.showNotification("Nessun contatto da stampare.");
+    }
+
+    const dateElement = document.getElementById('print-anagrafica-date');
+    if (dateElement) {
+        dateElement.textContent = `Elenco del ${app.formatDateForFilename()}`;
+    }
+    
+    const printList = document.getElementById('print-anagrafica-list');
+    
+    // INIZIO MODIFICA: Aggiunto controllo per verificare l'esistenza dell'elemento prima di usarlo
+    if (!printList) {
+        console.error("Elemento 'print-anagrafica-list' non trovato nel DOM.");
+        return; // Esce dalla funzione per prevenire l'errore
+    }
+    // FINE MODIFICA
+    
+    let html = '';
+    for (let i = 0; i < contatti.length; i += 3) {
+        const c1 = contatti[i];
+        const c2 = contatti[i + 1];
+        const c3 = contatti[i + 2];
+        
+        html += `
+            <tr>
+                <td>${c1 ? `${c1.cognome} ${c1.nome}`.trim() : ''}</td>
+                <td>${c1 ? c1.telefono1 || '' : ''}</td>
+                <td>${c2 ? `${c2.cognome} ${c2.nome}`.trim() : ''}</td>
+                <td>${c2 ? c2.telefono1 || '' : ''}</td>
+                <td>${c3 ? `${c3.cognome} ${c3.nome}`.trim() : ''}</td>
+                <td>${c3 ? c3.telefono1 || '' : ''}</td>
+            </tr>
+        `;
+    }
+    printList.innerHTML = html;
+
+    // Nasconde le altre sezioni di stampa
+    document.getElementById('print-content').classList.add('hidden');
+    document.getElementById('print-clients-content').classList.add('hidden');
+    document.getElementById('virtual-print-content').classList.add('hidden');
+    
+    // Mostra la sezione di stampa anagrafica
+    const printContentEl = document.getElementById('print-anagrafica-content');
+    printContentEl.classList.remove('hidden');
+
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+            printContentEl.classList.add('hidden');
+        }, 100);
+    }, 100);
+}
+// Fine funzione printAnagrafica
 
 // Inizio funzione exportAnagraficaToCSV
 function exportAnagraficaToCSV() {
