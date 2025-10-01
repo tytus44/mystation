@@ -7,7 +7,10 @@
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
 let impostazioniState = {
     isFullscreen: false,
-    isSidebarCollapsed: false
+    isSidebarCollapsed: false,
+    // INIZIO MODIFICA: Aggiunto stato per la gestione dell'arrotondamento
+    borderRadius: 'medium'
+    // FINE MODIFICA
 };
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
@@ -15,6 +18,11 @@ let impostazioniState = {
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
     impostazioniState.isSidebarCollapsed = this.loadFromStorage('isSidebarCollapsed', false);
+    
+    // INIZIO MODIFICA: Caricamento e applicazione dell'impostazione di arrotondamento
+    impostazioniState.borderRadius = this.loadFromStorage('borderRadius', 'medium');
+    updateBorderRadius();
+    // FINE MODIFICA
     
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
@@ -29,6 +37,7 @@ function initImpostazioni() {
 // Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML() {
     const app = getApp();
+    // INIZIO MODIFICA: Aggiunto selettore per arrotondamento e rimossa intestazione
     return `
         <div class="card-header">
             <h2 class="card-title">Impostazioni</h2>
@@ -60,6 +69,22 @@ function getImpostazioniModalHTML() {
                         <span class="switch-slider"></span>
                     </label>
                 </div>
+
+                <div class="flex items-center justify-between w-full">
+                    <span class="font-medium text-primary">Arrotondamento</span>
+                    <div class="btn-group">
+                        <button class="btn ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}" data-radius="none" title="Nessuno">
+                            <i data-lucide="square"></i>
+                        </button>
+                        <button class="btn ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}" data-radius="medium" title="Medio">
+                            <i data-lucide="rectangle-horizontal"></i>
+                        </button>
+                        <button class="btn ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}" data-radius="high" title="Elevato">
+                            <i data-lucide="circle"></i>
+                        </button>
+                    </div>
+                </div>
+
             </div>
             
             <div class="border-t border-primary pt-6">
@@ -96,6 +121,7 @@ function getImpostazioniModalHTML() {
             </div>
         </div>
     `;
+    // FINE MODIFICA
 }
 // Fine funzione getImpostazioniModalHTML
 
@@ -138,6 +164,23 @@ function setupImpostazioniEventListeners() {
         if (target.closest('#close-impostazioni-btn')) {
             app.hideFormModal();
         }
+        // INIZIO MODIFICA: Aggiunto handler per i pulsanti di arrotondamento
+        const radiusBtn = target.closest('[data-radius]');
+        if (radiusBtn) {
+            const newRadius = radiusBtn.dataset.radius;
+            impostazioniState.borderRadius = newRadius;
+            app.saveToStorage('borderRadius', newRadius);
+            updateBorderRadius();
+
+            // Aggiorna lo stato attivo dei pulsanti
+            modalContent.querySelectorAll('[data-radius]').forEach(btn => {
+                const isActive = btn.dataset.radius === newRadius;
+                btn.classList.toggle('btn-primary', isActive);
+                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('btn-secondary', !isActive);
+            });
+        }
+        // FINE MODIFICA
     });
 
     // Listener per gli input (toggle e file)
@@ -162,6 +205,15 @@ function setupImpostazioniEventListeners() {
 // FINE MODIFICA
 
 // === FUNZIONI TEMA E DISPLAY ===
+// INIZIO MODIFICA: Nuova funzione per applicare l'arrotondamento
+// Inizio funzione updateBorderRadius
+function updateBorderRadius() {
+    const radius = impostazioniState.borderRadius || 'medium';
+    document.documentElement.setAttribute('data-theme-radius', radius);
+}
+// Fine funzione updateBorderRadius
+// FINE MODIFICA
+
 // Inizio funzione toggleSidebarCollapse
 function toggleSidebarCollapse() {
     impostazioniState.isSidebarCollapsed = !impostazioniState.isSidebarCollapsed;
@@ -334,7 +386,9 @@ function resetAllData() {
     };
     this.saveToStorage('data', this.state.data);
     
-    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeTodos'];
+    // INIZIO MODIFICA: Aggiunta la chiave 'borderRadius' all'elenco da rimuovere
+    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeTodos', 'borderRadius'];
+    // FINE MODIFICA
     keysToRemove.forEach(key => localStorage.removeItem(`mystation_${key}`));
     
     this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
