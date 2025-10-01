@@ -16,11 +16,6 @@ let amministrazioneState = {
     adminSort: { column: 'name', direction: 'asc' },
     newClientName: '',
     
-    // MODIFICA: Rimosso lo stato per la riga espandibile e per la modifica separata del cliente
-    // expandedClientId: null,
-    // editingClient: null,
-    // editClientName: '',
-    
     transactionForm: { description: 'Carburante', amount: null }
 };
 // Fine funzione amministrazioneState
@@ -151,14 +146,12 @@ function renderAmministrazioneListView(container) {
         </div>
     `;
     
-    // Render tabella clienti
     renderClientsTable.call(app);
 }
 // Fine funzione renderAmministrazioneListView
 
 // Inizio funzione getAmministrazioneFormHTML
 function getAmministrazioneFormHTML() {
-    // MODIFICA: Questa funzione ora serve solo per creare un nuovo cliente.
     const title = 'Nuovo Cliente';
     const clientName = amministrazioneState.newClientName;
 
@@ -181,7 +174,7 @@ function getAmministrazioneFormHTML() {
 }
 // Fine funzione getAmministrazioneFormHTML
 
-// NUOVO: Inizio funzione getClientModalHTML
+// Inizio funzione getClientModalHTML
 function getClientModalHTML(client) {
     const app = getApp();
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
@@ -382,7 +375,9 @@ function showCreateClient() {
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getAmministrazioneFormHTML();
     
-    modalContentEl.classList.add('modal-wide');
+    // INIZIO MODIFICA: La classe 'modal-wide' è stata rimossa per ridurre la larghezza del modale
+    // modalContentEl.classList.add('modal-wide');
+    // FINE MODIFICA
     
     setupAmministrazioneFormEventListeners.call(app);
     app.refreshIcons();
@@ -391,8 +386,7 @@ function showCreateClient() {
 }
 // Fine funzione showCreateClient
 
-// MODIFICA: La funzione showEditClient non è più necessaria.
-// NUOVO: Inizio funzione showClientModal
+// Inizio funzione showClientModal
 function showClientModal(clientId) {
     const app = this;
     const client = app.state.data.clients.find(c => c.id === clientId);
@@ -410,8 +404,6 @@ function showClientModal(clientId) {
     app.showFormModal();
 }
 // Fine funzione showClientModal
-
-// MODIFICA: Funzione toggleClientExpansion non più necessaria e rimossa.
 
 // === FUNZIONI ORDINAMENTO E FILTRI ===
 
@@ -535,9 +527,6 @@ function addNewClient() {
 }
 // Fine funzione addNewClient
 
-// INIZIO MODIFICA: Funzione rimossa in quanto il nome non è più modificabile dal modale
-// Fine funzione updateClientNameFromModal
-
 // Inizio funzione deleteClient
 function deleteClient(clientId) {
     const client = this.state.data.clients.find(c => c.id === clientId);
@@ -589,10 +578,9 @@ function addTransactionInline(clientId, type) {
     
     app.saveToStorage('data', app.state.data);
     
-    // Reset form for next transaction and re-render modal
     amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
     showClientModal.call(app, clientId); 
-    renderClientsTable.call(app); // Aggiorna anche la tabella principale
+    renderClientsTable.call(app);
 }
 // Fine funzione addTransactionInline
 
@@ -613,8 +601,8 @@ function settleAccountInline(clientId) {
             });
 
             app.saveToStorage('data', app.state.data);
-            showClientModal.call(app, clientId); // Aggiorna il modale
-            renderClientsTable.call(app); // Aggiorna la tabella principale
+            showClientModal.call(app, clientId);
+            renderClientsTable.call(app);
             app.showNotification(`Conto di ${client.name} saldato con successo.`);
         }
     );
@@ -641,8 +629,8 @@ function deleteTransactionInline(clientId, transactionId) {
     });
 
     app.saveToStorage('data', app.state.data);
-    showClientModal.call(app, clientId); // Aggiorna il modale
-    renderClientsTable.call(app); // Aggiorna la tabella principale
+    showClientModal.call(app, clientId);
+    renderClientsTable.call(app);
 }
 // Fine funzione deleteTransactionInline
 
@@ -931,7 +919,6 @@ function showSkeletonLoader(container) {
 // Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ===
-// MODIFICA: Funzioni globali aggiornate per il nuovo sistema a modale
 function showClientModalById(clientId) {
     const app = getApp();
     showClientModal.call(app, clientId);
@@ -941,16 +928,6 @@ function deleteClientById(clientId) {
     const app = getApp();
     deleteClient.call(app, clientId);
 }
-
-// INIZIO MODIFICA: Rimuovo la funzione globale perché non più necessaria
-/*
-function updateClientNameFromModal(clientId) {
-    const app = getApp();
-    updateClientNameFromModal.call(app, clientId);
-}
-*/
-// FINE MODIFICA
-
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {
@@ -964,8 +941,5 @@ if (typeof window !== 'undefined') {
     window.printAccountInline = printAccountInline;
     window.toggleEditTransaction = toggleEditTransaction;
     window.saveEditTransaction = saveEditTransaction;
-    // INIZIO MODIFICA: Rimuovo export della funzione non più utilizzata
-    // window.updateClientNameFromModal = updateClientNameFromModal;
-    // FINE MODIFICA
     window.amministrazioneState = amministrazioneState;
 }
