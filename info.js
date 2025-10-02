@@ -21,19 +21,18 @@ function initInfo() {
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     
-    // INIZIO MODIFICA: Aggiunto stile con colori di sfondo e bordo alle card
     container.innerHTML = `
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-primary">Informazioni Utili</h1>
             <p class="text-secondary">Una raccolta di link e contatti rapidi per le operazioni quotidiane.</p>
         </div>
 
-        <div class="grid grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <div class="card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Enilive</h3>
-                    <i data-lucide="fuel" style="color: var(--color-success);"></i>
+                    <i data-lucide="fuel"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -47,10 +46,10 @@ function renderInfoSection(container) {
                 </div>
             </div>
             
-            <div class="card" style="background-color: rgba(255, 177, 0, 0.05); border-color: rgba(255, 177, 0, 0.3);">
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Multicard</h3>
-                    <i data-lucide="credit-card" style="color: var(--color-warning);"></i>
+                    <i data-lucide="credit-card"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -60,10 +59,10 @@ function renderInfoSection(container) {
                 </div>
             </div>
 
-            <div class="card" style="background-color: rgba(111, 230, 252, 0.05); border-color: rgba(111, 230, 252, 0.3);">
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Servizi Esterni</h3>
-                    <i data-lucide="briefcase" style="color: var(--color-info);"></i>
+                    <i data-lucide="briefcase"></i>
                 </div>
                 <div class="card-body">
                      <ul class="info-list">
@@ -75,10 +74,10 @@ function renderInfoSection(container) {
                 </div>
             </div>
 
-            <div class="card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Banche</h3>
-                    <i data-lucide="landmark" style="color: var(--color-primary);"></i>
+                    <i data-lucide="landmark"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -89,10 +88,10 @@ function renderInfoSection(container) {
                 </div>
             </div>
             
-            <div class="card" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Enti e Dogane</h3>
-                    <i data-lucide="building-2" style="color: var(--text-secondary);"></i>
+                    <i data-lucide="building-2"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -101,10 +100,10 @@ function renderInfoSection(container) {
                 </div>
             </div>
 
-            <div class="card" style="background-color: rgba(255, 32, 78, 0.05); border-color: rgba(255, 32, 78, 0.3);">
+            <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Numeri Utili</h3>
-                    <i data-lucide="phone" style="color: var(--color-danger);"></i>
+                    <i data-lucide="phone"></i>
                 </div>
                 <div class="card-body">
                     <ul class="info-list">
@@ -118,7 +117,6 @@ function renderInfoSection(container) {
 
         </div>
     `;
-    // FINE MODIFICA
 
     // Setup event listeners
     setupInfoEventListeners.call(this);
