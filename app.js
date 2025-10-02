@@ -28,7 +28,6 @@ class MyStationApp {
                 contatti: [],
                 etichette: [],
                 // FINE NUOVI DATI
-                cassaEntries: [], // NUOVO DATO
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
@@ -143,7 +142,6 @@ class MyStationApp {
     // Inizio funzione initializeModules
     initializeModules() {
         if (typeof initHome === 'function') initHome.call(this);
-        if (typeof initCassa === 'function') initCassa.call(this); // NUOVO MODULO
         if (typeof initVirtualStation === 'function') initVirtualStation.call(this);
         if (typeof initAmministrazione === 'function') initAmministrazione.call(this);
         if (typeof initAnagrafica === 'function') initAnagrafica.call(this);
@@ -222,7 +220,6 @@ class MyStationApp {
         try {
             switch (section) {
                 case 'home': if (typeof renderHomeSection === 'function') renderHomeSection.call(this, sectionEl); break;
-                case 'cassa': if (typeof renderCassaSection === 'function') renderCassaSection.call(this, sectionEl); break; // NUOVO CASE
                 case 'virtual': if (typeof renderVirtualSection === 'function') renderVirtualSection.call(this, sectionEl); break;
                 case 'amministrazione': if (typeof renderAmministrazioneSection === 'function') renderAmministrazioneSection.call(this, sectionEl); break;
                 case 'anagrafica': if (typeof renderAnagraficaSection === 'function') renderAnagraficaSection.call(this, sectionEl); break;
