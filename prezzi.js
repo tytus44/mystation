@@ -55,6 +55,15 @@ function renderPrezziListView(container) {
     const app = this;
     const latestPrices = latestAppliedPrices.call(app);
     
+    // INIZIO MODIFICA: Rimossa etichetta "Iperself" e aggiunto prezzo "Servito". Corretta sintassi commenti.
+    const servitoSurcharge = 0.220; // (0.015 + 0.210) - 0.005
+    const servedPrices = {
+        benzina: latestPrices.benzina > 0 ? latestPrices.benzina + servitoSurcharge : 0,
+        gasolio: latestPrices.gasolio > 0 ? latestPrices.gasolio + servitoSurcharge : 0,
+        dieselPlus: latestPrices.dieselPlus > 0 ? latestPrices.dieselPlus + servitoSurcharge : 0,
+        hvolution: latestPrices.hvolution > 0 ? latestPrices.hvolution + servitoSurcharge : 0,
+    };
+    
     container.innerHTML = `
         <div class="space-y-6">
             
@@ -63,29 +72,36 @@ function renderPrezziListView(container) {
                 <div class="grid grid-cols-2 gap-6">
                     <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Benzina Iperself</div>
+                            <div class="stat-label">Benzina</div>
                             <div class="stat-value text-success">${app.formatCurrency(latestPrices.benzina, true)}</div>
+                            <div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.benzina, true)}</div>
                         </div>
                         <div class="stat-icon green"><i data-lucide="droplets"></i></div>
                     </div>
+                    
                     <div class="stat-card" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Gasolio Iperself</div>
+                            <div class="stat-label">Gasolio</div>
                             <div class="stat-value text-warning">${app.formatCurrency(latestPrices.gasolio, true)}</div>
+                            <div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.gasolio, true)}</div>
                         </div>
                         <div class="stat-icon yellow"><i data-lucide="droplets"></i></div>
                     </div>
+
                     <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Diesel+ Iperself</div>
+                            <div class="stat-label">Diesel+</div>
                             <div class="stat-value text-danger">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
+                            ${latestPrices.dieselPlus > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.dieselPlus, true)}</div>` : ''}
                         </div>
                         <div class="stat-icon red"><i data-lucide="droplets"></i></div>
                     </div>
+                    
                     <div class="stat-card" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Hvolution Iperself</div>
+                            <div class="stat-label">Hvolution</div>
                             <div class="stat-value text-info">${app.formatCurrency(latestPrices.hvolution, true)}</div>
+                            ${latestPrices.hvolution > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.hvolution, true)}</div>` : ''}
                         </div>
                         <div class="stat-icon blue"><i data-lucide="droplets"></i></div>
                     </div>
@@ -131,6 +147,7 @@ function renderPrezziListView(container) {
             </div>
         </div>
     `;
+    // FINE MODIFICA
     
     renderListiniTable.call(app);
     renderConcorrenzaCard.call(app);
