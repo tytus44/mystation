@@ -65,7 +65,6 @@ function renderVirtualListView(container) {
 
     const stats = virtualStats.call(app);
     
-    // INIZIO MODIFICA: Rimossi i pulsanti di import/export
     container.innerHTML = `
         <div class="space-y-6">
             <div class="filters-bar no-print">
@@ -95,7 +94,6 @@ function renderVirtualListView(container) {
             <div class="card no-print"><div class="card-header" style="padding: 1rem 1.5rem;"><h2 class="card-title">Storico Turni</h2></div><div class="table-container"><table class="table" id="turni-table"><thead><tr><th><button data-sort="date">Data <i data-lucide="arrow-up-down"></i></button></th><th>Turno</th><th>Benzina</th><th>Gasolio</th><th>Diesel+</th><th>Hvolution</th><th>AdBlue</th><th><button data-sort="total">Totale <i data-lucide="arrow-up-down"></i></button></th><th class="text-right">Azioni</th></tr></thead><tbody id="turni-tbody"></tbody></table></div></div>
         </div>
     `;
-    // FINE MODIFICA
     renderTurniTable.call(app);
 }
 // Fine funzione renderVirtualListView
@@ -129,6 +127,7 @@ function getVirtualFormHTML() {
 }
 // Fine funzione getVirtualFormHTML
 
+// INIZIO MODIFICA: Invertite le colonne "Prepay" e "Servito".
 // Inizio funzione getMeseFormHTML
 function getMeseFormHTML(turno = null) {
     const isEdit = !!turno;
@@ -158,34 +157,34 @@ function getMeseFormHTML(turno = null) {
                     <thead><tr>
                         <th style="width: 25%;">Prodotto</th>
                         <th style="width: 25%;">FaiDaTe</th>
-                        <th style="width: 25%;">Prepay</th>
                         <th style="width: 25%;">Servito</th>
+                        <th style="width: 25%;">Prepay</th>
                     </tr></thead>
                     <tbody>
                         <tr><td class="font-medium text-primary">Gasolio</td>
                             <td><input type="number" id="fdt-gasolio" class="form-control" step="0.01" placeholder="0" value="${fdt.gasolio || ''}" autocomplete="off"></td>
-                            <td><input type="number" id="prepay-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.gasolio || ''}" autocomplete="off"></td>
                             <td><input type="number" id="servito-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${servito.gasolio || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.gasolio || ''}" autocomplete="off"></td>
                         </tr>
                         <tr><td class="font-medium text-primary">Diesel+</td>
                             <td><input type="number" id="fdt-dieselplus" class="form-control" step="0.01" placeholder="0" value="${fdt.dieselplus || ''}" autocomplete="off"></td>
-                            <td><input type="number" id="prepay-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.dieselplus || ''}" autocomplete="off"></td>
                             <td><input type="number" id="servito-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${servito.dieselplus || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.dieselplus || ''}" autocomplete="off"></td>
                         </tr>
                         <tr><td class="font-medium text-primary">AdBlue</td>
                             <td></td>
-                            <td></td>
                             <td><input type="number" id="servito-adblue-mese" class="form-control" step="0.01" placeholder="0" value="${servito.adblue || ''}" autocomplete="off"></td>
+                            <td></td>
                         </tr>
                         <tr><td class="font-medium text-primary">Benzina</td>
                             <td><input type="number" id="fdt-benzina" class="form-control" step="0.01" placeholder="0" value="${fdt.benzina || ''}" autocomplete="off"></td>
-                            <td><input type="number" id="prepay-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.benzina || ''}" autocomplete="off"></td>
                             <td><input type="number" id="servito-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${servito.benzina || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.benzina || ''}" autocomplete="off"></td>
                         </tr>
                         <tr><td class="font-medium text-primary">Hvolution</td>
                             <td><input type="number" id="fdt-hvolution" class="form-control" step="0.01" placeholder="0" value="${fdt.hvolution || ''}" autocomplete="off"></td>
-                            <td><input type="number" id="prepay-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.hvolution || ''}" autocomplete="off"></td>
                             <td><input type="number" id="servito-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${servito.hvolution || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.hvolution || ''}" autocomplete="off"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -198,6 +197,7 @@ function getMeseFormHTML(turno = null) {
     `;
 }
 // Fine funzione getMeseFormHTML
+// FINE MODIFICA
 
 // === SETUP EVENT LISTENERS VISTA LISTA ===
 // Inizio funzione setupVirtualListViewEventListeners
@@ -206,8 +206,6 @@ function setupVirtualListViewEventListeners() {
     document.querySelectorAll('[data-filter-mode]').forEach(btn => btn.addEventListener('click', () => setFilterMode.call(app, btn.getAttribute('data-filter-mode'))));
     document.getElementById('new-turno-btn')?.addEventListener('click', () => showCreateTurno());
     document.getElementById('new-mese-btn')?.addEventListener('click', () => showCreateMeseModal());
-    // INIZIO MODIFICA: Rimossi i listener per i pulsanti di import/export
-    // FINE MODIFICA
     document.getElementById('print-virtual-btn')?.addEventListener('click', () => printVirtualReport.call(app));
     document.querySelectorAll('#turni-table [data-sort]').forEach(btn => btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort'))));
     document.querySelectorAll('[data-trend-tab]').forEach(btn => btn.addEventListener('click', () => setTrendChartTab.call(app, btn.dataset.trendTab)));
@@ -217,10 +215,6 @@ function setupVirtualListViewEventListeners() {
     document.getElementById('chart-back-btn')?.addEventListener('click', () => handleChartDrilldown.call(app, null));
 }
 // Fine funzione setupVirtualListViewEventListeners
-
-// INIZIO MODIFICA: Rimosse le funzioni handleFileUpload, processMonthlyReport, exportVirtualData
-// Fine delle funzioni rimosse
-// FINE MODIFICA
 
 // Inizio funzione setupVirtualFormEventListeners
 function setupVirtualFormEventListeners() {
