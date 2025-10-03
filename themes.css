@@ -1,106 +1,174 @@
 /* =============================================
    File: themes.css
-   Descrizione: Stili per i temi colorati aggiuntivi
-   dell'applicazione MyStation.
+   Descrizione: Temi colorati moderni e accattivanti
+   per l'applicazione MyStation.
    ============================================= */
 
-/* --- TEMA VIOLA --- */
+/* --- TEMA VIOLA (Purple Dream) --- */
 /* Inizio Tema Viola */
 
 /* Light Mode Viola */
 html[data-color-theme="viola"] body.theme-light {
-    --color-primary: #7c3aed;
-    --color-primary-hover: #6d28d9;
-    --bg-primary: #f5f3ff;
-    --bg-secondary: #ede9fe;
-    --bg-tertiary: #ddd6fe;
-    --bg-body: #f5f3ff;
-    --border-primary: #dcd7f5;
-    --border-secondary: #c4b5fd;
-    --text-primary: #2c2144;
-    --text-secondary: #5b5171;
+    --color-primary: #8b5cf6;
+    --color-primary-hover: #7c3aed;
+    --bg-primary: #faf5ff;
+    --bg-secondary: #f3e8ff;
+    --bg-tertiary: #e9d5ff;
+    --bg-body: #fdfbff;
+    --border-primary: #e9d5ff;
+    --border-secondary: #d8b4fe;
+    --text-primary: #1e1433;
+    --text-secondary: #6b21a8;
 }
 
 /* Dark Mode Viola */
 html[data-color-theme="viola"] body.theme-dark {
     --color-primary: #a78bfa;
     --color-primary-hover: #c4b5fd;
-    --bg-primary: #231e33;
-    --bg-secondary: #1a1627;
-    --bg-tertiary: #342c4b;
-    --bg-body: #1a1627;
-    --border-primary: #3c3456;
-    --border-secondary: #4a416a;
-    --text-primary: #e6e0fb;
-    --text-secondary: #ada4c5;
+    --bg-primary: #1e1b29;
+    --bg-secondary: #131018;
+    --bg-tertiary: #2e2541;
+    --bg-body: #0f0d15;
+    --border-primary: #3b3354;
+    --border-secondary: #4c4063;
+    --text-primary: #f3e8ff;
+    --text-secondary: #c4b5fd;
 }
 
 /* Fine Tema Viola */
 
 
-/* --- TEMA AZZURRO --- */
+/* --- TEMA AZZURRO (Ocean Breeze) --- */
 /* Inizio Tema Azzurro */
 
 /* Light Mode Azzurro */
 html[data-color-theme="azzurro"] body.theme-light {
-    --color-primary: #0ea5e9;
-    --color-primary-hover: #0284c7;
-    --bg-primary: #f0f9ff;
-    --bg-secondary: #e0f2fe;
-    --bg-tertiary: #bae6fd;
-    --bg-body: #f0f9ff;
-    --border-primary: #d8eefc;
-    --border-secondary: #bce3fb;
-    --text-primary: #1f313b;
-    --text-secondary: #4b626f;
+    --color-primary: #06b6d4;
+    --color-primary-hover: #0891b2;
+    --bg-primary: #f0fdff;
+    --bg-secondary: #cffafe;
+    --bg-tertiary: #a5f3fc;
+    --bg-body: #f8fcff;
+    --border-primary: #a5f3fc;
+    --border-secondary: #67e8f9;
+    --text-primary: #0c3545;
+    --text-secondary: #155e75;
 }
 
 /* Dark Mode Azzurro */
 html[data-color-theme="azzurro"] body.theme-dark {
-    --color-primary: #38bdf8;
-    --color-primary-hover: #7dd3fc;
-    --bg-primary: #1c2a38;
-    --bg-secondary: #121e29;
-    --bg-tertiary: #2a4155;
-    --bg-body: #121e29;
-    --border-primary: #344a5e;
-    --border-secondary: #425c72;
-    --text-primary: #e2f1f9;
-    --text-secondary: #a3c2d3;
+    --color-primary: #22d3ee;
+    --color-primary-hover: #67e8f9;
+    --bg-primary: #0a2330;
+    --bg-secondary: #051824;
+    --bg-tertiary: #164e63;
+    --bg-body: #020d14;
+    --border-primary: #155e75;
+    --border-secondary: #0e7490;
+    --text-primary: #ecfeff;
+    --text-secondary: #67e8f9;
 }
 
 /* Fine Tema Azzurro */
 
 
-/* --- TEMA VERDE --- */
+/* --- TEMA VERDE (Forest Emerald) --- */
 /* Inizio Tema Verde */
 
 /* Light Mode Verde */
 html[data-color-theme="verde"] body.theme-light {
-    --color-primary: #16a34a;
-    --color-primary-hover: #15803d;
-    --bg-primary: #f0fdf4;
-    --bg-secondary: #dcfce7;
-    --bg-tertiary: #bbf7d0;
-    --bg-body: #f0fdf4;
-    --border-primary: #d8f7e2;
-    --border-secondary: #c5f2d3;
-    --text-primary: #1c3323;
-    --text-secondary: #3f6049;
+    --color-primary: #10b981;
+    --color-primary-hover: #059669;
+    --bg-primary: #f0fdf5;
+    --bg-secondary: #d1fae5;
+    --bg-tertiary: #a7f3d0;
+    --bg-body: #f7fef9;
+    --border-primary: #a7f3d0;
+    --border-secondary: #6ee7b7;
+    --text-primary: #064e3b;
+    --text-secondary: #047857;
 }
 
 /* Dark Mode Verde */
 html[data-color-theme="verde"] body.theme-dark {
-    --color-primary: #4ade80;
-    --color-primary-hover: #86efac;
-    --bg-primary: #1a2e23;
-    --bg-secondary: #112018;
-    --bg-tertiary: #274b36;
-    --bg-body: #112018;
-    --border-primary: #315a42;
-    --border-secondary: #3f7154;
-    --text-primary: #dff9e8;
-    --text-secondary: #a6d7b7;
+    --color-primary: #34d399;
+    --color-primary-hover: #6ee7b7;
+    --bg-primary: #0a2818;
+    --bg-secondary: #051c10;
+    --bg-tertiary: #165c3d;
+    --bg-body: #020f08;
+    --border-primary: #047857;
+    --border-secondary: #059669;
+    --text-primary: #d1fae5;
+    --text-secondary: #6ee7b7;
 }
 
 /* Fine Tema Verde */
+
+
+/* --- TEMA ARANCIONE (Sunset Fire) --- */
+/* Inizio Tema Arancione */
+
+/* Light Mode Arancione */
+html[data-color-theme="arancione"] body.theme-light {
+    --color-primary: #f97316;
+    --color-primary-hover: #ea580c;
+    --bg-primary: #fff7ed;
+    --bg-secondary: #ffedd5;
+    --bg-tertiary: #fed7aa;
+    --bg-body: #fffaf5;
+    --border-primary: #fed7aa;
+    --border-secondary: #fdba74;
+    --text-primary: #431407;
+    --text-secondary: #9a3412;
+}
+
+/* Dark Mode Arancione */
+html[data-color-theme="arancione"] body.theme-dark {
+    --color-primary: #fb923c;
+    --color-primary-hover: #fdba74;
+    --bg-primary: #2d1810;
+    --bg-secondary: #1c0f08;
+    --bg-tertiary: #5a2d1a;
+    --bg-body: #120a05;
+    --border-primary: #7c2d12;
+    --border-secondary: #9a3412;
+    --text-primary: #ffedd5;
+    --text-secondary: #fdba74;
+}
+
+/* Fine Tema Arancione */
+
+
+/* --- TEMA ROSA (Cherry Blossom) --- */
+/* Inizio Tema Rosa */
+
+/* Light Mode Rosa */
+html[data-color-theme="rosa"] body.theme-light {
+    --color-primary: #ec4899;
+    --color-primary-hover: #db2777;
+    --bg-primary: #fdf2f8;
+    --bg-secondary: #fce7f3;
+    --bg-tertiary: #fbcfe8;
+    --bg-body: #fef7fb;
+    --border-primary: #fbcfe8;
+    --border-secondary: #f9a8d4;
+    --text-primary: #500724;
+    --text-secondary: #9f1239;
+}
+
+/* Dark Mode Rosa */
+html[data-color-theme="rosa"] body.theme-dark {
+    --color-primary: #f472b6;
+    --color-primary-hover: #f9a8d4;
+    --bg-primary: #2d0f1f;
+    --bg-secondary: #1f0814;
+    --bg-tertiary: #5a1f3d;
+    --bg-body: #140509;
+    --border-primary: #831843;
+    --border-secondary: #9f1239;
+    --text-primary: #fce7f3;
+    --text-secondary: #f9a8d4;
+}
+
+/* Fine Tema Rosa */

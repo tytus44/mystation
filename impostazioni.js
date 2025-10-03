@@ -88,12 +88,49 @@ function getImpostazioniModalHTML() {
                 </div>
 
                 <div class="flex items-center justify-between w-full">
-                    <span class="font-medium text-primary">Temi colorati</span>
-                    <div class="btn-group">
-                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'default' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="default">Default</button>
-                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'viola' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="viola">Viola</button>
-                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'azzurro' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="azzurro">Azzurro</button>
-                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'verde' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="verde">Verde</button>
+                    <span class="font-medium text-primary">Temi Extra</span>
+                    <div class="color-theme-grid" style="display: flex; gap: 8px; align-items: center;">
+                        <label class="color-theme-option" style="cursor: pointer;" title="Default">
+                            <input type="radio" name="color-theme" value="default" ${impostazioniState.colorTheme === 'default' ? 'checked' : ''} style="display: none;">
+                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: 2px solid ${impostazioniState.colorTheme === 'default' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+                                ${impostazioniState.colorTheme === 'default' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
+                            </div>
+                        </label>
+                        
+                        <label class="color-theme-option" style="cursor: pointer;" title="Viola">
+                            <input type="radio" name="color-theme" value="viola" ${impostazioniState.colorTheme === 'viola' ? 'checked' : ''} style="display: none;">
+                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: 2px solid ${impostazioniState.colorTheme === 'viola' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+                                ${impostazioniState.colorTheme === 'viola' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
+                            </div>
+                        </label>
+                        
+                        <label class="color-theme-option" style="cursor: pointer;" title="Azzurro">
+                            <input type="radio" name="color-theme" value="azzurro" ${impostazioniState.colorTheme === 'azzurro' ? 'checked' : ''} style="display: none;">
+                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); border: 2px solid ${impostazioniState.colorTheme === 'azzurro' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+                                ${impostazioniState.colorTheme === 'azzurro' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
+                            </div>
+                        </label>
+                        
+                        <label class="color-theme-option" style="cursor: pointer;" title="Verde">
+                            <input type="radio" name="color-theme" value="verde" ${impostazioniState.colorTheme === 'verde' ? 'checked' : ''} style="display: none;">
+                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 2px solid ${impostazioniState.colorTheme === 'verde' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+                                ${impostazioniState.colorTheme === 'verde' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
+                            </div>
+                        </label>
+                        
+                        <label class="color-theme-option" style="cursor: pointer;" title="Arancione">
+                            <input type="radio" name="color-theme" value="arancione" ${impostazioniState.colorTheme === 'arancione' ? 'checked' : ''} style="display: none;">
+                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: 2px solid ${impostazioniState.colorTheme === 'arancione' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+                                ${impostazioniState.colorTheme === 'arancione' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
+                            </div>
+                        </label>
+                        
+                        <label class="color-theme-option" style="cursor: pointer;" title="Rosa">
+                            <input type="radio" name="color-theme" value="rosa" ${impostazioniState.colorTheme === 'rosa' ? 'checked' : ''} style="display: none;">
+                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); border: 2px solid ${impostazioniState.colorTheme === 'rosa' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+                                ${impostazioniState.colorTheme === 'rosa' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
+                            </div>
+                        </label>
                     </div>
                 </div>
 
@@ -116,8 +153,7 @@ function getImpostazioniModalHTML() {
                 <div class="card-body">
                     
                     <p class="text-sm text-danger mb-4">
-                        Questa azione eliminerà permanentemente tutti i dati dell'applicazione. Non può essere annullata.
-                    </p>
+                        ATTENZIONE! Tutti i dati saranno eliminati definitivamente!                    </p>
                     <button id="reset-data-btn" class="btn btn-danger">
                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Reset Tutti i Dati
                     </button>
@@ -187,25 +223,6 @@ function setupImpostazioniEventListeners() {
                 btn.classList.toggle('btn-secondary', !isActive);
             });
         }
-        
-        const colorThemeBtn = target.closest('[data-color-theme]');
-        if (colorThemeBtn) {
-            const newTheme = colorThemeBtn.dataset.colorTheme;
-            impostazioniState.colorTheme = newTheme;
-            app.saveToStorage('colorTheme', newTheme);
-            updateColorTheme();
-
-            modalContent.querySelectorAll('[data-color-theme]').forEach(btn => {
-                const isActive = btn.dataset.colorTheme === newTheme;
-                btn.classList.toggle('btn-primary', isActive);
-                btn.classList.toggle('active', isActive);
-                btn.classList.toggle('btn-secondary', !isActive);
-            });
-        }
-        
-        if (target.matches('#fullscreen-toggle')) {
-            toggleFullscreen();
-        }
     });
 
     modalContent.addEventListener('change', (event) => {
@@ -219,6 +236,26 @@ function setupImpostazioniEventListeners() {
         }
         if (target.matches('#import-file')) {
             importData.call(app, event);
+        }
+        
+        // Gestione dei radio button per i temi colorati
+        if (target.matches('input[name="color-theme"]')) {
+            const newTheme = target.value;
+            impostazioniState.colorTheme = newTheme;
+            app.saveToStorage('colorTheme', newTheme);
+            updateColorTheme();
+            
+            // Aggiorna visivamente i cerchi colorati
+            modalContent.querySelectorAll('.color-theme-circle').forEach(circle => {
+                const radio = circle.previousElementSibling || circle.parentElement.querySelector('input[type="radio"]');
+                if (!radio) {
+                    radio = circle.closest('label').querySelector('input[type="radio"]');
+                }
+                
+                const isChecked = radio && radio.checked;
+                circle.style.border = isChecked ? '2px solid var(--color-primary)' : '2px solid transparent';
+                circle.innerHTML = isChecked ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : '';
+            });
         }
     });
 }
