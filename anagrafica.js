@@ -8,7 +8,6 @@
 let anagraficaState = {
     // Filtri e Ordinamento
     searchQuery: '',
-    // MODIFICA: Rimosso lo stato per l'ordinamento
     
     // Form
     contattoForm: {
@@ -50,7 +49,7 @@ function renderAnagraficaSection(container) {
             </div>
             <div class="card">
                 <div id="contatti-cards-container" class="cards-container">
-                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -70,6 +69,8 @@ function renderContattiGrid() {
 
     const contatti = getFilteredAndSortedContatti.call(this);
     container.innerHTML = getContattiCardsHTML(app, contatti);
+
+    setupCardEventListeners.call(this);
     updateBulkActions.call(this);
     
     app.refreshIcons();
@@ -78,22 +79,24 @@ function renderContattiGrid() {
 
 // Inizio funzione getAnagraficaHeaderHTML
 function getAnagraficaHeaderHTML(app) {
-    // MODIFICA: Rimosso il gruppo di pulsanti per l'ordinamento
     return `
         <div class="filters-bar">
             <div class="filter-group">
                 <div class="input-group">
                     <i data-lucide="search" class="input-group-icon"></i>
                     <input type="search" id="anagrafica-search" class="form-control" 
-       placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" autocomplete="off">
+                           placeholder="Nome, cognome, note..." value="${anagraficaState.searchQuery}" autocomplete="off">
                 </div>
             </div>
             <div class="flex space-x-2">
+                <button id="new-contatto-btn" class="btn btn-primary">
+                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Contatto
+                </button>
                 <button id="export-contatti-btn" class="btn btn-secondary">
                     <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
                 </button>
-                <button id="new-contatto-btn" class="btn btn-primary">
-                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Contatto
+                <button id="print-anagrafica-btn" class="btn btn-secondary">
+                    <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Stampa
                 </button>
             </div>
         </div>
@@ -126,12 +129,11 @@ function generateHslColorFromString(str) {
     for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash;
     }
     const h = Math.abs(hash % 360);
     
     if (isDarkMode) {
-        // Colori tenui per il tema scuro: bassa saturazione, bassa luminosità
         const s = 30;
         const l_bg = 20;
         const l_border = 30;
@@ -140,7 +142,6 @@ function generateHslColorFromString(str) {
             border: `hsl(${h}, ${s}%, ${l_border}%)`
         };
     } else {
-        // Colori pastello per il tema chiaro: alta saturazione, alta luminosità
         const s = 80;
         const l_bg = 95;
         const l_border = 85;
@@ -184,6 +185,7 @@ function getContattiCardsHTML(app, contatti) {
                 const contactColors = generateHslColorFromString(c.id);
                 const cardStyle = `background-color: ${contactColors.background}; border-color: ${contactColors.border};`;
                 
+                // INIZIO MODIFICA: Aggiunta icona circle-user in basso a destra
                 return `
                     <div class="contatto-card ${isSelected ? 'selected' : ''}" data-contatto-id="${c.id}" style="${cardStyle}">
                         <div class="contatto-card-header">
@@ -222,8 +224,12 @@ function getContattiCardsHTML(app, contatti) {
                                 </div>
                             </div>
                         ` : ''}
+                        <div class="contatto-user-icon" style="color: ${contactColors.border};">
+                            <i data-lucide="circle-user"></i>
+                        </div>
                     </div>
                 `;
+                // FINE MODIFICA
             }).join('')}
         </div>
     `;
@@ -250,7 +256,18 @@ function getFilteredAndSortedContatti() {
         );
     }
 
-    // MODIFICA: Rimossa tutta la logica di ordinamento
+    contatti.sort((a, b) => {
+        const cognomeA = a.cognome?.toLowerCase() || '';
+        const cognomeB = b.cognome?.toLowerCase() || '';
+        const nomeA = a.nome?.toLowerCase() || '';
+        const nomeB = b.nome?.toLowerCase() || '';
+        if (cognomeA < cognomeB) return -1;
+        if (cognomeA > cognomeB) return 1;
+        if (nomeA < nomeB) return -1;
+        if (nomeA > nomeB) return 1;
+        return 0;
+    });
+
     return contatti;
 }
 // Fine funzione getFilteredAndSortedContatti
@@ -263,17 +280,17 @@ function setupAnagraficaEventListeners() {
     const container = document.getElementById('section-anagrafica');
     if (!container) return;
 
-    // Listener unico per azioni multiple (Event Delegation)
     container.addEventListener('click', (e) => {
         const newContattoBtn = e.target.closest('#new-contatto-btn');
         const exportBtn = e.target.closest('#export-contatti-btn');
+        const printBtn = e.target.closest('#print-anagrafica-btn');
         const editBtn = e.target.closest('.edit-contatto-btn');
         const deleteBtn = e.target.closest('.delete-contatto-btn');
         const bulkDeleteBtn = e.target.closest('#bulk-delete-btn');
-        // MODIFICA: Rimossa la variabile e la logica per i pulsanti di ordinamento
-
+        
         if (newContattoBtn) openContattoModal.call(app);
         if (exportBtn) exportAnagraficaToCSV.call(app);
+        if (printBtn) printAnagrafica.call(app);
         if (editBtn) editContatto.call(app, editBtn.dataset.id);
         if (deleteBtn) deleteContatto.call(app, deleteBtn.dataset.id);
         
@@ -290,7 +307,6 @@ function setupAnagraficaEventListeners() {
         }
     });
 
-    // Listener per input e select
     container.addEventListener('input', (e) => {
         if (e.target.id === 'anagrafica-search') {
             anagraficaState.searchQuery = e.target.value;
@@ -307,6 +323,13 @@ function setupAnagraficaEventListeners() {
     });
 }
 // Fine funzione setupAnagraficaEventListeners
+
+// Inizio funzione setupCardEventListeners
+function setupCardEventListeners() {
+    // Questa funzione può essere usata per setup specifici sulle card se necessario
+    // Al momento la gestione degli eventi è delegata al container padre
+}
+// Fine funzione setupCardEventListeners
 
 // Inizio funzione handleSelectAll
 function handleSelectAll(isChecked) {
@@ -333,7 +356,7 @@ function handleSelectContatto(contattoId, isChecked) {
     } else {
         anagraficaState.selectedContatti = anagraficaState.selectedContatti.filter(id => id !== contattoId);
     }
-    anagraficaState.isSelectAllChecked = false; // Deseleziona il "select all" generale se si deseleziona manualmente un elemento
+    anagraficaState.isSelectAllChecked = false;
     
     updateBulkActions.call(this);
     updateCardSelections();
@@ -364,7 +387,9 @@ function updateCardSelections() {
     if (selectAllCheckbox) {
         const allVisibleCards = document.querySelectorAll('.contatto-card');
         if (allVisibleCards.length > 0) {
-            const allVisibleSelected = Array.from(allVisibleCards).every(card => anagraficaState.selectedContatti.includes(card.dataset.contattoId));
+            const allVisibleSelected = Array.from(allVisibleCards).every(card => 
+                anagraficaState.selectedContatti.includes(card.dataset.contattoId)
+            );
             selectAllCheckbox.checked = allVisibleSelected;
         } else {
             selectAllCheckbox.checked = false;
@@ -588,7 +613,63 @@ function closeCustomModal() {
 }
 // Fine funzione closeCustomModal
 
-// === FUNZIONI EXPORT ===
+// === FUNZIONI EXPORT E STAMPA ===
+
+// Inizio funzione printAnagrafica
+function printAnagrafica() {
+    const app = getApp();
+    const contatti = getFilteredAndSortedContatti.call(app);
+
+    if (contatti.length === 0) {
+        return app.showNotification("Nessun contatto da stampare.");
+    }
+
+    const dateElement = document.getElementById('print-anagrafica-date');
+    if (dateElement) {
+        dateElement.textContent = `Elenco del ${app.formatDateForFilename()}`;
+    }
+    
+    const printList = document.getElementById('print-anagrafica-list');
+    
+    if (!printList) {
+        console.error("Elemento 'print-anagrafica-list' non trovato nel DOM.");
+        return;
+    }
+    
+    let html = '';
+    for (let i = 0; i < contatti.length; i += 3) {
+        const c1 = contatti[i];
+        const c2 = contatti[i + 1];
+        const c3 = contatti[i + 2];
+        
+        html += `
+            <tr>
+                <td>${c1 ? `${c1.cognome} ${c1.nome}`.trim() : ''}</td>
+                <td>${c1 ? c1.telefono1 || '' : ''}</td>
+                <td>${c2 ? `${c2.cognome} ${c2.nome}`.trim() : ''}</td>
+                <td>${c2 ? c2.telefono1 || '' : ''}</td>
+                <td>${c3 ? `${c3.cognome} ${c3.nome}`.trim() : ''}</td>
+                <td>${c3 ? c3.telefono1 || '' : ''}</td>
+            </tr>
+        `;
+    }
+    printList.innerHTML = html;
+
+    document.getElementById('print-content').classList.add('hidden');
+    document.getElementById('print-clients-content').classList.add('hidden');
+    document.getElementById('virtual-print-content').classList.add('hidden');
+    
+    const printContentEl = document.getElementById('print-anagrafica-content');
+    printContentEl.classList.remove('hidden');
+
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+            printContentEl.classList.add('hidden');
+        }, 100);
+    }, 100);
+}
+// Fine funzione printAnagrafica
 
 // Inizio funzione exportAnagraficaToCSV
 function exportAnagraficaToCSV() {

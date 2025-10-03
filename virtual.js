@@ -75,17 +75,16 @@ function renderVirtualListView(container) {
                     <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Ultimo Semestre</button>
                     <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Ultimo Anno</button>
                 </div></div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Nuovo Turno</button>
-                    <button id="import-btn" class="btn btn-secondary" title="Importa Riepilogo Mensile"><i data-lucide="upload" style="margin-right: 0;"></i></button>
-                    <button id="export-btn" class="btn btn-secondary" title="Esporta Turni Visualizzati"><i data-lucide="download" style="margin-right: 0;"></i></button>
-                    <button id="print-virtual-btn" class="btn btn-secondary"><i data-lucide="printer"></i> Stampa Periodo</button>
+                <div class="flex items-center space-x-2">
+                    <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
+                    <button id="new-mese-btn" class="btn btn-primary"><i data-lucide="calendar"></i> Mese</button>
+                    <button id="print-virtual-btn" class="btn btn-secondary" title="Stampa Periodo"><i data-lucide="printer" style="margin-right: 0;"></i></button>
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div><div class="stat-icon blue"><i data-lucide="fuel"></i></div></div>
-                <div class="stat-card"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div></div><div class="stat-icon green"><i data-lucide="euro"></i></div></div>
-                <div class="stat-card"><div class="stat-content"><div class="stat-label">% Servito</div><div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div></div><div class="stat-icon purple"><i data-lucide="user-check"></i></div></div>
+                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div><div class="stat-icon blue"><i data-lucide="fuel"></i></div></div>
+                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div></div><div class="stat-icon green"><i data-lucide="euro"></i></div></div>
+                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);"><div class="stat-content"><div class="stat-label">% Servito</div><div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div></div><div class="stat-icon purple"><i data-lucide="user-check"></i></div></div>
             </div>
             <div class="grid grid-cols-2 gap-6">
                 <div class="card"><div class="card-header"><h3 id="products-chart-title" class="card-title">Vendite per Prodotto</h3><div class="flex items-center space-x-2"><button id="chart-back-btn" class="btn btn-secondary btn-sm hidden" title="Indietro"><i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Indietro</button><button id="export-products-chart-btn" class="btn btn-primary"><i data-lucide="image"></i> Salva Immagine</button></div></div><div class="card-body"><canvas id="productsChart" height="300"></canvas></div></div>
@@ -128,23 +127,85 @@ function getVirtualFormHTML() {
 }
 // Fine funzione getVirtualFormHTML
 
+// INIZIO MODIFICA: Invertite le colonne "Prepay" e "Servito".
+// Inizio funzione getMeseFormHTML
+function getMeseFormHTML(turno = null) {
+    const isEdit = !!turno;
+    const title = isEdit ? 'Modifica Riepilogo Mensile' : 'Nuovo Riepilogo Mensile';
+    const app = getApp();
+    let dateValue = app.getTodayFormatted();
+    if (isEdit) {
+        dateValue = app.formatToItalianDate(turno.date);
+    }
+    
+    const fdt = isEdit ? turno.fdt || {} : {};
+    const prepay = isEdit ? turno.prepay || {} : {};
+    const servito = isEdit ? turno.servito || {} : {};
+
+    return `
+        <div class="card-header"><h2 class="card-title">${title}</h2></div>
+        <div class="card-body">
+            <div class="form-group" style="max-width: 20rem;">
+                <label class="form-label">Data di Riferimento</label>
+                <div class="input-group">
+                    <i data-lucide="calendar" class="input-group-icon"></i>
+                    <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
+                </div>
+            </div>
+            <div class="table-container mt-4">
+                <table class="table">
+                    <thead><tr>
+                        <th style="width: 25%;">Prodotto</th>
+                        <th style="width: 25%;">FaiDaTe</th>
+                        <th style="width: 25%;">Servito</th>
+                        <th style="width: 25%;">Prepay</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr><td class="font-medium text-primary">Gasolio</td>
+                            <td><input type="number" id="fdt-gasolio" class="form-control" step="0.01" placeholder="0" value="${fdt.gasolio || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${servito.gasolio || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.gasolio || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">Diesel+</td>
+                            <td><input type="number" id="fdt-dieselplus" class="form-control" step="0.01" placeholder="0" value="${fdt.dieselplus || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${servito.dieselplus || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.dieselplus || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">AdBlue</td>
+                            <td></td>
+                            <td><input type="number" id="servito-adblue-mese" class="form-control" step="0.01" placeholder="0" value="${servito.adblue || ''}" autocomplete="off"></td>
+                            <td></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">Benzina</td>
+                            <td><input type="number" id="fdt-benzina" class="form-control" step="0.01" placeholder="0" value="${fdt.benzina || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${servito.benzina || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.benzina || ''}" autocomplete="off"></td>
+                        </tr>
+                        <tr><td class="font-medium text-primary">Hvolution</td>
+                            <td><input type="number" id="fdt-hvolution" class="form-control" step="0.01" placeholder="0" value="${fdt.hvolution || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="servito-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${servito.hvolution || ''}" autocomplete="off"></td>
+                            <td><input type="number" id="prepay-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.hvolution || ''}" autocomplete="off"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end space-x-4 mt-4">
+                <button id="cancel-mese-btn" class="btn btn-secondary">Annulla</button>
+                <button id="save-mese-btn" class="btn btn-primary">Salva Riepilogo</button>
+            </div>
+        </div>
+    `;
+}
+// Fine funzione getMeseFormHTML
+// FINE MODIFICA
+
 // === SETUP EVENT LISTENERS VISTA LISTA ===
 // Inizio funzione setupVirtualListViewEventListeners
 function setupVirtualListViewEventListeners() {
     const app = this;
     document.querySelectorAll('[data-filter-mode]').forEach(btn => btn.addEventListener('click', () => setFilterMode.call(app, btn.getAttribute('data-filter-mode'))));
     document.getElementById('new-turno-btn')?.addEventListener('click', () => showCreateTurno());
-    document.getElementById('import-btn')?.addEventListener('click', () => {
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.json, .txt';
-        fileInput.style.display = 'none';
-        fileInput.addEventListener('change', (event) => handleFileUpload.call(app, event));
-        document.body.appendChild(fileInput);
-        fileInput.click();
-        document.body.removeChild(fileInput);
-    });
-    document.getElementById('export-btn')?.addEventListener('click', () => exportVirtualData.call(app));
+    document.getElementById('new-mese-btn')?.addEventListener('click', () => showCreateMeseModal());
     document.getElementById('print-virtual-btn')?.addEventListener('click', () => printVirtualReport.call(app));
     document.querySelectorAll('#turni-table [data-sort]').forEach(btn => btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort'))));
     document.querySelectorAll('[data-trend-tab]').forEach(btn => btn.addEventListener('click', () => setTrendChartTab.call(app, btn.dataset.trendTab)));
@@ -154,112 +215,6 @@ function setupVirtualListViewEventListeners() {
     document.getElementById('chart-back-btn')?.addEventListener('click', () => handleChartDrilldown.call(app, null));
 }
 // Fine funzione setupVirtualListViewEventListeners
-
-// Inizio funzione handleFileUpload
-function handleFileUpload(event) {
-    const app = this;
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const fileContent = e.target.result;
-            const reportData = JSON.parse(fileContent);
-            const newTurno = processMonthlyReport(reportData);
-            
-            if (newTurno) {
-                const existingIndex = app.state.data.turni.findIndex(t => t.id === newTurno.id);
-                if (existingIndex > -1) app.state.data.turni[existingIndex] = newTurno;
-                else app.state.data.turni.push(newTurno);
-
-                app.saveToStorage('data', app.state.data);
-                app.showNotification(`Riepilogo mensile "${newTurno.id}" importato con successo.`);
-                
-                renderTurniTable.call(app);
-                renderVirtualStats.call(app);
-                safeUpdateCharts.call(app);
-            } else {
-                 app.showNotification("Errore: formato file non riconosciuto o dati mancanti.");
-            }
-        } catch (error) {
-            console.error("Errore durante l'importazione del file:", error);
-            app.showNotification("Errore: il file non è un report JSON valido.");
-        }
-    };
-    reader.readAsText(file);
-}
-// Fine funzione handleFileUpload
-
-// Inizio funzione processMonthlyReport
-function processMonthlyReport(reportData) {
-    if (!reportData || !reportData.periodo || !reportData.riepilogo_segmento_vendita) return null;
-
-    const periodoParts = reportData.periodo.split(' Al ');
-    const endDateString = periodoParts[1];
-    const [day, month, year] = endDateString.split('/');
-    const lastDayOfMonth = new Date(year, month - 1, day);
-
-    const newTurno = {
-        id: `riepilogo_${year}-${month}`,
-        date: lastDayOfMonth.toISOString(),
-        turno: 'Riepilogo Mensile',
-        fdt: {},
-        prepay: {},
-        servito: {},
-        createdAt: new Date().toISOString()
-    };
-
-    const productMap = { 'SenzaPb': 'benzina', 'Gasolio': 'gasolio', 'BluDiesel': 'dieselplus', 'HVO': 'hvolution', 'ADBLU': 'adblue' };
-
-    reportData.riepilogo_segmento_vendita.prodotti.forEach(p => {
-        const mappedProduct = productMap[p.prodotto];
-        if (mappedProduct) {
-            const fdtVolume = p.FaiDaTe?.Volume || 0; 
-            const prepayVolume = p.Prepay?.Volume || 0;
-            const servitoVolume = p.Servito?.Volume || 0;
-
-            if (mappedProduct === 'adblue') {
-                newTurno.servito.adblue = servitoVolume;
-                newTurno.fdt.adblue = 0;
-                newTurno.prepay.adblue = 0;
-            } else {
-                newTurno.fdt[mappedProduct] = fdtVolume;
-                newTurno.prepay[mappedProduct] = prepayVolume;
-                newTurno.servito[mappedProduct] = servitoVolume;
-            }
-        }
-    });
-    return newTurno;
-}
-// Fine funzione processMonthlyReport
-
-// Inizio funzione exportVirtualData
-function exportVirtualData() {
-    const app = this;
-    const dataToExport = sortedTurni.call(app);
-
-    if (dataToExport.length === 0) {
-        app.showNotification("Nessun dato da esportare per il periodo selezionato.");
-        return;
-    }
-
-    const filename = `virtualstation_${app.formatDateForFilename(new Date())}.json`;
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    app.showNotification('Dati esportati con successo.');
-}
-// Fine funzione exportVirtualData
 
 // Inizio funzione setupVirtualFormEventListeners
 function setupVirtualFormEventListeners() {
@@ -296,6 +251,14 @@ function setupVirtualFormEventListeners() {
 }
 // Fine funzione setupVirtualFormEventListeners
 
+// Inizio funzione setupMeseFormEventListeners
+function setupMeseFormEventListeners() {
+    const app = getApp();
+    document.getElementById('save-mese-btn')?.addEventListener('click', () => saveMese());
+    document.getElementById('cancel-mese-btn')?.addEventListener('click', () => app.hideFormModal());
+}
+// Fine funzione setupMeseFormEventListeners
+
 // Inizio funzione showCreateTurno
 function showCreateTurno() {
     const app = getApp();
@@ -309,6 +272,19 @@ function showCreateTurno() {
     app.showFormModal();
 }
 // Fine funzione showCreateTurno
+
+// Inizio funzione showCreateMeseModal
+function showCreateMeseModal() {
+    const app = getApp();
+    virtualState.editingTurno = null;
+    document.getElementById('form-modal-content').innerHTML = getMeseFormHTML();
+    const modalContent = document.querySelector('#form-modal-content');
+    if (modalContent) modalContent.classList.add('modal-wide');
+    setupMeseFormEventListeners();
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showCreateMeseModal
 
 // Inizio funzione showEditTurno
 function showEditTurno(turno) {
@@ -328,6 +304,19 @@ function showEditTurno(turno) {
     app.showFormModal();
 }
 // Fine funzione showEditTurno
+
+// Inizio funzione showEditMeseModal
+function showEditMeseModal(turno) {
+    const app = getApp();
+    virtualState.editingTurno = turno;
+    document.getElementById('form-modal-content').innerHTML = getMeseFormHTML(turno);
+    const modalContent = document.querySelector('#form-modal-content');
+    if (modalContent) modalContent.classList.add('modal-wide');
+    setupMeseFormEventListeners();
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showEditMeseModal
 
 // Inizio funzione saveTurno
 function saveTurno() {
@@ -372,6 +361,87 @@ function saveTurno() {
     safeUpdateCharts.call(app);
 }
 // Fine funzione saveTurno
+
+// Inizio funzione saveMese
+function saveMese() {
+    const app = getApp();
+    const isEdit = !!virtualState.editingTurno;
+    const dateInput = document.getElementById('mese-data-input').value;
+
+    if (!dateInput || !app.validateItalianDate(dateInput)) {
+        return app.showNotification('Formato data non valido. Usa gg.mm.aaaa.');
+    }
+
+    const parsedDate = app.parseItalianDate(dateInput);
+    const year = parsedDate.getFullYear();
+    const month = parsedDate.getMonth() + 1;
+    const lastDayOfMonth = new Date(year, month, 0);
+
+    const turnoData = {
+        date: lastDayOfMonth.toISOString(),
+        turno: 'Riepilogo Mensile',
+        fdt: {
+            benzina: parseFloat(document.getElementById('fdt-benzina').value) || 0,
+            gasolio: parseFloat(document.getElementById('fdt-gasolio').value) || 0,
+            dieselplus: parseFloat(document.getElementById('fdt-dieselplus').value) || 0,
+            hvolution: parseFloat(document.getElementById('fdt-hvolution').value) || 0,
+        },
+        prepay: {
+            benzina: parseFloat(document.getElementById('prepay-benzina-mese').value) || 0,
+            gasolio: parseFloat(document.getElementById('prepay-gasolio-mese').value) || 0,
+            dieselplus: parseFloat(document.getElementById('prepay-dieselplus-mese').value) || 0,
+            hvolution: parseFloat(document.getElementById('prepay-hvolution-mese').value) || 0,
+        },
+        servito: {
+            benzina: parseFloat(document.getElementById('servito-benzina-mese').value) || 0,
+            gasolio: parseFloat(document.getElementById('servito-gasolio-mese').value) || 0,
+            dieselplus: parseFloat(document.getElementById('servito-dieselplus-mese').value) || 0,
+            hvolution: parseFloat(document.getElementById('servito-hvolution-mese').value) || 0,
+            adblue: parseFloat(document.getElementById('servito-adblue-mese').value) || 0,
+        }
+    };
+
+    const saveAction = () => {
+        if (isEdit) {
+            const updatedTurno = { ...virtualState.editingTurno, ...turnoData };
+            const index = app.state.data.turni.findIndex(t => t.id === updatedTurno.id);
+            if (index > -1) {
+                app.state.data.turni[index] = updatedTurno;
+            }
+            app.showNotification('Riepilogo mensile aggiornato con successo!');
+        } else {
+            const newTurno = {
+                id: `riepilogo_${year}-${String(month).padStart(2, '0')}`,
+                ...turnoData,
+                createdAt: new Date().toISOString()
+            };
+            const existingIndex = app.state.data.turni.findIndex(t => t.id === newTurno.id);
+            if (existingIndex > -1) {
+                app.state.data.turni[existingIndex] = newTurno;
+            } else {
+                app.state.data.turni.push(newTurno);
+            }
+            app.showNotification('Riepilogo mensile salvato con successo!');
+        }
+        
+        app.saveToStorage('data', app.state.data);
+        app.hideFormModal();
+        virtualState.editingTurno = null;
+        renderTurniTable.call(app);
+        renderVirtualStats.call(app);
+        safeUpdateCharts.call(app);
+    };
+    
+    const newId = `riepilogo_${year}-${String(month).padStart(2, '0')}`;
+    const existingTurno = app.state.data.turni.find(t => t.id === newId);
+
+    if (!isEdit && existingTurno) {
+        app.showConfirm('Un riepilogo per questo mese esiste già. Vuoi sovrascriverlo?', saveAction);
+    } else {
+        saveAction();
+    }
+}
+// Fine funzione saveMese
 
 // Inizio funzione deleteTurno
 function deleteTurno(turnoId) {
@@ -604,11 +674,11 @@ function renderTurniTable() {
             const isRiepilogo = turno.turno === 'Riepilogo Mensile';
             let actionsHTML = '';
             if (isRiepilogo) {
-                actionsHTML = `<div class="flex items-center justify-end"><button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina riepilogo"><i data-lucide="trash-2"></i></button></div>`;
+                actionsHTML = `<div class="flex items-center justify-end space-x-2"><button class="btn btn-success" onclick="editTurnoById('${turno.id}')" title="Modifica riepilogo"><i data-lucide="edit"></i></button><button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina riepilogo"><i data-lucide="trash-2"></i></button></div>`;
             } else {
                 actionsHTML = `<div class="flex items-center justify-end space-x-2"><button class="btn btn-success" onclick="editTurnoById('${turno.id}')" title="Modifica turno"><i data-lucide="edit"></i></button><button class="btn btn-danger" onclick="deleteTurnoById('${turno.id}')" title="Elimina turno"><i data-lucide="trash-2"></i></button></div>`;
             }
-            return `<tr class="hover:bg-secondary"><td class="font-medium text-primary">${app.formatDate(turno.date)}</td><td>${turno.turno}</td><td>${formatVirtualProductColumn.call(app, turno, 'benzina')}</td><td>${formatVirtualProductColumn.call(app, turno, 'gasolio')}</td><td>${formatVirtualProductColumn.call(app, turno, 'dieselplus')}</td><td>${formatVirtualProductColumn.call(app, turno, 'hvolution')}</td><td>${formatVirtualProductColumn.call(app, turno, 'adblue')}</td><td class="font-bold">${app.formatInteger(turno.total)} L</td><td class="text-right">${actionsHTML}</td></tr>`;
+            return `<tr class="hover:bg-secondary"><td class="font-medium text-primary">${app.formatDate(turno.date)}</td><td>${turno.turno}</td><td>${formatVirtualProductColumn.call(app, turno, 'benzina')}</td><td>${formatVirtualProductColumn.call(app, turno, 'gasolio')}</td><td>${formatVirtualProductColumn.call(app, turno, 'dieselplus')}</td><td>${formatVirtualProductColumn.call(app, turno, 'hvolution')}</td><td>${formatVirtualProductColumn.call(app, turno, 'adblue')}</td><td class="font-bold">${app.formatInteger(turno.total)}</td><td class="text-right">${actionsHTML}</td></tr>`;
         }).join('');
     }
     app.refreshIcons();
@@ -622,16 +692,26 @@ function formatVirtualProductColumn(turno, product) {
         const fdt = Math.round(turno.fdt?.[product] || 0);
         const serv = Math.round(turno.servito?.[product] || 0);
         const pay = Math.round(turno.prepay?.[product] || 0);
-        if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(serv)} L</div>`;
-        return `<div class="text-xs">FDT: ${app.formatInteger(fdt)} L</div><div class="text-xs">SERV: ${app.formatInteger(serv)} L</div><div class="text-xs">PAY: ${app.formatInteger(pay)} L</div>`;
+        if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(serv)}</div>`;
+        return `<div class="text-xs">FDT: ${app.formatInteger(fdt)}</div><div class="text-xs">SERV: ${app.formatInteger(serv)}</div><div class="text-xs">PAY: ${app.formatInteger(pay)}</div>`;
     }
+
     const servito = Math.round(turno.servito?.[product] || 0);
     const prepay = Math.round(turno.prepay?.[product] || 0);
-    const turnoTipo = turno.turno;
-    if (product === 'adblue') return `<div class="text-xs">SERV: ${app.formatInteger(servito)} L</div>`;
-    if (['Notte', 'Pausa', 'Weekend'].includes(turnoTipo)) return `<div class="text-xs">PAY: ${app.formatInteger(prepay)} L</div>`;
-    if (['Mattina', 'Pomeriggio'].includes(turnoTipo)) return `<div class="text-xs">SERV: ${app.formatInteger(servito)} L</div>`;
-    return '-';
+
+    if (product === 'adblue') {
+        return servito > 0 ? `<div class="text-xs">SERV: ${app.formatInteger(servito)}</div>` : '-';
+    }
+
+    const parts = [];
+    if (prepay > 0) {
+        parts.push(`<div class="text-xs">PAY: ${app.formatInteger(prepay)}</div>`);
+    }
+    if (servito > 0) {
+        parts.push(`<div class="text-xs">SERV: ${app.formatInteger(servito)}</div>`);
+    }
+
+    return parts.length > 0 ? parts.join('') : '-';
 }
 // Fine funzione formatVirtualProductColumn
 
@@ -1064,13 +1144,27 @@ function showSkeletonLoader(container) {
 }
 // Fine funzione showSkeletonLoader
 
+// Inizio funzione editTurnoByIdRouter
+function editTurnoByIdRouter(id) {
+    const app = getApp();
+    const turno = app.state.data.turni.find(t => t.id === id);
+    if (!turno) return;
+
+    if (turno.turno === 'Riepilogo Mensile') {
+        showEditMeseModal(turno);
+    } else {
+        showEditTurno(turno);
+    }
+}
+// Fine funzione editTurnoByIdRouter
+
 // === ESPORTAZIONI GLOBALI ===
 if (typeof window !== 'undefined') {
     window.initVirtualStation = initVirtualStation;
     window.renderVirtualSection = renderVirtualSection;
     window.onVirtualSectionOpen = onVirtualSectionOpen;
     window.updateChartsTheme = updateChartsTheme;
-    window.editTurnoById = (id) => { const turno = getApp().state.data.turni.find(t => t.id === id); if (turno) showEditTurno(turno); };
+    window.editTurnoById = editTurnoByIdRouter;
     window.deleteTurnoById = deleteTurno;
     window.virtualState = virtualState;
     window.normalizeTurniData = normalizeTurniData;

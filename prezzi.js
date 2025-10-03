@@ -1,6 +1,6 @@
 // =============================================
 // FILE: prezzi.js (Vanilla JavaScript Version)
-// DESCRIZIONE: Modulo per la gestione della 
+// DESCRIZIONE: Modulo per la gestione della
 // sezione Gestione Prezzi (listini e concorrenza).
 // =============================================
 
@@ -9,20 +9,20 @@ let prezziState = {
     // Stato locale
     priceSort: { column: 'date', direction: 'desc' },
     editingListino: null,
-    listinoForm: { 
-        date: '', 
-        variazione: 'Entrambi', 
-        benzina: '', 
-        gasolio: '', 
-        dieselPlus: '', 
-        hvolution: '', 
-        adblue: '' 
+    listinoForm: {
+        date: '',
+        variazione: 'Entrambi',
+        benzina: '',
+        gasolio: '',
+        dieselPlus: '',
+        hvolution: '',
+        adblue: ''
     },
-    concorrenzaForm: { 
-        date: '', 
-        myoil: { benzina: '', gasolio: '' }, 
-        esso: { benzina: '', gasolio: '' }, 
-        q8: { benzina: '', gasolio: '' } 
+    concorrenzaForm: {
+        date: '',
+        myoil: { benzina: '', gasolio: '' },
+        esso: { benzina: '', gasolio: '' },
+        q8: { benzina: '', gasolio: '' }
     }
 };
 
@@ -30,11 +30,9 @@ let prezziState = {
 // Inizio funzione initGestionePrezzi
 function initGestionePrezzi() {
     console.log('💰 Inizializzazione modulo Gestione Prezzi...');
-    
     // Inizializza form
     resetListinoForm.call(this);
     resetConcorrenzaForm.call(this);
-    
     console.log('✅ Modulo Gestione Prezzi inizializzato');
 }
 // Fine funzione initGestionePrezzi
@@ -43,16 +41,10 @@ function initGestionePrezzi() {
 // Inizio funzione renderPrezziSection
 function renderPrezziSection(container) {
     console.log('🎨 Rendering sezione Gestione Prezzi...');
-    
     const app = this;
     
-    // La sezione ora renderizza sempre e solo la vista a lista
     renderPrezziListView.call(app, container);
-    
-    // Setup event listeners
     setupPrezziEventListeners.call(app);
-    
-    // Refresh icone
     app.refreshIcons();
 }
 // Fine funzione renderPrezziSection
@@ -63,6 +55,15 @@ function renderPrezziListView(container) {
     const app = this;
     const latestPrices = latestAppliedPrices.call(app);
     
+    // INIZIO MODIFICA: Rimossa etichetta "Iperself" e aggiunto prezzo "Servito". Corretta sintassi commenti.
+    const servitoSurcharge = 0.220; // (0.015 + 0.210) - 0.005
+    const servedPrices = {
+        benzina: latestPrices.benzina > 0 ? latestPrices.benzina + servitoSurcharge : 0,
+        gasolio: latestPrices.gasolio > 0 ? latestPrices.gasolio + servitoSurcharge : 0,
+        dieselPlus: latestPrices.dieselPlus > 0 ? latestPrices.dieselPlus + servitoSurcharge : 0,
+        hvolution: latestPrices.hvolution > 0 ? latestPrices.hvolution + servitoSurcharge : 0,
+    };
+    
     container.innerHTML = `
         <div class="space-y-6">
             
@@ -71,29 +72,36 @@ function renderPrezziListView(container) {
                 <div class="grid grid-cols-2 gap-6">
                     <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Benzina Iperself</div>
+                            <div class="stat-label">Benzina</div>
                             <div class="stat-value text-success">${app.formatCurrency(latestPrices.benzina, true)}</div>
+                            <div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.benzina, true)}</div>
                         </div>
                         <div class="stat-icon green"><i data-lucide="droplets"></i></div>
                     </div>
+                    
                     <div class="stat-card" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Gasolio Iperself</div>
+                            <div class="stat-label">Gasolio</div>
                             <div class="stat-value text-warning">${app.formatCurrency(latestPrices.gasolio, true)}</div>
+                            <div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.gasolio, true)}</div>
                         </div>
                         <div class="stat-icon yellow"><i data-lucide="droplets"></i></div>
                     </div>
+
                     <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Diesel+ Iperself</div>
+                            <div class="stat-label">Diesel+</div>
                             <div class="stat-value text-danger">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
+                            ${latestPrices.dieselPlus > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.dieselPlus, true)}</div>` : ''}
                         </div>
                         <div class="stat-icon red"><i data-lucide="droplets"></i></div>
                     </div>
+                    
                     <div class="stat-card" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
                         <div class="stat-content">
-                            <div class="stat-label">Hvolution Iperself</div>
+                            <div class="stat-label">Hvolution</div>
                             <div class="stat-value text-info">${app.formatCurrency(latestPrices.hvolution, true)}</div>
+                            ${latestPrices.hvolution > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.hvolution, true)}</div>` : ''}
                         </div>
                         <div class="stat-icon blue"><i data-lucide="droplets"></i></div>
                     </div>
@@ -139,6 +147,7 @@ function renderPrezziListView(container) {
             </div>
         </div>
     `;
+    // FINE MODIFICA
     
     renderListiniTable.call(app);
     renderConcorrenzaCard.call(app);
@@ -176,24 +185,24 @@ function getListinoFormHTML() {
 
                 <div class="grid grid-cols-5 gap-4">
                     <div class="product-box" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
-                        <label class="form-label font-medium" style="color: var(--color-success);">Benzina</label>
-                        <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina || ''}" autocomplete="off">
+                        <label class="form-label font-medium" style="color: var(--color-success)">Benzina</label>
+                        <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina}" autocomplete="off">
                     </div>
-                     <div class="product-box" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
-                        <label class="form-label font-medium" style="color: var(--color-warning);">Gasolio</label>
-                        <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio || ''}" autocomplete="off">
+                    <div class="product-box" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-warning)">Gasolio</label>
+                        <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio}" autocomplete="off">
                     </div>
-                     <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
-                        <label class="form-label font-medium" style="color: var(--color-danger);">Diesel+</label>
-                        <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus || ''}" autocomplete="off">
+                    <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-danger)">Diesel+</label>
+                        <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus}" autocomplete="off">
                     </div>
-                     <div class="product-box" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
-                        <label class="form-label font-medium" style="color: var(--color-info);">Hvolution</label>
-                        <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution || ''}" autocomplete="off">
+                    <div class="product-box" style="background-color: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-info)">Hvolution</label>
+                        <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution}" autocomplete="off">
                     </div>
-                     <div class="product-box" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
-                        <label class="form-label font-medium" style="color: var(--color-secondary);">AdBlue</label>
-                        <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue || ''}" autocomplete="off">
+                    <div class="product-box" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
+                        <label class="form-label font-medium" style="color: var(--color-secondary)">AdBlue</label>
+                        <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue}" autocomplete="off">
                     </div>
                 </div>
 
@@ -222,23 +231,27 @@ function getConcorrenzaFormHTML() {
                         <input type="text" id="concorrenza-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.concorrenzaForm.date}" autocomplete="off">
                     </div>
                 </div>
+
                 <div class="grid grid-cols-3 gap-6">
                     <div class="product-box" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
-                        <h4 class="product-title text-center" style="color: #8b5cf6;">MyOil</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina || ''}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio || ''}" autocomplete="off"></div>
+                        <h4 class="product-title text-center" style="color: #8b5cf6">MyOil</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off"></div>
                     </div>
+
                     <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
-                        <h4 class="product-title text-center" style="color: var(--color-danger);">Esso</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina || ''}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio || ''}" autocomplete="off"></div>
+                        <h4 class="product-title text-center" style="color: var(--color-danger)">Esso</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div>
                     </div>
+
                     <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                        <h4 class="product-title text-center" style="color: var(--color-primary);">Q8</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina || ''}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio || ''}" autocomplete="off"></div>
+                        <h4 class="product-title text-center" style="color: var(--color-primary)">Q8</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off"></div>
                     </div>
                 </div>
+
                 <div class="flex items-center justify-end space-x-4">
                     <button id="cancel-concorrenza-btn-bottom" class="btn btn-secondary">Annulla</button>
                     <button id="save-concorrenza-btn" class="btn btn-primary">Salva Prezzi</button>
@@ -249,16 +262,13 @@ function getConcorrenzaFormHTML() {
 }
 // Fine funzione getConcorrenzaFormHTML
 
-// === SETUP EVENT LISTENERS ===
 // Inizio funzione setupPrezziEventListeners
 function setupPrezziEventListeners() {
     const app = this;
     
-    // Pulsanti per aprire i modali
     document.getElementById('new-listino-btn')?.addEventListener('click', () => showCreateListino.call(app));
     document.getElementById('update-concorrenza-btn')?.addEventListener('click', () => showUpdateConcorrenza.call(app));
     
-    // Sorting tabella
     document.querySelectorAll('#listini-table [data-sort]').forEach(btn => {
         btn.addEventListener('click', () => sortPrices.call(app, btn.getAttribute('data-sort')));
     });
@@ -268,32 +278,28 @@ function setupPrezziEventListeners() {
 // Inizio funzione setupListinoFormEventListeners
 function setupListinoFormEventListeners() {
     const app = getApp();
-    document.getElementById('save-listino-btn')?.addEventListener('click', () => saveListino.call(app));
     
+    document.getElementById('save-listino-btn')?.addEventListener('click', () => saveListino.call(app));
     const close = () => app.hideFormModal();
     document.getElementById('cancel-listino-btn-bottom')?.addEventListener('click', close);
-    
-    // Listener per i tab Variazione
+
     document.querySelectorAll('[data-variazione]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const newVariazione = e.currentTarget.dataset.variazione;
             prezziState.listinoForm.variazione = newVariazione;
-            // Aggiorna UI
+            
             document.querySelectorAll('[data-variazione]').forEach(b => {
                 b.classList.toggle('btn-primary', b.dataset.variazione === newVariazione);
-                b.classList.toggle('active', b.dataset.variazione === newVariazione);
+                b.classList.toggle('active', b.dataset.variazione === newVariazione);  
                 b.classList.toggle('btn-secondary', b.dataset.variazione !== newVariazione);
             });
         });
     });
 
     const listinoInputs = [
-        { id: 'listino-date', path: 'date' },
-        { id: 'listino-benzina', path: 'benzina' },
-        { id: 'listino-gasolio', path: 'gasolio' },
-        { id: 'listino-dieselPlus', path: 'dieselPlus' },
-        { id: 'listino-hvolution', path: 'hvolution' },
-        { id: 'listino-adblue', path: 'adblue' }
+        { id: 'listino-date', path: 'date' }, { id: 'listino-benzina', path: 'benzina' },
+        { id: 'listino-gasolio', path: 'gasolio' }, { id: 'listino-dieselPlus', path: 'dieselPlus' },
+        { id: 'listino-hvolution', path: 'hvolution' }, { id: 'listino-adblue', path: 'adblue' }
     ];
     
     listinoInputs.forEach(({ id, path }) => {
@@ -306,18 +312,18 @@ function setupListinoFormEventListeners() {
 // Inizio funzione setupConcorrenzaFormEventListeners
 function setupConcorrenzaFormEventListeners() {
     const app = getApp();
+    
     document.getElementById('save-concorrenza-btn')?.addEventListener('click', () => saveConcorrenza.call(app));
-
     const close = () => app.hideFormModal();
     document.getElementById('cancel-concorrenza-btn-bottom')?.addEventListener('click', close);
 
     const concorrenzaInputs = [
-        { id: 'concorrenza-date', path: 'date' },
-        { id: 'myoil-benzina', path: 'myoil.benzina' }, { id: 'myoil-gasolio', path: 'myoil.gasolio' },
-        { id: 'esso-benzina', path: 'esso.benzina' }, { id: 'esso-gasolio', path: 'esso.gasolio' },
-        { id: 'q8-benzina', path: 'q8.benzina' }, { id: 'q8-gasolio', path: 'q8.gasolio' }
+        { id: 'concorrenza-date', path: 'date' }, { id: 'myoil-benzina', path: 'myoil.benzina' },
+        { id: 'myoil-gasolio', path: 'myoil.gasolio' }, { id: 'esso-benzina', path: 'esso.benzina' },
+        { id: 'esso-gasolio', path: 'esso.gasolio' }, { id: 'q8-benzina', path: 'q8.benzina' },
+        { id: 'q8-gasolio', path: 'q8.gasolio' }
     ];
-    
+
     concorrenzaInputs.forEach(({ id, path }) => {
         const input = document.getElementById(id);
         if (input) input.addEventListener('input', () => updateConcorrenzaFormValue(path, input.value));
@@ -325,7 +331,6 @@ function setupConcorrenzaFormEventListeners() {
 }
 // Fine funzione setupConcorrenzaFormEventListeners
 
-// === FUNZIONI GESTIONE MODALI ===
 // Inizio funzione showCreateListino
 function showCreateListino() {
     const app = this;
@@ -346,19 +351,18 @@ function showCreateListino() {
 function showEditListino(listino) {
     const app = this;
     prezziState.editingListino = { ...listino };
-    
-    prezziState.listinoForm = { 
-        date: app.formatToItalianDate(listino.date), 
-        variazione: listino.variazione || 'Entrambi', 
-        benzina: listino.benzina || '', gasolio: listino.gasolio || '', 
-        dieselPlus: listino.dieselPlus || '', hvolution: listino.hvolution || '', 
-        adblue: listino.adblue || '' 
+    prezziState.listinoForm = {
+        date: app.formatToItalianDate(listino.date),
+        variazione: listino.variazione || 'Entrambi',
+        benzina: listino.benzina || '', gasolio: listino.gasolio || '',
+        dieselPlus: listino.dieselPlus || '', hvolution: listino.hvolution || '',
+        adblue: listino.adblue || ''
     };
     
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getListinoFormHTML();
     modalContentEl.classList.add('modal-wide');
-
+    
     setupListinoFormEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
@@ -369,18 +373,17 @@ function showEditListino(listino) {
 function showUpdateConcorrenza() {
     const app = this;
     resetConcorrenzaForm.call(app);
-
+    
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getConcorrenzaFormHTML();
     modalContentEl.classList.add('modal-wide');
-
+    
     setupConcorrenzaFormEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
 }
 // Fine funzione showUpdateConcorrenza
 
-// === FUNZIONI ORDINAMENTO ===
 // Inizio funzione sortPrices
 function sortPrices(column) {
     if (prezziState.priceSort.column === column) {
@@ -393,7 +396,6 @@ function sortPrices(column) {
 }
 // Fine funzione sortPrices
 
-// === FUNZIONI DATI ===
 // Inizio funzione sortedPriceHistory
 function sortedPriceHistory() {
     if (!Array.isArray(this.state.data.priceHistory)) return [];
@@ -409,6 +411,7 @@ function sortedPriceHistory() {
 function latestAppliedPrices() {
     const prices = currentPrices.call(this);
     const surcharge = 0.005;
+    
     return {
         benzina: (prices.benzina || 0) + surcharge,
         gasolio: (prices.gasolio || 0) + surcharge,
@@ -423,7 +426,8 @@ function currentPrices() {
     if (!Array.isArray(this.state.data.priceHistory) || this.state.data.priceHistory.length === 0) {
         return { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 };
     }
-    return [...this.state.data.priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
+    return { ...this.state.data.priceHistory.sort((a, b) => new Date(b.date) - new Date(a.date))[0] };
 }
 // Fine funzione currentPrices
 
@@ -432,7 +436,9 @@ function competitorPrices() {
     if (!Array.isArray(this.state.data.competitorPrices) || this.state.data.competitorPrices.length === 0) {
         return { myoil: { benzina: 0, gasolio: 0 }, esso: { benzina: 0, gasolio: 0 }, q8: { benzina: 0, gasolio: 0 } };
     }
-    const latest = [...this.state.data.competitorPrices].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
+    const latest = { ...this.state.data.competitorPrices.sort((a, b) => new Date(b.date) - new Date(a.date))[0] };
+    
     return {
         myoil: latest.myoil || { benzina: 0, gasolio: 0 },
         esso: latest.esso || { benzina: 0, gasolio: 0 },
@@ -441,7 +447,6 @@ function competitorPrices() {
 }
 // Fine funzione competitorPrices
 
-// === FUNZIONI FORM ===
 // Inizio funzione resetListinoForm
 function resetListinoForm() {
     const latest = currentPrices.call(this);
@@ -488,16 +493,16 @@ function updateConcorrenzaFormValue(path, value) {
 
 // Inizio funzione saveListino
 function saveListino() {
+    const app = getApp();
     if (!prezziState.listinoForm.date || !prezziState.listinoForm.benzina || !prezziState.listinoForm.gasolio) {
-        return this.showNotification('Data, prezzo benzina e gasolio sono obbligatori');
+        return app.showNotification('Data, prezzo benzina e gasolio sono obbligatori');
     }
-    if (!this.validateItalianDate(prezziState.listinoForm.date)) {
-        return this.showNotification('Formato data non valido. Usa gg.mm.aaaa');
+    if (!app.validateItalianDate(prezziState.listinoForm.date)) {
+        return app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
     }
-    
-    const parsedDate = this.parseItalianDate(prezziState.listinoForm.date);
+    const parsedDate = app.parseItalianDate(prezziState.listinoForm.date);
     const listino = {
-        id: prezziState.editingListino ? prezziState.editingListino.id : this.generateUniqueId('listino'),
+        id: prezziState.editingListino ? prezziState.editingListino.id : app.generateUniqueId('listino'),
         date: parsedDate.toISOString(),
         variazione: prezziState.listinoForm.variazione,
         benzina: parseFloat(prezziState.listinoForm.benzina) || 0,
@@ -506,64 +511,58 @@ function saveListino() {
         hvolution: parseFloat(prezziState.listinoForm.hvolution) || null,
         adblue: parseFloat(prezziState.listinoForm.adblue) || null
     };
-    
     if (prezziState.editingListino) {
-        const index = this.state.data.priceHistory.findIndex(l => l.id === prezziState.editingListino.id);
-        if (index !== -1) this.state.data.priceHistory[index] = listino;
+        const index = app.state.data.priceHistory.findIndex(l => l.id === prezziState.editingListino.id);
+        if (index !== -1) app.state.data.priceHistory[index] = listino;
     } else {
-        this.state.data.priceHistory.push(listino);
+        app.state.data.priceHistory.push(listino);
     }
-    
-    this.saveToStorage('data', this.state.data);
-    this.hideFormModal();
-    renderPrezziListView.call(this, document.getElementById('section-prezzi'));
+    app.saveToStorage('data', app.state.data);
+    app.hideFormModal();
+    renderPrezziListView.call(app, document.getElementById('section-prezzi'));
 }
 // Fine funzione saveListino
 
 // Inizio funzione saveConcorrenza
 function saveConcorrenza() {
-    if (!prezziState.concorrenzaForm.date || !this.validateItalianDate(prezziState.concorrenzaForm.date)) {
-        return this.showNotification('Data obbligatoria in formato gg.mm.aaaa');
+    const app = getApp();
+    if (!prezziState.concorrenzaForm.date || !app.validateItalianDate(prezziState.concorrenzaForm.date)) {
+        return app.showNotification('Data obbligatoria in formato gg.mm.aaaa');
     }
-    
-    const parsedDate = this.parseItalianDate(prezziState.concorrenzaForm.date);
+    const parsedDate = app.parseItalianDate(prezziState.concorrenzaForm.date);
     const concorrenza = {
-        id: this.generateUniqueId('concorrenza'),
+        id: app.generateUniqueId('concorrenza'),
         date: parsedDate.toISOString(),
         myoil: { benzina: parseFloat(prezziState.concorrenzaForm.myoil.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.myoil.gasolio) || null },
         esso: { benzina: parseFloat(prezziState.concorrenzaForm.esso.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.esso.gasolio) || null },
         q8: { benzina: parseFloat(prezziState.concorrenzaForm.q8.benzina) || null, gasolio: parseFloat(prezziState.concorrenzaForm.q8.gasolio) || null }
     };
-    
-    this.state.data.competitorPrices.push(concorrenza);
-    this.saveToStorage('data', this.state.data);
-    this.hideFormModal();
-    renderConcorrenzaCard.call(this);
+    app.state.data.competitorPrices.push(concorrenza);
+    app.saveToStorage('data', app.state.data);
+    app.hideFormModal();
+    renderConcorrenzaCard.call(app);
 }
 // Fine funzione saveConcorrenza
 
 // Inizio funzione deleteListino
 function deleteListino(listinoId) {
-    const listino = this.state.data.priceHistory.find(l => l.id === listinoId);
+    const app = getApp();
+    const listino = app.state.data.priceHistory.find(l => l.id === listinoId);
     if (!listino) return;
-    
-    this.showConfirm(`Sei sicuro di voler eliminare il listino del ${this.formatDate(listino.date)}?`, () => {
-        this.state.data.priceHistory = this.state.data.priceHistory.filter(l => l.id !== listinoId);
-        this.saveToStorage('data', this.state.data);
-        renderPrezziListView.call(this, document.getElementById('section-prezzi'));
+    app.showConfirm(`Sei sicuro di voler eliminare il listino del ${app.formatDate(listino.date)}?`, () => {
+        app.state.data.priceHistory = app.state.data.priceHistory.filter(l => l.id !== listinoId);
+        app.saveToStorage('data', app.state.data);
+        renderPrezziListView.call(app, document.getElementById('section-prezzi'));
     });
 }
 // Fine funzione deleteListino
 
-// === RENDER FUNZIONI SPECIFICHE ===
 // Inizio funzione renderListiniTable
 function renderListiniTable() {
     const tbody = document.getElementById('listini-tbody');
     if (!tbody) return;
-    
     const app = this;
     const listini = sortedPriceHistory.call(app);
-    
     if (listini.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center py-12"><div class="empty-state"><i data-lucide="euro"></i><div class="empty-state-title">Nessun listino trovato</div></div></td></tr>`;
     } else {
@@ -585,7 +584,6 @@ function renderListiniTable() {
             </tr>
         `).join('');
     }
-    
     this.refreshIcons();
 }
 // Fine funzione renderListiniTable
@@ -597,51 +595,37 @@ function renderConcorrenzaCard() {
     const competitorPricesData = competitorPrices.call(app);
     const container = document.getElementById('concorrenza-card-content');
     if (!container) return;
-
-    // Funzione locale per formattare la differenza di prezzo
     const formatDiff = (diff) => {
         const roundedDiff = Math.round(diff * 1000) / 1000;
-        const colorClass = roundedDiff > 0 ? 'text-success' : roundedDiff < 0 ? 'text-danger' : 'text-secondary';
-        const sign = roundedDiff > 0 ? '+' : '';
-        const text = `${sign}${app.formatCurrency(roundedDiff, true).replace('€', '').trim()}`;
+        const colorClass = roundedDiff < 0 ? 'text-success' : roundedDiff > 0 ? 'text-danger' : 'text-secondary';
+        const sign = roundedDiff >= 0 ? '+' : '';
+        const text = `${sign}${app.formatCurrency(roundedDiff, true)}`.replace('€', '').trim();
         return `<div class="font-bold ${colorClass}">${text}</div>`;
     };
-
     const diffs = {
-        myoil: {
-            benzina: (competitorPricesData.myoil?.benzina || 0) - (myPrices.benzina || 0),
-            gasolio: (competitorPricesData.myoil?.gasolio || 0) - (myPrices.gasolio || 0)
-        },
-        q8: {
-            benzina: (competitorPricesData.q8?.benzina || 0) - (myPrices.benzina || 0),
-            gasolio: (competitorPricesData.q8?.gasolio || 0) - (myPrices.gasolio || 0)
-        },
-        esso: {
-            benzina: (competitorPricesData.esso?.benzina || 0) - (myPrices.benzina || 0),
-            gasolio: (competitorPricesData.esso?.gasolio || 0) - (myPrices.gasolio || 0)
-        }
+        myoil: { benzina: (competitorPricesData.myoil?.benzina || 0) - (myPrices.benzina || 0), gasolio: (competitorPricesData.myoil?.gasolio || 0) - (myPrices.gasolio || 0) },
+        q8: { benzina: (competitorPricesData.q8?.benzina || 0) - (myPrices.benzina || 0), gasolio: (competitorPricesData.q8?.gasolio || 0) - (myPrices.gasolio || 0) },
+        esso: { benzina: (competitorPricesData.esso?.benzina || 0) - (myPrices.benzina || 0), gasolio: (competitorPricesData.esso?.gasolio || 0) - (myPrices.gasolio || 0) }
     };
-
-    // Inizio Modifica: Corretto ordine colonne
     container.innerHTML = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4 text-sm">
                 <div class="product-box" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: #8b5cf6;">MyOil</h4>
+                    <h4 class="font-semibold mb-2 text-center" style="color: #8b5cf6">MyOil</h4>
                     <div class="space-y-1 mt-2">
                         <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.benzina || 0, true)}</span></div>
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
                 <div class="product-box" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger);">Esso</h4>
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger)">Esso</h4>
                     <div class="space-y-1 mt-2">
                         <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
                 <div class="product-box" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary);">Q8</h4>
+                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-primary)">Q8</h4>
                     <div class="space-y-1 mt-2">
                         <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
                         <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
@@ -650,89 +634,39 @@ function renderConcorrenzaCard() {
             </div>
             <div class="grid grid-cols-3 gap-4 text-sm">
                 <div class="product-box text-center p-2" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.myoil.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.myoil.gasolio)}
+                    <div class="text-xs">Benzina</div>${formatDiff(diffs.myoil.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.myoil.gasolio)}
                 </div>
                 <div class="product-box text-center p-2" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.esso.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.esso.gasolio)}
+                    <div class="text-xs">Benzina</div>${formatDiff(diffs.esso.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.esso.gasolio)}
                 </div>
                 <div class="product-box text-center p-2" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                    <div class="text-xs">Benzina</div>
-                    ${formatDiff(diffs.q8.benzina)}
-                    <div class="text-xs mt-1">Gasolio</div>
-                    ${formatDiff(diffs.q8.gasolio)}
+                    <div class="text-xs">Benzina</div>${formatDiff(diffs.q8.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.q8.gasolio)}
                 </div>
             </div>
         </div>
     `;
-    // Fine Modifica
 }
 // Fine funzione renderConcorrenzaCard
 
 // Inizio funzione showSkeletonLoader
 function showSkeletonLoader(container) {
-    const skeletonHTML = `
-        <div class="space-y-6">
-            <div class="grid grid-cols-2 gap-6">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
-                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
-                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
-                    <div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%;"></div></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="skeleton-loader" style="height: 1.5rem; width: 200px;"></div>
-                    </div>
-                    <div class="p-6 space-y-2">
-                        <div class="skeleton-loader" style="height: 5rem; width: 100%;"></div>
-                        <div class="skeleton-loader" style="height: 3rem; width: 100%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header" style="justify-content: space-between; align-items: center;">
-                    <div class="skeleton-loader" style="height: 1.5rem; width: 250px;"></div>
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 150px; border-radius: var(--radius-md);"></div>
-                </div>
-                <div class="p-6 space-y-2">
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
-                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
-                </div>
-            </div>
-        </div>
-    `;
+    const skeletonHTML = `<div class="space-y-6"><div class="grid grid-cols-2 gap-6"><div class="grid grid-cols-2 gap-6"><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div></div><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div><div class="stat-card"><div class="skeleton-loader" style="height: 3.5rem; width: 100%"></div></div></div><div class="card"><div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 200px"></div></div><div class="p-6 space-y-2"><div class="skeleton-loader" style="height: 5rem; width: 100%"></div><div class="skeleton-loader" style="height: 3rem; width: 100%"></div></div></div><div class="card"><div class="card-header" style="justify-content: space-between; align-items: center;"><div class="skeleton-loader" style="height: 1.5rem; width: 250px"></div><div class="skeleton-loader" style="height: 2.5rem; width: 150px; border-radius: var(--radius-md)"></div></div><div class="p-6 space-y-2"><div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%"></div></div></div></div>`;
     container.innerHTML = skeletonHTML;
 }
 // Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ONCLICK ===
-// Inizio funzione editListinoById
 function editListinoById(listinoId) {
     const app = getApp();
     const listino = app.state.data.priceHistory.find(l => l.id === listinoId);
-    if (listino) {
-        showEditListino.call(app, listino);
-    }
+    if (listino) showEditListino.call(app, listino);
 }
-// Fine funzione editListinoById
-
-// Inizio funzione deleteListinoById
 function deleteListinoById(listinoId) {
     const app = getApp();
     deleteListino.call(app, listinoId);
 }
-// Fine funzione deleteListinoById
 
-// === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
+// EXPORT FUNCTIONS FOR GLOBAL ACCESS
 if (typeof window !== 'undefined') {
     window.initGestionePrezzi = initGestionePrezzi;
     window.renderPrezziSection = renderPrezziSection;
