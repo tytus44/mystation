@@ -8,21 +8,24 @@
 let impostazioniState = {
     isFullscreen: false,
     isSidebarCollapsed: false,
-    // INIZIO MODIFICA: Aggiunto stato per la gestione dell'arrotondamento
-    borderRadius: 'medium'
-    // FINE MODIFICA
+    borderRadius: 'medium',
+    colorTheme: 'default' 
 };
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 // Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
-    impostazioniState.isSidebarCollapsed = this.loadFromStorage('isSidebarCollapsed', false);
-    
-    // INIZIO MODIFICA: Caricamento e applicazione dell'impostazione di arrotondamento
-    impostazioniState.borderRadius = this.loadFromStorage('borderRadius', 'medium');
-    updateBorderRadius();
+    // INIZIO MODIFICA: Utilizzo di 'this' invece di getApp() per evitare race condition
+    const app = this;
     // FINE MODIFICA
+    impostazioniState.isSidebarCollapsed = app.loadFromStorage('isSidebarCollapsed', false);
+    
+    impostazioniState.borderRadius = app.loadFromStorage('borderRadius', 'medium');
+    updateBorderRadius();
+    
+    impostazioniState.colorTheme = app.loadFromStorage('colorTheme', 'default');
+    updateColorTheme();
     
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
@@ -37,7 +40,6 @@ function initImpostazioni() {
 // Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML() {
     const app = getApp();
-    // INIZIO MODIFICA: Aggiunto selettore per arrotondamento e rimossa intestazione
     return `
         <div class="card-header">
             <h2 class="card-title">Impostazioni</h2>
@@ -73,15 +75,25 @@ function getImpostazioniModalHTML() {
                 <div class="flex items-center justify-between w-full">
                     <span class="font-medium text-primary">Arrotondamento</span>
                     <div class="btn-group">
-                        <button class="btn ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}" data-radius="none" title="Nessuno">
+                        <button class="btn btn-sm ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}" data-radius="none" title="Nessuno">
                             <i data-lucide="square"></i>
                         </button>
-                        <button class="btn ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}" data-radius="medium" title="Medio">
+                        <button class="btn btn-sm ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}" data-radius="medium" title="Medio">
                             <i data-lucide="rectangle-horizontal"></i>
                         </button>
-                        <button class="btn ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}" data-radius="high" title="Elevato">
+                        <button class="btn btn-sm ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}" data-radius="high" title="Elevato">
                             <i data-lucide="circle"></i>
                         </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between w-full">
+                    <span class="font-medium text-primary">Temi colorati</span>
+                    <div class="btn-group">
+                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'default' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="default">Default</button>
+                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'viola' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="viola">Viola</button>
+                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'azzurro' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="azzurro">Azzurro</button>
+                        <button class="btn btn-sm ${impostazioniState.colorTheme === 'verde' ? 'btn-primary active' : 'btn-secondary'}" data-color-theme="verde">Verde</button>
                     </div>
                 </div>
 
@@ -121,7 +133,6 @@ function getImpostazioniModalHTML() {
             </div>
         </div>
     `;
-    // FINE MODIFICA
 }
 // Fine funzione getImpostazioniModalHTML
 
@@ -140,18 +151,15 @@ function showImpostazioniModal() {
 // Fine funzione showImpostazioniModal
 
 // === SETUP EVENT LISTENERS ===
-// INIZIO MODIFICA: La logica dei listener è stata riscritta per maggiore robustezza
 // Inizio funzione setupImpostazioniEventListeners
 function setupImpostazioniEventListeners() {
     const app = getApp();
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
-    // Listener centralizzato per tutti i click all'interno del modale
     modalContent.addEventListener('click', (event) => {
         const target = event.target;
         
-        // Gestione dei pulsanti principali
         if (target.closest('#import-btn')) {
             modalContent.querySelector('#import-file')?.click();
         }
@@ -164,7 +172,7 @@ function setupImpostazioniEventListeners() {
         if (target.closest('#close-impostazioni-btn')) {
             app.hideFormModal();
         }
-        // INIZIO MODIFICA: Aggiunto handler per i pulsanti di arrotondamento
+        
         const radiusBtn = target.closest('[data-radius]');
         if (radiusBtn) {
             const newRadius = radiusBtn.dataset.radius;
@@ -172,7 +180,6 @@ function setupImpostazioniEventListeners() {
             app.saveToStorage('borderRadius', newRadius);
             updateBorderRadius();
 
-            // Aggiorna lo stato attivo dei pulsanti
             modalContent.querySelectorAll('[data-radius]').forEach(btn => {
                 const isActive = btn.dataset.radius === newRadius;
                 btn.classList.toggle('btn-primary', isActive);
@@ -180,18 +187,32 @@ function setupImpostazioniEventListeners() {
                 btn.classList.toggle('btn-secondary', !isActive);
             });
         }
-        // FINE MODIFICA
+        
+        const colorThemeBtn = target.closest('[data-color-theme]');
+        if (colorThemeBtn) {
+            const newTheme = colorThemeBtn.dataset.colorTheme;
+            impostazioniState.colorTheme = newTheme;
+            app.saveToStorage('colorTheme', newTheme);
+            updateColorTheme();
+
+            modalContent.querySelectorAll('[data-color-theme]').forEach(btn => {
+                const isActive = btn.dataset.colorTheme === newTheme;
+                btn.classList.toggle('btn-primary', isActive);
+                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('btn-secondary', !isActive);
+            });
+        }
+        
+        if (target.matches('#fullscreen-toggle')) {
+            toggleFullscreen();
+        }
     });
 
-    // Listener per gli input (toggle e file)
     modalContent.addEventListener('change', (event) => {
         const target = event.target;
 
         if (target.matches('#dark-mode-toggle')) {
             app.toggleTheme();
-        }
-        if (target.matches('#fullscreen-toggle')) {
-            toggleFullscreen();
         }
         if (target.matches('#sidebar-collapse-toggle')) {
             toggleSidebarCollapse.call(app);
@@ -202,17 +223,27 @@ function setupImpostazioniEventListeners() {
     });
 }
 // Fine funzione setupImpostazioniEventListeners
-// FINE MODIFICA
+
 
 // === FUNZIONI TEMA E DISPLAY ===
-// INIZIO MODIFICA: Nuova funzione per applicare l'arrotondamento
+
+// Inizio funzione updateColorTheme
+function updateColorTheme() {
+    const theme = impostazioniState.colorTheme || 'default';
+    document.documentElement.setAttribute('data-color-theme', theme);
+    
+    if (typeof updateChartsTheme === 'function') {
+        updateChartsTheme();
+    }
+}
+// Fine funzione updateColorTheme
+
 // Inizio funzione updateBorderRadius
 function updateBorderRadius() {
     const radius = impostazioniState.borderRadius || 'medium';
     document.documentElement.setAttribute('data-theme-radius', radius);
 }
 // Fine funzione updateBorderRadius
-// FINE MODIFICA
 
 // Inizio funzione toggleSidebarCollapse
 function toggleSidebarCollapse() {
@@ -247,18 +278,15 @@ function updateFullscreenToggle() {
 
 // === FUNZIONI IMPORT/EXPORT ===
 
-// INIZIO MODIFICA: Funzione di normalizzazione resa più completa per gestire tutte le casistiche
 // Inizio funzione normalizeImportedData
 function normalizeImportedData(data) {
     console.log('Normalizzazione dati importati...');
     let normalizedData = JSON.parse(JSON.stringify(data));
 
-    // 1. Normalizza i turni usando la funzione dedicata da virtual.js
     if (normalizedData.turni && typeof window.normalizeTurniData === 'function') {
         normalizedData.turni = window.normalizeTurniData(normalizedData.turni);
     }
 
-    // 2. Normalizza le transazioni dei clienti (rimuove la vecchia proprietà 'type')
     if (normalizedData.clients && Array.isArray(normalizedData.clients)) {
         normalizedData.clients.forEach(client => {
             if (client.transactions && Array.isArray(client.transactions)) {
@@ -271,7 +299,6 @@ function normalizeImportedData(data) {
         });
     }
     
-    // 3. Assicura che i campi opzionali esistano
     if (!normalizedData.contatti) normalizedData.contatti = [];
     if (!normalizedData.etichette) normalizedData.etichette = [];
     if (!normalizedData.previousYearStock) {
@@ -282,7 +309,6 @@ function normalizeImportedData(data) {
     return normalizedData;
 }
 // Fine funzione normalizeImportedData
-// FINE MODIFICA
 
 // Inizio funzione importData
 function importData(event) {
@@ -386,9 +412,7 @@ function resetAllData() {
     };
     this.saveToStorage('data', this.state.data);
     
-    // INIZIO MODIFICA: Aggiunta la chiave 'borderRadius' all'elenco da rimuovere
-    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeTodos', 'borderRadius'];
-    // FINE MODIFICA
+    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeTodos', 'borderRadius', 'colorTheme'];
     keysToRemove.forEach(key => localStorage.removeItem(`mystation_${key}`));
     
     this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');

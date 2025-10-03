@@ -1,0 +1,106 @@
+/* =============================================
+   File: themes.css
+   Descrizione: Stili per i temi colorati aggiuntivi
+   dell'applicazione MyStation.
+   ============================================= */
+
+/* --- TEMA VIOLA --- */
+/* Inizio Tema Viola */
+
+/* Light Mode Viola */
+html[data-color-theme="viola"] body.theme-light {
+    --color-primary: #7c3aed;
+    --color-primary-hover: #6d28d9;
+    --bg-primary: #f5f3ff;
+    --bg-secondary: #ede9fe;
+    --bg-tertiary: #ddd6fe;
+    --bg-body: #f5f3ff;
+    --border-primary: #dcd7f5;
+    --border-secondary: #c4b5fd;
+    --text-primary: #2c2144;
+    --text-secondary: #5b5171;
+}
+
+/* Dark Mode Viola */
+html[data-color-theme="viola"] body.theme-dark {
+    --color-primary: #a78bfa;
+    --color-primary-hover: #c4b5fd;
+    --bg-primary: #231e33;
+    --bg-secondary: #1a1627;
+    --bg-tertiary: #342c4b;
+    --bg-body: #1a1627;
+    --border-primary: #3c3456;
+    --border-secondary: #4a416a;
+    --text-primary: #e6e0fb;
+    --text-secondary: #ada4c5;
+}
+
+/* Fine Tema Viola */
+
+
+/* --- TEMA AZZURRO --- */
+/* Inizio Tema Azzurro */
+
+/* Light Mode Azzurro */
+html[data-color-theme="azzurro"] body.theme-light {
+    --color-primary: #0ea5e9;
+    --color-primary-hover: #0284c7;
+    --bg-primary: #f0f9ff;
+    --bg-secondary: #e0f2fe;
+    --bg-tertiary: #bae6fd;
+    --bg-body: #f0f9ff;
+    --border-primary: #d8eefc;
+    --border-secondary: #bce3fb;
+    --text-primary: #1f313b;
+    --text-secondary: #4b626f;
+}
+
+/* Dark Mode Azzurro */
+html[data-color-theme="azzurro"] body.theme-dark {
+    --color-primary: #38bdf8;
+    --color-primary-hover: #7dd3fc;
+    --bg-primary: #1c2a38;
+    --bg-secondary: #121e29;
+    --bg-tertiary: #2a4155;
+    --bg-body: #121e29;
+    --border-primary: #344a5e;
+    --border-secondary: #425c72;
+    --text-primary: #e2f1f9;
+    --text-secondary: #a3c2d3;
+}
+
+/* Fine Tema Azzurro */
+
+
+/* --- TEMA VERDE --- */
+/* Inizio Tema Verde */
+
+/* Light Mode Verde */
+html[data-color-theme="verde"] body.theme-light {
+    --color-primary: #16a34a;
+    --color-primary-hover: #15803d;
+    --bg-primary: #f0fdf4;
+    --bg-secondary: #dcfce7;
+    --bg-tertiary: #bbf7d0;
+    --bg-body: #f0fdf4;
+    --border-primary: #d8f7e2;
+    --border-secondary: #c5f2d3;
+    --text-primary: #1c3323;
+    --text-secondary: #3f6049;
+}
+
+/* Dark Mode Verde */
+html[data-color-theme="verde"] body.theme-dark {
+    --color-primary: #4ade80;
+    --color-primary-hover: #86efac;
+    --bg-primary: #1a2e23;
+    --bg-secondary: #112018;
+    --bg-tertiary: #274b36;
+    --bg-body: #112018;
+    --border-primary: #315a42;
+    --border-secondary: #3f7154;
+    --text-primary: #dff9e8;
+    --text-secondary: #a6d7b7;
+}
+
+/* Fine Tema Verde */
