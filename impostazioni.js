@@ -5,22 +5,17 @@
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
-// INIZIO MODIFICA: Rimosso isSidebarCollapsed dallo stato locale
 let impostazioniState = {
     isFullscreen: false,
     borderRadius: 'medium',
     colorTheme: 'default' 
 };
-// FINE MODIFICA
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 // Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
     const app = this;
-    
-    // INIZIO MODIFICA: Rimosso il caricamento dello stato del sidebar da questo modulo
-    // FINE MODIFICA
     
     impostazioniState.borderRadius = app.loadFromStorage('borderRadius', 'medium');
     updateBorderRadius();
@@ -160,9 +155,11 @@ function getImpostazioniModalHTML(app) {
                 </div>
             </div>
             
+            // INIZIO MODIFICA: Sostituita l'emoji del cuore con un'icona Lucide.
             <div style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1.5rem;">
-                <a href="https://github.com/tytus44/mystation" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">MyStation</a>, programmato con ❤️ da NeRO.
+                <a href="https://github.com/tytus44/mystation" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">MyStation</a>, programmato con <i data-lucide="heart" style="width: 1em; height: 1em; vertical-align: -0.125em; color: var(--color-danger); fill: var(--color-danger);"></i> da NeRO.
             </div>
+            // FINE MODIFICA
             
             <div class="modal-actions border-t border-primary pt-6 mt-6">
                 <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
@@ -179,9 +176,7 @@ function showImpostazioniModal(app) {
     
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
     
-    // INIZIO MODIFICA: Aggiunta la classe 'modal-wide' per allargare il modale delle impostazioni.
     modalContentEl.classList.add('modal-wide');
-    // FINE MODIFICA
     
     setupImpostazioniEventListeners(app);
 
@@ -239,11 +234,9 @@ function setupImpostazioniEventListeners(app) {
         if (target.matches('#fullscreen-toggle')) {
             toggleFullscreen();
         }
-        // INIZIO MODIFICA: Chiama la funzione centralizzata in app.js
         if (target.matches('#sidebar-collapse-toggle')) {
             app.toggleSidebarCollapse();
         }
-        // FINE MODIFICA
         if (target.matches('#import-file')) {
             importData.call(app, event);
         }
@@ -291,9 +284,6 @@ function updateBorderRadius() {
     document.documentElement.setAttribute('data-theme-radius', radius);
 }
 // Fine funzione updateBorderRadius
-
-// INIZIO MODIFICA: Rimossa la funzione toggleSidebarCollapse da questo modulo
-// FINE MODIFICA
 
 // Inizio funzione toggleFullscreen
 function toggleFullscreen() {
