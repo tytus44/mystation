@@ -67,9 +67,7 @@ function getImpostazioniModalHTML(app) {
                 <div class="flex items-center justify-between w-full">
                     <span class="font-medium text-primary">Collassa menu laterale</span>
                     <label class="switch">
-                        {/* INIZIO MODIFICA: Legge lo stato direttamente da app.state */}
                         <input type="checkbox" id="sidebar-collapse-toggle" ${app.state.isSidebarCollapsed ? 'checked' : ''}>
-                        {/* FINE MODIFICA */}
                         <span class="switch-slider"></span>
                     </label>
                 </div>
