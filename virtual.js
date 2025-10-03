@@ -30,17 +30,17 @@ let virtualState = {
 // === INIZIALIZZAZIONE MODULO VIRTUAL ===
 // Inizio funzione initVirtualStation
 function initVirtualStation() {
-    console.log('📺 Inizializzazione modulo VirtualStation...');
+    console.log('[VIRTUAL] Inizializzazione modulo VirtualStation...');
     virtualState.virtualFilters.mode = this.loadFromStorage('virtualFilterMode', 'today');
     resetTurnoForm.call(this);
-    console.log('✅ Modulo VirtualStation inizializzato');
+    console.log('[VIRTUAL] Modulo VirtualStation inizializzato');
 }
 // Fine funzione initVirtualStation
 
 // === RENDER SEZIONE VIRTUAL ===
 // Inizio funzione renderVirtualSection
 function renderVirtualSection(container) {
-    console.log('🎨 Rendering sezione VirtualStation...');
+    console.log('[VIRTUAL] Rendering sezione VirtualStation...');
     const app = this;
     renderVirtualListView.call(app, container);
     setupVirtualListViewEventListeners.call(app);
@@ -127,7 +127,6 @@ function getVirtualFormHTML() {
 }
 // Fine funzione getVirtualFormHTML
 
-// INIZIO MODIFICA: Invertite le colonne "Prepay" e "Servito".
 // Inizio funzione getMeseFormHTML
 function getMeseFormHTML(turno = null) {
     const isEdit = !!turno;
@@ -145,11 +144,15 @@ function getMeseFormHTML(turno = null) {
     return `
         <div class="card-header"><h2 class="card-title">${title}</h2></div>
         <div class="card-body">
-            <div class="form-group" style="max-width: 20rem;">
-                <label class="form-label">Data di Riferimento</label>
-                <div class="input-group">
-                    <i data-lucide="calendar" class="input-group-icon"></i>
-                    <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
+            <div class="grid grid-cols-12 gap-4 items-end mb-4">
+                <div class="col-span-3">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Data di Riferimento</label>
+                        <div class="input-group">
+                            <i data-lucide="calendar" class="input-group-icon"></i>
+                            <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="table-container mt-4">
@@ -197,7 +200,6 @@ function getMeseFormHTML(turno = null) {
     `;
 }
 // Fine funzione getMeseFormHTML
-// FINE MODIFICA
 
 // === SETUP EVENT LISTENERS VISTA LISTA ===
 // Inizio funzione setupVirtualListViewEventListeners
@@ -527,7 +529,7 @@ function sortVirtual(column) {
 function getFilteredTurniForPeriod() {
     const app = this;
     if (!app || !app.state || !app.state.data || !Array.isArray(app.state.data.turni)) {
-        console.warn('⚠️ Dati turni non disponibili');
+        console.warn('[VIRTUAL] Dati turni non disponibili');
         return [];
     }
     const now = new Date();
@@ -662,7 +664,7 @@ function renderTurniTable() {
     if (!tbody) return;
     const app = this;
     if (!app || !app.state || !app.state.data) {
-        console.warn('⚠️ Dati app non disponibili per renderTurniTable');
+        console.warn('[VIRTUAL] Dati app non disponibili per renderTurniTable');
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-12"><div class="empty-state"><i data-lucide="monitor-x"></i><div class="empty-state-title">Errore caricamento dati</div></div></td></tr>`;
         return;
     }
@@ -724,9 +726,9 @@ function initCharts() {
         initServiceChart.call(app);
         initMonthlyTrendChart.call(app);
         virtualState.chartsInitialized = true;
-        console.log('✅ Grafici Virtual inizializzati');
+        console.log('[VIRTUAL] Grafici Virtual inizializzati');
     } catch (error) {
-        console.error('❌ Errore inizializzazione grafici Virtual:', error);
+        console.error('[VIRTUAL] Errore inizializzazione grafici Virtual:', error);
     }
 }
 // Fine funzione initCharts
@@ -1024,29 +1026,8 @@ function printVirtualReport() {
     const stats = virtualStats.call(app);
     const statsContainer = document.getElementById('print-virtual-stats');
     statsContainer.innerHTML = `<div class="stat-card"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div></div><div class="stat-card"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div class="stat-value">${app.formatCurrency(stats.revenue)}</div></div></div><div class="stat-card"><div class="stat-content"><div class="stat-label">% Servito</div><div class="stat-value">${stats.servitoPercentage}%</div></div></div>`;
-    const chartsContainer = document.getElementById('print-virtual-charts');
-    chartsContainer.innerHTML = '';
-    try {
-        const productsCanvas = document.getElementById('productsChart');
-        if (productsCanvas) {
-            const productsImgData = productsCanvas.toDataURL('image/png');
-            const productsDiv = document.createElement('div');
-            productsDiv.innerHTML = `<h3>Vendite per Prodotto</h3><img src="${productsImgData}" alt="Grafico Vendite per Prodotto" style="max-width: 100%; height: auto;">`;
-            chartsContainer.appendChild(productsDiv);
-        }
-        const serviceCanvas = document.getElementById('serviceChart');
-        if (serviceCanvas) {
-            const serviceImgData = serviceCanvas.toDataURL('image/png');
-            const serviceDiv = document.createElement('div');
-            serviceDiv.innerHTML = `<h3>Prepay vs Servito</h3><img src="${serviceImgData}" alt="Grafico Prepay vs Servito" style="max-width: 100%; height: auto;">`;
-            chartsContainer.appendChild(serviceDiv);
-        }
-    } catch (error) {
-        console.warn('Errore nella conversione grafici per stampa:', error);
-        chartsContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: #666;"><p>Grafici non disponibili per la stampa</p><p style="font-size: 0.9em;">I grafici sono visibili solo nella versione digitale</p></div>`;
-    }
     document.getElementById('virtual-print-content').classList.remove('hidden');
-    document.getElementById('print-content').classList.add('hidden');
+    document.getElementById('print-anagrafica-content').classList.add('hidden');
     document.getElementById('print-clients-content').classList.add('hidden');
     setTimeout(() => {
         window.print();
@@ -1059,11 +1040,11 @@ function printVirtualReport() {
 function onVirtualSectionOpen() {
     const app = getApp();
     if (!app || !app.state || !app.state.data || !Array.isArray(app.state.data.turni)) {
-        console.log('🔄 Dati non ancora caricati, posticipando inizializzazione grafici...');
+        console.log('[VIRTUAL] Dati non ancora caricati, posticipando inizializzazione grafici...');
         setTimeout(() => {
             const appRetry = getApp();
             if (appRetry && appRetry.state && appRetry.state.data && Array.isArray(appRetry.state.data.turni)) {
-                console.log('✅ Dati caricati, inizializzando grafici...');
+                console.log('[VIRTUAL] Dati caricati, inizializzando grafici...');
                 onVirtualSectionOpen();
             }
         }, 500);
@@ -1082,9 +1063,9 @@ function onVirtualSectionOpen() {
 
 // Inizio funzione normalizeTurniData
 function normalizeTurniData(turni) {
-    console.log('🔧 Normalizzazione dati turni dal backup...');
+    console.log('[VIRTUAL] Normalizzazione dati turni dal backup...');
     if (!Array.isArray(turni)) {
-        console.warn('⚠️ Dati turni non validi - non è un array');
+        console.warn('[VIRTUAL] Dati turni non validi - non e un array');
         return [];
     }
     return turni.map(turno => {
@@ -1113,22 +1094,22 @@ function normalizeTurniData(turni) {
 
 // Inizio funzione diagnosticaERiparaTurni
 function diagnosticaERiparaTurni() {
-    console.log('🔍 Inizio diagnostica turni esistenti...');
+    console.log('[VIRTUAL] Inizio diagnostica turni esistenti...');
     const app = getApp();
     if (!app || !app.state.data.turni) {
-        console.log('❌ Nessun dato turni trovato');
+        console.log('[VIRTUAL] Nessun dato turni trovato');
         return false;
     }
     const turniOriginali = app.state.data.turni;
     const turniNormalizzati = normalizeTurniData(turniOriginali);
     if (JSON.stringify(turniOriginali) === JSON.stringify(turniNormalizzati)) {
-        console.log('✅ Tutti i turni sono già normalizzati');
+        console.log('[VIRTUAL] Tutti i turni sono gia normalizzati');
         return true;
     }
-    console.log(`🔧 Trovati turni da normalizzare. Procedo con la correzione...`);
+    console.log('[VIRTUAL] Trovati turni da normalizzare. Procedo con la correzione...');
     app.state.data.turni = turniNormalizzati;
     app.saveToStorage('data', app.state.data);
-    console.log(`✅ Normalizzazione completata!`);
+    console.log('[VIRTUAL] Normalizzazione completata!');
     if (app.state.currentSection === 'virtual') {
         renderTurniTable.call(app);
         safeUpdateCharts.call(app);
