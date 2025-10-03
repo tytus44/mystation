@@ -150,7 +150,7 @@ function getImpostazioniModalHTML(app) {
             </div>
             
             <div class="card border-danger mt-6">
-                <div class="card-body">
+                <div class="card-body text-center">
                     
                     <p class="text-sm text-danger mb-4">
                         ATTENZIONE! Tutti i dati saranno eliminati definitivamente!                    </p>
@@ -178,6 +178,11 @@ function showImpostazioniModal(app) {
     const modalContentEl = document.getElementById('form-modal-content');
     
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
+    
+    // INIZIO MODIFICA: Aggiunta la classe 'modal-wide' per allargare il modale delle impostazioni.
+    modalContentEl.classList.add('modal-wide');
+    // FINE MODIFICA
+    
     setupImpostazioniEventListeners(app);
 
     app.refreshIcons();
