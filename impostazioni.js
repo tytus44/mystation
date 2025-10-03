@@ -153,7 +153,7 @@ function getImpostazioniModalHTML() {
                 <div class="card-body">
                     
                     <p class="text-sm text-danger mb-4">
-                        ATTENZIONE! Tutti i dati saranno eliminati definitivamente!                    </p>
+                        ATTENZIONE! Tutti i dati saranno eliminati definitivamente! E' irreversibile!                   </p>
                     <button id="reset-data-btn" class="btn btn-danger">
                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Reset Tutti i Dati
                     </button>
