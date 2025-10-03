@@ -231,6 +231,11 @@ function setupImpostazioniEventListeners() {
         if (target.matches('#dark-mode-toggle')) {
             app.toggleTheme();
         }
+        // INIZIO MODIFICA: Aggiunto event listener per il toggle fullscreen
+        if (target.matches('#fullscreen-toggle')) {
+            toggleFullscreen();
+        }
+        // FINE MODIFICA
         if (target.matches('#sidebar-collapse-toggle')) {
             toggleSidebarCollapse.call(app);
         }
