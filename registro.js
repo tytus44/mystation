@@ -231,6 +231,7 @@ function getRegistroFormHTML() {
         `;
     };
 
+    // INIZIO MODIFICA: Rimossa l'icona calendario e il suo contenitore 'input-group' per coerenza con le altre sezioni.
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
@@ -240,11 +241,8 @@ function getRegistroFormHTML() {
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">Data</label>
-                        <div class="input-group">
-                            <i data-lucide="calendar" class="input-group-icon"></i>
-                            <input type="text" id="carico-date" class="form-control" 
-                                   placeholder="gg.mm.aaaa" value="${registroState.registryForm.date}" autocomplete="off">
-                        </div>
+                        <input type="text" id="carico-date" class="form-control" 
+                               placeholder="gg.mm.aaaa" value="${registroState.registryForm.date}" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nome Autista</label>
@@ -294,6 +292,7 @@ function getRegistroFormHTML() {
             </div>
         </div>
     `;
+    // FINE MODIFICA
 }
 // Fine funzione getRegistroFormHTML
 

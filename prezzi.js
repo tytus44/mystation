@@ -11,7 +11,7 @@ let prezziState = {
     editingListino: null,
     listinoForm: {
         date: '',
-        variazione: 'Entrambi',
+        variazione: 'Altro',
         benzina: '',
         gasolio: '',
         dieselPlus: '',
@@ -159,6 +159,7 @@ function getListinoFormHTML() {
     const isEdit = !!prezziState.editingListino;
     const title = isEdit ? 'Modifica Listino' : 'Nuovo Listino';
     
+    // INIZIO MODIFICA: Rimossa l'icona calendario e il suo contenitore 'input-group' per coerenza con le altre sezioni.
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
@@ -168,17 +169,14 @@ function getListinoFormHTML() {
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">Data</label>
-                        <div class="input-group">
-                            <i data-lucide="calendar" class="input-group-icon"></i>
-                            <input type="text" id="listino-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.listinoForm.date}" autocomplete="off">
-                        </div>
+                        <input type="text" id="listino-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.listinoForm.date}" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Variazione</label>
                         <div class="btn-group w-full">
                             <button class="btn ${prezziState.listinoForm.variazione === 'Aumento' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Aumento">Aumento</button>
                             <button class="btn ${prezziState.listinoForm.variazione === 'Diminuzione' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Diminuzione">Diminuzione</button>
-                            <button class="btn ${prezziState.listinoForm.variazione === 'Entrambi' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Entrambi">Entrambi</button>
+                            <button class="btn ${prezziState.listinoForm.variazione === 'Altro' ? 'btn-primary active' : 'btn-secondary'}" data-variazione="Altro">Altro</button>
                         </div>
                     </div>
                 </div>
@@ -213,11 +211,13 @@ function getListinoFormHTML() {
             </div>
         </div>
     `;
+    // FINE MODIFICA
 }
 // Fine funzione getListinoFormHTML
 
 // Inizio funzione getConcorrenzaFormHTML
 function getConcorrenzaFormHTML() {
+    // INIZIO MODIFICA: Rimossa l'icona calendario e il suo contenitore 'input-group' per coerenza con le altre sezioni.
     return `
         <div class="card-header">
             <h2 class="card-title">Aggiorna Prezzi Concorrenza</h2>
@@ -226,10 +226,7 @@ function getConcorrenzaFormHTML() {
             <div class="space-y-6">
                 <div class="form-group max-w-sm">
                     <label class="form-label">Data</label>
-                    <div class="input-group">
-                        <i data-lucide="calendar" class="input-group-icon"></i>
-                        <input type="text" id="concorrenza-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.concorrenzaForm.date}" autocomplete="off">
-                    </div>
+                    <input type="text" id="concorrenza-date" class="form-control" placeholder="gg.mm.aaaa" value="${prezziState.concorrenzaForm.date}" autocomplete="off">
                 </div>
 
                 <div class="grid grid-cols-3 gap-6">
@@ -259,6 +256,7 @@ function getConcorrenzaFormHTML() {
             </div>
         </div>
     `;
+    // FINE MODIFICA
 }
 // Fine funzione getConcorrenzaFormHTML
 
@@ -353,7 +351,7 @@ function showEditListino(listino) {
     prezziState.editingListino = { ...listino };
     prezziState.listinoForm = {
         date: app.formatToItalianDate(listino.date),
-        variazione: listino.variazione || 'Entrambi',
+        variazione: listino.variazione || 'Altro',
         benzina: listino.benzina || '', gasolio: listino.gasolio || '',
         dieselPlus: listino.dieselPlus || '', hvolution: listino.hvolution || '',
         adblue: listino.adblue || ''
@@ -452,7 +450,7 @@ function resetListinoForm() {
     const latest = currentPrices.call(this);
     prezziState.listinoForm = {
         date: this.getTodayFormatted(),
-        variazione: 'Entrambi',
+        variazione: 'Altro',
         benzina: latest.benzina || '',
         gasolio: latest.gasolio || '',
         dieselPlus: latest.dieselPlus || '',

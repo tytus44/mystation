@@ -102,11 +102,12 @@ function renderVirtualListView(container) {
 function getVirtualFormHTML() {
     const isEdit = !!virtualState.editingTurno;
     const title = isEdit ? 'Modifica Turno' : 'Nuovo Turno';
+    // INIZIO MODIFICA: Rimossa l'icona calendario e il suo contenitore 'input-group' per coerenza con le altre sezioni.
     return `
         <div class="card-header"><h2 class="card-title">${title}</h2></div>
         <div class="card-body">
             <div class="grid grid-cols-12 gap-4 items-end mb-4">
-                <div class="col-span-3"><div class="form-group mb-0"><label class="form-label">Data</label><div class="input-group"><i data-lucide="calendar" class="input-group-icon"></i><input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}" autocomplete="off"></div></div></div>
+                <div class="col-span-3"><div class="form-group mb-0"><label class="form-label">Data</label><input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}" autocomplete="off"></div></div>
                 <div class="col-span-9"><div class="form-group mb-0"><label class="form-label">Tipo Turno</label><div class="btn-group w-full" role="group"><button type="button" id="tab-Notte" class="btn ${virtualState.turnoForm.turno === 'Notte' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Notte">Notte</button><button type="button" id="tab-Mattina" class="btn ${virtualState.turnoForm.turno === 'Mattina' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Mattina">Mattina</button><button type="button" id="tab-Pausa" class="btn ${virtualState.turnoForm.turno === 'Pausa' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pausa">Pausa</button><button type="button" id="tab-Pomeriggio" class="btn ${virtualState.turnoForm.turno === 'Pomeriggio' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pomeriggio">Pomeriggio</button><button type="button" id="tab-Weekend" class="btn ${virtualState.turnoForm.turno === 'Weekend' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Weekend">Weekend</button></div></div></div>
             </div>
             <div class="table-container">
@@ -124,6 +125,7 @@ function getVirtualFormHTML() {
             <div class="flex justify-end space-x-4 mt-4"><button id="cancel-turno-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-turno-btn" class="btn btn-primary">Salva Turno</button></div>
         </div>
     `;
+    // FINE MODIFICA
 }
 // Fine funzione getVirtualFormHTML
 
@@ -141,6 +143,7 @@ function getMeseFormHTML(turno = null) {
     const prepay = isEdit ? turno.prepay || {} : {};
     const servito = isEdit ? turno.servito || {} : {};
 
+    // INIZIO MODIFICA: Rimossa l'icona calendario e il suo contenitore 'input-group' per coerenza.
     return `
         <div class="card-header"><h2 class="card-title">${title}</h2></div>
         <div class="card-body">
@@ -148,10 +151,7 @@ function getMeseFormHTML(turno = null) {
                 <div class="col-span-3">
                     <div class="form-group mb-0">
                         <label class="form-label">Data di Riferimento</label>
-                        <div class="input-group">
-                            <i data-lucide="calendar" class="input-group-icon"></i>
-                            <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
-                        </div>
+                        <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -198,6 +198,7 @@ function getMeseFormHTML(turno = null) {
             </div>
         </div>
     `;
+    // FINE MODIFICA
 }
 // Fine funzione getMeseFormHTML
 
