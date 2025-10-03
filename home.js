@@ -497,12 +497,6 @@ function renderCalendarDays() {
         if (day.isToday) dayEl.classList.add('today');
         if (day.isHoliday) dayEl.classList.add('holiday');
         if (day.isSunday) dayEl.classList.add('sunday');
-        
-		if (day.isToday && (day.isHoliday || day.isSunday)) {
-			dayEl.style.setProperty('background-color', 'rgba(255, 32, 78, 0.1)', 'important');
-			dayEl.style.setProperty('border-color', 'rgba(255, 32, 78, 0.3)', 'important');
-			dayEl.style.setProperty('color', 'var(--color-danger)', 'important');
-		}
 
         if (day.date === homeState.calendar.selectedDate) dayEl.classList.add('selected');
         if (!day.value) dayEl.classList.add('empty');
@@ -951,7 +945,7 @@ function showAddTodoModal(dateString) {
             
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-todo-btn" class="btn btn-primary">Salva Attività</button></div>
         </div>`;
-    modalContentEl.classList.add('modal-wide');
+    modalContentEl.classList.add('modal-todo');
     setupTodoModalEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
@@ -1007,7 +1001,7 @@ function showEditTodoModal(todo) {
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-edit-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="update-todo-btn" class="btn btn-primary">Aggiorna Attività</button></div>
         </div>`;
         
-    modalContentEl.classList.add('modal-wide');
+    modalContentEl.classList.add('modal-todo');
     setupEditTodoModalEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
