@@ -89,12 +89,10 @@ class MyStationApp {
                 e.preventDefault();
                 const section = link.getAttribute('data-section');
 
-                // INIZIO MODIFICA: Passa l'istanza corrente di 'app' (this) al modale
                 if (section === 'impostazioni') {
                     if (typeof showImpostazioniModal === 'function') {
                         showImpostazioniModal(this);
                     }
-                // FINE MODIFICA
                 } else if (section) {
                     this.switchSection(section);
                 }
@@ -273,10 +271,21 @@ class MyStationApp {
     // === GESTIONE LAYOUT SIDEBAR ===
     // Inizio funzione updateSidebarLayout
     updateSidebarLayout() {
-        this.state.isSidebarCollapsed = this.loadFromStorage('isSidebarCollapsed', false);
+        // INIZIO MODIFICA: Semplificata la funzione per usare lo stato in memoria
         document.body.classList.toggle('sidebar-collapsed', this.state.isSidebarCollapsed);
+        // FINE MODIFICA
     }
     // Fine funzione updateSidebarLayout
+    
+    // INIZIO MODIFICA: Aggiunta funzione per centralizzare la logica del collassamento
+    // Inizio funzione toggleSidebarCollapse
+    toggleSidebarCollapse() {
+        this.state.isSidebarCollapsed = !this.state.isSidebarCollapsed;
+        this.saveToStorage('isSidebarCollapsed', this.state.isSidebarCollapsed);
+        this.updateSidebarLayout();
+    }
+    // Fine funzione toggleSidebarCollapse
+    // FINE MODIFICA
     
     // === NOTIFICHE ===
     // Inizio funzione showNotification

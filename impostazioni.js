@@ -5,21 +5,22 @@
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
+// INIZIO MODIFICA: Rimosso isSidebarCollapsed dallo stato locale
 let impostazioniState = {
     isFullscreen: false,
-    isSidebarCollapsed: false,
     borderRadius: 'medium',
     colorTheme: 'default' 
 };
+// FINE MODIFICA
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 // Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
-    // INIZIO MODIFICA: Utilizzo di 'this' invece di getApp() per evitare race condition
     const app = this;
+    
+    // INIZIO MODIFICA: Rimosso il caricamento dello stato del sidebar da questo modulo
     // FINE MODIFICA
-    impostazioniState.isSidebarCollapsed = app.loadFromStorage('isSidebarCollapsed', false);
     
     impostazioniState.borderRadius = app.loadFromStorage('borderRadius', 'medium');
     updateBorderRadius();
@@ -38,9 +39,7 @@ function initImpostazioni() {
 
 // === HTML DEL MODALE IMPOSTAZIONI ===
 // Inizio funzione getImpostazioniModalHTML
-// INIZIO MODIFICA: La funzione ora accetta l'istanza 'app' come parametro
 function getImpostazioniModalHTML(app) {
-// FINE MODIFICA
     return `
         <div class="card-header">
             <h2 class="card-title">Impostazioni</h2>
@@ -68,7 +67,9 @@ function getImpostazioniModalHTML(app) {
                 <div class="flex items-center justify-between w-full">
                     <span class="font-medium text-primary">Collassa menu laterale</span>
                     <label class="switch">
-                        <input type="checkbox" id="sidebar-collapse-toggle" ${impostazioniState.isSidebarCollapsed ? 'checked' : ''}>
+                        {/* INIZIO MODIFICA: Legge lo stato direttamente da app.state */}
+                        <input type="checkbox" id="sidebar-collapse-toggle" ${app.state.isSidebarCollapsed ? 'checked' : ''}>
+                        {/* FINE MODIFICA */}
                         <span class="switch-slider"></span>
                     </label>
                 </div>
@@ -175,15 +176,11 @@ function getImpostazioniModalHTML(app) {
 
 // === FUNZIONE PER MOSTRARE IL MODALE ===
 // Inizio funzione showImpostazioniModal
-// INIZIO MODIFICA: La funzione ora accetta l'istanza 'app' come parametro
 function showImpostazioniModal(app) {
-// FINE MODIFICA
     const modalContentEl = document.getElementById('form-modal-content');
     
-    // INIZIO MODIFICA: Passa l'istanza 'app' alle funzioni dipendenti
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
     setupImpostazioniEventListeners(app);
-    // FINE MODIFICA
 
     app.refreshIcons();
     app.showFormModal();
@@ -192,9 +189,7 @@ function showImpostazioniModal(app) {
 
 // === SETUP EVENT LISTENERS ===
 // Inizio funzione setupImpostazioniEventListeners
-// INIZIO MODIFICA: La funzione ora accetta l'istanza 'app' come parametro
 function setupImpostazioniEventListeners(app) {
-// FINE MODIFICA
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
@@ -234,7 +229,6 @@ function setupImpostazioniEventListeners(app) {
         const target = event.target;
 
         if (target.matches('#dark-mode-toggle')) {
-            // Esegui il toggle solo se lo stato della UI e lo stato dell'app non sono sincronizzati
             if (target.checked !== app.state.isDarkMode) {
                 app.toggleTheme();
             }
@@ -242,9 +236,11 @@ function setupImpostazioniEventListeners(app) {
         if (target.matches('#fullscreen-toggle')) {
             toggleFullscreen();
         }
+        // INIZIO MODIFICA: Chiama la funzione centralizzata in app.js
         if (target.matches('#sidebar-collapse-toggle')) {
-            toggleSidebarCollapse.call(app);
+            app.toggleSidebarCollapse();
         }
+        // FINE MODIFICA
         if (target.matches('#import-file')) {
             importData.call(app, event);
         }
@@ -293,13 +289,8 @@ function updateBorderRadius() {
 }
 // Fine funzione updateBorderRadius
 
-// Inizio funzione toggleSidebarCollapse
-function toggleSidebarCollapse() {
-    impostazioniState.isSidebarCollapsed = !impostazioniState.isSidebarCollapsed;
-    this.saveToStorage('isSidebarCollapsed', impostazioniState.isSidebarCollapsed);
-    this.updateSidebarLayout();
-}
-// Fine funzione toggleSidebarCollapse
+// INIZIO MODIFICA: Rimossa la funzione toggleSidebarCollapse da questo modulo
+// FINE MODIFICA
 
 // Inizio funzione toggleFullscreen
 function toggleFullscreen() {
