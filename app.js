@@ -89,10 +89,12 @@ class MyStationApp {
                 e.preventDefault();
                 const section = link.getAttribute('data-section');
 
+                // INIZIO MODIFICA: Passa l'istanza corrente di 'app' (this) al modale
                 if (section === 'impostazioni') {
                     if (typeof showImpostazioniModal === 'function') {
-                        showImpostazioniModal();
+                        showImpostazioniModal(this);
                     }
+                // FINE MODIFICA
                 } else if (section) {
                     this.switchSection(section);
                 }

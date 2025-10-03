@@ -38,8 +38,9 @@ function initImpostazioni() {
 
 // === HTML DEL MODALE IMPOSTAZIONI ===
 // Inizio funzione getImpostazioniModalHTML
-function getImpostazioniModalHTML() {
-    const app = getApp();
+// INIZIO MODIFICA: La funzione ora accetta l'istanza 'app' come parametro
+function getImpostazioniModalHTML(app) {
+// FINE MODIFICA
     return `
         <div class="card-header">
             <h2 class="card-title">Impostazioni</h2>
@@ -174,13 +175,16 @@ function getImpostazioniModalHTML() {
 
 // === FUNZIONE PER MOSTRARE IL MODALE ===
 // Inizio funzione showImpostazioniModal
-function showImpostazioniModal() {
-    const app = getApp();
+// INIZIO MODIFICA: La funzione ora accetta l'istanza 'app' come parametro
+function showImpostazioniModal(app) {
+// FINE MODIFICA
     const modalContentEl = document.getElementById('form-modal-content');
     
-    modalContentEl.innerHTML = getImpostazioniModalHTML();
-    
-    setupImpostazioniEventListeners();
+    // INIZIO MODIFICA: Passa l'istanza 'app' alle funzioni dipendenti
+    modalContentEl.innerHTML = getImpostazioniModalHTML(app);
+    setupImpostazioniEventListeners(app);
+    // FINE MODIFICA
+
     app.refreshIcons();
     app.showFormModal();
 }
@@ -188,8 +192,9 @@ function showImpostazioniModal() {
 
 // === SETUP EVENT LISTENERS ===
 // Inizio funzione setupImpostazioniEventListeners
-function setupImpostazioniEventListeners() {
-    const app = getApp();
+// INIZIO MODIFICA: La funzione ora accetta l'istanza 'app' come parametro
+function setupImpostazioniEventListeners(app) {
+// FINE MODIFICA
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
@@ -229,13 +234,14 @@ function setupImpostazioniEventListeners() {
         const target = event.target;
 
         if (target.matches('#dark-mode-toggle')) {
-            app.toggleTheme();
+            // Esegui il toggle solo se lo stato della UI e lo stato dell'app non sono sincronizzati
+            if (target.checked !== app.state.isDarkMode) {
+                app.toggleTheme();
+            }
         }
-        // INIZIO MODIFICA: Aggiunto event listener per il toggle fullscreen
         if (target.matches('#fullscreen-toggle')) {
             toggleFullscreen();
         }
-        // FINE MODIFICA
         if (target.matches('#sidebar-collapse-toggle')) {
             toggleSidebarCollapse.call(app);
         }
