@@ -99,7 +99,7 @@ function renderHomeSection(container) {
     container.innerHTML = `
         <div class="space-y-6">
             <div class="grid grid-cols-3 gap-6">
-                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
                     <div class="stat-content">
                         <div class="stat-label">Litri venduti oggi</div>
                         <div class="stat-value">${app.formatInteger(stats.totalLitersToday)}</div>
@@ -118,7 +118,7 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
+                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
                     <div class="stat-content">
                         <div class="stat-label">% Servito Oggi</div>
                         <div class="stat-value">${stats.overallServitoPercentage}%</div>
@@ -135,7 +135,7 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
                     <div class="stat-content">
                         <div class="stat-label">Fatturato giornaliero</div>
                         <div class="stat-value">${app.formatCurrency(stats.totalRevenueToday)}</div>
