@@ -80,7 +80,7 @@ body {
     
     --radius-val-none: 0rem;
     --radius-val-medium: 0.375rem;
-    --radius-val-high: 0.75rem;
+    --radius-val-high: 2rem;
     --radius-base: var(--radius-val-medium);
     --radius-sm: calc(var(--radius-base) * 0.66);
     --radius-md: var(--radius-base);
