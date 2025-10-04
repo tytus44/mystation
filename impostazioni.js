@@ -145,7 +145,7 @@ function getImpostazioniModalHTML(app) {
             </div>
             
             <div class="card border-danger mt-6">
-                <div class="card-body text-center">
+                <div class="card-body">
                     
                     <p class="text-sm text-danger mb-4">
                         ATTENZIONE! Tutti i dati saranno eliminati definitivamente!                    </p>
@@ -156,7 +156,7 @@ function getImpostazioniModalHTML(app) {
             </div>
             
             <div style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1.5rem;">
-                <a href="https://github.com/tytus44/mystation" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">MyStation</a>, programmato con <i data-lucide="heart" style="width: 1em; height: 1em; vertical-align: -0.125em; color: var(--color-danger); fill: var(--color-danger);"></i> da NeRO.
+                <a href="https://github.com/tytus44/mystation" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">MyStation</a>, programmato con ❤️ da NeRO.
             </div>
             
             <div class="modal-actions border-t border-primary pt-6 mt-6">
@@ -173,11 +173,6 @@ function showImpostazioniModal(app) {
     const modalContentEl = document.getElementById('form-modal-content');
     
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
-    
-
-    modalContentEl.style.maxWidth = '700px';
-
-    
     setupImpostazioniEventListeners(app);
 
     app.refreshIcons();
@@ -185,85 +180,104 @@ function showImpostazioniModal(app) {
 }
 // Fine funzione showImpostazioniModal
 
+// INIZIO MODIFICA: Refactoring degli event handler per prevenire download multipli.
+// Le funzioni di gestione degli eventi sono state estratte per consentirne la rimozione e prevenire la loro duplicazione ad ogni apertura del modale.
+
+// Inizio funzione handleImpostazioniClick
+function handleImpostazioniClick(event) {
+    const app = getApp();
+    const target = event.target;
+    const modalContent = document.getElementById('form-modal-content');
+    if (!modalContent) return;
+
+    if (target.closest('#import-btn')) {
+        modalContent.querySelector('#import-file')?.click();
+    }
+    if (target.closest('#export-btn')) {
+        exportData.call(app);
+    }
+    if (target.closest('#reset-data-btn')) {
+        confirmReset.call(app);
+    }
+    if (target.closest('#close-impostazioni-btn')) {
+        app.hideFormModal();
+    }
+    
+    const radiusBtn = target.closest('[data-radius]');
+    if (radiusBtn) {
+        const newRadius = radiusBtn.dataset.radius;
+        impostazioniState.borderRadius = newRadius;
+        app.saveToStorage('borderRadius', newRadius);
+        updateBorderRadius();
+
+        modalContent.querySelectorAll('[data-radius]').forEach(btn => {
+            const isActive = btn.dataset.radius === newRadius;
+            btn.classList.toggle('btn-primary', isActive);
+            btn.classList.toggle('active', isActive);
+            btn.classList.toggle('btn-secondary', !isActive);
+        });
+    }
+}
+// Fine funzione handleImpostazioniClick
+
+// Inizio funzione handleImpostazioniChange
+function handleImpostazioniChange(event) {
+    const app = getApp();
+    const target = event.target;
+    const modalContent = document.getElementById('form-modal-content');
+    if (!modalContent) return;
+
+    if (target.matches('#dark-mode-toggle')) {
+        if (target.checked !== app.state.isDarkMode) {
+            app.toggleTheme();
+        }
+    }
+    if (target.matches('#fullscreen-toggle')) {
+        toggleFullscreen();
+    }
+    if (target.matches('#sidebar-collapse-toggle')) {
+        app.toggleSidebarCollapse();
+    }
+    if (target.matches('#import-file')) {
+        importData.call(app, event);
+    }
+    
+    if (target.matches('input[name="color-theme"]')) {
+        const newTheme = target.value;
+        impostazioniState.colorTheme = newTheme;
+        app.saveToStorage('colorTheme', newTheme);
+        updateColorTheme();
+        
+        modalContent.querySelectorAll('.color-theme-circle').forEach(circle => {
+            const radio = circle.previousElementSibling || circle.parentElement.querySelector('input[type="radio"]');
+            if (!radio) {
+                radio = circle.closest('label').querySelector('input[type="radio"]');
+            }
+            
+            const isChecked = radio && radio.checked;
+            circle.style.border = isChecked ? '2px solid var(--color-primary)' : '2px solid transparent';
+            circle.innerHTML = isChecked ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : '';
+        });
+    }
+}
+// Fine funzione handleImpostazioniChange
+
 // === SETUP EVENT LISTENERS ===
 // Inizio funzione setupImpostazioniEventListeners
 function setupImpostazioniEventListeners(app) {
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
-    modalContent.addEventListener('click', (event) => {
-        const target = event.target;
-        
-        if (target.closest('#import-btn')) {
-            modalContent.querySelector('#import-file')?.click();
-        }
-        if (target.closest('#export-btn')) {
-            exportData.call(app);
-        }
-        if (target.closest('#reset-data-btn')) {
-            confirmReset.call(app);
-        }
-        if (target.closest('#close-impostazioni-btn')) {
-            app.hideFormModal();
-        }
-        
-        const radiusBtn = target.closest('[data-radius]');
-        if (radiusBtn) {
-            const newRadius = radiusBtn.dataset.radius;
-            impostazioniState.borderRadius = newRadius;
-            app.saveToStorage('borderRadius', newRadius);
-            updateBorderRadius();
+    // Rimuove i listener precedenti per evitare duplicazioni che causano esportazioni multiple
+    modalContent.removeEventListener('click', handleImpostazioniClick);
+    modalContent.removeEventListener('change', handleImpostazioniChange);
 
-            modalContent.querySelectorAll('[data-radius]').forEach(btn => {
-                const isActive = btn.dataset.radius === newRadius;
-                btn.classList.toggle('btn-primary', isActive);
-                btn.classList.toggle('active', isActive);
-                btn.classList.toggle('btn-secondary', !isActive);
-            });
-        }
-    });
-
-    modalContent.addEventListener('change', (event) => {
-        const target = event.target;
-
-        if (target.matches('#dark-mode-toggle')) {
-            if (target.checked !== app.state.isDarkMode) {
-                app.toggleTheme();
-            }
-        }
-        if (target.matches('#fullscreen-toggle')) {
-            toggleFullscreen();
-        }
-        if (target.matches('#sidebar-collapse-toggle')) {
-            app.toggleSidebarCollapse();
-        }
-        if (target.matches('#import-file')) {
-            importData.call(app, event);
-        }
-        
-        // Gestione dei radio button per i temi colorati
-        if (target.matches('input[name="color-theme"]')) {
-            const newTheme = target.value;
-            impostazioniState.colorTheme = newTheme;
-            app.saveToStorage('colorTheme', newTheme);
-            updateColorTheme();
-            
-            // Aggiorna visivamente i cerchi colorati
-            modalContent.querySelectorAll('.color-theme-circle').forEach(circle => {
-                const radio = circle.previousElementSibling || circle.parentElement.querySelector('input[type="radio"]');
-                if (!radio) {
-                    radio = circle.closest('label').querySelector('input[type="radio"]');
-                }
-                
-                const isChecked = radio && radio.checked;
-                circle.style.border = isChecked ? '2px solid var(--color-primary)' : '2px solid transparent';
-                circle.innerHTML = isChecked ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : '';
-            });
-        }
-    });
+    // Aggiunge i listener aggiornati
+    modalContent.addEventListener('click', handleImpostazioniClick);
+    modalContent.addEventListener('change', handleImpostazioniChange);
 }
 // Fine funzione setupImpostazioniEventListeners
-
+// FINE MODIFICA
 
 // === FUNZIONI TEMA E DISPLAY ===
 
