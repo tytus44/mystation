@@ -1904,7 +1904,6 @@ select.form-control {
     color: var(--text-tertiary);
 }
 
-/* INIZIO MODIFICA: Icona circle-user nell'angolo in basso a destra */
 .contatto-user-icon {
     position: absolute;
     bottom: 12px;
@@ -1922,7 +1921,6 @@ select.form-control {
 .contatto-card:hover .contatto-user-icon {
     opacity: 0.5;
 }
-/* FINE MODIFICA */
 
 .contatto-card .etichetta-badge {
     display: inline-flex;
@@ -2397,7 +2395,6 @@ select.form-control {
 
 /* =============================================
    CSS AGGIUNTIVO PER MODALE IMPOSTAZIONI
-   Da aggiungere al file styles.css esistente
    ============================================= */
 
 /* === LAYOUT MODALE IMPOSTAZIONI === */
@@ -2486,24 +2483,24 @@ select.form-control {
     background: linear-gradient(135deg, #2563eb, #60a5fa);
 }
 
-.color-theme-circle.theme-ocean {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
-}
-
-.color-theme-circle.theme-sunset {
-    background: linear-gradient(135deg, #f59e0b, #fb923c);
-}
-
-.color-theme-circle.theme-forest {
-    background: linear-gradient(135deg, #059669, #10b981);
-}
-
-.color-theme-circle.theme-lavender {
+.color-theme-circle.theme-viola {
     background: linear-gradient(135deg, #8b5cf6, #a78bfa);
 }
 
-.color-theme-circle.theme-crimson {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
+.color-theme-circle.theme-azzurro {
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+}
+
+.color-theme-circle.theme-verde {
+    background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.color-theme-circle.theme-arancione {
+    background: linear-gradient(135deg, #f97316, #fb923c);
+}
+
+.color-theme-circle.theme-rosa {
+    background: linear-gradient(135deg, #ec4899, #f472b6);
 }
 
 /* === RESPONSIVE === */

@@ -100,20 +100,28 @@ function getImpostazioniModalHTML(app) {
                     </div>
                     
                     <!-- Riquadro Temi colore -->
-                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
-                        <label class="font-medium text-primary mb-3" style="display: block;">
+                    <div style="padding: 0.75rem; border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                        <label class="font-medium text-primary" style="display: block; margin-bottom: 0.5rem;">
                             Tema colore
                         </label>
                         <div class="color-theme-grid">
-                            ${['default', 'ocean', 'sunset', 'forest', 'lavender', 'crimson'].map(theme => {
+                            ${['default', 'viola', 'azzurro', 'verde', 'arancione', 'rosa'].map(theme => {
                                 const isChecked = (impostazioniState.colorTheme || 'default') === theme;
+                                const themeNames = {
+                                    'default': 'Default',
+                                    'viola': 'Viola',
+                                    'azzurro': 'Azzurro',
+                                    'verde': 'Verde',
+                                    'arancione': 'Arancione',
+                                    'rosa': 'Rosa'
+                                };
                                 return `
                                     <label class="color-theme-option">
                                         <input type="radio" name="color-theme" value="${theme}" ${isChecked ? 'checked' : ''} style="display: none;">
                                         <div class="color-theme-circle theme-${theme}" style="border: 2px solid ${isChecked ? 'var(--color-primary)' : 'transparent'};">
                                             ${isChecked ? '<span style="color: white; font-size: 12px; font-weight: bold;">✓</span>' : ''}
                                         </div>
-                                        <span class="color-theme-label">${theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
+                                        <span class="color-theme-label">${themeNames[theme]}</span>
                                     </label>
                                 `;
                             }).join('')}
