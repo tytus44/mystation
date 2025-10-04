@@ -2451,3 +2451,151 @@ select.form-control {
         font-weight: bold;
     }
 }
+
+/* =============================================
+   CSS AGGIUNTIVO PER MODALE IMPOSTAZIONI
+   Da aggiungere al file styles.css esistente
+   ============================================= */
+
+/* === LAYOUT MODALE IMPOSTAZIONI === */
+
+.impostazioni-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+.impostazioni-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.impostazioni-section:first-child {
+    border-right: 1px solid var(--border-primary);
+    padding-right: var(--spacing-xl);
+}
+
+.impostazioni-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+/* === GRIGLIA TEMI COLORE === */
+
+.color-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.color-theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s ease;
+}
+
+.color-theme-option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.color-theme-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.color-theme-circle span {
+    font-size: 12px;
+}
+
+.color-theme-circle:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+.color-theme-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-align: center;
+}
+
+/* === STILI TEMI COLORE === */
+
+.color-theme-circle.theme-default {
+    background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+
+.color-theme-circle.theme-ocean {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+}
+
+.color-theme-circle.theme-sunset {
+    background: linear-gradient(135deg, #f59e0b, #fb923c);
+}
+
+.color-theme-circle.theme-forest {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.color-theme-circle.theme-lavender {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
+.color-theme-circle.theme-crimson {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 768px) {
+    .impostazioni-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .impostazioni-section:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border-primary);
+        padding-right: 0;
+        padding-bottom: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .color-theme-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .color-theme-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .color-theme-circle {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .color-theme-circle span {
+        font-size: 10px;
+    }
+}

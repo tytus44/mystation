@@ -36,130 +36,146 @@ function initImpostazioni() {
 // Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML(app) {
     return `
-        <div class="card-header">
-            <h2 class="card-title">Impostazioni</h2>
-        </div>
-        <div class="card-body space-y-6">
+        <div class="card-body">
             
-            <div class="space-y-4">
+            <!-- Grid a 2 colonne per il layout delle impostazioni -->
+            <div class="impostazioni-layout">
                 
-                <div class="flex items-center justify-between w-full">
-                    <span class="font-medium text-primary">Tema scuro</span>
-                    <label class="switch">
-                        <input type="checkbox" id="dark-mode-toggle" ${app.state.isDarkMode ? 'checked' : ''}>
-                        <span class="switch-slider"></span>
-                    </label>
-                </div>
-                
-                <div class="flex items-center justify-between w-full">
-                    <span class="font-medium text-primary">Schermo intero</span>
-                    <label class="switch">
-                        <input type="checkbox" id="fullscreen-toggle" ${impostazioniState.isFullscreen ? 'checked' : ''}>
-                        <span class="switch-slider"></span>
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-between w-full">
-                    <span class="font-medium text-primary">Collassa menu laterale</span>
-                    <label class="switch">
-                        <input type="checkbox" id="sidebar-collapse-toggle" ${app.state.isSidebarCollapsed ? 'checked' : ''}>
-                        <span class="switch-slider"></span>
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-between w-full">
-                    <span class="font-medium text-primary">Arrotondamento</span>
-                    <div class="btn-group">
-                        <button class="btn btn-sm ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}" data-radius="none" title="Nessuno">
-                            <i data-lucide="square"></i>
-                        </button>
-                        <button class="btn btn-sm ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}" data-radius="medium" title="Medio">
-                            <i data-lucide="rectangle-horizontal"></i>
-                        </button>
-                        <button class="btn btn-sm ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}" data-radius="high" title="Elevato">
-                            <i data-lucide="circle"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between w-full">
-                    <span class="font-medium text-primary">Temi Extra</span>
-                    <div class="color-theme-grid" style="display: flex; gap: 8px; align-items: center;">
-                        <label class="color-theme-option" style="cursor: pointer;" title="Default">
-                            <input type="radio" name="color-theme" value="default" ${impostazioniState.colorTheme === 'default' ? 'checked' : ''} style="display: none;">
-                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: 2px solid ${impostazioniState.colorTheme === 'default' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
-                                ${impostazioniState.colorTheme === 'default' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
-                            </div>
-                        </label>
-                        
-                        <label class="color-theme-option" style="cursor: pointer;" title="Viola">
-                            <input type="radio" name="color-theme" value="viola" ${impostazioniState.colorTheme === 'viola' ? 'checked' : ''} style="display: none;">
-                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: 2px solid ${impostazioniState.colorTheme === 'viola' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
-                                ${impostazioniState.colorTheme === 'viola' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
-                            </div>
-                        </label>
-                        
-                        <label class="color-theme-option" style="cursor: pointer;" title="Azzurro">
-                            <input type="radio" name="color-theme" value="azzurro" ${impostazioniState.colorTheme === 'azzurro' ? 'checked' : ''} style="display: none;">
-                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); border: 2px solid ${impostazioniState.colorTheme === 'azzurro' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
-                                ${impostazioniState.colorTheme === 'azzurro' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
-                            </div>
-                        </label>
-                        
-                        <label class="color-theme-option" style="cursor: pointer;" title="Verde">
-                            <input type="radio" name="color-theme" value="verde" ${impostazioniState.colorTheme === 'verde' ? 'checked' : ''} style="display: none;">
-                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 2px solid ${impostazioniState.colorTheme === 'verde' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
-                                ${impostazioniState.colorTheme === 'verde' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
-                            </div>
-                        </label>
-                        
-                        <label class="color-theme-option" style="cursor: pointer;" title="Arancione">
-                            <input type="radio" name="color-theme" value="arancione" ${impostazioniState.colorTheme === 'arancione' ? 'checked' : ''} style="display: none;">
-                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: 2px solid ${impostazioniState.colorTheme === 'arancione' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
-                                ${impostazioniState.colorTheme === 'arancione' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
-                            </div>
-                        </label>
-                        
-                        <label class="color-theme-option" style="cursor: pointer;" title="Rosa">
-                            <input type="radio" name="color-theme" value="rosa" ${impostazioniState.colorTheme === 'rosa' ? 'checked' : ''} style="display: none;">
-                            <div class="color-theme-circle" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); border: 2px solid ${impostazioniState.colorTheme === 'rosa' ? 'var(--color-primary)' : 'transparent'}; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
-                                ${impostazioniState.colorTheme === 'rosa' ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : ''}
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-            </div>
-            
-            <div class="border-t border-primary pt-6">
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="file" id="import-file" accept=".json" class="hidden">
-                    <button id="import-btn" class="btn btn-secondary w-full p-4 text-center">
-                        <i data-lucide="upload" class="w-5 h-5 mr-2"></i> Importa Backup
-                    </button>
-                    <button id="export-btn" class="btn btn-secondary w-full p-4 text-center">
-                        <i data-lucide="download" class="w-5 h-5 mr-2"></i> Esporta Backup
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card border-danger mt-6">
-                <div class="card-body">
+                <!-- SEZIONE SINISTRA: Customizzazione -->
+                <div class="impostazioni-section">
+                    <h3 class="impostazioni-section-title">Personalizzazione</h3>
                     
-                    <p class="text-sm text-danger mb-4">
-                        ATTENZIONE! Tutti i dati saranno eliminati definitivamente!                    </p>
-                    <button id="reset-data-btn" class="btn btn-danger">
-                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Reset Tutti i Dati
-                    </button>
+                    <!-- Riquadro Switch -->
+                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                        <label class="font-medium text-primary mb-3" style="display: block;">
+                            Aspetto
+                        </label>
+                        
+                        <div class="space-y-4">
+                            <!-- Switch tema scuro -->
+                            <div class="flex items-center justify-between w-full">
+                                <span class="font-medium text-primary">Tema scuro</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="dark-mode-toggle" ${app.state.isDarkMode ? 'checked' : ''}>
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <!-- Switch fullscreen -->
+                            <div class="flex items-center justify-between w-full">
+                                <span class="font-medium text-primary">Schermo intero</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="fullscreen-toggle" ${impostazioniState.isFullscreen ? 'checked' : ''}>
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Switch collassa sidebar -->
+                            <div class="flex items-center justify-between w-full">
+                                <span class="font-medium text-primary">Collassa menu laterale</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="sidebar-collapse-toggle" ${app.state.isSidebarCollapsed ? 'checked' : ''}>
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Riquadro Arrotondamento elementi -->
+                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                        <label class="font-medium text-primary mb-3" style="display: block;">
+                            Arrotondamento elementi
+                        </label>
+                        <div class="flex gap-4">
+                            <button type="button" data-radius="none" class="btn ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}">
+                                Nessuno
+                            </button>
+                            <button type="button" data-radius="medium" class="btn ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}">
+                                Medio
+                            </button>
+                            <button type="button" data-radius="high" class="btn ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}">
+                                Alto
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Riquadro Temi colore -->
+                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                        <label class="font-medium text-primary mb-3" style="display: block;">
+                            Tema colore
+                        </label>
+                        <div class="color-theme-grid">
+                            ${['default', 'ocean', 'sunset', 'forest', 'lavender', 'crimson'].map(theme => {
+                                const isChecked = (impostazioniState.colorTheme || 'default') === theme;
+                                return `
+                                    <label class="color-theme-option">
+                                        <input type="radio" name="color-theme" value="${theme}" ${isChecked ? 'checked' : ''} style="display: none;">
+                                        <div class="color-theme-circle theme-${theme}" style="border: 2px solid ${isChecked ? 'var(--color-primary)' : 'transparent'};">
+                                            ${isChecked ? '<span style="color: white; font-size: 12px; font-weight: bold;">✓</span>' : ''}
+                                        </div>
+                                        <span class="color-theme-label">${theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SEZIONE DESTRA: Opzioni file e reset -->
+                <div class="impostazioni-section">
+                    <h3 class="impostazioni-section-title">Gestione Dati</h3>
+                    
+                    <!-- Opzioni file -->
+                    <div class="space-y-4">
+                        <div class="p-4" style="background-color: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius-md);">
+                            <label class="font-medium text-primary mb-2" style="display: block;">
+                                <i data-lucide="database" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
+                                Backup e Ripristino
+                            </label>
+                            <p class="text-sm text-secondary mb-4">Esporta o importa i tuoi dati in formato JSON</p>
+                            
+                            <div class="flex gap-4">
+                                <button type="button" id="export-btn" class="btn btn-primary flex items-center gap-4">
+                                    <i data-lucide="download"></i>
+                                    <span>Esporta</span>
+                                </button>
+                                <button type="button" id="import-btn" class="btn btn-secondary flex items-center gap-4">
+                                    <i data-lucide="upload"></i>
+                                    <span>Importa</span>
+                                </button>
+                            </div>
+                            
+                            <input type="file" id="import-file" accept=".json" style="display: none;">
+                        </div>
+                        
+                        <!-- Sezione Reset -->
+                        <div class="mt-6 p-4" style="background-color: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: var(--radius-md);">
+                            <label class="font-medium text-danger mb-2" style="display: block;">
+                                <i data-lucide="alert-triangle" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
+                                Zona di pericolo
+                            </label>
+                            <p class="text-sm text-secondary mb-4">Questa operazione eliminera permanentemente tutti i dati salvati</p>
+                            <button type="button" id="reset-data-btn" class="btn btn-danger w-full">
+                                <i data-lucide="trash-2"></i>
+                                <span>Cancella tutti i dati</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Footer GitHub -->
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-secondary">
+                                <a href="https://github.com/neerozx2/MyStation" target="_blank" rel="noopener noreferrer" class="text-primary" style="text-decoration: none; font-weight: 500;">MyStation</a>
+                                <span style="margin: 0 0.25rem;">programmato con</span>
+                                <i data-lucide="heart" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; color: #dc2626; fill: #dc2626;"></i>
+                                <span style="margin: 0 0.25rem;">da NeRO</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-top: 1.5rem;">
-                <a href="https://github.com/tytus44/mystation" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">MyStation</a>, programmato con ❤️ da NeRO.
-            </div>
-            
-            <div class="modal-actions border-t border-primary pt-6 mt-6">
+            <!-- Pulsante chiudi -->
+            <div class="modal-actions" style="border-top: 1px solid var(--border-primary); padding-top: 1.5rem; margin-top: 1.5rem;">
                 <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
             </div>
         </div>
@@ -171,6 +187,9 @@ function getImpostazioniModalHTML(app) {
 // Inizio funzione showImpostazioniModal
 function showImpostazioniModal(app) {
     const modalContentEl = document.getElementById('form-modal-content');
+    
+    // Aggiunge la classe modal-wide per rendere il modale piu largo
+    modalContentEl.classList.add('modal-wide');
     
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
     setupImpostazioniEventListeners(app);
@@ -250,13 +269,15 @@ function handleImpostazioniChange(event) {
         
         modalContent.querySelectorAll('.color-theme-circle').forEach(circle => {
             const radio = circle.previousElementSibling || circle.parentElement.querySelector('input[type="radio"]');
-            if (!radio) {
-                radio = circle.closest('label').querySelector('input[type="radio"]');
+            let radioElement = radio;
+            
+            if (!radioElement) {
+                radioElement = circle.closest('label').querySelector('input[type="radio"]');
             }
             
-            const isChecked = radio && radio.checked;
+            const isChecked = radioElement && radioElement.checked;
             circle.style.border = isChecked ? '2px solid var(--color-primary)' : '2px solid transparent';
-            circle.innerHTML = isChecked ? '<span style="color: white; font-size: 14px; font-weight: bold;">✓</span>' : '';
+            circle.innerHTML = isChecked ? '<span style="color: white; font-size: 12px; font-weight: bold;">✓</span>' : '';
         });
     }
 }
@@ -303,7 +324,7 @@ function updateBorderRadius() {
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
-            alert(`Errore nell'attivare la modalità a schermo intero: ${err.message} (${err.name})`);
+            alert(`Errore nell'attivare la modalita a schermo intero: ${err.message} (${err.name})`);
         });
     } else {
         if (document.exitFullscreen) {
@@ -324,37 +345,19 @@ function updateFullscreenToggle() {
 
 // === FUNZIONI IMPORT/EXPORT ===
 
-// Inizio funzione normalizeImportedData
-function normalizeImportedData(data) {
-    console.log('Normalizzazione dati importati...');
-    let normalizedData = JSON.parse(JSON.stringify(data));
-
-    if (normalizedData.turni && typeof window.normalizeTurniData === 'function') {
-        normalizedData.turni = window.normalizeTurniData(normalizedData.turni);
-    }
-
-    if (normalizedData.clients && Array.isArray(normalizedData.clients)) {
-        normalizedData.clients.forEach(client => {
-            if (client.transactions && Array.isArray(client.transactions)) {
-                client.transactions.forEach(tx => {
-                    if (tx.type) {
-                        delete tx.type;
-                    }
-                });
-            }
-        });
-    }
-    
-    if (!normalizedData.contatti) normalizedData.contatti = [];
-    if (!normalizedData.etichette) normalizedData.etichette = [];
-    if (!normalizedData.previousYearStock) {
-        normalizedData.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
-    }
-
-    console.log('Normalizzazione completata.');
-    return normalizedData;
+// Inizio funzione exportData
+function exportData() {
+    const dataStr = JSON.stringify(this.state.data, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'mystation_backup_' + new Date().toISOString().split('T')[0] + '.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    this.showNotification('Dati esportati con successo!');
 }
-// Fine funzione normalizeImportedData
+// Fine funzione exportData
 
 // Inizio funzione importData
 function importData(event) {
@@ -365,102 +368,39 @@ function importData(event) {
     reader.onload = (e) => {
         try {
             const importedData = JSON.parse(e.target.result);
-
-            if (!importedData || !importedData.data || !importedData.version) {
-                this.showNotification('File di backup non valido o corrotto.');
-                return;
-            }
-
-            this.showConfirm(
-                'Sei sicuro di voler importare questo file? Tutti i dati attuali verranno sovrascritti.',
-                () => {
-                    const normalizedData = normalizeImportedData(importedData.data);
-                    this.state.data = normalizedData;
-                    
-                    if (importedData.data.homeTodos) {
-                        this.saveToStorage('homeTodos', importedData.data.homeTodos);
-                    }
-                    
-                    this.saveToStorage('data', this.state.data);
-                    
-                    this.showNotification('Dati importati con successo! Ricaricamento dell\'applicazione...');
-                    
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                }
-            );
-
+            
+            if (importedData.clients) this.state.data.clients = importedData.clients || [];
+            if (importedData.turni) this.state.data.turni = importedData.turni || [];
+            if (importedData.registro) this.state.data.registro = importedData.registro || [];
+            if (importedData.prezzi) this.state.data.prezzi = importedData.prezzi || [];
+            if (importedData.contatti) this.state.data.contatti = importedData.contatti || [];
+            if (importedData.etichette) this.state.data.etichette = importedData.etichette || [];
+            
+            this.saveToStorage('data', this.state.data);
+            this.showNotification('Dati importati con successo!');
+            this.hideFormModal();
+            this.navigateTo(this.state.currentSection);
         } catch (error) {
-            this.showNotification('Errore durante la lettura del file JSON.');
-            console.error('Import error:', error);
-        } finally {
-            event.target.value = '';
+            alert('Errore durante l\'importazione: file non valido');
         }
     };
-
     reader.readAsText(file);
 }
 // Fine funzione importData
 
-// Inizio funzione exportData
-function exportData() {
-    const exportDate = this.formatDateForFilename();
-    
-    const homeTodos = this.loadFromStorage('homeTodos', []);
-
-    const dataToExport = {
-        exportDate: new Date().toISOString(),
-        version: '4.1.0',
-        framework: 'vanilla-js',
-        data: {
-            ...this.state.data,
-            homeTodos: homeTodos
-        }
-    };
-    
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `mystation_backup_${exportDate}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    this.showNotification('Dati esportati con successo');
-}
-// Fine funzione exportData
-
-// === FUNZIONI RESET ===
 // Inizio funzione confirmReset
 function confirmReset() {
-    this.showConfirm('Sei sicuro di voler eliminare TUTTI i dati dell\'applicazione? Questa azione non può essere annullata.', () => {
-        resetAllData.call(this);
-    });
+    this.showConfirmModal(
+        'Sei sicuro di voler eliminare tutti i dati?',
+        'Questa azione è irreversibile. Tutti i clienti, turni, registri e impostazioni verranno eliminati.',
+        () => resetAllData.call(this)
+    );
 }
 // Fine funzione confirmReset
 
 // Inizio funzione resetAllData
 function resetAllData() {
-    this.state.data = {
-        clients: [],
-        registryEntries: [],
-        priceHistory: [],
-        competitorPrices: [],
-        turni: [],
-        contatti: [],
-        etichette: [],
-        previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
-    };
-    this.saveToStorage('data', this.state.data);
-    
-    const keysToRemove = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'virtualFilterMode', 'registryTimeFilter', 'ordineCarburante', 'homeTodos', 'borderRadius', 'colorTheme'];
-    keysToRemove.forEach(key => localStorage.removeItem(`mystation_${key}`));
-    
+    localStorage.clear();
     this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
     
     setTimeout(() => {
