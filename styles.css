@@ -1102,14 +1102,6 @@ select.form-control {
     }
 }
 
-@keyframes swing {
-    0%, 100% { transform: rotate(0deg); }
-    20% { transform: rotate(15deg); }
-    40% { transform: rotate(-12deg); }
-    60% { transform: rotate(8deg); }
-    80% { transform: rotate(-5deg); }
-}
-
 @keyframes spin-continuous {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -1137,10 +1129,6 @@ select.form-control {
         transform: translateY(0);
         max-height: 1000px;
     }
-}
-
-.stat-icon svg {
-    animation: swing 3s ease-in-out infinite;
 }
 
 .sidebar-logo svg {
@@ -2300,8 +2288,7 @@ select.form-control {
     .cards-container { padding: var(--spacing-sm); }
     .select-all-container { padding: var(--spacing-sm); }
     .form-grid { grid-template-columns: 1fr; }
-    
-    .stat-icon svg { animation-duration: 4s; }
+      
     .sidebar-logo svg { animation-duration: 10s; }
     .btn:not(.btn-danger):hover svg { transform: scale(1.05); }
 }
