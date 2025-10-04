@@ -172,7 +172,7 @@ function getImpostazioniModalHTML(app) {
                         <!-- Footer GitHub -->
                         <div class="mt-6 text-center">
                             <p class="text-sm text-secondary">
-                                <a href="https://github.com/neerozx2/MyStation" target="_blank" rel="noopener noreferrer" class="text-primary" style="text-decoration: none; font-weight: 500;">MyStation</a>
+                                <a href="https://github.com/tytus44/mystation/" target="_blank" rel="noopener noreferrer" class="text-primary" style="text-decoration: none; font-weight: 500;">MyStation</a>
                                 <span style="margin: 0 0.25rem;">programmato con</span>
                                 <i data-lucide="heart" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; color: #dc2626; fill: #dc2626;"></i>
                                 <span style="margin: 0 0.25rem;">da NeRO</span>
