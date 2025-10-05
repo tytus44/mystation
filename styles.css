@@ -396,10 +396,7 @@ button.sidebar-link {
     margin-right: 0.5rem;
 }
 
-.btn svg:only-child {
-    margin: 0 !important;
-    display: block;
-}
+
 
 .btn:last-child i {
     margin-right: 0;
