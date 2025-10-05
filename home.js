@@ -5,7 +5,8 @@
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===
-let homeState = {
+let homeState = {// Fine funzione renderHomeSection
+
     // Calcolatore IVA
     ivaCalculator: {
         importoLordo: null,
@@ -81,6 +82,7 @@ function initHome() {
 // Fine funzione initHome
 
 // === RENDER SEZIONE HOME ===
+// === RENDER SEZIONE HOME ===
 // Inizio funzione renderHomeSection
 function renderHomeSection(container) {
     console.log('🎨 Rendering sezione Home...');
@@ -99,11 +101,12 @@ function renderHomeSection(container) {
     container.innerHTML = `
         <div class="space-y-6">
             <div class="grid grid-cols-3 gap-6">
-                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
+                <!-- Card Blu: Litri venduti oggi -->
+                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
-                        <div class="stat-label">Litri venduti oggi</div>
-                        <div class="stat-value">${app.formatInteger(stats.totalLitersToday)}</div>
-                        <div class="text-xs text-secondary mt-1 flex space-x-2 items-center flex-wrap">
+                        <div class="stat-label" style="color: #ffffff;">Litri venduti oggi</div>
+                        <div class="stat-value" style="color: #ffffff;">${app.formatInteger(stats.totalLitersToday)}</div>
+                        <div class="text-xs mt-1 flex space-x-2 items-center flex-wrap" style="color: rgba(255, 255, 255, 0.9);">
                             <div style="width:8px; height:8px; border-radius:50%; background-color:${colors.benzina};"></div>
                             <span>${app.formatInteger(stats.productLiters.benzina)}</span>
                             <div style="width:8px; height:8px; border-radius:50%; background-color:${colors.gasolio};"></div>
@@ -118,11 +121,12 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
+                <!-- Card Lilla: % Servito Oggi -->
+                <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
                     <div class="stat-content">
-                        <div class="stat-label">% Servito Oggi</div>
-                        <div class="stat-value">${stats.overallServitoPercentage}%</div>
-                        <div class="text-xs text-secondary mt-1 flex space-x-2 items-center flex-wrap">
+                        <div class="stat-label" style="color: #ffffff;">% Servito Oggi</div>
+                        <div class="stat-value" style="color: #ffffff;">${stats.overallServitoPercentage}%</div>
+                        <div class="text-xs mt-1 flex space-x-2 items-center flex-wrap" style="color: rgba(255, 255, 255, 0.9);">
                             <div style="width:8px; height:8px; border-radius:50%; background-color:${colors.benzina};"></div>
                             <span>${stats.productServitoPercentages.benzina}%</span>
                             <div style="width:8px; height:8px; border-radius:50%; background-color:${colors.gasolio};"></div>
@@ -135,11 +139,12 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
+                <!-- Card Verde: Fatturato giornaliero -->
+                <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
-                        <div class="stat-label">Fatturato giornaliero</div>
-                        <div class="stat-value">${app.formatCurrency(stats.totalRevenueToday)}</div>
-                        <div class="text-xs text-secondary mt-1">Margine stimato: <strong class="text-success">${app.formatCurrency(stats.totalMarginToday)}</strong></div>
+                        <div class="stat-label" style="color: #ffffff;">Fatturato giornaliero</div>
+                        <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(stats.totalRevenueToday)}</div>
+                        <div class="text-xs mt-1" style="color: rgba(255, 255, 255, 0.9);">Margine stimato: <strong style="color: #ffffff;">${app.formatCurrency(stats.totalMarginToday)}</strong></div>
                     </div>
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
@@ -237,25 +242,25 @@ function renderHomeSection(container) {
                             <div class="equation">${homeState.calculator.equation}</div>
                             <div class="result">${homeState.calculator.display}</div>
                         </div>
-                        <div id="calc-buttons" class="calculator-grid">
+                        <div id="calc-buttons" class="calculator-buttons">
                             <button class="calc-btn function" data-value="C">C</button>
                             <button class="calc-btn function" data-value="±">±</button>
                             <button class="calc-btn function" data-value="%">%</button>
                             <button class="calc-btn operator" data-value="/">÷</button>
-                            <button class="calc-btn" data-value="7">7</button>
-                            <button class="calc-btn" data-value="8">8</button>
-                            <button class="calc-btn" data-value="9">9</button>
+                            <button class="calc-btn number" data-value="7">7</button>
+                            <button class="calc-btn number" data-value="8">8</button>
+                            <button class="calc-btn number" data-value="9">9</button>
                             <button class="calc-btn operator" data-value="*">×</button>
-                            <button class="calc-btn" data-value="4">4</button>
-                            <button class="calc-btn" data-value="5">5</button>
-                            <button class="calc-btn" data-value="6">6</button>
-                            <button class="calc-btn operator" data-value="-">-</button>
-                            <button class="calc-btn" data-value="1">1</button>
-                            <button class="calc-btn" data-value="2">2</button>
-                            <button class="calc-btn" data-value="3">3</button>
+                            <button class="calc-btn number" data-value="4">4</button>
+                            <button class="calc-btn number" data-value="5">5</button>
+                            <button class="calc-btn number" data-value="6">6</button>
+                            <button class="calc-btn operator" data-value="-">−</button>
+                            <button class="calc-btn number" data-value="1">1</button>
+                            <button class="calc-btn number" data-value="2">2</button>
+                            <button class="calc-btn number" data-value="3">3</button>
                             <button class="calc-btn operator" data-value="+">+</button>
-                            <button class="calc-btn" data-value="0">0</button>
-                            <button class="calc-btn" data-value=".">.</button>
+                            <button class="calc-btn number zero" data-value="0">0</button>
+                            <button class="calc-btn number" data-value=".">.</button>
                             <button class="calc-btn operator equal" data-value="=">=</button>
                         </div>
                     </div>

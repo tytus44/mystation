@@ -706,37 +706,36 @@ function renderRegistryStats() {
     
     if (container) {
         container.innerHTML = `
-            <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-            <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
+            <!-- Card Blu: Totale Litri Caricati -->
+            <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                 <div class="stat-content">
-                    <div class="stat-label">Totale Litri Caricati</div>
-                    <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
+                    <div class="stat-label" style="color: #ffffff;">Totale Litri Caricati</div>
+                    <div class="stat-value" style="color: #ffffff;">${app.formatInteger(stats.totalLiters)}</div>
                 </div>
                 <div class="stat-icon blue">
                     <i data-lucide="droplets"></i>
                 </div>
             </div>
-            <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-            <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
+            <!-- Card Verde: Prodotto Top -->
+            <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                 <div class="stat-content">
-                    <div class="stat-label">Prodotto Top</div>
-                    <div class="stat-value">${stats.topProduct}</div>
+                    <div class="stat-label" style="color: #ffffff;">Prodotto Top</div>
+                    <div class="stat-value" style="color: #ffffff;">${stats.topProduct}</div>
                 </div>
                 <div class="stat-icon green">
                     <i data-lucide="droplet"></i>
                 </div>
             </div>
-            <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-            <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
+            <!-- Card Lilla: Autista Top -->
+            <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
                 <div class="stat-content">
-                    <div class="stat-label">Autista Top</div>
-                    <div class="stat-value">${stats.topDriver}</div>
+                    <div class="stat-label" style="color: #ffffff;">Autista Top</div>
+                    <div class="stat-value" style="color: #ffffff;">${stats.topDriver}</div>
                 </div>
                 <div class="stat-icon purple">
                     <i data-lucide="user-check"></i>
                 </div>
             </div>
-            <!-- FINE MODIFICA -->
         `;
         app.refreshIcons();
     }

@@ -648,28 +648,33 @@ select.form-control {
 }
 
 .stat-icon.blue {
-    background-color: rgba(37, 99, 235, 0.25);
-    color: var(--color-primary);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .stat-icon.green {
-    background-color: rgba(16, 185, 129, 0.25);
-    color: var(--color-success);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .stat-icon.red {
-    background-color: rgba(220, 38, 38, 0.25);
-    color: var(--color-danger);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .stat-icon.yellow {
-    background-color: rgba(245, 158, 11, 0.25);
-    color: var(--color-warning);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .stat-icon.purple {
-    background-color: rgba(139, 92, 246, 0.25);
-    color: #8b5cf6;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.stat-icon.cyan {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 /* Filtri e controlli */
@@ -1435,7 +1440,7 @@ select.form-control {
     padding: var(--spacing-sm);
 }
 
-/* INIZIO MODIFICA: Utilizzo delle nuove variabili CSS per la calcolatrice */
+/* Inizio definizione calculator-display */
 .calculator-display {
     background-color: var(--calc-display-bg);
     border: 1px solid var(--calc-display-border);
@@ -1462,20 +1467,24 @@ select.form-control {
     color: var(--calc-function-text);
     height: 20px;
 }
-/* FINE MODIFICA */
 
 .calculator-display .result {
     font-size: 2.5rem;
-    font-weight: 300;
-    color: var(--text-primary);
+    font-weight: 700;
+    color: var(--color-primary);
 }
+/* Fine definizione calculator-display */
 
+/* Inizio definizione calculator-buttons e calculator-grid */
+.calculator-buttons,
 .calculator-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
 }
+/* Fine definizione calculator-buttons e calculator-grid */
 
+/* Inizio definizione calc-btn */
 .calc-btn {
     background-color: var(--bg-primary);
     border: 1px solid var(--border-primary);
@@ -1487,14 +1496,16 @@ select.form-control {
     transition: all 0.2s ease;
 }
 
-.theme-dark .calc-btn {
-    color: var(--text-primary);
-}
-
 .calc-btn:hover {
     background-color: var(--bg-tertiary);
     border-color: var(--color-primary);
     transform: translateY(-2px);
+}
+
+.calc-btn.number {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 1.2rem;
 }
 
 .calc-btn.operator {
@@ -1502,6 +1513,7 @@ select.form-control {
     border-color: transparent;
     color: white;
     font-size: 1.3rem;
+    font-weight: 600;
 }
 
 .calc-btn.operator:hover {
@@ -1511,13 +1523,21 @@ select.form-control {
 
 .calc-btn.function {
     color: var(--calc-function-text);
+    font-weight: 600;
 }
 
 .calc-btn.equal {
     grid-column: span 2;
     background-color: var(--color-danger);
     border-color: transparent;
+    color: white;
+    font-weight: 700;
 }
+
+.calc-btn.equal:hover {
+    opacity: 0.9;
+}
+/* Fine definizione calc-btn */
 
 /* === INPUT NUMERO === */
 

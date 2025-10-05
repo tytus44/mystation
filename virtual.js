@@ -127,31 +127,30 @@ function renderVirtualListView(container) {
                 </div>
             </div>
             <div class="stats-grid">
-                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
+                <!-- Card Blu: Litri Venduti -->
+                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
-                        <div class="stat-label">Litri Venduti</div>
-                        <div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
+                        <div class="stat-label" style="color: #ffffff;">Litri Venduti</div>
+                        <div id="stat-litri" class="stat-value" style="color: #ffffff;">${app.formatInteger(stats.totalLiters)}</div>
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
+                <!-- Card Verde: Fatturato Stimato -->
+                <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
-                        <div class="stat-label">Fatturato Stimato</div>
-                        <div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div>
+                        <div class="stat-label" style="color: #ffffff;">Fatturato Stimato</div>
+                        <div id="stat-fatturato" class="stat-value" style="color: #ffffff;">${app.formatCurrency(stats.revenue)}</div>
                     </div>
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
-                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
+                <!-- Card Viola: % Servito -->
+                <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
                     <div class="stat-content">
-                        <div class="stat-label">% Servito</div>
-                        <div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div>
+                        <div class="stat-label" style="color: #ffffff;">% Servito</div>
+                        <div id="stat-servito" class="stat-value" style="color: #ffffff;">${stats.servitoPercentage}%</div>
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
                 </div>
-                <!-- FINE MODIFICA -->
             </div>
             <div class="grid grid-cols-2 gap-6">
                 <div class="card">
@@ -557,18 +556,8 @@ function setFilterMode(mode) {
 }
 // Fine funzione setFilterMode
 
-// Inizio funzione renderVirtualStats
-function renderVirtualStats() {
-    const app = this;
-    const stats = virtualStats.call(app);
-    const litriEl = document.getElementById('stat-litri');
-    const fatturatoEl = document.getElementById('stat-fatturato');
-    const servitoEl = document.getElementById('stat-servito');
-    if (litriEl) litriEl.textContent = app.formatInteger(stats.totalLiters);
-    if (fatturatoEl) fatturatoEl.textContent = app.formatCurrency(stats.revenue);
-    if (servitoEl) servitoEl.textContent = `${stats.servitoPercentage}%`;
-}
-// Fine funzione renderVirtualStats
+
+
 
 // Inizio funzione updateFilterButtons
 function updateFilterButtons(activeMode) {
@@ -901,9 +890,9 @@ function initServiceChart() {
 
     // MODIFICA: Colori solidi senza sfumature
     // Prepay: #EB2A5D (rosso/magenta)
-    // Servito: #8576FF (viola)
+    // Servito: #2563eb (blu)
 chartData.datasets[0].backgroundColor = '#FF204E';
-chartData.datasets[1].backgroundColor = '#3b82f6';
+chartData.datasets[1].backgroundColor = '#2563eb';
     
     chartData.datasets[0].borderRadius = 0;
     chartData.datasets[1].borderRadius = { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 };
@@ -978,9 +967,9 @@ function getProductsChartData() {
         const breakdown = getProductBreakdown.call(app, productKey);
         
         // MODIFICA: Colori piatti senza sfumature per drilldown
-        // Prepay: #f97316 (arancione)
-        // Servito: #3b82f6 (blu)
-        const drilldownColors = ['#f97316', '#3b82f6'];
+        // Prepay: #EB2A5D (rosso/magenta)
+        // Servito: #2563eb(blu)
+        const drilldownColors = ['#EB2A5D', '#2563eb'];
 
         return {
             labels: [`Prepay`, `Servito`],
@@ -1007,7 +996,7 @@ function getProductsChartData() {
     });
 
     // MODIFICA: Colori piatti senza sfumature
-    const colors = ['#22c55e', '#f97316', '#FF204E', '#3b82f6', '#6b7280'];
+    const colors = ['#22c55e', '#f97316', '#FF204E', '#06b6d4', '#6b7280'];
 
     return {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
@@ -1082,7 +1071,7 @@ function getMonthlyTrendChartData() {
         }
         data[monthIndex] += totalLiters;
     });
-    const productColors = { generale: '#3b82f6', benzina: '#22c55e', gasolio: '#f97316', dieselplus: '#FF204E', hvolution: '#6366f1' };
+    const productColors = { generale: '#3b82f6', benzina: '#22c55e', gasolio: '#f97316', dieselplus: '#FF204E', hvolution: '#06b6d4' };
     const selectedColor = productColors[tab] || '#3b82f6';
     return {
         labels: labels,
@@ -1109,10 +1098,10 @@ function safeUpdateCharts() {
             
             // MODIFICA: Colori solidi senza sfumature
             // Prepay: #EB2A5D (rosso/magenta)
-            // Servito: #8576FF (viola)
+            // Servito: #2563eb (blu)
             chartData.datasets[0].backgroundColor = '#FF204E';
             chartData.datasets[0].borderRadius = 0;
-            chartData.datasets[1].backgroundColor = '#3b82f6';
+            chartData.datasets[1].backgroundColor = '#2563eb';
             chartData.datasets[1].borderRadius = { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 };
             
             chart.data = chartData;

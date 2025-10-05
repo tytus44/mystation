@@ -60,89 +60,86 @@ function renderAmministrazioneListView(container) {
         <div class="space-y-6">
             
             <div class="stats-grid">
-                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
+                <!-- Card Blu: Clienti Attivi -->
+                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
-                        <div class="stat-label">Clienti Attivi</div>
-                        <div class="stat-value">${app.state.data.clients.length}</div>
+                        <div class="stat-label" style="color: #ffffff;">Clienti Attivi</div>
+                        <div class="stat-value" style="color: #ffffff;">${app.state.data.clients.length}</div>
                     </div>
                     <div class="stat-icon blue">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
                 </div>
-                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
+                <!-- Card Verde: Totale Credito -->
+                <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
-                        <div class="stat-label">Totale Credito</div>
-                        <div class="stat-value">${app.formatCurrency(totalCredit.call(app))}</div>
+                        <div class="stat-label" style="color: #ffffff;">Totale Credito</div>
+                        <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(totalCredit.call(app))}</div>
                     </div>
                     <div class="stat-icon green">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                     </div>
                 </div>
-                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
-                <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65);">
+                <!-- Card Rosso: Totale Debito -->
+                <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
                     <div class="stat-content">
-                        <div class="stat-label">Totale Debito</div>
-                        <div class="stat-value">${app.formatCurrency(totalDebit.call(app))}</div>
+                        <div class="stat-label" style="color: #ffffff;">Totale Debito</div>
+                        <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(totalDebit.call(app))}</div>
                     </div>
                     <div class="stat-icon red">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
                     </div>
                 </div>
-                <!-- FINE MODIFICA -->
             </div>
 
-            <div class="filters-bar no-print">
+            <div class="filters-bar">
                 <div class="filter-group">
-                    <div class="input-group">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-group-icon lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input type="search" id="client-search" placeholder="Cerca per nome..." 
-                               class="form-control" value="${amministrazioneState.adminFilters.search}" autocomplete="off">
-                    </div>
+                    <label class="form-label">Cerca Cliente</label>
+                    <input type="text" id="admin-search-input" class="form-control" placeholder="Nome, telefono, email..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
                 </div>
                 <div class="filter-group">
-                    <div class="btn-group w-full">
-                        <button class="btn ${amministrazioneState.adminFilters.filter === 'all' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-filter-type="all">Tutti i clienti</button>
-                        <button class="btn ${amministrazioneState.adminFilters.filter === 'credit' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-filter-type="credit">A credito</button>
-                        <button class="btn ${amministrazioneState.adminFilters.filter === 'debit' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-filter-type="debit">A debito</button>
-                    </div>
+                    <label class="form-label">Filtro</label>
+                    <select id="admin-filter-select" class="form-control">
+                        <option value="all" ${amministrazioneState.adminFilters.filter === 'all' ? 'selected' : ''}>Tutti</option>
+                        <option value="credit" ${amministrazioneState.adminFilters.filter === 'credit' ? 'selected' : ''}>Solo Credito</option>
+                        <option value="debit" ${amministrazioneState.adminFilters.filter === 'debit' ? 'selected' : ''}>Solo Debito</option>
+                    </select>
                 </div>
-                <button id="new-client-btn" class="btn btn-primary"><i data-lucide="user-plus"></i> Nuovo Cliente</button>
+                <button id="new-client-btn" class="btn btn-primary">
+                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Cliente
+                </button>
             </div>
 
-            <div class="card no-print">
-                <div class="card-header">
-                    <h2 class="card-title">Elenco Clienti</h2>
-                </div>
-                <div class="table-container">
-                    <table class="table" id="clients-table">
-                        <thead>
-                            <tr>
-                                <th><button class="flex items-center" data-sort="name">
-                                    Nome <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
-                                </button></th>
-                                <th class="text-right"><button class="flex items-center" data-sort="balance">
-                                    Saldo <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
-                                </button></th>
-                                <th><button class="flex items-center" data-sort="lastTransactionDate">
-                                    Ultima Transazione <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
-                                </button></th>
-                                <th class="text-right">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clients-tbody">
-                            </tbody>
-                    </table>
-                </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <button data-column="name">
+                                    Nome <i data-lucide="${amministrazioneState.adminSort.column === 'name' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button data-column="phone">
+                                    Telefono <i data-lucide="${amministrazioneState.adminSort.column === 'phone' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                </button>
+                            </th>
+                            <th>
+                                <button data-column="balance">
+                                    Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                </button>
+                            </th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-tbody"></tbody>
+                </table>
             </div>
         </div>
     `;
     
     renderClientsTable.call(app);
+    app.refreshIcons();
 }
 // Fine funzione renderAmministrazioneListView
 

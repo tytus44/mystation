@@ -54,8 +54,7 @@ function renderPrezziListView(container) {
     const app = this;
     const latestPrices = latestAppliedPrices.call(app);
     
-    // INIZIO MODIFICA: Rimossa etichetta "Iperself" e aggiunto prezzo "Servito". Corretta sintassi commenti.
-    const servitoSurcharge = 0.220; // (0.015 + 0.210) - 0.005
+    const servitoSurcharge = 0.220;
     const servedPrices = {
         benzina: latestPrices.benzina > 0 ? latestPrices.benzina + servitoSurcharge : 0,
         gasolio: latestPrices.gasolio > 0 ? latestPrices.gasolio + servitoSurcharge : 0,
@@ -69,49 +68,47 @@ function renderPrezziListView(container) {
             <div class="grid grid-cols-2 gap-6">
                 
                 <div class="grid grid-cols-2 gap-6">
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
+                    <!-- Card Verde: Benzina -->
+                    <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                         <div class="stat-content">
-                            <div class="stat-label">Benzina</div>
-                            <div class="stat-value text-success">${app.formatCurrency(latestPrices.benzina, true)}</div>
-                            <div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.benzina, true)}</div>
+                            <div class="stat-label" style="color: #ffffff;">Benzina</div>
+                            <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.benzina, true)}</div>
+                            <div class="text-xs" style="margin-top: 0.25rem; color: rgba(255, 255, 255, 0.9);">Servito: ${app.formatCurrency(servedPrices.benzina, true)}</div>
                         </div>
                         <div class="stat-icon green"><i data-lucide="droplets"></i></div>
                     </div>
                     
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="stat-card" style="background-color: rgba(245, 158, 11, 0.18); border-color: rgba(245, 158, 11, 0.65);">
+                    <!-- Card Giallo: Gasolio -->
+                    <div class="stat-card" style="background-color: #f59e0b; border-color: #d97706;">
                         <div class="stat-content">
-                            <div class="stat-label">Gasolio</div>
-                            <div class="stat-value text-warning">${app.formatCurrency(latestPrices.gasolio, true)}</div>
-                            <div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.gasolio, true)}</div>
+                            <div class="stat-label" style="color: #ffffff;">Gasolio</div>
+                            <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.gasolio, true)}</div>
+                            <div class="text-xs" style="margin-top: 0.25rem; color: rgba(255, 255, 255, 0.9);">Servito: ${app.formatCurrency(servedPrices.gasolio, true)}</div>
                         </div>
                         <div class="stat-icon yellow"><i data-lucide="droplets"></i></div>
                     </div>
 
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="stat-card" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
+                    <!-- Card Rosso: Diesel+ -->
+                    <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
                         <div class="stat-content">
-                            <div class="stat-label">Diesel+</div>
-                            <div class="stat-value text-danger">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
-                            ${latestPrices.dieselPlus > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.dieselPlus, true)}</div>` : ''}
+                            <div class="stat-label" style="color: #ffffff;">Diesel+</div>
+                            <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
+                            ${latestPrices.dieselPlus > 0 ?
+                                `<div class="text-xs" style="margin-top: 0.25rem; color: rgba(255, 255, 255, 0.9);">Servito: ${app.formatCurrency(servedPrices.dieselPlus, true)}</div>` : ''}
                         </div>
                         <div class="stat-icon red"><i data-lucide="droplets"></i></div>
                     </div>
                     
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <!-- MODIFICA TONALITÀ: Ciano più scuro (8, 145, 178) per maggiore leggibilità -->
-                    <!-- MODIFICA TESTO: Colore testo scurito per migliore contrasto -->
-                    <!-- MODIFICA ICONA: Colore icona e sfondo circolare in ciano per coerenza -->
-                    <div class="stat-card" style="background-color: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.65);">
+                    <!-- Card Ciano: Hvolution -->
+                    <div class="stat-card" style="background-color: #06b6d4; border-color: #0891b2;">
                         <div class="stat-content">
-                            <div class="stat-label">Hvolution</div>
-            <div class="stat-value" style="color: rgb(8, 145, 178);">${app.formatCurrency(latestPrices.hvolution, true)}</div>
-                            ${latestPrices.hvolution > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.hvolution, true)}</div>` : ''}
+                            <div class="stat-label" style="color: #ffffff;">Hvolution</div>
+                            <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.hvolution, true)}</div>
+                            ${latestPrices.hvolution > 0 ?
+                                `<div class="text-xs" style="margin-top: 0.25rem; color: rgba(255, 255, 255, 0.9);">Servito: ${app.formatCurrency(servedPrices.hvolution, true)}</div>` : ''}
                         </div>
-                        <div class="stat-icon" style="background-color: rgba(8, 145, 178, 0.25); color: rgb(8, 145, 178); border-color: rgb(8, 145, 178);"><i data-lucide="droplets"></i></div>
+                        <div class="stat-icon cyan"><i data-lucide="droplets"></i></div>
                     </div>
-                    <!-- FINE MODIFICA COLORI -->
                 </div>
 
                 <div class="card">
@@ -153,7 +150,6 @@ function renderPrezziListView(container) {
             </div>
         </div>
     `;
-    // FINE MODIFICA
     
     renderListiniTable.call(app);
     renderConcorrenzaCard.call(app);
@@ -176,8 +172,6 @@ function getListinoFormHTML() {
         prezziState.listinoForm.adblue = currentPricesData.adblue || '';
     }
     
-    // INIZIO MODIFICA: Rimossa label "Data" e pre-compilati i prezzi attuali
-    // MODIFICA LAYOUT: Modale più compatto con grid 3 colonne come concorrenza
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
@@ -189,34 +183,31 @@ function getListinoFormHTML() {
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65); padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: var(--color-success); margin-bottom: 0.5rem;">Benzina</label>
+                    <!-- Card Verde: Benzina -->
+                    <div class="product-box" style="background-color: #10b981; border-color: #059669; padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Benzina</label>
                         <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina}" autocomplete="off">
                     </div>
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(245, 158, 11, 0.18); border-color: rgba(245, 158, 11, 0.65); padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: var(--color-warning); margin-bottom: 0.5rem;">Gasolio</label>
+                    <!-- Card Giallo: Gasolio -->
+                    <div class="product-box" style="background-color: #f59e0b; border-color: #d97706; padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Gasolio</label>
                         <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio}" autocomplete="off">
                     </div>
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65); padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: var(--color-danger); margin-bottom: 0.5rem;">Diesel+</label>
+                    <!-- Card Rosso: Diesel+ -->
+                    <div class="product-box" style="background-color: #FF204E; border-color: #DC1C44; padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Diesel+</label>
                         <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus}" autocomplete="off">
                     </div>
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <!-- MODIFICA TONALITÀ: Ciano uniformato a (8, 145, 178) come nelle stat-card -->
-                    <!-- MODIFICA TESTO: Colore label uguale all'icona della stat-card -->
-                    <div class="product-box" style="background-color: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.65); padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: rgb(8, 145, 178); margin-bottom: 0.5rem;">Hvolution</label>
+                    <!-- Card Ciano: Hvolution -->
+                    <div class="product-box" style="background-color: #06b6d4; border-color: #0891b2; padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Hvolution</label>
                         <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution}" autocomplete="off">
                     </div>
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(107, 114, 128, 0.18); border-color: rgba(107, 114, 128, 0.65); padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: var(--color-secondary); margin-bottom: 0.5rem;">AdBlue</label>
+                    <!-- Card Grigio: AdBlue -->
+                    <div class="product-box" style="background-color: #6b7280; border-color: #4b5563; padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">AdBlue</label>
                         <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue}" autocomplete="off">
                     </div>
-                    <!-- FINE MODIFICA COLORI -->
                 </div>
 
                 <div class="flex items-center justify-end space-x-4" style="margin-top: 0.5rem;">
@@ -226,7 +217,6 @@ function getListinoFormHTML() {
             </div>
         </div>
     `;
-    // FINE MODIFICA
 }
 // Fine funzione getListinoFormHTML
 
@@ -245,8 +235,6 @@ function getConcorrenzaFormHTML() {
         prezziState.concorrenzaForm.q8.gasolio = currentCompetitorPrices.q8?.gasolio || '';
     }
     
-    // INIZIO MODIFICA: Rimossa label "Data" e pre-compilati i prezzi concorrenza attuali
-    // MODIFICA LAYOUT: Gap ridotto per modale più compatto
     return `
         <div class="card-header">
             <h2 class="card-title">Aggiorna Prezzi Concorrenza</h2>
@@ -258,28 +246,26 @@ function getConcorrenzaFormHTML() {
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
-                        <h4 class="product-title text-center" style="color: #8b5cf6">MyOil</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off"></div>
+                    <!-- Card Lilla: MyOil -->
+                    <div class="product-box" style="background-color: #8b5cf6; border-color: #7c3aed; padding: 0.75rem;">
+                        <h4 class="product-title text-center" style="color: #ffffff; margin-bottom: 0.75rem;">MyOil</h4>
+                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off"></div>
                     </div>
 
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
-                        <h4 class="product-title text-center" style="color: var(--color-danger)">Esso</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div>
+                    <!-- Card Rosso: Esso -->
+                    <div class="product-box" style="background-color: #FF204E; border-color: #DC1C44; padding: 0.75rem;">
+                        <h4 class="product-title text-center" style="color: #ffffff; margin-bottom: 0.75rem;">Esso</h4>
+                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div>
                     </div>
 
-                    <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <!-- MODIFICA Q8: Colore cambiato da blu a ciano Hvolution con testo uguale all'icona -->
-                    <div class="product-box" style="background-color: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.65);">
-                        <h4 class="product-title text-center" style="color: rgb(8, 145, 178)">Q8</h4>
-                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off"></div>
+                    <!-- Card Ciano: Q8 -->
+                    <div class="product-box" style="background-color: #06b6d4; border-color: #0891b2; padding: 0.75rem;">
+                        <h4 class="product-title text-center" style="color: #ffffff; margin-bottom: 0.75rem;">Q8</h4>
+                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off"></div>
                     </div>
-                    <!-- FINE MODIFICA COLORI -->
                 </div>
 
                 <div class="flex items-center justify-end space-x-4">
@@ -289,7 +275,6 @@ function getConcorrenzaFormHTML() {
             </div>
         </div>
     `;
-    // FINE MODIFICA
 }
 // Fine funzione getConcorrenzaFormHTML
 
@@ -647,6 +632,7 @@ function renderListiniTable() {
 // Fine funzione renderListiniTable
 
 // === RENDER CARD CONCORRENZA ===
+// === RENDER CARD CONCORRENZA ===
 // Inizio funzione renderConcorrenzaCard
 function renderConcorrenzaCard() {
     const app = this;
@@ -669,48 +655,41 @@ function renderConcorrenzaCard() {
     container.innerHTML = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4 text-sm">
-                <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <div class="product-box" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: #8b5cf6">MyOil</h4>
+                <!-- Card Lilla: MyOil -->
+                <div class="product-box" style="background-color: #8b5cf6; border-color: #7c3aed; padding: 1rem;">
+                    <h4 class="font-semibold mb-2 text-center" style="color: #ffffff;">MyOil</h4>
                     <div class="space-y-1 mt-2">
-                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.benzina || 0, true)}</span></div>
-                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
+                        <div class="flex justify-between p-1" style="color: rgba(255, 255, 255, 0.9);"><span>Benzina</span><span class="font-bold" style="color: #ffffff;">${app.formatCurrency(competitorPricesData.myoil?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1" style="color: rgba(255, 255, 255, 0.9);"><span>Gasolio</span><span class="font-bold" style="color: #ffffff;">${app.formatCurrency(competitorPricesData.myoil?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-                <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <div class="product-box" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger)">Esso</h4>
+                <!-- Card Rosso: Esso -->
+                <div class="product-box" style="background-color: #FF204E; border-color: #DC1C44; padding: 1rem;">
+                    <h4 class="font-semibold mb-2 text-center" style="color: #ffffff;">Esso</h4>
                     <div class="space-y-1 mt-2">
-                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
-                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
+                        <div class="flex justify-between p-1" style="color: rgba(255, 255, 255, 0.9);"><span>Benzina</span><span class="font-bold" style="color: #ffffff;">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1" style="color: rgba(255, 255, 255, 0.9);"><span>Gasolio</span><span class="font-bold" style="color: #ffffff;">${app.formatCurrency(competitorPricesData.esso?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-                <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <!-- MODIFICA Q8: Colore cambiato da blu a ciano Hvolution con testo uguale all'icona -->
-                <div class="product-box" style="background-color: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.65);">
-                    <h4 class="font-semibold mb-2 text-center" style="color: rgb(8, 145, 178)">Q8</h4>
+                <!-- Card Ciano: Q8 -->
+                <div class="product-box" style="background-color: #06b6d4; border-color: #0891b2; padding: 1rem;">
+                    <h4 class="font-semibold mb-2 text-center" style="color: #ffffff;">Q8</h4>
                     <div class="space-y-1 mt-2">
-                        <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
-                        <div class="flex justify-between p-1"><span>Gasolio</span><span class="font-bold">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
+                        <div class="flex justify-between p-1" style="color: rgba(255, 255, 255, 0.9);"><span>Benzina</span><span class="font-bold" style="color: #ffffff;">${app.formatCurrency(competitorPricesData.q8?.benzina || 0, true)}</span></div>
+                        <div class="flex justify-between p-1" style="color: rgba(255, 255, 255, 0.9);"><span>Gasolio</span><span class="font-bold" style="color: #ffffff;">${app.formatCurrency(competitorPricesData.q8?.gasolio || 0, true)}</span></div>
                     </div>
                 </div>
-                <!-- FINE MODIFICA COLORI -->
             </div>
             <div class="grid grid-cols-3 gap-4 text-sm">
-                <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <div class="product-box text-center p-2" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
+                <div class="product-box text-center p-2" style="background-color: transparent; border: 2px solid #8b5cf6;">
                     <div class="text-xs">Benzina</div>${formatDiff(diffs.myoil.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.myoil.gasolio)}
                 </div>
-                <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <div class="product-box text-center p-2" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
+                <div class="product-box text-center p-2" style="background-color: transparent; border: 2px solid #FF204E;">
                     <div class="text-xs">Benzina</div>${formatDiff(diffs.esso.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.esso.gasolio)}
                 </div>
-                <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <!-- MODIFICA Q8: Colore cambiato da blu a ciano Hvolution -->
-                <div class="product-box text-center p-2" style="background-color: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.65);">
+                <div class="product-box text-center p-2" style="background-color: transparent; border: 2px solid #06b6d4;">
                     <div class="text-xs">Benzina</div>${formatDiff(diffs.q8.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.q8.gasolio)}
                 </div>
-                <!-- FINE MODIFICA COLORI -->
             </div>
         </div>
     `;
