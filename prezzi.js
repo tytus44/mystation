@@ -106,7 +106,7 @@ function renderPrezziListView(container) {
                     <div class="stat-card" style="background-color: rgba(8, 145, 178, 0.18); border-color: rgba(8, 145, 178, 0.65);">
                         <div class="stat-content">
                             <div class="stat-label">Hvolution</div>
-                            <div class="stat-value" style="color: rgb(6, 95, 120);">${app.formatCurrency(latestPrices.hvolution, true)}</div>
+            <div class="stat-value" style="color: rgb(8, 145, 178);">${app.formatCurrency(latestPrices.hvolution, true)}</div>
                             ${latestPrices.hvolution > 0 ? `<div class="text-xs text-secondary" style="margin-top: 0.25rem;">Servito: ${app.formatCurrency(servedPrices.hvolution, true)}</div>` : ''}
                         </div>
                         <div class="stat-icon" style="background-color: rgba(8, 145, 178, 0.25); color: rgb(8, 145, 178); border-color: rgb(8, 145, 178);"><i data-lucide="droplets"></i></div>
