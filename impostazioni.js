@@ -169,13 +169,16 @@ function getImpostazioniModalHTML(app) {
                             </button>
                         </div>
                         
-                        <!-- Footer GitHub -->
-                        <div class="mt-6 text-center">
-                            <p class="text-sm text-secondary">
-                                <a href="https://github.com/tytus44/mystation/" target="_blank" rel="noopener noreferrer" class="text-primary" style="text-decoration: none; font-weight: 500;">MyStation</a>
-                                <span style="margin: 0 0.25rem;">programmato con</span>
+                        <!-- Footer Informazioni Progetto -->
+                        <div class="mt-6 p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                            <p class="text-sm text-secondary" style="line-height: 1.6; margin-bottom: 0.75rem;">
+                                <a href="https://github.com/tytus44/mystation/" target="_blank" rel="noopener noreferrer" class="text-primary" style="text-decoration: none; font-weight: 600;">MyStation</a>
+                                <span> è un'applicazione web pensata per la gestione completa di una stazione di servizio. Gestisce anagrafiche, amministrazione, registro di carico, monitoraggio prezzi e statistiche di vendita.</span>
+                            </p>
+                            <p class="text-sm text-secondary" style="text-align: center; margin: 0;">
+                                <span>Programmato con </span>
                                 <i data-lucide="heart" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: middle; color: #dc2626; fill: #dc2626;"></i>
-                                <span style="margin: 0 0.25rem;">da NeRO</span>
+                                <span> da NeRO</span>
                             </p>
                         </div>
                     </div>

@@ -396,6 +396,11 @@ button.sidebar-link {
     margin-right: 0.5rem;
 }
 
+.btn svg:only-child {
+    margin: 0 !important;
+    display: block;
+}
+
 .btn:last-child i {
     margin-right: 0;
     margin-left: 0.5rem;
@@ -633,27 +638,27 @@ select.form-control {
 }
 
 .stat-icon.blue {
-    background-color: rgba(37, 99, 235, 0.1);
+    background-color: rgba(37, 99, 235, 0.25);
     color: var(--color-primary);
 }
 
 .stat-icon.green {
-    background-color: rgba(16, 185, 129, 0.1);
+    background-color: rgba(16, 185, 129, 0.25);
     color: var(--color-success);
 }
 
 .stat-icon.red {
-    background-color: rgba(220, 38, 38, 0.1);
+    background-color: rgba(220, 38, 38, 0.25);
     color: var(--color-danger);
 }
 
 .stat-icon.yellow {
-    background-color: rgba(245, 158, 11, 0.1);
+    background-color: rgba(245, 158, 11, 0.25);
     color: var(--color-warning);
 }
 
 .stat-icon.purple {
-    background-color: rgba(139, 92, 246, 0.1);
+    background-color: rgba(139, 92, 246, 0.25);
     color: #8b5cf6;
 }
 
@@ -1732,13 +1737,13 @@ select.form-control {
 
 .contatti-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-lg);
 }
 
 .contatto-card {
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
+    background-color: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.25);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     transition: all 0.2s ease;
@@ -1749,35 +1754,29 @@ select.form-control {
 }
 
 .contatto-card:hover {
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
     transform: translateY(-2px);
+    border-color: rgba(37, 99, 235, 0.5);
 }
 
 .theme-dark .contatto-card {
-    background-color: var(--bg-secondary);
-    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.35);
 }
 
 .theme-dark .contatto-card:hover {
     border-color: var(--color-primary);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 .theme-dark .contatto-card.selected {
-    background-color: rgba(37, 99, 235, 0.1);
-}
-
-.contatto-card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
+    background-color: rgba(37, 99, 235, 0.2);
 }
 
 .contatto-avatar {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, var(--color-primary), #60a5fa);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1875,8 +1874,8 @@ select.form-control {
 }
 
 .contatto-info-item svg {
-    flex-shrink: 0;
-    color: var(--text-tertiary);
+    width: 12px !important;
+    height: 12px !important;
 }
 
 .contatto-card-footer {
@@ -1899,9 +1898,8 @@ select.form-control {
 }
 
 .contatto-note svg {
-    flex-shrink: 0;
-    margin-top: 2px;
-    color: var(--text-tertiary);
+    width: 12px !important;
+    height: 12px !important;
 }
 
 .contatto-user-icon {

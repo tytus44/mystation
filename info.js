@@ -21,7 +21,7 @@ function initInfo() {
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     
-    // INIZIO MODIFICA: Aggiunto stile con colori di sfondo e bordo alle card
+    // INIZIO MODIFICA: Colori più vibranti e accesi per le card
     container.innerHTML = `
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-primary">Informazioni Utili</h1>
@@ -30,7 +30,7 @@ function renderInfoSection(container) {
 
         <div class="grid grid-cols-3 gap-6">
 
-            <div class="card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+            <div class="card" style="background-color: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.6);">
                 <div class="card-header">
                     <h3 class="card-title">Enilive</h3>
                     <i data-lucide="fuel" style="color: var(--color-success);"></i>
@@ -47,7 +47,7 @@ function renderInfoSection(container) {
                 </div>
             </div>
             
-            <div class="card" style="background-color: rgba(255, 177, 0, 0.05); border-color: rgba(255, 177, 0, 0.3);">
+            <div class="card" style="background-color: rgba(255, 177, 0, 0.15); border-color: rgba(255, 177, 0, 0.6);">
                 <div class="card-header">
                     <h3 class="card-title">Multicard</h3>
                     <i data-lucide="credit-card" style="color: var(--color-warning);"></i>
@@ -60,7 +60,7 @@ function renderInfoSection(container) {
                 </div>
             </div>
 
-            <div class="card" style="background-color: rgba(111, 230, 252, 0.05); border-color: rgba(111, 230, 252, 0.3);">
+            <div class="card" style="background-color: rgba(111, 230, 252, 0.15); border-color: rgba(111, 230, 252, 0.6);">
                 <div class="card-header">
                     <h3 class="card-title">Servizi Esterni</h3>
                     <i data-lucide="briefcase" style="color: var(--color-info);"></i>
@@ -75,9 +75,9 @@ function renderInfoSection(container) {
                 </div>
             </div>
 
-            <div class="card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+            <div class="card" style="background-color: rgba(37, 99, 235, 0.15); border-color: rgba(37, 99, 235, 0.6);">
                 <div class="card-header">
-                    <h3 class="card-title">Banche</h3>
+                   <h3 class="card-title">Banche</h3>
                     <i data-lucide="landmark" style="color: var(--color-primary);"></i>
                 </div>
                 <div class="card-body">
@@ -89,7 +89,7 @@ function renderInfoSection(container) {
                 </div>
             </div>
             
-            <div class="card" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
+            <div class="card" style="background-color: rgba(107, 114, 128, 0.15); border-color: rgba(107, 114, 128, 0.6);">
                 <div class="card-header">
                     <h3 class="card-title">Enti e Dogane</h3>
                     <i data-lucide="building-2" style="color: var(--text-secondary);"></i>
@@ -97,11 +97,12 @@ function renderInfoSection(container) {
                 <div class="card-body">
                     <ul class="info-list">
                         <li><a href="https://iampe.adm.gov.it/sam/UI/Login?realm=/adm&locale=it&goto=https%3A%2F%2Fwww.adm.gov.it%2Fportale%2Fweb%2Fguest%2Flogin%3Fp_p_id%3D58%26p_p_lifecycle%3D0%26_58_redirect%3D%252Fportale%252F-%252Fcorrispettivi-distributori-carburanti" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-spreadsheet"></i><span class="link-text">Agenzia Dogane</span><i data-lucide="external-link"></i></a></li>
+                        <li><a href="https://servizi2.inps.it/servizi/Esterometro/Informazioni" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-check"></i><span class="link-text">INPS Esterometro</span><i data-lucide="external-link"></i></a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="card" style="background-color: rgba(255, 32, 78, 0.05); border-color: rgba(255, 32, 78, 0.3);">
+            <div class="card" style="background-color: rgba(255, 32, 78, 0.15); border-color: rgba(255, 32, 78, 0.6);">
                 <div class="card-header">
                     <h3 class="card-title">Numeri Utili</h3>
                     <i data-lucide="phone" style="color: var(--color-danger);"></i>

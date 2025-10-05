@@ -127,9 +127,31 @@ function renderVirtualListView(container) {
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div><div class="stat-icon blue"><i data-lucide="fuel"></i></div></div>
-                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div></div><div class="stat-icon green"><i data-lucide="euro"></i></div></div>
-                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);"><div class="stat-content"><div class="stat-label">% Servito</div><div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div></div><div class="stat-icon purple"><i data-lucide="user-check"></i></div></div>
+                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
+                    <div class="stat-content">
+                        <div class="stat-label">Litri Venduti</div>
+                        <div id="stat-litri" class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
+                    </div>
+                    <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
+                </div>
+                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
+                    <div class="stat-content">
+                        <div class="stat-label">Fatturato Stimato</div>
+                        <div id="stat-fatturato" class="stat-value">${app.formatCurrency(stats.revenue)}</div>
+                    </div>
+                    <div class="stat-icon green"><i data-lucide="euro"></i></div>
+                </div>
+                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+                <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
+                    <div class="stat-content">
+                        <div class="stat-label">% Servito</div>
+                        <div id="stat-servito" class="stat-value">${stats.servitoPercentage}%</div>
+                    </div>
+                    <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
+                </div>
+                <!-- FINE MODIFICA -->
             </div>
             <div class="grid grid-cols-2 gap-6">
                 <div class="card">

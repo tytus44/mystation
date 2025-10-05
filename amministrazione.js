@@ -60,7 +60,8 @@ function renderAmministrazioneListView(container) {
         <div class="space-y-6">
             
             <div class="stats-grid">
-                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+                <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
                     <div class="stat-content">
                         <div class="stat-label">Clienti Attivi</div>
                         <div class="stat-value">${app.state.data.clients.length}</div>
@@ -69,7 +70,8 @@ function renderAmministrazioneListView(container) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
                 </div>
-                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+                <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
                     <div class="stat-content">
                         <div class="stat-label">Totale Credito</div>
                         <div class="stat-value">${app.formatCurrency(totalCredit.call(app))}</div>
@@ -78,7 +80,8 @@ function renderAmministrazioneListView(container) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                     </div>
                 </div>
-                <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.3);">
+                <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+                <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65);">
                     <div class="stat-content">
                         <div class="stat-label">Totale Debito</div>
                         <div class="stat-value">${app.formatCurrency(totalDebit.call(app))}</div>
@@ -87,6 +90,7 @@ function renderAmministrazioneListView(container) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
                     </div>
                 </div>
+                <!-- FINE MODIFICA -->
             </div>
 
             <div class="filters-bar no-print">
@@ -107,14 +111,7 @@ function renderAmministrazioneListView(container) {
                                 data-filter-type="debit">A debito</button>
                     </div>
                 </div>
-                <div class="flex space-x-2">
-                    <button id="new-client-btn" class="btn btn-primary">
-                        <i data-lucide="handshake"></i> Nuovo Cliente
-                    </button>
-                    <button id="print-clients-btn" class="btn btn-secondary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> Stampa Elenco
-                    </button>
-                </div>
+                <button id="new-client-btn" class="btn btn-primary"><i data-lucide="user-plus"></i> Nuovo Cliente</button>
             </div>
 
             <div class="card no-print">
@@ -125,15 +122,14 @@ function renderAmministrazioneListView(container) {
                     <table class="table" id="clients-table">
                         <thead>
                             <tr>
-                                <th><button data-sort="name">
-                                    Cliente <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+                                <th><button class="flex items-center" data-sort="name">
+                                    Nome <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
                                 </button></th>
-                                <th><button data-sort="balance">
+                                <th class="text-right"><button class="flex items-center" data-sort="balance">
                                     Saldo <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
                                 </button></th>
-                                <th>Transazioni</th>
-                                <th><button data-sort="lastTransactionDate">
-                                    Ultima Operazione <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+                                <th><button class="flex items-center" data-sort="lastTransactionDate">
+                                    Ultima Transazione <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
                                 </button></th>
                                 <th class="text-right">Azioni</th>
                             </tr>

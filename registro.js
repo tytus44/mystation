@@ -696,6 +696,7 @@ function deleteCarico(caricoId) {
 }
 // Fine funzione deleteCarico
 
+
 // === RENDER FUNZIONI SPECIFICHE ===
 // Inizio funzione renderRegistryStats
 function renderRegistryStats() {
@@ -705,7 +706,8 @@ function renderRegistryStats() {
     
     if (container) {
         container.innerHTML = `
-            <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+            <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+            <div class="stat-card" style="background-color: rgba(37, 99, 235, 0.18); border-color: rgba(37, 99, 235, 0.65);">
                 <div class="stat-content">
                     <div class="stat-label">Totale Litri Caricati</div>
                     <div class="stat-value">${app.formatInteger(stats.totalLiters)}</div>
@@ -714,7 +716,8 @@ function renderRegistryStats() {
                     <i data-lucide="droplets"></i>
                 </div>
             </div>
-            <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3);">
+            <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+            <div class="stat-card" style="background-color: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.65);">
                 <div class="stat-content">
                     <div class="stat-label">Prodotto Top</div>
                     <div class="stat-value">${stats.topProduct}</div>
@@ -723,7 +726,8 @@ function renderRegistryStats() {
                     <i data-lucide="droplet"></i>
                 </div>
             </div>
-            <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.3);">
+            <!-- MODIFICA: Background da 0.05 a 0.18 e border da 0.3 a 0.65 per maggiore brillantezza -->
+            <div class="stat-card" style="background-color: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.65);">
                 <div class="stat-content">
                     <div class="stat-label">Autista Top</div>
                     <div class="stat-value">${stats.topDriver}</div>
@@ -732,6 +736,7 @@ function renderRegistryStats() {
                     <i data-lucide="user-check"></i>
                 </div>
             </div>
+            <!-- FINE MODIFICA -->
         `;
         app.refreshIcons();
     }
