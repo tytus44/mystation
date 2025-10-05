@@ -12,11 +12,23 @@ let anagraficaState = {
     // Form
     contattoForm: {
         nome: '', cognome: '', azienda: '',
-        telefono1: '', telefono2: '', email: '',
+        telefono1: '', email: '',
         note: ''
     },
     editingContatto: null,
 };
+
+// === ARRAY COLORI STAT-CARD ===
+// Array contenente i colori delle stat-card da applicare alle cards dei contatti
+const STAT_CARD_COLORS = [
+    { background: 'rgba(37, 99, 235, 0.18)', border: 'rgba(37, 99, 235, 0.65)' },      // Blu (Primary)
+    { background: 'rgba(16, 185, 129, 0.18)', border: 'rgba(16, 185, 129, 0.65)' },    // Verde (Success)
+    { background: 'rgba(255, 32, 78, 0.18)', border: 'rgba(255, 32, 78, 0.65)' },      // Rosso (Danger)
+    { background: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.65)' },    // Giallo (Warning)
+    { background: 'rgba(139, 92, 246, 0.18)', border: 'rgba(139, 92, 246, 0.65)' },    // Viola (Purple)
+    { background: 'rgba(8, 145, 178, 0.18)', border: 'rgba(8, 145, 178, 0.65)' },      // Ciano (Info)
+    { background: 'rgba(107, 114, 128, 0.18)', border: 'rgba(107, 114, 128, 0.65)' }   // Grigio
+];
 
 // === INIZIALIZZAZIONE MODULO ANAGRAFICA ===
 // Inizio funzione initAnagrafica
@@ -103,37 +115,13 @@ function getAnagraficaHeaderHTML(app) {
 }
 // Fine funzione getAnagraficaHeaderHTML
 
-// Inizio funzione generateHslColorFromString
-function generateHslColorFromString(str) {
-    const isDarkMode = document.body.classList.contains('theme-dark');
-    let hash = 0;
-    if (str.length === 0) return hash;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    const h = Math.abs(hash % 360);
-    
-    if (isDarkMode) {
-        const s = 30;
-        const l_bg = 20;
-        const l_border = 30;
-        return {
-            background: `hsl(${h}, ${s}%, ${l_bg}%)`,
-            border: `hsl(${h}, ${s}%, ${l_border}%)`
-        };
-    } else {
-        const s = 80;
-        const l_bg = 95;
-        const l_border = 85;
-        return {
-            background: `hsl(${h}, ${s}%, ${l_bg}%)`,
-            border: `hsl(${h}, ${s}%, ${l_border}%)`
-        };
-    }
+// Inizio funzione getStatCardColorByIndex
+// Restituisce il colore della stat-card basato sull'indice del contatto
+function getStatCardColorByIndex(index) {
+    const colorIndex = index % STAT_CARD_COLORS.length;
+    return STAT_CARD_COLORS[colorIndex];
 }
-// Fine funzione generateHslColorFromString
+// Fine funzione getStatCardColorByIndex
 
 // Inizio funzione getContattiCardsHTML
 function getContattiCardsHTML(app, contatti) {
@@ -148,13 +136,13 @@ function getContattiCardsHTML(app, contatti) {
 
     return `
         <div class="contatti-grid">
-            ${contatti.map((c) => {
+            ${contatti.map((c, index) => {
                 const contattiInfo = [];
                 if (c.telefono1) contattiInfo.push(`<i data-lucide="phone" class="w-4 h-4"></i> ${c.telefono1}`);
-                if (c.telefono2) contattiInfo.push(`<i data-lucide="phone" class="w-4 h-4"></i> ${c.telefono2}`);
                 if (c.email) contattiInfo.push(`<i data-lucide="mail" class="w-4 h-4"></i> ${c.email}`);
                 
-                const contactColors = generateHslColorFromString(c.id);
+                // Ottengo il colore della stat-card basato sull'indice
+                const contactColors = getStatCardColorByIndex(index);
                 const cardStyle = `background-color: ${contactColors.background}; border-color: ${contactColors.border};`;
                 
                 return `
@@ -284,7 +272,7 @@ function setupCardEventListeners() {
 function resetContattoForm() {
     anagraficaState.contattoForm = {
         nome: '', cognome: '', azienda: '',
-        telefono1: '', telefono2: '', email: '',
+        telefono1: '', email: '',
         note: ''
     };
     anagraficaState.editingContatto = null;
@@ -296,9 +284,9 @@ function openContattoModal(contatto = null) {
     const app = this;
     const isEditing = !!contatto;
     
-    if (isEditing) {
-        anagraficaState.editingContatto = contatto;
-        Object.assign(anagraficaState.contattoForm, contatto);
+    if (contatto) {
+        anagraficaState.contattoForm = { ...contatto };
+        anagraficaState.editingContatto = contatto.id;
     } else {
         resetContattoForm();
     }
@@ -306,165 +294,127 @@ function openContattoModal(contatto = null) {
     const modalHTML = `
         <div class="modal-header">
             <h2>${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
+            <button class="modal-close-btn" onclick="closeCustomModal()">
+                <i data-lucide="x"></i>
+            </button>
         </div>
         <div class="modal-body">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Nome</label>
-                    <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}" autocomplete="off">
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Cognome</label>
+                        <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}">
+                    </div>
+                    <div>
+                        <label class="form-label">Nome</label>
+                        <input type="text" id="contatto-nome" class="form-control" value="${anagraficaState.contattoForm.nome}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Cognome</label>
-                    <input type="text" id="contatto-cognome" class="form-control" value="${anagraficaState.contattoForm.cognome}" autocomplete="off">
-                </div>
-                <div class="form-group">
+                <div>
                     <label class="form-label">Azienda</label>
-                    <input type="text" id="contatto-azienda" class="form-control" value="${anagraficaState.contattoForm.azienda}" autocomplete="off">
+                    <input type="text" id="contatto-azienda" class="form-control" value="${anagraficaState.contattoForm.azienda}" style="width: 100%; max-width: none;">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="contatto-email" class="form-control" value="${anagraficaState.contattoForm.email}" autocomplete="off">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Telefono</label>
+                        <input type="tel" id="contatto-telefono1" class="form-control" value="${anagraficaState.contattoForm.telefono1}">
+                    </div>
+                    <div>
+                        <label class="form-label">Email</label>
+                        <input type="email" id="contatto-email" class="form-control" value="${anagraficaState.contattoForm.email}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Telefono 1</label>
-                    <input type="tel" id="contatto-telefono1" class="form-control" value="${anagraficaState.contattoForm.telefono1}" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Telefono 2</label>
-                    <input type="tel" id="contatto-telefono2" class="form-control" value="${anagraficaState.contattoForm.telefono2}" autocomplete="off">
-                </div>
-                <div class="form-group span-2">
+                <div>
                     <label class="form-label">Note</label>
-                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}" autocomplete="off" spellcheck="false" style="max-width: 100%;">
+                    <input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}" style="width: 100%; max-width: none;">
                 </div>
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeCustomModal()">Annulla</button>
-                ${isEditing ? `
-                    <button type="button" id="delete-contatto-modal-btn" class="btn btn-danger">
-                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina
-                    </button>
-                ` : ''}
-                <button type="button" id="save-contatto-btn" class="btn btn-primary">
-                    ${isEditing ? 'Aggiorna' : 'Salva'}
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeCustomModal()">Annulla</button>
+            <button class="btn btn-primary" onclick="saveContattoFromModal()">${isEditing ? 'Salva' : 'Aggiungi'}</button>
         </div>
     `;
 
-    showCustomModal(modalHTML, 'modal-wide');
-    setupContattoFormListeners.call(this);
+    showCustomModal(modalHTML, 'modal-lg');
 }
 // Fine funzione openContattoModal
 
-// Inizio funzione setupContattoFormListeners
-function setupContattoFormListeners() {
-    const app = this;
+// Inizio funzione saveContattoFromModal
+function saveContattoFromModal() {
+    const app = getApp();
+    
+    const cognome = document.getElementById('contatto-cognome')?.value.trim() || '';
+    const nome = document.getElementById('contatto-nome')?.value.trim() || '';
+    const azienda = document.getElementById('contatto-azienda')?.value.trim() || '';
+    const telefono1 = document.getElementById('contatto-telefono1')?.value.trim() || '';
+    const email = document.getElementById('contatto-email')?.value.trim() || '';
+    const note = document.getElementById('contatto-note')?.value.trim() || '';
 
-    const inputs = {
-        nome: document.getElementById('contatto-nome'),
-        cognome: document.getElementById('contatto-cognome'),
-        azienda: document.getElementById('contatto-azienda'),
-        telefono1: document.getElementById('contatto-telefono1'),
-        telefono2: document.getElementById('contatto-telefono2'),
-        email: document.getElementById('contatto-email'),
-        note: document.getElementById('contatto-note')
-    };
-
-    Object.entries(inputs).forEach(([key, input]) => {
-        if (input) {
-            input.addEventListener('input', () => {
-                anagraficaState.contattoForm[key] = input.value;
-            });
-        }
-    });
-
-    document.getElementById('save-contatto-btn')?.addEventListener('click', () => {
-        saveContatto.call(this);
-    });
-
-    document.getElementById('delete-contatto-modal-btn')?.addEventListener('click', () => {
-        if (anagraficaState.editingContatto) {
-            deleteContatto.call(app, anagraficaState.editingContatto.id);
-        }
-    });
-}
-// Fine funzione setupContattoFormListeners
-
-// Inizio funzione saveContatto
-function saveContatto() {
-    const app = this;
-    const form = anagraficaState.contattoForm;
-
-    if (!form.nome.trim() && !form.cognome.trim()) {
-        return app.showNotification('È obbligatorio inserire almeno il nome o il cognome.', 'error');
+    if (!cognome && !nome) {
+        app.showNotification('Compila almeno il cognome o il nome', 'error');
+        return;
     }
 
     const contattoData = {
-        nome: form.nome.trim(),
-        cognome: form.cognome.trim(),
-        azienda: form.azienda.trim(),
-        telefono1: form.telefono1.trim(),
-        telefono2: form.telefono2.trim(),
-        email: form.email.trim(),
-        note: form.note.trim(),
+        cognome, nome, azienda,
+        telefono1, email, note
     };
 
     if (anagraficaState.editingContatto) {
-        const index = app.state.data.contatti.findIndex(c => c.id === anagraficaState.editingContatto.id);
+        const index = app.state.data.contatti.findIndex(c => c.id === anagraficaState.editingContatto);
         if (index !== -1) {
             app.state.data.contatti[index] = { ...app.state.data.contatti[index], ...contattoData };
         }
-        app.showNotification('Contatto aggiornato con successo');
+        app.showNotification('Contatto aggiornato');
     } else {
-        const nuovoContatto = {
+        const newContatto = {
             id: app.generateUniqueId('contatto'),
             ...contattoData
         };
-        app.state.data.contatti.push(nuovoContatto);
-        app.showNotification('Contatto aggiunto con successo');
+        app.state.data.contatti.push(newContatto);
+        app.showNotification('Contatto aggiunto');
     }
 
     app.saveToStorage('data', app.state.data);
+    renderContattiGrid.call(app);
     closeCustomModal();
-    resetContattoForm();
-    renderContattiGrid.call(this);
 }
-// Fine funzione saveContatto
+// Fine funzione saveContattoFromModal
 
 // Inizio funzione editContatto
 function editContatto(contattoId) {
     const app = this;
     const contatto = app.state.data.contatti.find(c => c.id === contattoId);
     if (contatto) {
-        openContattoModal.call(this, contatto);
+        openContattoModal.call(app, contatto);
     }
 }
 // Fine funzione editContatto
 
 // Inizio funzione deleteContatto
 function deleteContatto(contattoId) {
-    const app = this;
-    const contatto = app.state.data.contatti.find(c => c.id === contattoId);
-    
-    if (contatto) {
-        app.showConfirm(`Sei sicuro di voler eliminare il contatto "${contatto.cognome} ${contatto.nome}"?`, () => {
+    const app = getApp();
+    app.showConfirm(
+        'Sei sicuro di voler eliminare questo contatto?',
+        () => {
             app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
             app.saveToStorage('data', app.state.data);
-            app.showNotification('Contatto eliminato con successo');
-            closeCustomModal();
-            renderContattiGrid.call(this);
-        });
-    }
+            renderContattiGrid.call(app);
+            app.showNotification('Contatto eliminato');
+        }
+    );
 }
 // Fine funzione deleteContatto
+
+// === ELIMINA RUBRICA ===
 
 // Inizio funzione deleteRubrica
 function deleteRubrica() {
     const app = this;
     
     if (app.state.data.contatti.length === 0) {
-        return app.showNotification('La rubrica è già vuota.');
+        return app.showNotification('La rubrica è già vuota', 'error');
     }
     
     app.showConfirm(
@@ -524,6 +474,38 @@ function closeCustomModal() {
 
 // === FUNZIONI EXPORT E STAMPA ===
 
+// Inizio funzione exportAnagraficaToCSV
+function exportAnagraficaToCSV() {
+    const app = getApp();
+    const contatti = app.state.data.contatti;
+    
+    if (contatti.length === 0) {
+        return app.showNotification("Nessun contatto da esportare.");
+    }
+
+    const headers = ['Cognome', 'Nome', 'Azienda', 'Telefono', 'Email', 'Note'];
+    const rows = contatti.map(c => {
+        return [
+            c.cognome, c.nome, c.azienda,
+            c.telefono1, c.email,
+            c.note
+        ];
+    });
+
+    const csvContent = [headers, ...rows].map(row => 
+        row.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `anagrafica_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    
+    app.showNotification("Anagrafica esportata con successo");
+}
+// Fine funzione exportAnagraficaToCSV
+
 // Inizio funzione importAnagraficaFromCSV
 function importAnagraficaFromCSV(event) {
     const app = this;
@@ -580,9 +562,8 @@ function importAnagraficaFromCSV(event) {
                         nome: nome,
                         azienda: fields[2] || '',
                         telefono1: fields[3] || '',
-                        telefono2: fields[4] || '',
-                        email: fields[5] || '',
-                        note: fields[6] || ''
+                        email: fields[4] || '',
+                        note: fields[5] || ''
                     };
                     
                     app.state.data.contatti.push(nuovoContatto);
@@ -666,35 +647,3 @@ function printAnagrafica() {
     }, 100);
 }
 // Fine funzione printAnagrafica
-
-// Inizio funzione exportAnagraficaToCSV
-function exportAnagraficaToCSV() {
-    const app = getApp();
-    const contatti = app.state.data.contatti;
-    
-    if (contatti.length === 0) {
-        return app.showNotification("Nessun contatto da esportare.");
-    }
-
-    const headers = ['Cognome', 'Nome', 'Azienda', 'Telefono 1', 'Telefono 2', 'Email', 'Note'];
-    const rows = contatti.map(c => {
-        return [
-            c.cognome, c.nome, c.azienda,
-            c.telefono1, c.telefono2, c.email,
-            c.note
-        ];
-    });
-
-    const csvContent = [headers, ...rows].map(row => 
-        row.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(',')
-    ).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `anagrafica_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    
-    app.showNotification("Anagrafica esportata con successo");
-}
-// Fine funzione exportAnagraficaToCSV
