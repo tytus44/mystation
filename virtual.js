@@ -825,7 +825,7 @@ function initProductsChart() {
     // Plugin per disegnare il testo al centro del grafico a ciambella
     const centerTextPlugin = {
         id: 'centerText',
-        afterDraw(chart) {
+        beforeDatasetsDraw(chart) {
             if (chart.config.options.plugins.centerText?.display) {
                 const chartCtx = chart.ctx;
                 const { top, left, width, height } = chart.chartArea;
@@ -899,16 +899,11 @@ function initServiceChart() {
 
     const chartData = getServiceChartData.call(app);
 
-    const prepayGradient = ctx.createLinearGradient(0, 0, 0, 300);
-    prepayGradient.addColorStop(0, '#f87171');
-    prepayGradient.addColorStop(1, '#ef4444');
-
-    const servitoGradient = ctx.createLinearGradient(0, 0, 0, 300);
-    servitoGradient.addColorStop(0, '#60a5fa');
-    servitoGradient.addColorStop(1, '#3b82f6');
-
-    chartData.datasets[0].backgroundColor = prepayGradient;
-    chartData.datasets[1].backgroundColor = servitoGradient;
+    // MODIFICA: Colori solidi senza sfumature
+    // Prepay: #EB2A5D (rosso/magenta)
+    // Servito: #8576FF (viola)
+chartData.datasets[0].backgroundColor = '#ef4444';
+chartData.datasets[1].backgroundColor = '#3b82f6';
     
     chartData.datasets[0].borderRadius = 0;
     chartData.datasets[1].borderRadius = { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 };
@@ -982,19 +977,16 @@ function getProductsChartData() {
         const productKey = virtualState.chartDrilldown.product.toLowerCase().replace('+', 'plus');
         const breakdown = getProductBreakdown.call(app, productKey);
         
-        const drilldownColors = [['#8B93FF', '#6f7aff'], ['#3b82f6', '#2563eb']];
-        const gradients = ctx ? drilldownColors.map(c => {
-            const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-            gradient.addColorStop(0, c[0]);
-            gradient.addColorStop(1, c[1]);
-            return gradient;
-        }) : drilldownColors.map(c => c[0]);
+        // MODIFICA: Colori piatti senza sfumature per drilldown
+        // Prepay: #f97316 (arancione)
+        // Servito: #3b82f6 (blu)
+        const drilldownColors = ['#f97316', '#3b82f6'];
 
         return {
             labels: [`Prepay`, `Servito`],
             datasets: [{ 
                 data: [breakdown.prepay, breakdown.servito], 
-                backgroundColor: gradients, 
+                backgroundColor: drilldownColors, 
                 borderRadius: 8,
                 borderWidth: 4,
                 borderColor: cardBg
@@ -1014,19 +1006,14 @@ function getProductsChartData() {
         });
     });
 
-    const colors = [['#22c55e', '#16a34a'], ['#f97316', '#ea580c'], ['#ef4444', '#dc2626'], ['#3b82f6', '#2563eb'], ['#6b7280', '#4b5563']];
-    const gradients = ctx ? colors.map(c => {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-        gradient.addColorStop(0, c[0]);
-        gradient.addColorStop(1, c[1]);
-        return gradient;
-    }) : colors.map(c => c[0]);
+    // MODIFICA: Colori piatti senza sfumature
+    const colors = ['#22c55e', '#f97316', '#ef4444', '#3b82f6', '#6b7280'];
 
     return {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
         datasets: [{ 
             data: Object.values(totals), 
-            backgroundColor: gradients,
+            backgroundColor: colors,
             borderRadius: 8,
             borderWidth: 4,
             borderColor: cardBg
@@ -1104,7 +1091,6 @@ function getMonthlyTrendChartData() {
 }
 // Fine funzione getMonthlyTrendChartData
 
-// INIZIO MODIFICA: La funzione ora applica l'arrotondamento solo al segmento superiore del grafico a barre sovrapposte.
 // Inizio funzione safeUpdateCharts
 function safeUpdateCharts() {
     const app = this;
@@ -1121,17 +1107,12 @@ function safeUpdateCharts() {
             const chart = virtualState.serviceChartInstance;
             const chartData = getServiceChartData.call(app);
             
-            const prepayGradient = chart.ctx.createLinearGradient(0, 0, 0, chart.height);
-            prepayGradient.addColorStop(0, '#f87171');
-            prepayGradient.addColorStop(1, '#ef4444');
-
-            const servitoGradient = chart.ctx.createLinearGradient(0, 0, 0, chart.height);
-            servitoGradient.addColorStop(0, '#60a5fa');
-            servitoGradient.addColorStop(1, '#3b82f6');
-
-            chartData.datasets[0].backgroundColor = prepayGradient;
+            // MODIFICA: Colori solidi senza sfumature
+            // Prepay: #EB2A5D (rosso/magenta)
+            // Servito: #8576FF (viola)
+            chartData.datasets[0].backgroundColor = '#ef4444';
             chartData.datasets[0].borderRadius = 0;
-            chartData.datasets[1].backgroundColor = servitoGradient;
+            chartData.datasets[1].backgroundColor = '#3b82f6';
             chartData.datasets[1].borderRadius = { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 };
             
             chart.data = chartData;
@@ -1157,7 +1138,6 @@ function safeUpdateCharts() {
     }
 }
 // Fine funzione safeUpdateCharts
-// FINE MODIFICA
 
 // Inizio funzione updateChartsTheme
 function updateChartsTheme() {
