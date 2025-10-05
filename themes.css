@@ -19,6 +19,12 @@ html[data-color-theme="viola"] body.theme-light {
     --border-secondary: #d8b4fe;
     --text-primary: #1e1433;
     --text-secondary: #6b21a8;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(139, 92, 246, 0.1);
+    --calc-display-border: rgba(139, 92, 246, 0.3);
+    --calc-operator-bg: #8b5cf6;
+    --calc-function-text: #7c3aed;
+    /* FINE MODIFICA */
 }
 
 /* Dark Mode Viola */
@@ -33,6 +39,12 @@ html[data-color-theme="viola"] body.theme-dark {
     --border-secondary: #4c4063;
     --text-primary: #f3e8ff;
     --text-secondary: #c4b5fd;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(167, 139, 250, 0.1);
+    --calc-display-border: rgba(167, 139, 250, 0.4);
+    --calc-operator-bg: #a78bfa;
+    --calc-function-text: #c4b5fd;
+    /* FINE MODIFICA */
 }
 
 /* Fine Tema Viola */
@@ -53,6 +65,12 @@ html[data-color-theme="azzurro"] body.theme-light {
     --border-secondary: #67e8f9;
     --text-primary: #0c3545;
     --text-secondary: #155e75;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(6, 182, 212, 0.1);
+    --calc-display-border: rgba(6, 182, 212, 0.3);
+    --calc-operator-bg: #06b6d4;
+    --calc-function-text: #0891b2;
+    /* FINE MODIFICA */
 }
 
 /* Dark Mode Azzurro */
@@ -67,6 +85,12 @@ html[data-color-theme="azzurro"] body.theme-dark {
     --border-secondary: #0e7490;
     --text-primary: #ecfeff;
     --text-secondary: #67e8f9;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(34, 211, 238, 0.1);
+    --calc-display-border: rgba(34, 211, 238, 0.4);
+    --calc-operator-bg: #22d3ee;
+    --calc-function-text: #67e8f9;
+    /* FINE MODIFICA */
 }
 
 /* Fine Tema Azzurro */
@@ -87,6 +111,12 @@ html[data-color-theme="verde"] body.theme-light {
     --border-secondary: #6ee7b7;
     --text-primary: #064e3b;
     --text-secondary: #047857;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(16, 185, 129, 0.1);
+    --calc-display-border: rgba(16, 185, 129, 0.3);
+    --calc-operator-bg: #10b981;
+    --calc-function-text: #059669;
+    /* FINE MODIFICA */
 }
 
 /* Dark Mode Verde */
@@ -101,6 +131,12 @@ html[data-color-theme="verde"] body.theme-dark {
     --border-secondary: #059669;
     --text-primary: #d1fae5;
     --text-secondary: #6ee7b7;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(52, 211, 153, 0.1);
+    --calc-display-border: rgba(52, 211, 153, 0.4);
+    --calc-operator-bg: #34d399;
+    --calc-function-text: #6ee7b7;
+    /* FINE MODIFICA */
 }
 
 /* Fine Tema Verde */
@@ -121,6 +157,12 @@ html[data-color-theme="arancione"] body.theme-light {
     --border-secondary: #fdba74;
     --text-primary: #431407;
     --text-secondary: #9a3412;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(249, 115, 22, 0.1);
+    --calc-display-border: rgba(249, 115, 22, 0.3);
+    --calc-operator-bg: #f97316;
+    --calc-function-text: #ea580c;
+    /* FINE MODIFICA */
 }
 
 /* Dark Mode Arancione */
@@ -135,6 +177,12 @@ html[data-color-theme="arancione"] body.theme-dark {
     --border-secondary: #9a3412;
     --text-primary: #ffedd5;
     --text-secondary: #fdba74;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(251, 146, 60, 0.1);
+    --calc-display-border: rgba(251, 146, 60, 0.4);
+    --calc-operator-bg: #fb923c;
+    --calc-function-text: #fdba74;
+    /* FINE MODIFICA */
 }
 
 /* Fine Tema Arancione */
@@ -155,6 +203,12 @@ html[data-color-theme="rosa"] body.theme-light {
     --border-secondary: #f9a8d4;
     --text-primary: #500724;
     --text-secondary: #9f1239;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(236, 72, 153, 0.1);
+    --calc-display-border: rgba(236, 72, 153, 0.3);
+    --calc-operator-bg: #ec4899;
+    --calc-function-text: #db2777;
+    /* FINE MODIFICA */
 }
 
 /* Dark Mode Rosa */
@@ -169,6 +223,12 @@ html[data-color-theme="rosa"] body.theme-dark {
     --border-secondary: #9f1239;
     --text-primary: #fce7f3;
     --text-secondary: #f9a8d4;
+    /* INIZIO MODIFICA: Variabili calcolatrice */
+    --calc-display-bg: rgba(244, 114, 182, 0.1);
+    --calc-display-border: rgba(244, 114, 182, 0.4);
+    --calc-operator-bg: #f472b6;
+    --calc-function-text: #f9a8d4;
+    /* FINE MODIFICA */
 }
 
 /* Fine Tema Rosa */

@@ -91,6 +91,13 @@ body {
     --mobile-header-height: 3.5rem;
     --animation-duration-fast: 0.2s;
     --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* INIZIO MODIFICA: Variabili calcolatrice per tema default */
+    --calc-display-bg: rgba(37, 99, 235, 0.1);
+    --calc-display-border: rgba(37, 99, 235, 0.3);
+    --calc-operator-bg: #2563eb;
+    --calc-function-text: #1d4ed8;
+    /* FINE MODIFICA */
 }
 
 html[data-theme-radius="none"] { --radius-base: var(--radius-val-none); }
@@ -111,6 +118,12 @@ html[data-theme-radius="high"] { --radius-base: var(--radius-val-high); }
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+    /* INIZIO MODIFICA: Variabili calcolatrice per tema default scuro */
+    --calc-display-bg: rgba(96, 165, 250, 0.1);
+    --calc-display-border: rgba(96, 165, 250, 0.4);
+    --calc-operator-bg: #60a5fa;
+    --calc-function-text: #93c5fd;
+    /* FINE MODIFICA */
 }
 
 body {
@@ -1422,9 +1435,10 @@ select.form-control {
     padding: var(--spacing-sm);
 }
 
+/* INIZIO MODIFICA: Utilizzo delle nuove variabili CSS per la calcolatrice */
 .calculator-display {
-    background-color: rgba(41, 199, 185, 0.1);
-    border: 1px solid rgba(41, 199, 185, 0.3);
+    background-color: var(--calc-display-bg);
+    border: 1px solid var(--calc-display-border);
     grid-column: 1 / -1;
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: var(--radius-md);
@@ -1439,15 +1453,16 @@ select.form-control {
 }
 
 .theme-dark .calculator-display {
-    background-color: rgba(41, 199, 185, 0.1);
-    border-color: rgba(41, 199, 185, 0.4);
+    background-color: var(--calc-display-bg);
+    border-color: var(--calc-display-border);
 }
 
 .calculator-display .equation {
     font-size: 1rem;
-    color: var(--color-accent-calc);
+    color: var(--calc-function-text);
     height: 20px;
 }
+/* FINE MODIFICA */
 
 .calculator-display .result {
     font-size: 2.5rem;
@@ -1483,7 +1498,7 @@ select.form-control {
 }
 
 .calc-btn.operator {
-    background-color: var(--color-accent-calc);
+    background-color: var(--calc-operator-bg);
     border-color: transparent;
     color: white;
     font-size: 1.3rem;
@@ -1495,12 +1510,12 @@ select.form-control {
 }
 
 .calc-btn.function {
-    color: var(--color-accent-calc);
+    color: var(--calc-function-text);
 }
 
 .calc-btn.equal {
     grid-column: span 2;
-    background-color: #F75270;
+    background-color: var(--color-danger);
     border-color: transparent;
 }
 
