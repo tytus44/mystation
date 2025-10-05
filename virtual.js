@@ -902,7 +902,7 @@ function initServiceChart() {
     // MODIFICA: Colori solidi senza sfumature
     // Prepay: #EB2A5D (rosso/magenta)
     // Servito: #8576FF (viola)
-chartData.datasets[0].backgroundColor = '#ef4444';
+chartData.datasets[0].backgroundColor = '#FF204E';
 chartData.datasets[1].backgroundColor = '#3b82f6';
     
     chartData.datasets[0].borderRadius = 0;
@@ -1007,7 +1007,7 @@ function getProductsChartData() {
     });
 
     // MODIFICA: Colori piatti senza sfumature
-    const colors = ['#22c55e', '#f97316', '#ef4444', '#3b82f6', '#6b7280'];
+    const colors = ['#22c55e', '#f97316', '#FF204E', '#3b82f6', '#6b7280'];
 
     return {
         labels: ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'],
@@ -1082,7 +1082,7 @@ function getMonthlyTrendChartData() {
         }
         data[monthIndex] += totalLiters;
     });
-    const productColors = { generale: '#3b82f6', benzina: '#22c55e', gasolio: '#f97316', dieselplus: '#ef4444', hvolution: '#6366f1' };
+    const productColors = { generale: '#3b82f6', benzina: '#22c55e', gasolio: '#f97316', dieselplus: '#FF204E', hvolution: '#6366f1' };
     const selectedColor = productColors[tab] || '#3b82f6';
     return {
         labels: labels,
@@ -1110,7 +1110,7 @@ function safeUpdateCharts() {
             // MODIFICA: Colori solidi senza sfumature
             // Prepay: #EB2A5D (rosso/magenta)
             // Servito: #8576FF (viola)
-            chartData.datasets[0].backgroundColor = '#ef4444';
+            chartData.datasets[0].backgroundColor = '#FF204E';
             chartData.datasets[0].borderRadius = 0;
             chartData.datasets[1].backgroundColor = '#3b82f6';
             chartData.datasets[1].borderRadius = { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 };

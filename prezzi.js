@@ -90,7 +90,7 @@ function renderPrezziListView(container) {
                     </div>
 
                     <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="stat-card" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65);">
+                    <div class="stat-card" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
                         <div class="stat-content">
                             <div class="stat-label">Diesel+</div>
                             <div class="stat-value text-danger">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
@@ -200,7 +200,7 @@ function getListinoFormHTML() {
                         <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio}" autocomplete="off">
                     </div>
                     <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65); padding: 0.75rem;">
+                    <div class="product-box" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65); padding: 0.75rem;">
                         <label class="form-label font-medium" style="color: var(--color-danger); margin-bottom: 0.5rem;">Diesel+</label>
                         <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus}" autocomplete="off">
                     </div>
@@ -266,7 +266,7 @@ function getConcorrenzaFormHTML() {
                     </div>
 
                     <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                    <div class="product-box" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65);">
+                    <div class="product-box" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
                         <h4 class="product-title text-center" style="color: var(--color-danger)">Esso</h4>
                         <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div>
                         <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div>
@@ -678,7 +678,7 @@ function renderConcorrenzaCard() {
                     </div>
                 </div>
                 <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <div class="product-box" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65);">
+                <div class="product-box" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
                     <h4 class="font-semibold mb-2 text-center" style="color: var(--color-danger)">Esso</h4>
                     <div class="space-y-1 mt-2">
                         <div class="flex justify-between p-1"><span>Benzina</span><span class="font-bold">${app.formatCurrency(competitorPricesData.esso?.benzina || 0, true)}</span></div>
@@ -702,7 +702,7 @@ function renderConcorrenzaCard() {
                     <div class="text-xs">Benzina</div>${formatDiff(diffs.myoil.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.myoil.gasolio)}
                 </div>
                 <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
-                <div class="product-box text-center p-2" style="background-color: rgba(220, 38, 38, 0.18); border-color: rgba(220, 38, 38, 0.65);">
+                <div class="product-box text-center p-2" style="background-color: rgba(255, 32, 78, 0.18); border-color: rgba(255, 32, 78, 0.65);">
                     <div class="text-xs">Benzina</div>${formatDiff(diffs.esso.benzina)}<div class="text-xs mt-1">Gasolio</div>${formatDiff(diffs.esso.gasolio)}
                 </div>
                 <!-- MODIFICA COLORI: Background da 0.05 a 0.18 e border da 0.3 a 0.65 -->
