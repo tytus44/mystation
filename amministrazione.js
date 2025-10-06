@@ -91,7 +91,7 @@ function renderAmministrazioneListView(container) {
 
             <div class="filters-bar">
                 <div class="filter-group">
-                    <label class="form-label">Cerca Cliente</label>
+
                     <div class="input-group">
                         <i data-lucide="search" class="input-group-icon"></i>
                         <input type="text" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off" style="padding-right: 2.5rem;">
