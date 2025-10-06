@@ -112,20 +112,6 @@ function renderVirtualListView(container) {
     
     container.innerHTML = `
         <div class="space-y-6">
-            <div class="filters-bar no-print">
-                <div class="filter-group"><div class="btn-group">
-                    <button class="btn ${virtualState.virtualFilters.mode === 'today' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="today">Oggi</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'month' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="month">Mese</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="quarter">Trimestre</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Semestre</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Anno</button>
-                </div></div>
-                <div class="flex items-center space-x-2">
-                    <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
-                    <button id="new-mese-btn" class="btn btn-primary"><i data-lucide="calendar"></i> Mese</button>
-                    <button id="print-virtual-btn" class="btn btn-secondary" title="Stampa Periodo"><i data-lucide="printer" style="margin-right: 0;"></i></button>
-                </div>
-            </div>
             <div class="stats-grid">
                 <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
@@ -147,6 +133,20 @@ function renderVirtualListView(container) {
                         <div id="stat-servito" class="stat-value" style="color: #ffffff;">${stats.servitoPercentage}%</div>
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
+                </div>
+            </div>
+            <div class="filters-bar no-print">
+                <div class="filter-group"><div class="btn-group">
+                    <button class="btn ${virtualState.virtualFilters.mode === 'today' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="today">Oggi</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'month' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="month">Mese</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="quarter">Trimestre</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Semestre</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Anno</button>
+                </div></div>
+                <div class="flex items-center space-x-2">
+                    <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
+                    <button id="new-mese-btn" class="btn btn-primary"><i data-lucide="calendar"></i> Mese</button>
+                    <button id="print-virtual-btn" class="btn btn-secondary" title="Stampa Periodo"><i data-lucide="printer" style="margin-right: 0;"></i></button>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-6">
@@ -686,9 +686,7 @@ function virtualStats() {
                 prepayL = parseFloat(turno.prepay?.[product]) || 0;
                 servitoL = parseFloat(turno.servito?.[product]) || 0;
             }
-            // INIZIO MODIFICA: Rimossa la condizione errata per un calcolo corretto
             totalFdtPrepay += fdtL + prepayL;
-            // FINE MODIFICA
             totalServito += servitoL;
             if (basePrice > 0) {
                 if (product === 'adblue') revenue += servitoL * basePrice;
@@ -1235,7 +1233,7 @@ function printVirtualReport() {
         setTimeout(() => { document.getElementById('virtual-print-content').classList.add('hidden'); }, 1000);
     }, 100);
 }
-// Fine funzione onVirtualSectionOpen
+// Fine funzione printVirtualReport
 
 // Inizio funzione onVirtualSectionOpen
 function onVirtualSectionOpen() {
