@@ -127,7 +127,6 @@ function renderVirtualListView(container) {
                 </div>
             </div>
             <div class="stats-grid">
-                <!-- Card Blu: Litri Venduti -->
                 <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Litri Venduti</div>
@@ -135,7 +134,6 @@ function renderVirtualListView(container) {
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <!-- Card Verde: Fatturato Stimato -->
                 <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Fatturato Stimato</div>
@@ -143,7 +141,6 @@ function renderVirtualListView(container) {
                     </div>
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
-                <!-- Card Viola: % Servito -->
                 <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">% Servito</div>
@@ -441,7 +438,7 @@ function saveTurno() {
     app.showNotification('Turno salvato con successo!');
     
     renderTurniTable.call(app);
-    renderVirtualStats.call(app);
+    updateVirtualStats.call(app);
     safeUpdateCharts.call(app);
 }
 // Fine funzione saveTurno
@@ -512,7 +509,7 @@ function saveMese() {
         app.hideFormModal();
         virtualState.editingTurno = null;
         renderTurniTable.call(app);
-        renderVirtualStats.call(app);
+        updateVirtualStats.call(app);
         safeUpdateCharts.call(app);
     };
     
@@ -537,7 +534,7 @@ function deleteTurno(turnoId) {
         app.state.data.turni = app.state.data.turni.filter(t => t.id !== turnoId);
         app.saveToStorage('data', app.state.data);
         renderTurniTable.call(app);
-        renderVirtualStats.call(app);
+        updateVirtualStats.call(app);
         safeUpdateCharts.call(app);
         app.showNotification('Riga eliminata.');
     });
@@ -551,13 +548,31 @@ function setFilterMode(mode) {
     app.saveToStorage('virtualFilterMode', mode);
     updateFilterButtons(mode);
     renderTurniTable.call(app);
-    renderVirtualStats.call(app);
+    updateVirtualStats.call(app);
     safeUpdateCharts.call(app);
 }
 // Fine funzione setFilterMode
 
+// Inizio funzione updateVirtualStats
+function updateVirtualStats() {
+    const app = this;
+    const stats = virtualStats.call(app);
 
+    const litriEl = document.getElementById('stat-litri');
+    const fatturatoEl = document.getElementById('stat-fatturato');
+    const servitoEl = document.getElementById('stat-servito');
 
+    if (litriEl) {
+        litriEl.textContent = app.formatInteger(stats.totalLiters);
+    }
+    if (fatturatoEl) {
+        fatturatoEl.textContent = app.formatCurrency(stats.revenue);
+    }
+    if (servitoEl) {
+        servitoEl.textContent = `${stats.servitoPercentage}%`;
+    }
+}
+// Fine funzione updateVirtualStats
 
 // Inizio funzione updateFilterButtons
 function updateFilterButtons(activeMode) {
@@ -671,7 +686,9 @@ function virtualStats() {
                 prepayL = parseFloat(turno.prepay?.[product]) || 0;
                 servitoL = parseFloat(turno.servito?.[product]) || 0;
             }
-            if (product !== 'adblue') totalFdtPrepay += fdtL + prepayL;
+            // INIZIO MODIFICA: Rimossa la condizione errata per un calcolo corretto
+            totalFdtPrepay += fdtL + prepayL;
+            // FINE MODIFICA
             totalServito += servitoL;
             if (basePrice > 0) {
                 if (product === 'adblue') revenue += servitoL * basePrice;
@@ -888,9 +905,6 @@ function initServiceChart() {
 
     const chartData = getServiceChartData.call(app);
 
-    // MODIFICA: Colori solidi senza sfumature
-    // Prepay: #EB2A5D (rosso/magenta)
-    // Servito: #2563eb (blu)
 chartData.datasets[0].backgroundColor = '#FF204E';
 chartData.datasets[1].backgroundColor = '#2563eb';
     
@@ -966,9 +980,6 @@ function getProductsChartData() {
         const productKey = virtualState.chartDrilldown.product.toLowerCase().replace('+', 'plus');
         const breakdown = getProductBreakdown.call(app, productKey);
         
-        // MODIFICA: Colori piatti senza sfumature per drilldown
-        // Prepay: #EB2A5D (rosso/magenta)
-        // Servito: #2563eb(blu)
         const drilldownColors = ['#EB2A5D', '#2563eb'];
 
         return {
@@ -995,7 +1006,6 @@ function getProductsChartData() {
         });
     });
 
-    // MODIFICA: Colori piatti senza sfumature
     const colors = ['#22c55e', '#f97316', '#FF204E', '#06b6d4', '#6b7280'];
 
     return {
@@ -1096,9 +1106,6 @@ function safeUpdateCharts() {
             const chart = virtualState.serviceChartInstance;
             const chartData = getServiceChartData.call(app);
             
-            // MODIFICA: Colori solidi senza sfumature
-            // Prepay: #EB2A5D (rosso/magenta)
-            // Servito: #2563eb (blu)
             chartData.datasets[0].backgroundColor = '#FF204E';
             chartData.datasets[0].borderRadius = 0;
             chartData.datasets[1].backgroundColor = '#2563eb';

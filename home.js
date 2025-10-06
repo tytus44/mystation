@@ -101,7 +101,6 @@ function renderHomeSection(container) {
     container.innerHTML = `
         <div class="space-y-6">
             <div class="grid grid-cols-3 gap-6">
-                <!-- Card Blu: Litri venduti oggi -->
                 <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Litri venduti oggi</div>
@@ -121,7 +120,6 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <!-- Card Lilla: % Servito Oggi -->
                 <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">% Servito Oggi</div>
@@ -139,7 +137,6 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
                 </div>
-                <!-- Card Verde: Fatturato giornaliero -->
                 <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Fatturato giornaliero</div>
@@ -457,7 +454,7 @@ function renderCalendar() {
     }
     
     const oggi = new Date();
-    // CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario con toISOString()
+    // CORREZIONE: Costruisce la data YYYY-MM-DD manually per evitare problemi di fuso orario con toISOString()
     const oggiYear = oggi.getFullYear();
     const oggiMonth = String(oggi.getMonth() + 1).padStart(2, '0');
     const oggiDay = String(oggi.getDate()).padStart(2, '0');
@@ -729,9 +726,9 @@ function getHomeDashboardStats() {
             productTotals[product].iperself += iperselfL;
             productTotals[product].servito += servitoL;
 
-            if (product !== 'adblue') {
-                totalIperself += iperselfL;
-            }
+            // INIZIO MODIFICA: Rimossa la condizione errata per un calcolo corretto
+            totalIperself += iperselfL;
+            // FINE MODIFICA
             totalServito += servitoL;
             
             const priceKey = product === 'dieselplus' ? 'dieselPlus' : product;
