@@ -27,7 +27,7 @@ function initAmministrazione() {
     
     // Carica stato persistente - SEMPRE 'list' ora
     amministrazioneState.amministrazioneViewMode = 'list';
-    amministrazioneState.adminFilters = this.loadFromStorage('adminFilters', { search: '', filter: 'all' });
+    amministrazioneState.adminFilters = this.loadFromStorage('adminFilters', { search: '' });
     
     console.log('✅ Modulo Amministrazione inizializzato');
 }
@@ -60,50 +60,45 @@ function renderAmministrazioneListView(container) {
         <div class="space-y-6">
             
             <div class="stats-grid">
-                <!-- Card Blu: Clienti Attivi -->
                 <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Clienti Attivi</div>
                         <div class="stat-value" style="color: #ffffff;">${app.state.data.clients.length}</div>
                     </div>
                     <div class="stat-icon blue">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <i data-lucide="users"></i>
                     </div>
-                </div>
-                <!-- Card Verde: Totale Credito -->
+                    </div>
                 <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Credito</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(totalCredit.call(app))}</div>
                     </div>
                     <div class="stat-icon green">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                        <i data-lucide="trending-up"></i>
                     </div>
-                </div>
-                <!-- Card Rosso: Totale Debito -->
+                    </div>
                 <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Debito</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(totalDebit.call(app))}</div>
                     </div>
                     <div class="stat-icon red">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+                        <i data-lucide="trending-down"></i>
                     </div>
-                </div>
+                    </div>
             </div>
 
             <div class="filters-bar">
                 <div class="filter-group">
                     <label class="form-label">Cerca Cliente</label>
-                    <input type="text" id="admin-search-input" class="form-control" placeholder="Nome, telefono, email..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
-                </div>
-                <div class="filter-group">
-                    <label class="form-label">Filtro</label>
-                    <select id="admin-filter-select" class="form-control">
-                        <option value="all" ${amministrazioneState.adminFilters.filter === 'all' ? 'selected' : ''}>Tutti</option>
-                        <option value="credit" ${amministrazioneState.adminFilters.filter === 'credit' ? 'selected' : ''}>Solo Credito</option>
-                        <option value="debit" ${amministrazioneState.adminFilters.filter === 'debit' ? 'selected' : ''}>Solo Debito</option>
-                    </select>
+                    <div class="input-group">
+                        <i data-lucide="search" class="input-group-icon"></i>
+                        <input type="text" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off" style="padding-right: 2.5rem;">
+                        <button id="admin-clear-search-btn" class="${!amministrazioneState.adminFilters.search ? 'hidden' : ''}" style="position: absolute; right: 0; top: 0; height: 100%; padding: 0 0.75rem; background: none; border: none; cursor: pointer; color: var(--text-tertiary);">
+                            <i data-lucide="x" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                    </div>
                 </div>
                 <button id="new-client-btn" class="btn btn-primary">
                     <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Cliente
@@ -115,18 +110,18 @@ function renderAmministrazioneListView(container) {
                     <thead>
                         <tr>
                             <th>
-                                <button data-column="name">
+                                <button data-sort="name">
                                     Nome <i data-lucide="${amministrazioneState.adminSort.column === 'name' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
                                 </button>
                             </th>
                             <th>
-                                <button data-column="phone">
-                                    Telefono <i data-lucide="${amministrazioneState.adminSort.column === 'phone' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                <button data-sort="balance">
+                                    Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
                                 </button>
                             </th>
-                            <th>
-                                <button data-column="balance">
-                                    Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                            <th style="min-width: 150px;">
+                                <button data-sort="lastTransactionDate">
+                                    Ultima Operazione <i data-lucide="${amministrazioneState.adminSort.column === 'lastTransactionDate' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
                                 </button>
                             </th>
                             <th>Azioni</th>
@@ -315,24 +310,34 @@ function setupAmministrazioneEventListeners() {
     const app = this;
     
     // Ricerca
-    const searchInput = document.getElementById('client-search');
+    const searchInput = document.getElementById('admin-search-input');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             amministrazioneState.adminFilters.search = e.target.value;
             app.saveToStorage('adminFilters', amministrazioneState.adminFilters);
+            
             renderClientsTable.call(app);
+            const clearBtn = document.getElementById('admin-clear-search-btn');
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', !e.target.value);
+            }
         });
     }
     
-    // Event listener per il nuovo button group
-    const filterButtons = document.querySelectorAll('[data-filter-type]');
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const filter = btn.getAttribute('data-filter-type');
-            setAdminFilter.call(app, filter);
+    // Pulsante di cancellazione della ricerca
+    const clearSearchBtn = document.getElementById('admin-clear-search-btn');
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', () => {
+            amministrazioneState.adminFilters.search = '';
+            app.saveToStorage('adminFilters', amministrazioneState.adminFilters);
+            
+            if (searchInput) searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            renderClientsTable.call(app);
+            searchInput?.focus();
         });
-    });
-    
+    }
+
     // Pulsanti navigazione
     const newClientBtn = document.getElementById('new-client-btn');
     if (newClientBtn) {
@@ -368,10 +373,6 @@ function showCreateClient() {
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getAmministrazioneFormHTML();
     
-    // INIZIO MODIFICA: La classe 'modal-wide' è stata rimossa per ridurre la larghezza del modale
-    // modalContentEl.classList.add('modal-wide');
-    // FINE MODIFICA
-    
     setupAmministrazioneFormEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
@@ -399,27 +400,6 @@ function showClientModal(clientId) {
 // Fine funzione showClientModal
 
 // === FUNZIONI ORDINAMENTO E FILTRI ===
-
-// Inizio funzione setAdminFilter
-function setAdminFilter(filter) {
-    amministrazioneState.adminFilters.filter = filter;
-    this.saveToStorage('adminFilters', amministrazioneState.adminFilters);
-    
-    const buttons = document.querySelectorAll('[data-filter-type]');
-    buttons.forEach(btn => {
-        const btnFilter = btn.getAttribute('data-filter-type');
-        if (btnFilter === filter) {
-            btn.classList.remove('btn-secondary');
-            btn.classList.add('btn-primary', 'active');
-        } else {
-            btn.classList.remove('btn-primary', 'active');
-            btn.classList.add('btn-secondary');
-        }
-    });
-    
-    renderClientsTable.call(this);
-}
-// Fine funzione setAdminFilter
 
 // Inizio funzione sortAdmin
 function sortAdmin(column) {
@@ -449,15 +429,6 @@ function sortedClients() {
     if (amministrazioneState.adminFilters.search.trim()) {
         const query = amministrazioneState.adminFilters.search.toLowerCase();
         clients = clients.filter(c => c.name && c.name.toLowerCase().includes(query));
-    }
-    
-    switch (amministrazioneState.adminFilters.filter) {
-        case 'credit':
-            clients = clients.filter(c => (c.balance || 0) > 0);
-            break;
-        case 'debit':
-            clients = clients.filter(c => (c.balance || 0) < 0);
-            break;
     }
     
     return clients.sort((a, b) => {
@@ -786,11 +757,11 @@ function renderClientsTable() {
     if (clients.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="text-center py-12">
+                <td colspan="4" class="text-center py-12">
                     <div class="empty-state">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <i data-lucide="users"></i>
                         <div class="empty-state-title">Nessun cliente trovato</div>
-                        <div class="empty-state-description">Aggiungi un nuovo cliente per iniziare.</div>
+                        <div class="empty-state-description">Aggiungi un nuovo cliente o modifica i filtri di ricerca.</div>
                     </div>
                 </td>
             </tr>
@@ -799,10 +770,7 @@ function renderClientsTable() {
         tbody.innerHTML = clients.map(client => `
             <tr class="hover:bg-secondary">
                 <td class="font-medium text-primary">${client.name}</td>
-                <td>
-                    <span class="font-bold ${app.getBalanceClass(client.balance)}">${app.formatCurrency(client.balance)}</span>
-                </td>
-                <td class="text-primary">${client.transactions.length}</td>
+                <td class="font-bold ${app.getBalanceClass(client.balance)}">${app.formatCurrency(client.balance)}</td>
                 <td class="text-primary">${app.formatDate(client.lastTransactionDate)}</td>
                 <td class="text-right">
                     <div class="flex items-center justify-end space-x-2">
@@ -810,7 +778,7 @@ function renderClientsTable() {
                             <i data-lucide="user-cog"></i>
                         </button>
                         <button class="btn btn-danger" onclick="deleteClientById('${client.id}')" title="Elimina cliente">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                            <i data-lucide="trash-2"></i>
                         </button>
                     </div>
                 </td>

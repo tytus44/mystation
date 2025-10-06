@@ -165,7 +165,7 @@ function getContattiCardsHTML(app, contatti) {
                                 <div class="contatto-note">
                                     <i data-lucide="file-text" class="w-4 h-4"></i>
                                     <span>${c.note}</span>
-                                </div>
+                                 </div>
                             </div>
                         ` : ''}
                         <div class="contatto-user-icon" style="color: ${contactColors.border};">
@@ -279,6 +279,7 @@ function resetContattoForm() {
 }
 // Fine funzione resetContattoForm
 
+// INIZIO MODIFICA: La funzione è stata aggiornata per utilizzare il sistema di modali centralizzato di app.js
 // Inizio funzione openContattoModal
 function openContattoModal(contatto = null) {
     const app = this;
@@ -294,7 +295,7 @@ function openContattoModal(contatto = null) {
     const modalHTML = `
         <div class="modal-header">
             <h2>${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
-            <button class="modal-close-btn" onclick="closeCustomModal()">
+            <button id="close-contatto-modal-btn" class="modal-close-btn">
                 <i data-lucide="x"></i>
             </button>
         </div>
@@ -331,18 +332,33 @@ function openContattoModal(contatto = null) {
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeCustomModal()">Annulla</button>
-            <button class="btn btn-primary" onclick="saveContattoFromModal()">${isEditing ? 'Salva' : 'Aggiungi'}</button>
+            <button id="cancel-contatto-modal-btn" class="btn btn-secondary">Annulla</button>
+            <button id="save-contatto-modal-btn" class="btn btn-primary">${isEditing ? 'Salva' : 'Aggiungi'}</button>
         </div>
     `;
 
-    showCustomModal(modalHTML, 'modal-lg');
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = modalHTML;
+    
+    // Aggiungo la classe per un modale più grande, se necessario
+    modalContentEl.classList.add('modal-lg'); 
+
+    // Setup degli event listener specifici per questo modale
+    document.getElementById('save-contatto-modal-btn').addEventListener('click', () => saveContattoFromModal.call(app));
+    document.getElementById('close-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
+    document.getElementById('cancel-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
+
+    app.showFormModal();
+    app.refreshIcons();
 }
 // Fine funzione openContattoModal
+// FINE MODIFICA
 
 // Inizio funzione saveContattoFromModal
 function saveContattoFromModal() {
-    const app = getApp();
+    // INIZIO MODIFICA: getApp() non è più necessario se la funzione è chiamata con .call(app)
+    const app = this;
+    // FINE MODIFICA
     
     const cognome = document.getElementById('contatto-cognome')?.value.trim() || '';
     const nome = document.getElementById('contatto-nome')?.value.trim() || '';
@@ -378,9 +394,12 @@ function saveContattoFromModal() {
 
     app.saveToStorage('data', app.state.data);
     renderContattiGrid.call(app);
-    closeCustomModal();
+    // INIZIO MODIFICA: Utilizzo della funzione centralizzata per chiudere il modale
+    app.hideFormModal();
+    // FINE MODIFICA
 }
 // Fine funzione saveContattoFromModal
+
 
 // Inizio funzione editContatto
 function editContatto(contattoId) {
@@ -394,7 +413,9 @@ function editContatto(contattoId) {
 
 // Inizio funzione deleteContatto
 function deleteContatto(contattoId) {
-    const app = getApp();
+    // INIZIO MODIFICA: La funzione viene ora chiamata con .call(app), quindi getApp() non è necessario
+    const app = this;
+    // FINE MODIFICA
     app.showConfirm(
         'Sei sicuro di voler eliminare questo contatto?',
         () => {
@@ -429,48 +450,11 @@ function deleteRubrica() {
 }
 // Fine funzione deleteRubrica
 
+// INIZIO MODIFICA: Le funzioni showCustomModal e closeCustomModal sono state rimosse
+// perché ora viene utilizzato il sistema di modali centralizzato di app.js.
 // === FUNZIONI DI UTILITÀ GLOBALI ===
-
-// Inizio funzione showCustomModal
-function showCustomModal(contentHTML, modalClass = '') {
-    const existingModal = document.getElementById('custom-modal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-
-    const modalElement = document.createElement('div');
-    modalElement.id = 'custom-modal';
-    modalElement.className = 'modal show';
-    modalElement.innerHTML = `
-        <div class="modal-backdrop"></div>
-        <div class="modal-content ${modalClass}">
-            ${contentHTML}
-        </div>
-    `;
-
-    document.body.appendChild(modalElement);
-
-    modalElement.addEventListener('click', (e) => {
-        if (e.target === modalElement || e.target.classList.contains('modal-backdrop') || e.target.closest('.modal-close-btn')) {
-            closeCustomModal();
-        }
-    });
-
-    const app = getApp();
-    if (app && app.refreshIcons) {
-        setTimeout(() => app.refreshIcons(), 100);
-    }
-}
-// Fine funzione showCustomModal
-
-// Inizio funzione closeCustomModal
-function closeCustomModal() {
-    const modal = document.getElementById('custom-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
-// Fine funzione closeCustomModal
+// ...funzioni rimosse...
+// FINE MODIFICA
 
 // === FUNZIONI EXPORT E STAMPA ===
 
