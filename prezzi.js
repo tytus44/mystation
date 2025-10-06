@@ -162,7 +162,6 @@ function getListinoFormHTML() {
     const isEdit = !!prezziState.editingListino;
     const title = isEdit ? 'Modifica Listino' : 'Nuovo Listino';
     
-    // Pre-compila con prezzi attuali se non è in modifica
     if (!isEdit) {
         const currentPricesData = currentPrices.call(app);
         prezziState.listinoForm.benzina = currentPricesData.benzina || '';
@@ -183,29 +182,24 @@ function getListinoFormHTML() {
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                    <!-- Card Verde: Benzina -->
-                    <div class="product-box" style="background-color: #10b981; border-color: #059669; padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Benzina</label>
+                    <div class="product-box" style="border-color: rgba(16, 185, 129, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-success); margin-bottom: 0.5rem;">Benzina</label>
                         <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina}" autocomplete="off">
                     </div>
-                    <!-- Card Giallo: Gasolio -->
-                    <div class="product-box" style="background-color: #f59e0b; border-color: #d97706; padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Gasolio</label>
+                    <div class="product-box" style="border-color: rgba(245, 158, 11, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-warning); margin-bottom: 0.5rem;">Gasolio</label>
                         <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio}" autocomplete="off">
                     </div>
-                    <!-- Card Rosso: Diesel+ -->
-                    <div class="product-box" style="background-color: #FF204E; border-color: #DC1C44; padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Diesel+</label>
+                    <div class="product-box" style="border-color: rgba(255, 32, 78, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-danger); margin-bottom: 0.5rem;">Diesel+</label>
                         <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus}" autocomplete="off">
                     </div>
-                    <!-- Card Ciano: Hvolution -->
-                    <div class="product-box" style="background-color: #06b6d4; border-color: #0891b2; padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">Hvolution</label>
+                    <div class="product-box" style="border-color: rgba(8, 145, 178, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: rgb(8, 145, 178); margin-bottom: 0.5rem;">Hvolution</label>
                         <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution}" autocomplete="off">
                     </div>
-                    <!-- Card Grigio: AdBlue -->
-                    <div class="product-box" style="background-color: #6b7280; border-color: #4b5563; padding: 0.75rem;">
-                        <label class="form-label font-medium" style="color: #ffffff; margin-bottom: 0.5rem;">AdBlue</label>
+                    <div class="product-box" style="border-color: rgba(107, 114, 128, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-secondary); margin-bottom: 0.5rem;">AdBlue</label>
                         <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue}" autocomplete="off">
                     </div>
                 </div>
@@ -224,7 +218,6 @@ function getListinoFormHTML() {
 function getConcorrenzaFormHTML() {
     const app = getApp();
     
-    // Pre-compila con prezzi concorrenza attuali
     const currentCompetitorPrices = competitorPrices.call(app);
     if (!prezziState.concorrenzaForm.myoil.benzina) {
         prezziState.concorrenzaForm.myoil.benzina = currentCompetitorPrices.myoil?.benzina || '';
@@ -246,25 +239,22 @@ function getConcorrenzaFormHTML() {
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                    <!-- Card Lilla: MyOil -->
-                    <div class="product-box" style="background-color: #8b5cf6; border-color: #7c3aed; padding: 0.75rem;">
-                        <h4 class="product-title text-center" style="color: #ffffff; margin-bottom: 0.75rem;">MyOil</h4>
-                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off"></div>
+                    <div class="product-box" style="border-color: rgba(139, 92, 246, 0.65);">
+                        <h4 class="product-title text-center" style="color: #8b5cf6">MyOil</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off"></div>
                     </div>
 
-                    <!-- Card Rosso: Esso -->
-                    <div class="product-box" style="background-color: #FF204E; border-color: #DC1C44; padding: 0.75rem;">
-                        <h4 class="product-title text-center" style="color: #ffffff; margin-bottom: 0.75rem;">Esso</h4>
-                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div>
+                    <div class="product-box" style="border-color: rgba(255, 32, 78, 0.65);">
+                        <h4 class="product-title text-center" style="color: var(--color-danger)">Esso</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div>
                     </div>
 
-                    <!-- Card Ciano: Q8 -->
-                    <div class="product-box" style="background-color: #06b6d4; border-color: #0891b2; padding: 0.75rem;">
-                        <h4 class="product-title text-center" style="color: #ffffff; margin-bottom: 0.75rem;">Q8</h4>
-                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off"></div>
-                        <div class="form-group"><label class="form-label text-xs" style="color: rgba(255, 255, 255, 0.9);">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off"></div>
+                    <div class="product-box" style="border-color: rgba(8, 145, 178, 0.65);">
+                        <h4 class="product-title text-center" style="color: rgb(8, 145, 178)">Q8</h4>
+                        <div class="form-group"><label class="form-label text-xs">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off"></div>
+                        <div class="form-group"><label class="form-label text-xs">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off"></div>
                     </div>
                 </div>
 
