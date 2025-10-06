@@ -146,7 +146,6 @@ function renderVirtualListView(container) {
                 <div class="flex items-center space-x-2">
                     <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
                     <button id="new-mese-btn" class="btn btn-primary"><i data-lucide="calendar"></i> Mese</button>
-                    <button id="print-virtual-btn" class="btn btn-secondary" title="Stampa Periodo"><i data-lucide="printer" style="margin-right: 0;"></i></button>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-6">
@@ -287,7 +286,6 @@ function setupVirtualListViewEventListeners() {
     document.querySelectorAll('[data-filter-mode]').forEach(btn => btn.addEventListener('click', () => setFilterMode.call(app, btn.getAttribute('data-filter-mode'))));
     document.getElementById('new-turno-btn')?.addEventListener('click', () => showCreateTurno());
     document.getElementById('new-mese-btn')?.addEventListener('click', () => showCreateMeseModal());
-    document.getElementById('print-virtual-btn')?.addEventListener('click', () => printVirtualReport.call(app));
     document.querySelectorAll('#turni-table [data-sort]').forEach(btn => btn.addEventListener('click', () => sortVirtual.call(app, btn.getAttribute('data-sort'))));
     document.querySelectorAll('[data-trend-tab]').forEach(btn => btn.addEventListener('click', () => setTrendChartTab.call(app, btn.dataset.trendTab)));
     document.getElementById('export-products-chart-btn')?.addEventListener('click', () => exportChart('productsChart', 'vendite_prodotti.png'));
@@ -1215,25 +1213,6 @@ function exportChart(canvasId, filename) {
     link.click();
 }
 // Fine funzione exportChart
-
-// Inizio funzione printVirtualReport
-function printVirtualReport() {
-    const app = this;
-    const mode = virtualState.virtualFilters.mode;
-    const periodName = { today: 'Oggi', month: 'Mese', quarter: 'Trimestre', semester: 'Semestre', year: 'Anno' }[mode] || 'Periodo Selezionato';
-    document.getElementById('print-virtual-period').textContent = `Periodo: ${periodName} - ${app.formatDate(new Date())}`;
-    const stats = virtualStats.call(app);
-    const statsContainer = document.getElementById('print-virtual-stats');
-    statsContainer.innerHTML = `<div class="stat-card"><div class="stat-content"><div class="stat-label">Litri Venduti</div><div class="stat-value">${app.formatInteger(stats.totalLiters)}</div></div></div><div class="stat-card"><div class="stat-content"><div class="stat-label">Fatturato Stimato</div><div class="stat-value">${app.formatCurrency(stats.revenue)}</div></div></div><div class="stat-card"><div class="stat-content"><div class="stat-label">% Servito</div><div class="stat-value">${stats.servitoPercentage}%</div></div></div>`;
-    document.getElementById('virtual-print-content').classList.remove('hidden');
-    document.getElementById('print-anagrafica-content').classList.add('hidden');
-    document.getElementById('print-clients-content').classList.add('hidden');
-    setTimeout(() => {
-        window.print();
-        setTimeout(() => { document.getElementById('virtual-print-content').classList.add('hidden'); }, 1000);
-    }, 100);
-}
-// Fine funzione printVirtualReport
 
 // Inizio funzione onVirtualSectionOpen
 function onVirtualSectionOpen() {
