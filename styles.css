@@ -62,8 +62,9 @@ body {
     --border-secondary: #d1d5db;
     --border-focus: var(--color-primary);
     
-    --text-primary: #6b7280;
-    --text-secondary: #6b7280;
+    /* Colore testo */
+    --text-primary: #000000; /* nero */
+    --text-secondary: #000000; /* nero */
     --text-tertiary: #9ca3af;
     --text-inverse: #ffffff;
     
@@ -92,12 +93,11 @@ body {
     --animation-duration-fast: 0.2s;
     --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* INIZIO MODIFICA: Variabili calcolatrice per tema default */
+
     --calc-display-bg: rgba(37, 99, 235, 0.1);
     --calc-display-border: rgba(37, 99, 235, 0.3);
     --calc-operator-bg: #2563eb;
     --calc-function-text: #1d4ed8;
-    /* FINE MODIFICA */
 }
 
 html[data-theme-radius="none"] { --radius-base: var(--radius-val-none); }
@@ -118,12 +118,12 @@ html[data-theme-radius="high"] { --radius-base: var(--radius-val-high); }
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
-    /* INIZIO MODIFICA: Variabili calcolatrice per tema default scuro */
+
     --calc-display-bg: rgba(96, 165, 250, 0.1);
     --calc-display-border: rgba(96, 165, 250, 0.4);
     --calc-operator-bg: #60a5fa;
     --calc-function-text: #93c5fd;
-    /* FINE MODIFICA */
+
 }
 
 body {
