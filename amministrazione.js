@@ -100,10 +100,15 @@ function renderAmministrazioneListView(container) {
                         </button>
                     </div>
                 </div>
-                <button id="new-client-btn" class="btn btn-primary">
-                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Cliente
-                </button>
-            </div>
+                <div class="flex items-center space-x-2">
+                    <button id="new-client-btn" class="btn btn-primary">
+                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Cliente
+                    </button>
+                    <button id="print-clients-btn" class="btn btn-secondary">
+                        <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Stampa Lista
+                    </button>
+                </div>
+                </div>
 
             <div class="table-container">
                 <table class="table">
@@ -794,9 +799,16 @@ function renderClientsTable() {
 // Inizio funzione printClientsList
 function printClientsList() {
     const app = this;
-    const clients = sortedClients.call(app);
+    // INIZIO MODIFICA: Ordinamento alfabetico e impostazione titolo/data come da richiesta
+    const clients = [...app.state.data.clients].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it-IT'));
+
+    const printHeader = document.querySelector('#print-clients-content h1');
+    if (printHeader) {
+        printHeader.textContent = 'Lista Contabile Clienti';
+    }
     
-    document.getElementById('print-clients-date').textContent = `Dati aggiornati al: ${app.formatDate(new Date().toISOString())}`;
+    document.getElementById('print-clients-date').textContent = `Dati aggiornati al: ${app.formatDate(new Date())}`;
+    // FINE MODIFICA
     
     const clientsTableBody = document.getElementById('print-clients-list');
     const pairs = [];

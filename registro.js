@@ -83,11 +83,11 @@ function renderRegistroListView(container) {
                         <button class="btn ${registroState.registryTimeFilter === 'all' ? 'btn-primary active' : 'btn-secondary'}" 
                                 data-time-filter="all">Tutto</button>
                         <button class="btn ${registroState.registryTimeFilter === 'month' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="month">Ultimo Mese</button>
+                                data-time-filter="month">Mese</button>
                         <button class="btn ${registroState.registryTimeFilter === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="quarter">Ultimo Trimestre</button>
+                                data-time-filter="quarter">Trimestre</button>
                         <button class="btn ${registroState.registryTimeFilter === 'semester' ? 'btn-primary active' : 'btn-secondary'}" 
-                                data-time-filter="semester">Ultimo Semestre</button>
+                                data-time-filter="semester">Semestre</button>
                     </div>
                 </div>
                 <button id="new-carico-btn" class="btn btn-primary">

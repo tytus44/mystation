@@ -115,10 +115,10 @@ function renderVirtualListView(container) {
             <div class="filters-bar no-print">
                 <div class="filter-group"><div class="btn-group">
                     <button class="btn ${virtualState.virtualFilters.mode === 'today' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="today">Oggi</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'month' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="month">Ultimo Mese</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="quarter">Ultimo Trimestre</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Ultimo Semestre</button>
-                    <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Ultimo Anno</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'month' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="month">Mese</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'quarter' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="quarter">Trimestre</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'semester' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="semester">Semestre</button>
+                    <button class="btn ${virtualState.virtualFilters.mode === 'year' ? 'btn-primary active' : 'btn-secondary'}" data-filter-mode="year">Anno</button>
                 </div></div>
                 <div class="flex items-center space-x-2">
                     <button id="new-turno-btn" class="btn btn-primary"><i data-lucide="monitor-dot"></i> Turno</button>
@@ -1222,7 +1222,7 @@ function exportChart(canvasId, filename) {
 function printVirtualReport() {
     const app = this;
     const mode = virtualState.virtualFilters.mode;
-    const periodName = { today: 'Oggi', month: 'Ultimo Mese', quarter: 'Ultimo Trimestre', semester: 'Ultimo Semestre', year: 'Ultimo Anno' }[mode] || 'Periodo Selezionato';
+    const periodName = { today: 'Oggi', month: 'Mese', quarter: 'Trimestre', semester: 'Semestre', year: 'Anno' }[mode] || 'Periodo Selezionato';
     document.getElementById('print-virtual-period').textContent = `Periodo: ${periodName} - ${app.formatDate(new Date())}`;
     const stats = virtualStats.call(app);
     const statsContainer = document.getElementById('print-virtual-stats');
