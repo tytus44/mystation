@@ -21,14 +21,14 @@ function initInfo() {
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     
-    // INIZIO MODIFICA: Colori più vibranti e accesi per le card
+    // INIZIO MODIFICA: Riorganizzazione completa delle schede come da richiesta
     container.innerHTML = `
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-primary">Informazioni Utili</h1>
             <p class="text-secondary">Una raccolta di link e contatti rapidi per le operazioni quotidiane.</p>
         </div>
 
-        <div class="grid grid-cols-3 gap-6">
+        <div class="grid grid-cols-2 gap-6">
 
             <div class="card" style="background-color: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.6);">
                 <div class="card-header">
@@ -42,31 +42,19 @@ function renderInfoSection(container) {
                         <li><a href="https://enivirtualstation.4ts.it/auth/login?returnUrl=%2Fhome" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="monitor-dot"></i><span class="link-text">VirtualStation</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://myenistation.eni.com/content/myenistation/it/ordini.html" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="truck"></i><span class="link-text">Ordini Carburanti</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://myenistation.eni.com/content/myenistation/it/contabilita.html" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="calculator"></i><span class="link-text">Contabilità</span><i data-lucide="external-link"></i></a></li>
-                        <li><a href="https://piuservitogestore.private.gestori.eni.com/" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-check-2"></i><span class="link-text">Conguagli Mensili</span><i data-lucide="external-link"></i></a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="card" style="background-color: rgba(255, 177, 0, 0.15); border-color: rgba(255, 177, 0, 0.6);">
                 <div class="card-header">
-                    <h3 class="card-title">Multicard</h3>
-                    <i data-lucide="credit-card" style="color: var(--color-warning);"></i>
-                </div>
-                <div class="card-body">
-                    <ul class="info-list">
-                        <li><a href="https://cartesiodealer.eni.it/sito-esercenti/main.app" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="store"></i><span class="link-text">Portale Esercenti</span><i data-lucide="external-link"></i></a></li>
-                        <li><a href="https://www.enilive.it/business/multicard-carta-carburante" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="users"></i><span class="link-text">Portale Clienti</span><i data-lucide="external-link"></i></a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card" style="background-color: rgba(111, 230, 252, 0.15); border-color: rgba(111, 230, 252, 0.6);">
-                <div class="card-header">
-                    <h3 class="card-title">Servizi Esterni</h3>
-                    <i data-lucide="briefcase" style="color: var(--color-info);"></i>
+                    <h3 class="card-title">Servizi e Multicard</h3>
+                    <i data-lucide="briefcase" style="color: var(--color-warning);"></i>
                 </div>
                 <div class="card-body">
                      <ul class="info-list">
+                        <li><a href="https://cartesiodealer.eni.it/sito-esercenti/main.app" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="store"></i><span class="link-text">Portale Esercenti Multicard</span><i data-lucide="external-link"></i></a></li>
+                        <li><a href="https://www.enilive.it/business/multicard-carta-carburante" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="users"></i><span class="link-text">Portale Clienti Multicard</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://assetmanager.4ts.it/" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="shield-check"></i><span class="link-text">Asset Manager</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://diviseeni.audes.com/it/customer/account/login" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="shirt"></i><span class="link-text">Audes (Divise)</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://cardsmanager.it/Accounting/Login" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-text"></i><span class="link-text">Fattura 1click</span><i data-lucide="external-link"></i></a></li>
@@ -77,7 +65,7 @@ function renderInfoSection(container) {
 
             <div class="card" style="background-color: rgba(37, 99, 235, 0.15); border-color: rgba(37, 99, 235, 0.6);">
                 <div class="card-header">
-                   <h3 class="card-title">Banche</h3>
+                   <h3 class="card-title">Banche ed Enti</h3>
                     <i data-lucide="landmark" style="color: var(--color-primary);"></i>
                 </div>
                 <div class="card-body">
@@ -85,17 +73,6 @@ function renderInfoSection(container) {
                         <li><a href="https://www.unicredit.it/it/privati.html" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="link"></i><span class="link-text">Unicredit</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://www.bccroma.it/" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="link"></i><span class="link-text">BCC Roma</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://business.nexi.it/" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="link"></i><span class="link-text">Nexi Business</span><i data-lucide="external-link"></i></a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="card" style="background-color: rgba(107, 114, 128, 0.15); border-color: rgba(107, 114, 128, 0.6);">
-                <div class="card-header">
-                    <h3 class="card-title">Enti e Dogane</h3>
-                    <i data-lucide="building-2" style="color: var(--text-secondary);"></i>
-                </div>
-                <div class="card-body">
-                    <ul class="info-list">
                         <li><a href="https://iampe.adm.gov.it/sam/UI/Login?realm=/adm&locale=it&goto=https%3A%2F%2Fwww.adm.gov.it%2Fportale%2Fweb%2Fguest%2Flogin%3Fp_p_id%3D58%26p_p_lifecycle%3D0%26_58_redirect%3D%252Fportale%252F-%252Fcorrispettivi-distributori-carburanti" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-spreadsheet"></i><span class="link-text">Agenzia Dogane</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://servizi2.inps.it/servizi/Esterometro/Informazioni" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-check"></i><span class="link-text">INPS Esterometro</span><i data-lucide="external-link"></i></a></li>
                     </ul>
