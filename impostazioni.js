@@ -36,8 +36,8 @@ function getImpostazioniModalHTML(app) {
             
             <div class="impostazioni-layout">
                 
-                <div class="impostazioni-section">
-                    <h3 class="impostazioni-section-title">Personalizzazione</h3>
+                <div class="impostazioni-section" style="gap: 1.5rem;">
+                <h3 class="impostazioni-section-title">Personalizzazione</h3>
                     
                     <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
                         <label class="font-medium text-primary mb-3" style="display: block;">
@@ -72,7 +72,6 @@ function getImpostazioniModalHTML(app) {
                     </div>
                     
                     <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
-                        
                         <label class="font-medium text-primary mb-4" style="display: block;">
                             Arrotondamento elementi
                         </label>
@@ -102,16 +101,15 @@ function getImpostazioniModalHTML(app) {
                             <p class="text-sm text-secondary mb-4">Esporta o importa i tuoi dati in formato JSON</p>
                             
                             <div class="flex gap-4">
-                                <button type="button" id="export-btn" class="btn btn-primary flex items-center gap-4">
-                                    <i data-lucide="download"></i>
+                                <button type="button" id="export-btn" class="btn btn-primary" style="flex-grow: 1;">
+                                    <i data-lucide="download" class="mr-2"></i>
                                     <span>Esporta</span>
                                 </button>
-                                <button type="button" id="import-btn" class="btn btn-secondary flex items-center gap-4">
-                                    <i data-lucide="upload"></i>
+                                <button type="button" id="import-btn" class="btn btn-secondary" style="flex-grow: 1;">
+                                    <i data-lucide="upload" class="mr-2"></i>
                                     <span>Importa</span>
                                 </button>
                             </div>
-                            
                             <input type="file" id="import-file" accept=".json" style="display: none;">
                         </div>
                         
