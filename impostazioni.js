@@ -37,7 +37,7 @@ function getImpostazioniModalHTML(app) {
             <div class="impostazioni-layout">
                 
                 <div class="impostazioni-section" style="gap: 1.5rem;">
-                <h3 class="impostazioni-section-title">Personalizzazione</h3>
+                    <h3 class="impostazioni-section-title">Personalizzazione</h3>
                     
                     <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
                         <label class="font-medium text-primary mb-3" style="display: block;">
@@ -110,6 +110,7 @@ function getImpostazioniModalHTML(app) {
                                     <span>Importa</span>
                                 </button>
                             </div>
+                            
                             <input type="file" id="import-file" accept=".json" style="display: none;">
                         </div>
                         
@@ -277,6 +278,8 @@ function exportData() {
 }
 // Fine funzione exportData
 
+// INIZIO MODIFICA: La funzione è stata corretta per gestire le chiavi corrette dal file JSON
+// e per richiamare la funzione di aggiornamento UI con il nome giusto.
 // Inizio funzione importData
 function importData(event) {
     const file = event.target.files[0];
@@ -289,22 +292,25 @@ function importData(event) {
             
             if (importedData.clients) this.state.data.clients = importedData.clients || [];
             if (importedData.turni) this.state.data.turni = importedData.turni || [];
-            if (importedData.registro) this.state.data.registro = importedData.registro || [];
-            if (importedData.prezzi) this.state.data.prezzi = importedData.prezzi || [];
+            if (importedData.registryEntries) this.state.data.registryEntries = importedData.registryEntries || [];
+            if (importedData.priceHistory) this.state.data.priceHistory = importedData.priceHistory || [];
+            if (importedData.competitorPrices) this.state.data.competitorPrices = importedData.competitorPrices || [];
             if (importedData.contatti) this.state.data.contatti = importedData.contatti || [];
             if (importedData.etichette) this.state.data.etichette = importedData.etichette || [];
             
             this.saveToStorage('data', this.state.data);
             this.showNotification('Dati importati con successo!');
             this.hideFormModal();
-            this.navigateTo(this.state.currentSection);
+            this.switchSection(this.state.currentSection);
         } catch (error) {
-            alert('Errore durante l\'importazione: file non valido');
+            console.error("Errore durante l'importazione:", error);
+            alert('Errore durante l\'importazione: file non valido o corrotto.');
         }
     };
     reader.readAsText(file);
 }
 // Fine funzione importData
+// FINE MODIFICA
 
 // Inizio funzione confirmReset
 function confirmReset() {
