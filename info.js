@@ -21,7 +21,6 @@ function initInfo() {
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     
-    // INIZIO MODIFICA: Riorganizzazione completa delle schede come da richiesta
     container.innerHTML = `
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-primary">Informazioni Utili</h1>
@@ -74,6 +73,7 @@ function renderInfoSection(container) {
                         <li><a href="https://www.bccroma.it/" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="link"></i><span class="link-text">BCC Roma</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://business.nexi.it/" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="link"></i><span class="link-text">Nexi Business</span><i data-lucide="external-link"></i></a></li>
                         <li><a href="https://iampe.adm.gov.it/sam/UI/Login?realm=/adm&locale=it&goto=https%3A%2F%2Fwww.adm.gov.it%2Fportale%2Fweb%2Fguest%2Flogin%3Fp_p_id%3D58%26p_p_lifecycle%3D0%26_58_redirect%3D%252Fportale%252F-%252Fcorrispettivi-distributori-carburanti" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-spreadsheet"></i><span class="link-text">Agenzia Dogane</span><i data-lucide="external-link"></i></a></li>
+                        <li><a href="https://servizi2.inps.it/servizi/Esterometro/Informazioni" target="_blank" rel="noopener noreferrer" class="info-link"><i data-lucide="file-check"></i><span class="link-text">INPS Esterometro</span><i data-lucide="external-link"></i></a></li>
                     </ul>
                 </div>
             </div>
@@ -95,14 +95,14 @@ function renderInfoSection(container) {
 
         </div>
     `;
-    // FINE MODIFICA
 
     // Setup event listeners
     setupInfoEventListeners.call(this);
 
+    // INIZIO MODIFICA: Corretta la chiamata a refreshIcons utilizzando 'this'
     // Refresh icone
-    const app = getApp();
-    app.refreshIcons();
+    this.refreshIcons();
+    // FINE MODIFICA
 }
 // Fine funzione renderInfoSection
 
