@@ -365,10 +365,6 @@ function openContattoModal(contatto = null) {
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = modalHTML;
     
-    // INIZIO MODIFICA: Corretta la classe CSS per il modale largo
-    modalContentEl.classList.add('modal-wide'); 
-    // FINE MODIFICA
-
     document.getElementById('save-contatto-modal-btn').addEventListener('click', () => saveContattoFromModal.call(app));
     document.getElementById('close-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
     document.getElementById('cancel-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
@@ -518,54 +514,81 @@ function importAnagraficaFromCSV(event) {
     reader.onload = (e) => {
         try {
             const csvText = e.target.result;
-            const lines = csvText.split('\n').filter(line => line.trim());
+
+            // ================= INIZIO MODIFICA =================
+            // Sostituiamo il semplice .split('\n') con un parser più robusto
+            // che gestisce correttamente gli "a capo" all'interno dei campi virgolettati.
+            const rows = [];
+            let currentRow = '';
+            let inQuotes = false;
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                if (char === '"') {
+                    // Controlla se le virgolette sono doppie (escape) o singole
+                    if (inQuotes && csvText[i + 1] === '"') {
+                        currentRow += '"';
+                        i++; // Salta le virgolette successive
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                    if (currentRow.trim()) {
+                        rows.push(currentRow);
+                    }
+                    currentRow = '';
+                    // Gestisce il caso di \r\n
+                    if (char === '\r' && csvText[i + 1] === '\n') {
+                        i++;
+                    }
+                } else {
+                    currentRow += char;
+                }
+            }
+            if (currentRow.trim()) {
+                rows.push(currentRow);
+            }
+            // Ora 'rows' contiene le righe logiche corrette.
+            // ================== FINE MODIFICA ==================
+
+            if (rows.length < 2) {
+                return app.showNotification('Il file CSV è vuoto o non contiene dati.', 'error');
+            }
             
-            if (lines.length < 2) {
-                return app.showNotification('Il file CSV è vuoto o non valido.', 'error');
+            const headerLine = rows[0].trim();
+            const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            
+            const columnMap = {
+                nome: headers.indexOf('First Name'),
+                cognome: headers.indexOf('Last Name'),
+                azienda: headers.indexOf('Organization Name'),
+                telefono1: headers.indexOf('Phone 1 - Value'),
+                email: headers.indexOf('E-mail 1 - Value'),
+                note: headers.indexOf('Notes')
+            };
+
+            if (columnMap.nome === -1 && columnMap.cognome === -1) {
+                return app.showNotification('File CSV non valido. Intestazioni "First Name" o "Last Name" non trovate.', 'error');
             }
 
-            // Salta l'intestazione (prima riga)
-            const dataLines = lines.slice(1);
+            const dataLines = rows.slice(1);
             let importedCount = 0;
 
             dataLines.forEach(line => {
-                // Parse CSV tenendo conto dei campi tra virgolette
-                const fields = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let i = 0; i < line.length; i++) {
-                    const char = line[i];
-                    
-                    if (char === '"') {
-                        if (inQuotes && line[i + 1] === '"') {
-                            current += '"';
-                            i++;
-                        } else {
-                            inQuotes = !inQuotes;
-                        }
-                    } else if (char === ',' && !inQuotes) {
-                        fields.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
-                }
-                fields.push(current.trim());
+                // Semplifichiamo il parser dei campi, dato che le righe sono già corrette
+                const fields = line.split(',').map(field => field.trim().replace(/^"|"$/g, ''));
 
-                // Verifica che ci siano almeno cognome o nome
-                const cognome = fields[0] || '';
-                const nome = fields[1] || '';
-                
+                const nome = columnMap.nome > -1 ? fields[columnMap.nome] : '';
+                const cognome = columnMap.cognome > -1 ? fields[columnMap.cognome] : '';
+
                 if (cognome || nome) {
                     const nuovoContatto = {
                         id: app.generateUniqueId('contatto'),
                         cognome: cognome,
                         nome: nome,
-                        azienda: fields[2] || '',
-                        telefono1: fields[3] || '',
-                        email: fields[4] || '',
-                        note: fields[5] || ''
+                        azienda: columnMap.azienda > -1 ? fields[columnMap.azienda] : '',
+                        telefono1: columnMap.telefono1 > -1 ? fields[columnMap.telefono1] : '',
+                        email: columnMap.email > -1 ? fields[columnMap.email] : '',
+                        note: columnMap.note > -1 ? fields[columnMap.note] : ''
                     };
                     
                     app.state.data.contatti.push(nuovoContatto);
@@ -578,10 +601,9 @@ function importAnagraficaFromCSV(event) {
                 app.showNotification(`${importedCount} contatti importati con successo!`);
                 renderContattiGrid.call(this);
             } else {
-                app.showNotification('Nessun contatto valido trovato nel file.', 'error');
+                app.showNotification('Nessun contatto valido trovato nel file.', 'warning');
             }
 
-            // Reset input file
             event.target.value = '';
             
         } catch (error) {
@@ -590,7 +612,7 @@ function importAnagraficaFromCSV(event) {
         }
     };
     
-    reader.readAsText(file);
+    reader.readAsText(file, 'UTF-8');
 }
 // Fine funzione importAnagraficaFromCSV
 
