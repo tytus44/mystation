@@ -514,41 +514,28 @@ function importAnagraficaFromCSV(event) {
     reader.onload = (e) => {
         try {
             const csvText = e.target.result;
-
-            // ================= INIZIO MODIFICA =================
-            // Sostituiamo il semplice .split('\n') con un parser più robusto
-            // che gestisce correttamente gli "a capo" all'interno dei campi virgolettati.
+            
+            // Parser robusto che gestisce gli "a capo" nei campi
             const rows = [];
             let currentRow = '';
             let inQuotes = false;
             for (let i = 0; i < csvText.length; i++) {
                 const char = csvText[i];
                 if (char === '"') {
-                    // Controlla se le virgolette sono doppie (escape) o singole
                     if (inQuotes && csvText[i + 1] === '"') {
-                        currentRow += '"';
-                        i++; // Salta le virgolette successive
+                        currentRow += '"'; i++;
                     } else {
                         inQuotes = !inQuotes;
                     }
                 } else if ((char === '\n' || char === '\r') && !inQuotes) {
-                    if (currentRow.trim()) {
-                        rows.push(currentRow);
-                    }
+                    if (currentRow.trim()) rows.push(currentRow);
                     currentRow = '';
-                    // Gestisce il caso di \r\n
-                    if (char === '\r' && csvText[i + 1] === '\n') {
-                        i++;
-                    }
+                    if (char === '\r' && csvText[i + 1] === '\n') i++;
                 } else {
                     currentRow += char;
                 }
             }
-            if (currentRow.trim()) {
-                rows.push(currentRow);
-            }
-            // Ora 'rows' contiene le righe logiche corrette.
-            // ================== FINE MODIFICA ==================
+            if (currentRow.trim()) rows.push(currentRow);
 
             if (rows.length < 2) {
                 return app.showNotification('Il file CSV è vuoto o non contiene dati.', 'error');
@@ -557,24 +544,37 @@ function importAnagraficaFromCSV(event) {
             const headerLine = rows[0].trim();
             const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
             
-            const columnMap = {
-                nome: headers.indexOf('First Name'),
-                cognome: headers.indexOf('Last Name'),
-                azienda: headers.indexOf('Organization Name'),
-                telefono1: headers.indexOf('Phone 1 - Value'),
-                email: headers.indexOf('E-mail 1 - Value'),
-                note: headers.indexOf('Notes')
+            // ================= INIZIO MODIFICA =================
+            // Logica di mappatura flessibile: cerca prima gli header di Google,
+            // poi quelli generati dall'app in italiano.
+            const findHeaderIndex = (...possibleNames) => {
+                for (const name of possibleNames) {
+                    const index = headers.indexOf(name);
+                    if (index !== -1) return index;
+                }
+                return -1;
             };
 
+            const columnMap = {
+                nome:      findHeaderIndex('First Name', 'Nome'),
+                cognome:   findHeaderIndex('Last Name', 'Cognome'),
+                azienda:   findHeaderIndex('Organization Name', 'Azienda'),
+                telefono1: findHeaderIndex('Phone 1 - Value', 'Telefono'),
+                email:     findHeaderIndex('E-mail 1 - Value', 'Email'),
+                note:      findHeaderIndex('Notes', 'Note')
+            };
+
+            // Aggiorna il controllo di validità e il messaggio di errore
             if (columnMap.nome === -1 && columnMap.cognome === -1) {
-                return app.showNotification('File CSV non valido. Intestazioni "First Name" o "Last Name" non trovate.', 'error');
+                return app.showNotification('File CSV non valido. Intestazioni necessarie (es. "Nome", "Cognome") non trovate.', 'error');
             }
+            // ================== FINE MODIFICA ==================
 
             const dataLines = rows.slice(1);
             let importedCount = 0;
 
             dataLines.forEach(line => {
-                // Semplifichiamo il parser dei campi, dato che le righe sono già corrette
+                // Questo parser semplice va bene perché le righe sono già state corrette
                 const fields = line.split(',').map(field => field.trim().replace(/^"|"$/g, ''));
 
                 const nome = columnMap.nome > -1 ? fields[columnMap.nome] : '';
@@ -583,14 +583,12 @@ function importAnagraficaFromCSV(event) {
                 if (cognome || nome) {
                     const nuovoContatto = {
                         id: app.generateUniqueId('contatto'),
-                        cognome: cognome,
-                        nome: nome,
+                        cognome: cognome, nome: nome,
                         azienda: columnMap.azienda > -1 ? fields[columnMap.azienda] : '',
                         telefono1: columnMap.telefono1 > -1 ? fields[columnMap.telefono1] : '',
                         email: columnMap.email > -1 ? fields[columnMap.email] : '',
                         note: columnMap.note > -1 ? fields[columnMap.note] : ''
                     };
-                    
                     app.state.data.contatti.push(nuovoContatto);
                     importedCount++;
                 }
@@ -604,14 +602,13 @@ function importAnagraficaFromCSV(event) {
                 app.showNotification('Nessun contatto valido trovato nel file.', 'warning');
             }
 
-            event.target.value = '';
-            
         } catch (error) {
             console.error('Errore import CSV:', error);
             app.showNotification('Errore durante l\'importazione del file CSV.', 'error');
+        } finally {
+            event.target.value = '';
         }
     };
-    
     reader.readAsText(file, 'UTF-8');
 }
 // Fine funzione importAnagraficaFromCSV
