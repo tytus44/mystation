@@ -932,10 +932,12 @@ select.form-control {
     margin-top: var(--spacing-md);
 }
 
+/* INIZIO MODIFICA: Aumentata la larghezza massima per i modali 'wide' */
 .modal-content.modal-wide {
     max-width: 800px;
     width: 90vw;
 }
+/* FINE MODIFICA */
 
 .modal-content.modal-todo {
     max-width: 500px;

@@ -365,7 +365,9 @@ function openContattoModal(contatto = null) {
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = modalHTML;
     
-    modalContentEl.classList.add('modal-lg'); 
+    // INIZIO MODIFICA: Corretta la classe CSS per il modale largo
+    modalContentEl.classList.add('modal-wide'); 
+    // FINE MODIFICA
 
     document.getElementById('save-contatto-modal-btn').addEventListener('click', () => saveContattoFromModal.call(app));
     document.getElementById('close-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
@@ -437,7 +439,6 @@ function editContatto(contattoId) {
 // Inizio funzione deleteContatto
 function deleteContatto(contattoId) {
     const app = this;
-    // INIZIO MODIFICA: Corretta la chiamata a showConfirm con due parametri
     app.showConfirm(
         'Sei sicuro di voler eliminare questo contatto? L\'azione è irreversibile.',
         () => {
@@ -445,10 +446,9 @@ function deleteContatto(contattoId) {
             app.saveToStorage('data', app.state.data);
             renderContattiGrid.call(app);
             app.showNotification('Contatto eliminato');
-            app.hideFormModal(); // Chiude il modale dopo la conferma
+            app.hideFormModal();
         }
     );
-    // FINE MODIFICA
 }
 // Fine funzione deleteContatto
 
@@ -462,7 +462,6 @@ function deleteRubrica() {
         return app.showNotification('La rubrica è già vuota', 'error');
     }
     
-    // INIZIO MODIFICA: Corretta la chiamata a showConfirm con due parametri
     app.showConfirm(
         `Sei sicuro di voler eliminare TUTTI i ${app.state.data.contatti.length} contatti? L'azione è irreversibile.`,
         () => {
@@ -472,7 +471,6 @@ function deleteRubrica() {
             renderContattiGrid.call(this);
         }
     );
-    // FINE MODIFICA
 }
 // Fine funzione deleteRubrica
 
