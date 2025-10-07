@@ -217,38 +217,59 @@ function getFilteredAndSortedContatti() {
 
 // === EVENT LISTENERS ===
 
+// Inizio funzione handleAnagraficaClick
+function handleAnagraficaClick(event) {
+    const app = getApp();
+    const target = event.target;
+    
+    const newContattoBtn = target.closest('#new-contatto-btn');
+    const importBtn = target.closest('#import-contatti-btn');
+    const exportBtn = target.closest('#export-contatti-btn');
+    const printBtn = target.closest('#print-anagrafica-btn');
+    const deleteRubricaBtn = target.closest('#delete-rubrica-btn');
+    
+    if (newContattoBtn) openContattoModal.call(app);
+    if (importBtn) document.getElementById('import-anagrafica-file')?.click();
+    if (exportBtn) exportAnagraficaToCSV.call(app);
+    if (printBtn) printAnagrafica.call(app);
+    if (deleteRubricaBtn) deleteRubrica.call(app);
+}
+// Fine funzione handleAnagraficaClick
+
+// Inizio funzione handleAnagraficaChange
+function handleAnagraficaChange(event) {
+    const app = getApp();
+    if (event.target.id === 'import-anagrafica-file') {
+        importAnagraficaFromCSV.call(app, event);
+    }
+}
+// Fine funzione handleAnagraficaChange
+
+// Inizio funzione handleAnagraficaInput
+function handleAnagraficaInput(event) {
+    const app = getApp();
+    if (event.target.id === 'anagrafica-search') {
+        anagraficaState.searchQuery = event.target.value;
+        renderContattiGrid.call(app);
+    }
+}
+// Fine funzione handleAnagraficaInput
+
 // Inizio funzione setupAnagraficaEventListeners
 function setupAnagraficaEventListeners() {
     const app = this;
     const container = document.getElementById('section-anagrafica');
     if (!container) return;
 
-    container.addEventListener('click', (e) => {
-        const newContattoBtn = e.target.closest('#new-contatto-btn');
-        const importBtn = e.target.closest('#import-contatti-btn');
-        const exportBtn = e.target.closest('#export-contatti-btn');
-        const printBtn = e.target.closest('#print-anagrafica-btn');
-        const deleteRubricaBtn = e.target.closest('#delete-rubrica-btn');
-        
-        if (newContattoBtn) openContattoModal.call(app);
-        if (importBtn) document.getElementById('import-anagrafica-file')?.click();
-        if (exportBtn) exportAnagraficaToCSV.call(app);
-        if (printBtn) printAnagrafica.call(app);
-        if (deleteRubricaBtn) deleteRubrica.call(app);
-    });
+    // Rimuove i listener precedenti per evitare duplicazioni
+    container.removeEventListener('click', handleAnagraficaClick);
+    container.removeEventListener('change', handleAnagraficaChange);
+    container.removeEventListener('input', handleAnagraficaInput);
 
-    container.addEventListener('input', (e) => {
-        if (e.target.id === 'anagrafica-search') {
-            anagraficaState.searchQuery = e.target.value;
-            renderContattiGrid.call(app);
-        }
-    });
-
-    container.addEventListener('change', (e) => {
-        if (e.target.id === 'import-anagrafica-file') {
-            importAnagraficaFromCSV.call(app, e);
-        }
-    });
+    // Aggiunge i listener aggiornati
+    container.addEventListener('click', handleAnagraficaClick);
+    container.addEventListener('change', handleAnagraficaChange);
+    container.addEventListener('input', handleAnagraficaInput);
 }
 // Fine funzione setupAnagraficaEventListeners
 
@@ -279,7 +300,6 @@ function resetContattoForm() {
 }
 // Fine funzione resetContattoForm
 
-// INIZIO MODIFICA: La funzione è stata aggiornata per utilizzare il sistema di modali centralizzato di app.js
 // Inizio funzione openContattoModal
 function openContattoModal(contatto = null) {
     const app = this;
@@ -331,34 +351,40 @@ function openContattoModal(contatto = null) {
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-actions" style="align-items: center;">
+            ${isEditing ? `
+                <button id="delete-contatto-modal-btn" class="btn btn-danger" style="margin-right: auto;">
+                    <i data-lucide="trash-2" class="mr-2"></i>Elimina
+                </button>
+            ` : ''}
             <button id="cancel-contatto-modal-btn" class="btn btn-secondary">Annulla</button>
             <button id="save-contatto-modal-btn" class="btn btn-primary">${isEditing ? 'Salva' : 'Aggiungi'}</button>
         </div>
-    `;
+        `;
 
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = modalHTML;
     
-    // Aggiungo la classe per un modale più grande, se necessario
     modalContentEl.classList.add('modal-lg'); 
 
-    // Setup degli event listener specifici per questo modale
     document.getElementById('save-contatto-modal-btn').addEventListener('click', () => saveContattoFromModal.call(app));
     document.getElementById('close-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
     document.getElementById('cancel-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
+
+    if (isEditing) {
+        document.getElementById('delete-contatto-modal-btn').addEventListener('click', () => {
+            deleteContatto.call(app, anagraficaState.editingContatto);
+        });
+    }
 
     app.showFormModal();
     app.refreshIcons();
 }
 // Fine funzione openContattoModal
-// FINE MODIFICA
 
 // Inizio funzione saveContattoFromModal
 function saveContattoFromModal() {
-    // INIZIO MODIFICA: getApp() non è più necessario se la funzione è chiamata con .call(app)
     const app = this;
-    // FINE MODIFICA
     
     const cognome = document.getElementById('contatto-cognome')?.value.trim() || '';
     const nome = document.getElementById('contatto-nome')?.value.trim() || '';
@@ -394,12 +420,9 @@ function saveContattoFromModal() {
 
     app.saveToStorage('data', app.state.data);
     renderContattiGrid.call(app);
-    // INIZIO MODIFICA: Utilizzo della funzione centralizzata per chiudere il modale
     app.hideFormModal();
-    // FINE MODIFICA
 }
 // Fine funzione saveContattoFromModal
-
 
 // Inizio funzione editContatto
 function editContatto(contattoId) {
@@ -413,16 +436,16 @@ function editContatto(contattoId) {
 
 // Inizio funzione deleteContatto
 function deleteContatto(contattoId) {
-    // INIZIO MODIFICA: La funzione viene ora chiamata con .call(app), quindi getApp() non è necessario
     const app = this;
-    // FINE MODIFICA
     app.showConfirm(
         'Sei sicuro di voler eliminare questo contatto?',
+        'Questa azione è irreversibile.',
         () => {
             app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
             app.saveToStorage('data', app.state.data);
             renderContattiGrid.call(app);
             app.showNotification('Contatto eliminato');
+            app.hideFormModal(); // Chiude il modale dopo la conferma
         }
     );
 }
@@ -440,6 +463,7 @@ function deleteRubrica() {
     
     app.showConfirm(
         `Sei sicuro di voler eliminare TUTTI i ${app.state.data.contatti.length} contatti della rubrica?`,
+        'Questa azione è irreversibile.',
         () => {
             app.state.data.contatti = [];
             app.saveToStorage('data', app.state.data);
@@ -449,12 +473,6 @@ function deleteRubrica() {
     );
 }
 // Fine funzione deleteRubrica
-
-// INIZIO MODIFICA: Le funzioni showCustomModal e closeCustomModal sono state rimosse
-// perché ora viene utilizzato il sistema di modali centralizzato di app.js.
-// === FUNZIONI DI UTILITÀ GLOBALI ===
-// ...funzioni rimosse...
-// FINE MODIFICA
 
 // === FUNZIONI EXPORT E STAMPA ===
 
