@@ -360,7 +360,7 @@ function openContattoModal(contatto = null) {
             <button id="cancel-contatto-modal-btn" class="btn btn-secondary">Annulla</button>
             <button id="save-contatto-modal-btn" class="btn btn-primary">${isEditing ? 'Salva' : 'Aggiungi'}</button>
         </div>
-        `;
+    `;
 
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = modalHTML;
@@ -437,9 +437,9 @@ function editContatto(contattoId) {
 // Inizio funzione deleteContatto
 function deleteContatto(contattoId) {
     const app = this;
+    // INIZIO MODIFICA: Corretta la chiamata a showConfirm con due parametri
     app.showConfirm(
-        'Sei sicuro di voler eliminare questo contatto?',
-        'Questa azione è irreversibile.',
+        'Sei sicuro di voler eliminare questo contatto? L\'azione è irreversibile.',
         () => {
             app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
             app.saveToStorage('data', app.state.data);
@@ -448,6 +448,7 @@ function deleteContatto(contattoId) {
             app.hideFormModal(); // Chiude il modale dopo la conferma
         }
     );
+    // FINE MODIFICA
 }
 // Fine funzione deleteContatto
 
@@ -461,9 +462,9 @@ function deleteRubrica() {
         return app.showNotification('La rubrica è già vuota', 'error');
     }
     
+    // INIZIO MODIFICA: Corretta la chiamata a showConfirm con due parametri
     app.showConfirm(
-        `Sei sicuro di voler eliminare TUTTI i ${app.state.data.contatti.length} contatti della rubrica?`,
-        'Questa azione è irreversibile.',
+        `Sei sicuro di voler eliminare TUTTI i ${app.state.data.contatti.length} contatti? L'azione è irreversibile.`,
         () => {
             app.state.data.contatti = [];
             app.saveToStorage('data', app.state.data);
@@ -471,6 +472,7 @@ function deleteRubrica() {
             renderContattiGrid.call(this);
         }
     );
+    // FINE MODIFICA
 }
 // Fine funzione deleteRubrica
 

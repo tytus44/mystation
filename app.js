@@ -33,7 +33,7 @@ class MyStationApp {
             
             // Notifiche e modal
             notification: { show: false, message: '' },
-            confirm: { show: false, message: '', onConfirm: () => {} }
+            confirm: { show: false, message: '', onConfirm: null } // Modificato onConfirm a null di default
         };
         
         // Bindare i metodi al contesto
@@ -107,31 +107,18 @@ class MyStationApp {
             }
         });
         
+        // INIZIO MODIFICA: Centralizzata e resa robusta la gestione degli eventi del modale di conferma
         const confirmYes = document.getElementById('confirm-yes');
         const confirmNo = document.getElementById('confirm-no');
         
-        // INIZIO MODIFICA: Rimosso listener per chiusura modale al click sul backdrop
-        /*
-        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-        modalBackdrops.forEach(backdrop => {
-            backdrop.addEventListener('click', () => {
-                this.hideConfirm();
-                this.hideFormModal();
-            });
-        });
-        */
-        // FINE MODIFICA
-
         if (confirmYes) {
-            confirmYes.addEventListener('click', () => {
-                this.state.confirm.onConfirm();
-                this.hideConfirm();
-            });
+            confirmYes.addEventListener('click', () => this.handleConfirm());
         }
         
         if (confirmNo) {
             confirmNo.addEventListener('click', () => this.hideConfirm());
         }
+        // FINE MODIFICA
         
         window.addEventListener('beforeunload', () => this.saveAllState());
         setInterval(() => this.saveAllState(), 30000);
@@ -271,13 +258,10 @@ class MyStationApp {
     // === GESTIONE LAYOUT SIDEBAR ===
     // Inizio funzione updateSidebarLayout
     updateSidebarLayout() {
-        // INIZIO MODIFICA: Semplificata la funzione per usare lo stato in memoria
         document.body.classList.toggle('sidebar-collapsed', this.state.isSidebarCollapsed);
-        // FINE MODIFICA
     }
     // Fine funzione updateSidebarLayout
     
-    // INIZIO MODIFICA: Aggiunta funzione per centralizzare la logica del collassamento
     // Inizio funzione toggleSidebarCollapse
     toggleSidebarCollapse() {
         this.state.isSidebarCollapsed = !this.state.isSidebarCollapsed;
@@ -285,7 +269,6 @@ class MyStationApp {
         this.updateSidebarLayout();
     }
     // Fine funzione toggleSidebarCollapse
-    // FINE MODIFICA
     
     // === NOTIFICHE ===
     // Inizio funzione showNotification
@@ -308,32 +291,43 @@ class MyStationApp {
     // Fine funzione hideNotification
     
     // === MODAL DI CONFERMA ===
+    // INIZIO MODIFICA: Funzioni del modale di conferma refattorizzate
     // Inizio funzione showConfirm
     showConfirm(message, onConfirm) {
-        this.state.confirm.message = message;
-        this.state.confirm.onConfirm = onConfirm;
-        const modalEl = document.getElementById('confirm-modal');
-        const messageEl = modalEl.querySelector('.modal-message');
+        const modal = document.getElementById('confirm-modal');
+        const messageEl = modal.querySelector('.modal-message');
 
-        if (messageEl) messageEl.textContent = message;
-        modalEl.classList.remove('hidden');
-        modalEl.classList.add('show');
+        this.state.confirm.onConfirm = onConfirm;
+        
+        if(messageEl) messageEl.textContent = message;
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
     }
     // Fine funzione showConfirm
     
     // Inizio funzione hideConfirm
     hideConfirm() {
-        const modalEl = document.getElementById('confirm-modal');
-        if (modalEl) {
-            modalEl.classList.add('is-closing');
-
-            setTimeout(() => {
-                modalEl.classList.remove('show', 'is-closing');
-                modalEl.classList.add('hidden');
-            }, 500);
-        }
+        const modal = document.getElementById('confirm-modal');
+        
+        this.state.confirm.onConfirm = null;
+        
+        modal.classList.add('is-closing');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('show', 'is-closing');
+        }, 500);
     }
     // Fine funzione hideConfirm
+
+    // Inizio funzione handleConfirm (NUOVA FUNZIONE)
+    handleConfirm() {
+        if (typeof this.state.confirm.onConfirm === 'function') {
+            this.state.confirm.onConfirm();
+        }
+        this.hideConfirm();
+    }
+    // Fine funzione handleConfirm
+    // FINE MODIFICA
 
     // === GESTIONE MODALE FORM ===
     // Inizio funzione showFormModal
