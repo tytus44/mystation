@@ -330,16 +330,11 @@ function setupHomeEventListeners() {
         }
     });
 
-    document.getElementById('todo-list')?.addEventListener('click', (e) => {
-        const todoItem = e.target.closest('.todo-item');
-        if (!todoItem) return;
+document.getElementById('todo-list')?.addEventListener('click', (e) => {
+    const todoItem = e.target.closest('.todo-item');
+    if (!todoItem) return;
 
-        if (e.target.matches('input[type="checkbox"]')) {
-            toggleTodo.call(app, todoItem.dataset.todoId);
-            return;
-        }
-
-        const deleteBtn = e.target.closest('.delete-btn');
+    const deleteBtn = e.target.closest('.delete-btn');
         if (deleteBtn) {
             deleteTodo.call(app, deleteBtn.dataset.todoId);
             return;
@@ -885,9 +880,8 @@ function renderTodos() {
         const sortedTodos = [...homeState.todos].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
         todoList.innerHTML = `
             ${sortedTodos.map(todo => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''} color-${todo.color || 'standard'}" data-todo-id="${todo.id}" style="cursor: pointer;">
-                    <input type="checkbox" data-todo-id="${todo.id}" ${todo.completed ? 'checked' : ''} onclick="event.stopPropagation();">
-                    <div class="flex-grow">
+<div class="todo-item ${todo.completed ? 'completed' : ''} color-${todo.color || 'standard'}" data-todo-id="${todo.id}" style="cursor: pointer;">
+    <div class="flex-grow">
                         <span>${todo.text}</span>
                         ${todo.dueDate ? `<div class="text-xs text-secondary">Scadenza: ${app.formatDate(todo.dueDate)}</div>` : ''}
                     </div>
@@ -1092,10 +1086,16 @@ function updateTodo() {
 // Inizio funzione deleteTodo
 function deleteTodo(todoId) {
     const app = this;
-    homeState.todos = homeState.todos.filter(todo => todo.id !== todoId);
-    app.saveToStorage('homeTodos', homeState.todos);
-    renderCalendar.call(app);
-    renderTodos.call(app);
+    const todo = homeState.todos.find(t => t.id === todoId);
+    if (!todo) return;
+
+    app.showConfirm(`Sei sicuro di voler eliminare l'attività "${todo.text}"?`, () => {
+        homeState.todos = homeState.todos.filter(t => t.id !== todoId);
+        app.saveToStorage('homeTodos', homeState.todos);
+        renderCalendar.call(app);
+        renderTodos.call(app);
+        app.showNotification("Attività eliminata.");
+    });
 }
 // Fine funzione deleteTodo
 

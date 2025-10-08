@@ -1373,11 +1373,6 @@ select.form-control {
 .todo-item.color-priority { border-left-color: var(--color-warning); }
 .todo-item.color-urgent { border-left-color: var(--color-danger); }
 
-.todo-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
 .todo-item .delete-btn {
     position: absolute;
     top: 50%;

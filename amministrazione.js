@@ -92,13 +92,10 @@ function renderAmministrazioneListView(container) {
             <div class="filters-bar">
                 <div class="filter-group">
 
-                    <div class="input-group">
-                        <i data-lucide="search" class="input-group-icon"></i>
-                        <input type="text" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off" style="padding-right: 2.5rem;">
-                        <button id="admin-clear-search-btn" class="${!amministrazioneState.adminFilters.search ? 'hidden' : ''}" style="position: absolute; right: 0; top: 0; height: 100%; padding: 0 0.75rem; background: none; border: none; cursor: pointer; color: var(--text-tertiary);">
-                            <i data-lucide="x" style="width: 1rem; height: 1rem;"></i>
-                        </button>
-                    </div>
+<div class="input-group">
+    <i data-lucide="search" class="input-group-icon"></i>
+    <input type="search" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
+</div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button id="new-client-btn" class="btn btn-primary">
