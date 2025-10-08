@@ -199,7 +199,7 @@ function getVirtualFormHTML() {
                     </tbody>
                 </table>
             </div>
-            <div class="flex justify-end space-x-4 mt-4"><button id="cancel-turno-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-turno-btn" class="btn btn-primary">Salva Turno</button></div>
+            <div class="flex justify-end space-x-4 mt-4"><button id="cancel-turno-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-turno-btn" class="btn btn-success">Salva Turno</button></div>
         </div>
     `;
 }

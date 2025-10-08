@@ -358,7 +358,7 @@ function openContattoModal(contatto = null) {
                 </button>
             ` : ''}
             <button id="cancel-contatto-modal-btn" class="btn btn-secondary">Annulla</button>
-            <button id="save-contatto-modal-btn" class="btn btn-primary">${isEditing ? 'Salva' : 'Aggiungi'}</button>
+            <button id="save-contatto-modal-btn" class="btn btn-success">${isEditing ? 'Salva' : 'Aggiungi'}</button>
         </div>
     `;
 

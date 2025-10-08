@@ -287,7 +287,7 @@ function getRegistroFormHTML() {
                 
                 <div class="flex items-center justify-end space-x-4">
                     <button id="cancel-carico-btn-bottom" class="btn btn-secondary">Annulla</button>
-                    <button id="save-carico-btn" class="btn btn-primary">Salva Carico</button>
+                    <button id="save-carico-btn" class="btn btn-success">Salva Carico</button>
                 </div>
             </div>
         </div>

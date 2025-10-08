@@ -160,7 +160,7 @@ function getAmministrazioneFormHTML() {
             </div>
             <div class="flex items-center justify-end space-x-4 mt-6">
                 <button id="cancel-client-btn-bottom" class="btn btn-secondary">Annulla</button>
-                <button id="save-client-btn" class="btn btn-primary">Salva Cliente</button>
+                <button id="save-client-btn" class="btn btn-success">Salva Cliente</button>
             </div>
         </div>
     `;

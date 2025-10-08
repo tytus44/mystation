@@ -206,7 +206,7 @@ function getListinoFormHTML() {
 
                 <div class="flex items-center justify-end space-x-4" style="margin-top: 0.5rem;">
                     <button id="cancel-listino-btn-bottom" class="btn btn-secondary">Annulla</button>
-                    <button id="save-listino-btn" class="btn btn-primary">Salva Listino</button>
+                    <button id="save-listino-btn" class="btn btn-success">Salva Listino</button>
                 </div>
             </div>
         </div>
@@ -260,7 +260,7 @@ function getConcorrenzaFormHTML() {
 
                 <div class="flex items-center justify-end space-x-4">
                     <button id="cancel-concorrenza-btn-bottom" class="btn btn-secondary">Annulla</button>
-                    <button id="save-concorrenza-btn" class="btn btn-primary">Salva Prezzi</button>
+                    <button id="save-concorrenza-btn" class="btn btn-success">Salva Prezzi</button>
                 </div>
             </div>
         </div>
