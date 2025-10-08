@@ -435,8 +435,12 @@ function editContatto(contattoId) {
 // Inizio funzione deleteContatto
 function deleteContatto(contattoId) {
     const app = this;
+    const contatto = app.state.data.contatti.find(c => c.id === contattoId);
+    if (!contatto) return;
+    const contactName = `${contatto.cognome} ${contatto.nome}`.trim();
+
     app.showConfirm(
-        'Sei sicuro di voler eliminare questo contatto? L\'azione è irreversibile.',
+        `Sei sicuro di voler eliminare il contatto?<br>"${contactName}"?<br><br>L'azione è irreversibile.`,
         () => {
             app.state.data.contatti = app.state.data.contatti.filter(c => c.id !== contattoId);
             app.saveToStorage('data', app.state.data);

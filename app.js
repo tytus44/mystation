@@ -292,18 +292,18 @@ class MyStationApp {
     
     // === MODAL DI CONFERMA ===
     // INIZIO MODIFICA: Funzioni del modale di conferma refattorizzate
-    // Inizio funzione showConfirm
-    showConfirm(message, onConfirm) {
-        const modal = document.getElementById('confirm-modal');
-        const messageEl = modal.querySelector('.modal-message');
+// Inizio funzione showConfirm
+showConfirm(message, onConfirm) {
+    const modal = document.getElementById('confirm-modal');
+    const messageEl = modal.querySelector('.modal-message');
 
-        this.state.confirm.onConfirm = onConfirm;
-        
-        if(messageEl) messageEl.textContent = message;
-        modal.classList.remove('hidden');
-        modal.classList.add('show');
-    }
-    // Fine funzione showConfirm
+    this.state.confirm.onConfirm = onConfirm;
+    
+    if(messageEl) messageEl.innerHTML = message; // <-- Riga modificata
+    modal.classList.remove('hidden');
+    modal.classList.add('show');
+}
+// Fine funzione showConfirm
     
     // Inizio funzione hideConfirm
     hideConfirm() {

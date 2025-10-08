@@ -528,7 +528,7 @@ function deleteTurno(turnoId) {
     const turno = app.state.data.turni.find(t => t.id === turnoId);
     if (!turno) return;
 
-    app.showConfirm(`Sei sicuro di voler eliminare la riga del ${app.formatDate(turno.date)} - ${turno.turno}?`, () => {
+    app.showConfirm(`Sei sicuro di voler eliminare il turno<br>${app.formatDate(turno.date)} - ${turno.turno}?`, () => {
         app.state.data.turni = app.state.data.turni.filter(t => t.id !== turnoId);
         app.saveToStorage('data', app.state.data);
         renderTurniTable.call(app);

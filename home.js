@@ -1089,7 +1089,7 @@ function deleteTodo(todoId) {
     const todo = homeState.todos.find(t => t.id === todoId);
     if (!todo) return;
 
-    app.showConfirm(`Sei sicuro di voler eliminare l'attività "${todo.text}"?`, () => {
+    app.showConfirm(`Sei sicuro di voler eliminare l'attività?<br>"${todo.text}"?`, () => {
         homeState.todos = homeState.todos.filter(t => t.id !== todoId);
         app.saveToStorage('homeTodos', homeState.todos);
         renderCalendar.call(app);

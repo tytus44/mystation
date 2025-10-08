@@ -498,7 +498,7 @@ function deleteClient(clientId) {
     const client = this.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
     
-    this.showConfirm(`Sei sicuro di voler eliminare il cliente "${client.name}"? Verranno eliminate anche tutte le sue transazioni.`, () => {
+    this.showConfirm(`Sei sicuro di voler eliminare il cliente<br>"${client.name}"?<br><br>L'azione è irreversibile.`, () => {
         this.state.data.clients = this.state.data.clients.filter(c => c.id !== clientId);
         this.saveToStorage('data', this.state.data);
         this.showNotification('Cliente eliminato.');
@@ -557,7 +557,7 @@ function settleAccountInline(clientId) {
     if (!client || client.balance === 0) return;
 
     app.showConfirm(
-        `Sei sicuro di voler saldare il conto di "${client.name}"? Tutte le transazioni verranno eliminate definitivamente e il saldo sarà azzerato.`,
+        `Sei sicuro di voler saldare il conto di<br>"${client.name}"?<br><br>Tutte le transazioni verranno eliminate e il saldo sarà azzerato.`,
         () => {
             app.state.data.clients = app.state.data.clients.map(c => {
                 if (c.id === clientId) {

@@ -583,7 +583,7 @@ function deleteListino(listinoId) {
     const app = getApp();
     const listino = app.state.data.priceHistory.find(l => l.id === listinoId);
     if (!listino) return;
-    app.showConfirm(`Sei sicuro di voler eliminare il listino del ${app.formatDate(listino.date)}?`, () => {
+    app.showConfirm(`Sei sicuro di voler eliminare il listino del<br>${app.formatDate(listino.date)}?`, () => {
         app.state.data.priceHistory = app.state.data.priceHistory.filter(l => l.id !== listinoId);
         app.saveToStorage('data', app.state.data);
         renderPrezziListView.call(app, document.getElementById('section-prezzi'));

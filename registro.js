@@ -688,7 +688,7 @@ function deleteCarico(caricoId) {
     const carico = this.state.data.registryEntries.find(c => c.id === caricoId);
     if (!carico) return;
     
-    this.showConfirm(`Sei sicuro di voler eliminare il carico del ${this.formatDate(carico.date)} di ${carico.autistaName}?`, () => {
+    this.showConfirm(`Sei sicuro di voler eliminare il carico del ${this.formatDate(carico.date)} di<br>${carico.autistaName}?`, () => {
         this.state.data.registryEntries = this.state.data.registryEntries.filter(c => c.id !== caricoId);
         this.saveToStorage('data', this.state.data);
         renderRegistroListView.call(this, document.getElementById('section-registro'));
