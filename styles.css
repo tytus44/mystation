@@ -2571,3 +2571,102 @@ select.form-control {
         font-size: 10px;
     }
 }
+/* ============================================= */
+/* Stili per le nuove cards nella sezione Info   */
+/* ============================================= */
+
+.info-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.info-card .card-header i {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.info-card .card-header .card-title {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.info-card .card-header.green { background-color: #10b981; }
+.info-card .card-header.yellow { background-color: #f59e0b; }
+.info-card .card-header.blue { background-color: #3b82f6; }
+.info-card .card-header.pink { background-color: #ec4899; }
+
+.info-card .card-body {
+    padding: 1rem;
+    min-height: 160px; /* Altezza minima per allineare le card */
+}
+
+.info-links-list, .info-phone-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.info-links-list li a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: var(--color-primary);
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s;
+}
+
+.info-links-list li a:hover {
+    background-color: var(--background-secondary);
+    color: var(--color-accent);
+}
+
+.info-links-list li a i {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-secondary);
+}
+
+.info-phone-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s;
+    line-height: 1.4;
+}
+
+.info-phone-list li:hover {
+     background-color: var(--background-secondary);
+}
+
+.info-phone-list li span {
+    font-weight: 500;
+    color: var(--color-primary);
+    flex-grow: 1;
+}
+
+.info-phone-list li a {
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+    white-space: nowrap;
+    margin-left: 1rem;
+}
+
+.info-phone-list li a:hover {
+    text-decoration: underline;
+}

@@ -28,6 +28,9 @@ class MyStationApp {
                 contatti: [],
                 etichette: [],
                 // FINE NUOVI DATI
+                // INIZIO MODIFICA
+                stazioni: [], // Aggiunto per le stazioni di servizio
+                // FINE MODIFICA
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
