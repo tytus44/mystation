@@ -93,6 +93,7 @@ function renderInfoSection(container) {
             ${getInfoCardsHTML()}
             <div class="filters-bar">
                 <div class="filter-group">
+                    <label class="form-label" style="margin-bottom: 0.5rem; display: block; font-weight: 500;">Ricerca Impianti ENILIVE Roma</label>
                     <div class="input-group">
                         <i data-lucide="search" class="input-group-icon"></i>
                         <input type="search" id="info-search-input" class="form-control" 
