@@ -1,29 +1,31 @@
 // =============================================
 // FILE: impostazioni.js (Vanilla JavaScript Version)
-// DESCRIZIONE: Modulo per la gestione della 
+// DESCRIZIONE: Modulo per la gestione della
 // sezione Impostazioni (tema, import/export, reset).
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
+// Inizio funzione impostazioniState
 let impostazioniState = {
     isFullscreen: false,
     borderRadius: 'medium'
 };
+// Fine funzione impostazioniState
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 // Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
     const app = this;
-    
+
     impostazioniState.borderRadius = app.loadFromStorage('borderRadius', 'medium');
     updateBorderRadius();
-    
+
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
         updateFullscreenToggle();
     });
-    
+
     console.log('Modulo Impostazioni inizializzato');
 }
 // Fine funzione initImpostazioni
@@ -33,17 +35,17 @@ function initImpostazioni() {
 function getImpostazioniModalHTML(app) {
     return `
         <div class="card-body">
-            
+
             <div class="impostazioni-layout">
-                
+
                 <div class="impostazioni-section" style="gap: 1.5rem;">
                     <h3 class="impostazioni-section-title">Personalizzazione</h3>
-                    
+
                     <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
                         <label class="font-medium text-primary mb-3" style="display: block;">
                             Aspetto
                         </label>
-                        
+
                         <div class="space-y-4">
                             <div class="flex items-center justify-between w-full">
                                 <span class="font-medium text-primary">Tema scuro</span>
@@ -52,7 +54,7 @@ function getImpostazioniModalHTML(app) {
                                     <span class="switch-slider"></span>
                                 </label>
                             </div>
-                            
+
                             <div class="flex items-center justify-between w-full">
                                 <span class="font-medium text-primary">Schermo intero</span>
                                 <label class="switch">
@@ -70,7 +72,7 @@ function getImpostazioniModalHTML(app) {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
                         <label class="font-medium text-primary mb-4" style="display: block;">
                             Arrotondamento elementi
@@ -88,10 +90,10 @@ function getImpostazioniModalHTML(app) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="impostazioni-section">
                     <h3 class="impostazioni-section-title">Gestione Dati</h3>
-                    
+
                     <div class="space-y-4">
                         <div class="p-4" style="background-color: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--radius-md);">
                             <label class="font-medium text-primary mb-2" style="display: block;">
@@ -99,7 +101,7 @@ function getImpostazioniModalHTML(app) {
                                 Backup e Ripristino
                             </label>
                             <p class="text-sm text-secondary mb-4">Esporta o importa i tuoi dati in formato JSON</p>
-                            
+
                             <div class="flex gap-4">
                                 <button type="button" id="export-btn" class="btn btn-primary" style="flex-grow: 1;">
                                     <i data-lucide="download" class="mr-2"></i>
@@ -110,10 +112,10 @@ function getImpostazioniModalHTML(app) {
                                     <span>Importa</span>
                                 </button>
                             </div>
-                            
+
                             <input type="file" id="import-file" accept=".json" style="display: none;">
                         </div>
-                        
+
                         <div class="mt-6 p-4" style="background-color: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: var(--radius-md);">
                             <label class="font-medium text-danger mb-2" style="display: block;">
                                 <i data-lucide="alert-triangle" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
@@ -128,7 +130,7 @@ function getImpostazioniModalHTML(app) {
                     </div>
                 </div>
             </div>
-            
+
             <div class="modal-actions" style="border-top: 1px solid var(--border-primary); padding-top: 1.5rem; margin-top: 1.5rem;">
                 <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
             </div>
@@ -141,10 +143,10 @@ function getImpostazioniModalHTML(app) {
 // Inizio funzione showImpostazioniModal
 function showImpostazioniModal(app) {
     const modalContentEl = document.getElementById('form-modal-content');
-    
+
     // Aggiunge la classe modal-wide per rendere il modale piu largo
     modalContentEl.classList.add('modal-wide');
-    
+
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
     setupImpostazioniEventListeners(app);
 
@@ -172,7 +174,7 @@ function handleImpostazioniClick(event) {
     if (target.closest('#close-impostazioni-btn')) {
         app.hideFormModal();
     }
-    
+
     const radiusBtn = target.closest('[data-radius]');
     if (radiusBtn) {
         const newRadius = radiusBtn.dataset.radius;
@@ -266,8 +268,20 @@ function updateFullscreenToggle() {
 
 // Inizio funzione exportData
 function exportData() {
-    const dataStr = JSON.stringify(this.state.data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    // Crea una copia dei dati principali
+    const dataToExport = { ...this.state.data
+    };
+
+    // Aggiunge la to-do list al backup
+    const homeTodos = this.loadFromStorage('homeTodos', []);
+    if (homeTodos) {
+        dataToExport.homeTodos = homeTodos;
+    }
+
+    const dataStr = JSON.stringify(dataToExport, null, 2);
+    const dataBlob = new Blob([dataStr], {
+        type: 'application/json'
+    });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
@@ -278,8 +292,6 @@ function exportData() {
 }
 // Fine funzione exportData
 
-// INIZIO MODIFICA: La funzione è stata corretta per gestire le chiavi corrette dal file JSON
-// e per richiamare la funzione di aggiornamento UI con il nome giusto.
 // Inizio funzione importData
 function importData(event) {
     const file = event.target.files[0];
@@ -289,7 +301,7 @@ function importData(event) {
     reader.onload = (e) => {
         try {
             const importedData = JSON.parse(e.target.result);
-            
+
             if (importedData.clients) this.state.data.clients = importedData.clients || [];
             if (importedData.turni) this.state.data.turni = importedData.turni || [];
             if (importedData.registryEntries) this.state.data.registryEntries = importedData.registryEntries || [];
@@ -297,11 +309,20 @@ function importData(event) {
             if (importedData.competitorPrices) this.state.data.competitorPrices = importedData.competitorPrices || [];
             if (importedData.contatti) this.state.data.contatti = importedData.contatti || [];
             if (importedData.etichette) this.state.data.etichette = importedData.etichette || [];
-            
+
+            // Importa la To-Do List se presente
+            if (importedData.homeTodos) {
+                this.saveToStorage('homeTodos', importedData.homeTodos);
+                // Aggiorna lo stato live se il modulo home è già stato caricato
+                if (window.homeState) {
+                    window.homeState.todos = importedData.homeTodos;
+                }
+            }
+
             this.saveToStorage('data', this.state.data);
             this.showNotification('Dati importati con successo!');
             this.hideFormModal();
-            this.switchSection(this.state.currentSection);
+            this.switchSection(this.state.currentSection); // Ricarica la vista corrente per riflettere i cambiamenti
         } catch (error) {
             console.error("Errore durante l'importazione:", error);
             alert('Errore durante l\'importazione: file non valido o corrotto.');
@@ -310,7 +331,6 @@ function importData(event) {
     reader.readAsText(file);
 }
 // Fine funzione importData
-// FINE MODIFICA
 
 // Inizio funzione confirmReset
 function confirmReset() {
@@ -326,7 +346,7 @@ function confirmReset() {
 function resetAllData() {
     localStorage.clear();
     this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
-    
+
     setTimeout(() => {
         window.location.reload();
     }, 1500);
