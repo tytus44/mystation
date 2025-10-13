@@ -346,12 +346,12 @@ function importAccountsFromCSV(event) {
                 rows.shift();
             }
 
-            const importedAccounts = [];
-            rows.forEach(row => {
-                const delimiterIndex = row.indexOf(';');
-                if (delimiterIndex !== -1) {
-                    const name = row.substring(0, delimiterIndex).trim();
-                    let content = row.substring(delimiterIndex + 1).trim();
+const importedAccounts = [];
+rows.forEach(row => {
+    const delimiterIndex = row.indexOf(';');
+    if (delimiterIndex !== -1) {
+        const name = row.substring(0, delimiterIndex).trim().replace(/"/g, '');  // ✅ RISOLTO
+        let content = row.substring(delimiterIndex + 1).trim();
 
                     if (content.startsWith('"') && content.endsWith('"')) {
                         content = content.substring(1, content.length - 1).replace(/""/g, '"');
