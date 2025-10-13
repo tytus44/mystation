@@ -3,211 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyStation Dashboard</title>
+    <title>MyStation - Login</title>
     
     <meta name="robots" content="noindex, nofollow">
-    <meta property="og:title" content="MyStation Dashboard">
-    <meta property="og:description" content="Applicazione per la gestione di una stazione di servizio.">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    
+    <style>
+        /* Background animato con onde blu */
+        body {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+        }
+
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+        }
+
+        .wave-1 {
+            animation: wave 15s linear infinite;
+            fill: rgba(59, 130, 246, 0.6);
+        }
+
+        .wave-2 {
+            animation: wave 12s linear infinite;
+            animation-delay: -5s;
+            fill: rgba(37, 99, 235, 0.4);
+        }
+
+        .wave-3 {
+            animation: wave 18s linear infinite;
+            animation-delay: -2s;
+            fill: rgba(30, 64, 175, 0.3);
+        }
+
+        @keyframes wave {
+            0% {
+                transform: translateX(0) translateY(0);
+            }
+            50% {
+                transform: translateX(-25%) translateY(-10px);
+            }
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-lg);
+            color: var(--color-primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-logo svg {
+            width: 48px !important;
+            height: 48px !important;
+            animation: radar-spin 4s linear infinite;
+        }
+
+        @keyframes radar-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .login-card {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+        }
+
+        .toggle-password svg {
+            width: 20px !important;
+            height: 20px !important;
+        }
+
+        .error-message {
+            background: #fff5f5;
+            border: 1px solid #fc8181;
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: var(--spacing-lg);
+            display: none;
+            align-items: center;
+            gap: var(--spacing-sm);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        .error-message svg {
+            width: 16px !important;
+            height: 16px !important;
+            flex-shrink: 0;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-primary);
+            font-size: 13px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .heart {
+            color: #ef4444;
+            font-size: 14px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(1.1); }
+            20%, 40% { transform: scale(1); }
+        }
+
+        .form-control.error {
+            border-color: #fc8181 !important;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* ===== MODALE DI STATO LOGIN ===== */
+        
+        .login-status-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .login-status-backdrop.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .login-status-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            min-width: 320px;
+            text-align: center;
+            display: none;
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .login-status-modal.show {
+            display: block;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.7);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .login-status-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .login-status-modal.loading .login-status-icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(37, 99, 235, 0);
+            }
+        }
+
+        .login-status-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-status-modal.success .login-status-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            animation: successBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes successBounce {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .login-status-modal.success .login-status-icon svg {
+            width: 48px !important;
+            height: 48px !important;
+            color: white;
+        }
+
+        .login-status-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .login-status-subtext {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .login-status-modal.loading .login-status-text::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        @media (max-width: 480px) {
+            .login-title {
+                font-size: 24px;
+            }
+            
+            .login-wrapper {
+                padding: 0 16px;
+            }
+
+            .login-status-modal {
+                min-width: 280px;
+                padding: 32px 24px;
+            }
+
+            .login-status-icon {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
 </head>
 <body class="theme-light">
-
-    <div id="virtual-print-content" class="print-only hidden">
-        <div class="print-header">
-            <h1>Riepilogo VirtualStation</h1>
-            <p id="print-virtual-period"></p>
-        </div>
-        <div id="print-virtual-stats" class="stats-grid"></div>
-        <div id="print-virtual-charts" class="print-charts"></div>
+    <div class="animated-background">
+        <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path class="wave-1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+        <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path class="wave-2" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,192C672,203,768,181,864,154.7C960,128,1056,96,1152,101.3C1248,107,1344,149,1392,170.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+        <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path class="wave-3" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,208C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
     </div>
 
-    <div id="print-content" class="print-only hidden">
-        <div class="print-header">
-            <h1 id="print-client-name">Estratto conto</h1>
-            <p id="print-date-range">-</p>
+    <!-- Modale di stato login -->
+    <div class="login-status-backdrop" id="login-status-backdrop"></div>
+    <div class="login-status-modal" id="login-status-modal">
+        <div class="login-status-icon" id="login-status-icon">
+            <div class="login-status-spinner" id="login-status-spinner"></div>
         </div>
-        <table class="print-table">
-            <thead>
-                <tr><th>Descrizione</th><th>Importo</th><th>Descrizione</th><th>Importo</th></tr>
-            </thead>
-            <tbody id="print-transactions">
-            </tbody>
-        </table>
-        <div class="print-footer">
-            <p class="print-balance">Saldo Finale: <span id="print-final-balance">€ 0,00</span></p>
-        </div>
+        <div class="login-status-text" id="login-status-text">Accesso in corso</div>
+        <div class="login-status-subtext" id="login-status-subtext">Verifica credenziali...</div>
     </div>
 
-    <div id="print-clients-content" class="print-only hidden">
-        <div class="print-header">
-            <h1>Estratto conto clienti</h1>
-            <p id="print-clients-date">-</p>
-        </div>
-        <table class="print-table">
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Saldo</th>
-                    <th>Cliente</th>
-                    <th>Saldo</th>
-                </tr>
-            </thead>
-            <tbody id="print-clients-list">
-            </tbody>
-        </table>
-    </div>
-
-    <div id="print-anagrafica-content" class="print-only hidden">
-        <div class="print-header">
-            <h1>Elenco Contatti</h1>
-            <p id="print-anagrafica-date">-</p>
-        </div>
-        <table class="print-table" id="print-anagrafica-table">
-            <thead>
-                <tr>
-                    <th>Contatto</th>
-                    <th>Telefono</th>
-                    <th>Contatto</th>
-                    <th>Telefono</th>
-                    <th>Contatto</th>
-                    <th>Telefono</th>
-                </tr>
-            </thead>
-            <tbody id="print-anagrafica-list">
-            </tbody>
-        </table>
-    </div>
-
-    <div id="print-info-content" class="print-only hidden">
-        <div class="print-header">
-            <h1>Elenco Stazioni di Servizio</h1>
-            <p id="print-info-date">-</p>
-        </div>
-        <table class="print-table">
-            <thead>
-                <tr>
-                    <th>Denominazione</th>
-                    <th>Indirizzo</th>
-                </tr>
-            </thead>
-            <tbody id="print-info-list">
-            </tbody>
-        </table>
-    </div>
-    <div id="app">
-        <header class="mobile-header">
-            <div class="mobile-header-content">
-                <button id="mobile-menu-toggle" type="button" class="mobile-menu-btn">
-                    <i data-lucide="menu"></i>
-                </button>
-                <span class="mobile-title">MyStation</span>
+    <div class="login-wrapper">
+        <div class="login-header">
+            <div class="login-logo">
+                <i data-lucide="radar"></i>
             </div>
-        </header>
+            <h1 class="login-title">MyStation</h1>
+            <p class="login-subtitle">Accedi alla tua dashboard</p>
+        </div>
 
-        <aside id="sidebar" class="sidebar">
-            <div class="sidebar-content">
-                <div class="sidebar-header">
-                    <a href="#" class="sidebar-logo" data-section="home">
-                        <i data-lucide="radar"></i>
-                        <span>MyStation</span>
-                    </a>
-                    <div class="sidebar-divider"></div>
+        <div class="card login-card">
+            <div class="card-body">
+                <div id="error-message" class="error-message">
+                    <i data-lucide="alert-circle"></i>
+                    <span id="error-text"></span>
                 </div>
-                
-                <ul class="sidebar-menu">
-                    <li><button type="button" data-section="home" class="sidebar-link active">
-                        <i data-lucide="home"></i><span>Home</span>
-                    </button></li>
-                    <li><button type="button" data-section="virtual" class="sidebar-link">
-                        <i data-lucide="monitor-dot"></i><span>VirtualStation</span>
-                    </button></li>
-                    <li><button type="button" data-section="amministrazione" class="sidebar-link">
-                        <i data-lucide="handshake"></i><span>Amministrazione</span>
-                    </button></li>
-                    <li><button type="button" data-section="registro" class="sidebar-link">
-                        <i data-lucide="truck"></i><span>Registro di carico</span>
-                    </button></li>
-                    <li><button type="button" data-section="prezzi" class="sidebar-link">
-                        <i data-lucide="tags"></i><span>Gestione prezzi</span>
-                    </button></li>
-                    <li><button type="button" data-section="anagrafica" class="sidebar-link">
-                        <i data-lucide="users-round"></i><span>Anagrafica</span>
-                    </button></li>
-                    <li><button type="button" data-section="info" class="sidebar-link">
-                        <i data-lucide="info"></i><span>Info</span>
-                    </button></li>
-                </ul>
-                
-                <div class="sidebar-footer">
-                    <div class="sidebar-divider"></div>
-                    <ul class="sidebar-menu">
-                        <li><button type="button" data-section="impostazioni" class="sidebar-link">
-                            <i data-lucide="settings"></i><span>Impostazioni</span>
-                        </button></li>
-                    </ul>
-                </div>
-            </div>
-        </aside>
 
-        <main class="main-content">
-            <div class="content-wrapper">
-                
-                <div id="section-home" class="content-section active"></div>
-                <div id="section-virtual" class="content-section hidden"></div>
-                <div id="section-amministrazione" class="content-section hidden"></div>
-                <div id="section-anagrafica" class="content-section hidden"></div>
-                <div id="section-registro" class="content-section hidden"></div>
-                <div id="section-prezzi" class="content-section hidden"></div>
-                <div id="section-info" class="content-section hidden"></div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username" class="form-label">Nome utente</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            class="form-control" 
+                            placeholder="Inserisci il tuo nome utente"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
 
-            </div>
-        </main>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="password-wrapper">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                class="form-control" 
+                                placeholder="Inserisci la tua password"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button type="button" class="toggle-password" id="toggle-password" tabindex="-1">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                    </div>
 
-        <div id="notification" class="notification hidden">
-            <div class="notification-content">
-                <i data-lucide="bell"></i>
-                <div class="notification-message"></div>
-            </div>
-        </div>
+                    <button type="submit" class="btn btn-primary w-full" id="login-btn">
+                        Accedi
+                    </button>
+                </form>
 
-        <div id="confirm-modal" class="modal hidden">
-            <div class="modal-backdrop"></div>
-            <div class="modal-content">
-                <i data-lucide="alert-circle"></i>
-                <h3 class="modal-title">Conferma operazione</h3>
-                <p class="modal-message"></p>
-                <div class="modal-actions">
-                    <button id="confirm-yes" class="btn btn-danger">Sì, sono sicuro</button>
-                    <button id="confirm-no" class="btn btn-secondary">No, annulla</button>
+                <div class="login-footer">
+                    <span>Programmato con</span>
+                    <span class="heart">❤</span>
+                    <span>da NeRO</span>
                 </div>
             </div>
         </div>
-
-        <div id="form-modal" class="modal hidden">
-            <div class="modal-backdrop"></div>
-            <div id="form-modal-content" class="modal-content">
-                </div>
-        </div>
-
     </div>
 
-    <script src="app.js"></script>
-    <script src="home.js"></script>
-    <script src="virtual.js"></script>
-    <script src="amministrazione.js"></script>
-    <script src="anagrafica.js"></script>
-    <script src="registro.js"></script>
-    <script src="prezzi.js"></script>
-    <script src="impostazioni.js"></script>
-    <script src="info.js"></script>
-
+    <script src="credentials.js"></script>
+    <script src="auth.js"></script>
 </body>
 </html>
