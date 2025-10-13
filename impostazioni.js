@@ -5,15 +5,12 @@
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
-// Inizio funzione impostazioniState
 let impostazioniState = {
     isFullscreen: false,
     borderRadius: 'medium'
 };
-// Fine funzione impostazioniState
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
-// Inizio funzione initImpostazioni
 function initImpostazioni() {
     console.log('Inizializzazione modulo Impostazioni...');
     const app = this;
@@ -28,10 +25,8 @@ function initImpostazioni() {
 
     console.log('Modulo Impostazioni inizializzato');
 }
-// Fine funzione initImpostazioni
 
 // === HTML DEL MODALE IMPOSTAZIONI ===
-// Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML(app) {
     return `
         <div class="card-body">
@@ -137,14 +132,11 @@ function getImpostazioniModalHTML(app) {
         </div>
     `;
 }
-// Fine funzione getImpostazioniModalHTML
 
 // === FUNZIONE PER MOSTRARE IL MODALE ===
-// Inizio funzione showImpostazioniModal
 function showImpostazioniModal(app) {
     const modalContentEl = document.getElementById('form-modal-content');
 
-    // Aggiunge la classe modal-wide per rendere il modale piu largo
     modalContentEl.classList.add('modal-wide');
 
     modalContentEl.innerHTML = getImpostazioniModalHTML(app);
@@ -153,9 +145,7 @@ function showImpostazioniModal(app) {
     app.refreshIcons();
     app.showFormModal();
 }
-// Fine funzione showImpostazioniModal
 
-// Inizio funzione handleImpostazioniClick
 function handleImpostazioniClick(event) {
     const app = getApp();
     const target = event.target;
@@ -190,9 +180,7 @@ function handleImpostazioniClick(event) {
         });
     }
 }
-// Fine funzione handleImpostazioniClick
 
-// Inizio funzione handleImpostazioniChange
 function handleImpostazioniChange(event) {
     const app = getApp();
     const target = event.target;
@@ -214,34 +202,26 @@ function handleImpostazioniChange(event) {
         importData.call(app, event);
     }
 }
-// Fine funzione handleImpostazioniChange
 
 // === SETUP EVENT LISTENERS ===
-// Inizio funzione setupImpostazioniEventListeners
 function setupImpostazioniEventListeners(app) {
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
-    // Rimuove i listener precedenti per evitare duplicazioni che causano esportazioni multiple
     modalContent.removeEventListener('click', handleImpostazioniClick);
     modalContent.removeEventListener('change', handleImpostazioniChange);
 
-    // Aggiunge i listener aggiornati
     modalContent.addEventListener('click', handleImpostazioniClick);
     modalContent.addEventListener('change', handleImpostazioniChange);
 }
-// Fine funzione setupImpostazioniEventListeners
 
 // === FUNZIONI TEMA E DISPLAY ===
 
-// Inizio funzione updateBorderRadius
 function updateBorderRadius() {
     const radius = impostazioniState.borderRadius || 'medium';
     document.documentElement.setAttribute('data-theme-radius', radius);
 }
-// Fine funzione updateBorderRadius
 
-// Inizio funzione toggleFullscreen
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
@@ -253,26 +233,19 @@ function toggleFullscreen() {
         }
     }
 }
-// Fine funzione toggleFullscreen
 
-// Inizio funzione updateFullscreenToggle
 function updateFullscreenToggle() {
     const toggle = document.getElementById('fullscreen-toggle');
     if (toggle) {
         toggle.checked = impostazioniState.isFullscreen;
     }
 }
-// Fine funzione updateFullscreenToggle
 
 // === FUNZIONI IMPORT/EXPORT ===
 
-// Inizio funzione exportData
 function exportData() {
-    // Crea una copia dei dati principali
-    const dataToExport = { ...this.state.data
-    };
+    const dataToExport = { ...this.state.data };
 
-    // Aggiunge la to-do list al backup
     const homeTodos = this.loadFromStorage('homeTodos', []);
     if (homeTodos) {
         dataToExport.homeTodos = homeTodos;
@@ -290,9 +263,7 @@ function exportData() {
     URL.revokeObjectURL(url);
     this.showNotification('Dati esportati con successo!');
 }
-// Fine funzione exportData
 
-// Inizio funzione importData
 function importData(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -309,11 +280,11 @@ function importData(event) {
             if (importedData.competitorPrices) this.state.data.competitorPrices = importedData.competitorPrices || [];
             if (importedData.contatti) this.state.data.contatti = importedData.contatti || [];
             if (importedData.etichette) this.state.data.etichette = importedData.etichette || [];
+            if (importedData.stazioni) this.state.data.stazioni = importedData.stazioni || [];
+            if (importedData.accounts) this.state.data.accounts = importedData.accounts || []; // <-- AGGIUNTO
 
-            // Importa la To-Do List se presente
             if (importedData.homeTodos) {
                 this.saveToStorage('homeTodos', importedData.homeTodos);
-                // Aggiorna lo stato live se il modulo home è già stato caricato
                 if (window.homeState) {
                     window.homeState.todos = importedData.homeTodos;
                 }
@@ -322,7 +293,7 @@ function importData(event) {
             this.saveToStorage('data', this.state.data);
             this.showNotification('Dati importati con successo!');
             this.hideFormModal();
-            this.switchSection(this.state.currentSection); // Ricarica la vista corrente per riflettere i cambiamenti
+            this.switchSection(this.state.currentSection); 
         } catch (error) {
             console.error("Errore durante l'importazione:", error);
             alert('Errore durante l\'importazione: file non valido o corrotto.');
@@ -330,19 +301,14 @@ function importData(event) {
     };
     reader.readAsText(file);
 }
-// Fine funzione importData
 
-// Inizio funzione confirmReset
 function confirmReset() {
     this.showConfirm(
-        'Sei sicuro di voler eliminare tutti i dati?',
-        'Questa azione è irreversibile. Tutti i clienti, turni, registri e impostazioni verranno eliminati.',
+        'Sei sicuro di voler eliminare tutti i dati?<br><br>Questa azione è irreversibile.',
         () => resetAllData.call(this)
     );
 }
-// Fine funzione confirmReset
 
-// Inizio funzione resetAllData
 function resetAllData() {
     localStorage.clear();
     this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
@@ -351,7 +317,6 @@ function resetAllData() {
         window.location.reload();
     }, 1500);
 }
-// Fine funzione resetAllData
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {

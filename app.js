@@ -24,19 +24,16 @@ class MyStationApp {
                 priceHistory: [],
                 competitorPrices: [],
                 turni: [],
-                // NUOVI DATI PER LA RUBRICA
                 contatti: [],
                 etichette: [],
-                // FINE NUOVI DATI
-                // INIZIO MODIFICA
-                stazioni: [], // Aggiunto per le stazioni di servizio
-                // FINE MODIFICA
+                stazioni: [],
+                accounts: [], // Aggiunto per gli account
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
             // Notifiche e modal
             notification: { show: false, message: '' },
-            confirm: { show: false, message: '', onConfirm: null } // Modificato onConfirm a null di default
+            confirm: { show: false, message: '', onConfirm: null }
         };
         
         // Bindare i metodi al contesto
@@ -54,7 +51,6 @@ class MyStationApp {
     }
     
     // === INIZIALIZZAZIONE PRINCIPALE ===
-    // Inizio funzione init
     init() {
         console.log('🚀 Inizializzazione MyStation App...');
         
@@ -76,10 +72,8 @@ class MyStationApp {
         
         console.log('✅ MyStation App inizializzata correttamente');
     }
-    // Fine funzione init
     
     // === SETUP EVENT LISTENERS ===
-    // Inizio funzione setupEventListeners
     setupEventListeners() {
         const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
         if (mobileMenuBtn) {
@@ -110,7 +104,6 @@ class MyStationApp {
             }
         });
         
-        // INIZIO MODIFICA: Centralizzata e resa robusta la gestione degli eventi del modale di conferma
         const confirmYes = document.getElementById('confirm-yes');
         const confirmNo = document.getElementById('confirm-no');
         
@@ -121,15 +114,12 @@ class MyStationApp {
         if (confirmNo) {
             confirmNo.addEventListener('click', () => this.hideConfirm());
         }
-        // FINE MODIFICA
         
         window.addEventListener('beforeunload', () => this.saveAllState());
         setInterval(() => this.saveAllState(), 30000);
     }
-    // Fine funzione setupEventListeners
     
     // === INIZIALIZZAZIONE MODULI ===
-    // Inizio funzione initializeModules
     initializeModules() {
         if (typeof initHome === 'function') initHome.call(this);
         if (typeof initVirtualStation === 'function') initVirtualStation.call(this);
@@ -140,18 +130,14 @@ class MyStationApp {
         if (typeof initImpostazioni === 'function') initImpostazioni.call(this);
         if (typeof initInfo === 'function') initInfo.call(this);
     }
-    // Fine funzione initializeModules
     
     // === GESTIONE MOBILE MENU ===
-    // Inizio funzione toggleMobileMenu
     toggleMobileMenu() {
         this.state.mobileMenuOpen = !this.state.mobileMenuOpen;
         document.getElementById('sidebar').classList.toggle('show');
     }
-    // Fine funzione toggleMobileMenu
     
     // === FUNZIONE PER TRANSIZIONI ANIMATE ===
-    // Inizio funzione animatePageTransition
     animatePageTransition(oldSection, newSection, isInitialLoad = false) {
         if (isInitialLoad) {
             if (oldSection) oldSection.classList.add('hidden');
@@ -172,10 +158,8 @@ class MyStationApp {
             newSection.classList.add('active');
         }
     }
-    // Fine funzione animatePageTransition
 
     // === NAVIGAZIONE TRA SEZIONI ===
-    // Inizio funzione switchSection
     switchSection(section, isInitialLoad = false) {
         if (this.state.currentSection === section && !isInitialLoad) {
             return;
@@ -199,10 +183,8 @@ class MyStationApp {
         
         setTimeout(() => this.refreshIcons(), 100);
     }
-    // Fine funzione switchSection
     
     // === RENDER SEZIONE ===
-    // Inizio funzione renderSection
     renderSection(section) {
         const sectionEl = document.getElementById(`section-${section}`);
         if (!sectionEl) return;
@@ -221,94 +203,79 @@ class MyStationApp {
             console.error(`❌ Errore nel render della sezione ${section}:`, error);
         }
     }
-    // Fine funzione renderSection
     
     // === AGGIORNA STATO ATTIVO SIDEBAR ===
-    // Inizio funzione updateSidebarActiveState
     updateSidebarActiveState(section) {
         document.querySelectorAll('.sidebar-link').forEach(link => {
             link.classList.toggle('active', link.getAttribute('data-section') === section);
         });
     }
-    // Fine funzione updateSidebarActiveState
     
     // === CALLBACK CAMBIO SEZIONE ===
-    // Inizio funzione onSectionChange
     onSectionChange(section) {
         if (section === 'virtual' && typeof onVirtualSectionOpen === 'function') {
             onVirtualSectionOpen.call(this);
         }
     }
-    // Fine funzione onSectionChange
     
     // === GESTIONE TEMA ===
-    // Inizio funzione updateTheme
     updateTheme() {
         document.body.classList.toggle('theme-dark', this.state.isDarkMode);
         document.body.classList.toggle('theme-light', !this.state.isDarkMode);
         this.saveToStorage('isDarkMode', this.state.isDarkMode);
         if (typeof updateChartsTheme === 'function') updateChartsTheme.call(this);
     }
-    // Fine funzione updateTheme
     
-    // Inizio funzione toggleTheme
     toggleTheme() {
         this.state.isDarkMode = !this.state.isDarkMode;
         this.updateTheme();
     }
-    // Fine funzione toggleTheme
 
     // === GESTIONE LAYOUT SIDEBAR ===
-    // Inizio funzione updateSidebarLayout
     updateSidebarLayout() {
         document.body.classList.toggle('sidebar-collapsed', this.state.isSidebarCollapsed);
     }
-    // Fine funzione updateSidebarLayout
     
-    // Inizio funzione toggleSidebarCollapse
     toggleSidebarCollapse() {
         this.state.isSidebarCollapsed = !this.state.isSidebarCollapsed;
         this.saveToStorage('isSidebarCollapsed', this.state.isSidebarCollapsed);
         this.updateSidebarLayout();
     }
-    // Fine funzione toggleSidebarCollapse
     
     // === NOTIFICHE ===
-    // Inizio funzione showNotification
-    showNotification(message) {
+    showNotification(message, type = 'success') { // Aggiunto parametro type
         const notificationEl = document.getElementById('notification');
         const messageEl = notificationEl.querySelector('.notification-message');
+        
+        notificationEl.classList.remove('success', 'error', 'warning');
+        if(type === 'error') notificationEl.classList.add('error');
+        else if(type === 'warning') notificationEl.classList.add('warning');
+        else notificationEl.classList.add('success');
+
         if (messageEl) messageEl.textContent = message;
         notificationEl.classList.remove('hidden');
         notificationEl.classList.add('show');
         setTimeout(() => this.hideNotification(), 3000);
     }
-    // Fine funzione showNotification
     
-    // Inizio funzione hideNotification
     hideNotification() {
         const notificationEl = document.getElementById('notification');
         notificationEl.classList.remove('show');
         setTimeout(() => notificationEl.classList.add('hidden'), 300);
     }
-    // Fine funzione hideNotification
     
     // === MODAL DI CONFERMA ===
-    // INIZIO MODIFICA: Funzioni del modale di conferma refattorizzate
-// Inizio funzione showConfirm
-showConfirm(message, onConfirm) {
-    const modal = document.getElementById('confirm-modal');
-    const messageEl = modal.querySelector('.modal-message');
+    showConfirm(message, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        const messageEl = modal.querySelector('.modal-message');
 
-    this.state.confirm.onConfirm = onConfirm;
+        this.state.confirm.onConfirm = onConfirm;
+        
+        if(messageEl) messageEl.innerHTML = message;
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+    }
     
-    if(messageEl) messageEl.innerHTML = message; // <-- Riga modificata
-    modal.classList.remove('hidden');
-    modal.classList.add('show');
-}
-// Fine funzione showConfirm
-    
-    // Inizio funzione hideConfirm
     hideConfirm() {
         const modal = document.getElementById('confirm-modal');
         
@@ -320,20 +287,15 @@ showConfirm(message, onConfirm) {
             modal.classList.remove('show', 'is-closing');
         }, 500);
     }
-    // Fine funzione hideConfirm
 
-    // Inizio funzione handleConfirm (NUOVA FUNZIONE)
     handleConfirm() {
         if (typeof this.state.confirm.onConfirm === 'function') {
             this.state.confirm.onConfirm();
         }
         this.hideConfirm();
     }
-    // Fine funzione handleConfirm
-    // FINE MODIFICA
 
     // === GESTIONE MODALE FORM ===
-    // Inizio funzione showFormModal
     showFormModal() {
         const modalEl = document.getElementById('form-modal');
         if (modalEl) {
@@ -341,9 +303,7 @@ showConfirm(message, onConfirm) {
             modalEl.classList.add('show');
         }
     }
-    // Fine funzione showFormModal
 
-    // Inizio funzione hideFormModal
     hideFormModal() {
         const modalEl = document.getElementById('form-modal');
         const contentEl = document.getElementById('form-modal-content');
@@ -357,102 +317,13 @@ showConfirm(message, onConfirm) {
                 modalEl.classList.add('hidden');
                 if (contentEl) {
                     contentEl.innerHTML = ''; 
-                }
-                if (modalContent) {
-                    modalContent.classList.remove('modal-wide');
+                    contentEl.classList.remove('modal-wide');
                 }
             }, 500);
         }
     }
-    // Fine funzione hideFormModal
-    
-    // === FUNZIONI DI STAMPA CENTRALIZZATE ===
-    // Inizio funzione printClientsList
-    printClientsList(clients = null) {
-        console.log('🖨️ Avvio stampa elenco clienti...');
-        const clientiDaStampare = clients || this.state.data.clients || [];
-        document.getElementById('print-clients-date').textContent = 
-            `${this.formatDate(new Date().toISOString())}`;
-        const clientsTableBody = document.getElementById('print-clients-list');
-        const pairs = [];
-        for (let i = 0; i < clientiDaStampare.length; i += 2) {
-            pairs.push({
-                client1: clientiDaStampare[i],
-                client2: clientiDaStampare[i + 1] || null
-            });
-        }
-        clientsTableBody.innerHTML = pairs.map(pair => `
-            <tr>
-                <td>${pair.client1.name}</td>
-                <td class="${this.getBalanceClass(pair.client1.balance)}">${this.formatCurrency(pair.client1.balance)}</td>
-                <td>${pair.client2 ? pair.client2.name : ''}</td>
-                <td class="${pair.client2 ? this.getBalanceClass(pair.client2.balance) : ''}">${pair.client2 ? this.formatCurrency(pair.client2.balance) : ''}</td>
-            </tr>
-        `).join('');
-        document.getElementById('print-clients-content').classList.remove('hidden');
-        document.getElementById('print-content').classList.add('hidden');
-        document.getElementById('virtual-print-content').classList.add('hidden');
-        setTimeout(() => {
-            window.print();
-            setTimeout(() => {
-                document.getElementById('print-clients-content').classList.add('hidden');
-            }, 100);
-        }, 100);
-        console.log('✅ Stampa elenco clienti completata');
-    }
-    // Fine funzione printClientsList
-    
-    // Inizio funzione printClientAccount
-    printClientAccount(client) {
-        console.log(`🖨️ Avvio stampa conto cliente: ${client.name}...`);
-        const transactions = client.transactions ? 
-            [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
-        document.getElementById('print-client-name').textContent = 
-            `Estratto conto ${client.name}`;
-        document.getElementById('print-date-range').textContent = 
-            `${this.formatDate(new Date().toISOString())}`;
-        const transactionsTableBody = document.getElementById('print-transactions');
-        const pairs = [];
-        for (let i = 0; i < transactions.length; i += 2) {
-            pairs.push({
-                tx1: transactions[i],
-                tx2: transactions[i + 1] || null
-            });
-        }
-        transactionsTableBody.innerHTML = pairs.map(pair => {
-            const tx1Amount = this.formatTransactionAmount(pair.tx1.amount);
-            const tx2Amount = pair.tx2 ? this.formatTransactionAmount(pair.tx2.amount) : '';
-            return `
-                <tr>
-                    <td>${pair.tx1 ? pair.tx1.description : ''}</td>
-                    <td class="${pair.tx1.amount > 0 ? 'text-success' : 'text-danger'}">${tx1Amount}</td>
-                    <td>${pair.tx2 ? pair.tx2.description : ''}</td>
-                    <td class="${pair.tx2 ? (pair.tx2.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx2Amount}</td>
-                </tr>
-            `;
-        }).join('');
-        document.getElementById('print-final-balance').textContent = this.formatCurrency(client.balance);
-        document.getElementById('print-content').classList.remove('hidden');
-        document.getElementById('print-clients-content').classList.add('hidden');
-        document.getElementById('virtual-print-content').classList.add('hidden');
-        setTimeout(() => {
-            window.print();
-            setTimeout(() => {
-                document.getElementById('print-content').classList.add('hidden');
-            }, 100);
-        }, 100);
-        console.log('✅ Stampa conto cliente completata');
-    }
-    // Fine funzione printClientAccount
-    
-    // Inizio funzione formatTransactionAmount
-    formatTransactionAmount(amount) {
-        return amount > 0 ? '+' + this.formatCurrency(amount) : this.formatCurrency(amount);
-    }
-    // Fine funzione formatTransactionAmount
     
     // === PERSISTENZA DATI ===
-    // Inizio funzione isLocalStorageAvailable
     isLocalStorageAvailable() {
         try {
             localStorage.setItem('__test__', '__test__');
@@ -462,65 +333,47 @@ showConfirm(message, onConfirm) {
             return false;
         }
     }
-    // Fine funzione isLocalStorageAvailable
     
-    // Inizio funzione saveToStorage
     saveToStorage(key, value) {
         if (this.isLocalStorageAvailable()) {
             localStorage.setItem(`mystation_${key}`, JSON.stringify(value));
         }
     }
-    // Fine funzione saveToStorage
     
-    // Inizio funzione loadFromStorage
     loadFromStorage(key, defaultValue = null) {
         if (!this.isLocalStorageAvailable()) return defaultValue;
         const item = localStorage.getItem(`mystation_${key}`);
         return item ? JSON.parse(item) : defaultValue;
     }
-    // Fine funzione loadFromStorage
     
-    // Inizio funzione saveAllState
     saveAllState() {
         const keysToSave = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'data'];
         keysToSave.forEach(key => this.saveToStorage(key, this.state[key]));
     }
-    // Fine funzione saveAllState
     
     // === UTILITY FUNCTIONS ===
-    // Inizio funzione generateUniqueId
     generateUniqueId(prefix) {
         return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     }
-    // Fine funzione generateUniqueId
     
-    // Inizio funzione formatInteger
     formatInteger(num) {
         return (num === null || num === undefined) ? '0' : Math.round(num).toLocaleString('it-IT');
     }
-    // Fine funzione formatInteger
     
-    // Inizio funzione formatCurrency
     formatCurrency(amount, isPricePerLiter = false) {
         const options = { style: 'currency', currency: 'EUR', minimumFractionDigits: isPricePerLiter ? 3 : 2 };
         return new Intl.NumberFormat('it-IT', options).format(amount || 0);
     }
-    // Fine funzione formatCurrency
     
-    // Inizio funzione formatDate
     formatDate(dateString) {
         return dateString ? this.formatToItalianDate(new Date(dateString)) : '-';
     }
-    // Fine funzione formatDate
     
-    // Inizio funzione formatDateForFilename
     formatDateForFilename(date = new Date()) {
         const d = new Date(date);
         return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
     }
-    // Fine funzione formatDateForFilename
     
-    // Inizio funzione parseItalianDate
     parseItalianDate(dateStr) {
         if (!dateStr) return null;
         const parts = dateStr.split(/[.\/-]/);
@@ -530,38 +383,28 @@ showConfirm(message, onConfirm) {
         const fullYear = year < 100 ? (year < 50 ? 2000 + year : 1900 + year) : year;
         return new Date(fullYear, month - 1, day, 12);
     }
-    // Fine funzione parseItalianDate
     
-    // Inizio funzione formatToItalianDate
     formatToItalianDate(isoDate) {
         if (!isoDate) return '';
         const date = new Date(isoDate);
         return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
     }
-    // Fine funzione formatToItalianDate
     
-    // Inizio funzione getTodayFormatted
     getTodayFormatted() {
         return this.formatToItalianDate(new Date());
     }
-    // Fine funzione getTodayFormatted
     
-    // Inizio funzione validateItalianDate
     validateItalianDate(dateStr) {
         const date = this.parseItalianDate(dateStr);
         return date instanceof Date && !isNaN(date);
     }
-    // Fine funzione validateItalianDate
     
-    // Inizio funzione getBalanceClass
     getBalanceClass(balance) {
         if (balance > 0) return 'balance-positive';
         if (balance < 0) return 'balance-negative';
         return 'balance-zero';
     }
-    // Fine funzione getBalanceClass
     
-    // Inizio funzione refreshIcons
     refreshIcons() {
         setTimeout(() => {
             if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
@@ -569,7 +412,6 @@ showConfirm(message, onConfirm) {
             }
         }, 50);
     }
-    // Fine funzione refreshIcons
 }
 
 // === ISTANZA GLOBALE ===
@@ -584,20 +426,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // === FUNZIONI GLOBALI PER COMPATIBILITÀ CON I MODULI ===
 function getApp() {
     return app;
-}
-
-function showNotification(message) {
-    if (app) app.showNotification(message);
-}
-
-function showConfirm(message, onConfirm) {
-    if (app) app.showConfirm(message, onConfirm);
-}
-
-function refreshIcons() {
-    if (app) app.refreshIcons();
-}
-
-function switchSection(section) {
-    if (app) app.switchSection(section);
 }
