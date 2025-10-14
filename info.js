@@ -2,7 +2,6 @@
 // FILE: info.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Info (link, numeri utili, stazioni e account).
-// --- MODIFICATO PER INCLUDERE GESTIONE ACCOUNT ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO INFO ===
@@ -82,7 +81,7 @@ function getInfoCardsHTML() {
     `;
 }
 
-// === RENDER SEZIONE INFO ===
+// === RENDER SEZIONE INFO (CON ORDINE INVERTITO) ===
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     const app = this;
@@ -90,38 +89,6 @@ function renderInfoSection(container) {
     container.innerHTML = `
         <div class="space-y-6">
             ${getInfoCardsHTML()}
-
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Gestione Account Personali</h2>
-                </div>
-                <div class="card-body">
-                    <div class="filters-bar" style="background: none; border: none; padding: 0; margin-bottom: 1.5rem;">
-                        <div class="filter-group">
-                             <div class="input-group">
-                                <i data-lucide="search" class="input-group-icon"></i>
-                                <input type="search" id="info-search-accounts-input" class="form-control" 
-                                       placeholder="Cerca per nome account..." 
-                                       value="${infoState.searchQueryAccounts}" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                             <button id="import-accounts-btn" class="btn btn-primary">
-                                <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importa
-                            </button>
-                            <button id="export-accounts-btn" class="btn btn-secondary">
-                                <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
-                            </button>
-                            <button id="delete-accounts-btn" class="btn btn-danger">
-                                <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Lista
-                            </button>
-                        </div>
-                    </div>
-                    <input type="file" id="import-accounts-file" accept=".csv" style="display: none;">
-                    <div id="accounts-grid" class="contatti-grid">
-                        </div>
-                </div>
-            </div>
 
             <div class="card">
                  <div class="card-header">
@@ -161,6 +128,38 @@ function renderInfoSection(container) {
                             <tbody id="stazioni-tbody"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Gestione Account Personali</h2>
+                </div>
+                <div class="card-body">
+                    <div class="filters-bar" style="background: none; border: none; padding: 0; margin-bottom: 1.5rem;">
+                        <div class="filter-group">
+                             <div class="input-group">
+                                <i data-lucide="search" class="input-group-icon"></i>
+                                <input type="search" id="info-search-accounts-input" class="form-control" 
+                                       placeholder="Cerca per nome account..." 
+                                       value="${infoState.searchQueryAccounts}" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                             <button id="import-accounts-btn" class="btn btn-primary">
+                                <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importa
+                            </button>
+                            <button id="export-accounts-btn" class="btn btn-secondary">
+                                <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta
+                            </button>
+                            <button id="delete-accounts-btn" class="btn btn-danger">
+                                <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Lista
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" id="import-accounts-file" accept=".csv" style="display: none;">
+                    <div id="accounts-grid" class="contatti-grid">
+                        </div>
                 </div>
             </div>
         </div>
@@ -346,12 +345,12 @@ function importAccountsFromCSV(event) {
                 rows.shift();
             }
 
-const importedAccounts = [];
-rows.forEach(row => {
-    const delimiterIndex = row.indexOf(';');
-    if (delimiterIndex !== -1) {
-        const name = row.substring(0, delimiterIndex).trim().replace(/"/g, '');  // ✅ RISOLTO
-        let content = row.substring(delimiterIndex + 1).trim();
+            const importedAccounts = [];
+            rows.forEach(row => {
+                const delimiterIndex = row.indexOf(';');
+                if (delimiterIndex !== -1) {
+                    const name = row.substring(0, delimiterIndex).trim();
+                    let content = row.substring(delimiterIndex + 1).trim();
 
                     if (content.startsWith('"') && content.endsWith('"')) {
                         content = content.substring(1, content.length - 1).replace(/""/g, '"');
