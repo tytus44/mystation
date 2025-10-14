@@ -6,27 +6,38 @@
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
 let impostazioniState = {
-    isFullscreen: false,
-    borderRadius: 'medium'
+    borderRadius: null,
+    isFullscreen: false
 };
 
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 function initImpostazioni() {
-    console.log('Inizializzazione modulo Impostazioni...');
-    const app = this;
-
-    impostazioniState.borderRadius = app.loadFromStorage('borderRadius', 'medium');
+    console.log('⚙️ Inizializzazione modulo Impostazioni...');
+    // Durante l'inizializzazione usiamo 'this' perché viene chiamata con .call(this)
+    impostazioniState.borderRadius = this.loadFromStorage('borderRadius', 'medium');
     updateBorderRadius();
-
+    
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
         updateFullscreenToggle();
     });
-
-    console.log('Modulo Impostazioni inizializzato');
+    
+    console.log('✅ Modulo Impostazioni inizializzato');
 }
 
-// === HTML DEL MODALE IMPOSTAZIONI ===
+// === MODAL IMPOSTAZIONI ===
+function showImpostazioniModal(app) {
+    const modalContent = document.getElementById('form-modal-content');
+    if (!modalContent) return;
+    
+    modalContent.classList.add('modal-wide');
+    modalContent.innerHTML = getImpostazioniModalHTML(app);
+    
+    setupImpostazioniEventListeners(app);
+    app.refreshIcons();
+    app.showFormModal();
+}
+
 function getImpostazioniModalHTML(app) {
     return `
         <div class="card-body">
@@ -111,8 +122,8 @@ function getImpostazioniModalHTML(app) {
                             <input type="file" id="import-file" accept=".json" style="display: none;">
                         </div>
 
-                        <div class="mt-6 p-4" style="background-color: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: var(--radius-md);">
-                            <label class="font-medium text-danger mb-2" style="display: block;">
+                        <div class="p-4" style="background-color: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: var(--radius-md);">
+                            <label class="font-medium mb-2" style="display: block; color: var(--color-danger);">
                                 <i data-lucide="alert-triangle" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
                                 Zona di pericolo
                             </label>
@@ -133,21 +144,14 @@ function getImpostazioniModalHTML(app) {
     `;
 }
 
-// === FUNZIONE PER MOSTRARE IL MODALE ===
-function showImpostazioniModal(app) {
-    const modalContentEl = document.getElementById('form-modal-content');
-
-    modalContentEl.classList.add('modal-wide');
-
-    modalContentEl.innerHTML = getImpostazioniModalHTML(app);
-    setupImpostazioniEventListeners(app);
-
-    app.refreshIcons();
-    app.showFormModal();
-}
-
+// === EVENT HANDLERS ===
 function handleImpostazioniClick(event) {
     const app = getApp();
+    if (!app) {
+        console.error('App non disponibile');
+        return;
+    }
+    
     const target = event.target;
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
@@ -183,6 +187,11 @@ function handleImpostazioniClick(event) {
 
 function handleImpostazioniChange(event) {
     const app = getApp();
+    if (!app) {
+        console.error('App non disponibile');
+        return;
+    }
+    
     const target = event.target;
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
@@ -244,13 +253,33 @@ function updateFullscreenToggle() {
 // === FUNZIONI IMPORT/EXPORT ===
 
 function exportData() {
-    const dataToExport = { ...this.state.data };
+    const app = getApp();
+    
+    // Crea un oggetto con TUTTI i dati dell'applicazione
+    const dataToExport = {
+        // Dati principali dell'applicazione
+        clients: app.state.data.clients || [],
+        turni: app.state.data.turni || [],
+        registryEntries: app.state.data.registryEntries || [],
+        priceHistory: app.state.data.priceHistory || [],
+        competitorPrices: app.state.data.competitorPrices || [],
+        previousYearStock: app.state.data.previousYearStock || { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 },
+        
+        // ✅ DATI ANAGRAFICA (Rubrica contatti + etichette)
+        contatti: app.state.data.contatti || [],
+        etichette: app.state.data.etichette || [],
+        
+        // ✅ DATI STAZIONI ENI
+        stazioni: app.state.data.stazioni || [],
+        
+        // ✅ DATI ACCOUNT PERSONALI
+        accounts: app.state.data.accounts || [],
+        
+        // Todo list della home (salvati separatamente in localStorage)
+        homeTodos: app.loadFromStorage('homeTodos', [])
+    };
 
-    const homeTodos = this.loadFromStorage('homeTodos', []);
-    if (homeTodos) {
-        dataToExport.homeTodos = homeTodos;
-    }
-
+    // Crea il file JSON
     const dataStr = JSON.stringify(dataToExport, null, 2);
     const dataBlob = new Blob([dataStr], {
         type: 'application/json'
@@ -261,10 +290,12 @@ function exportData() {
     link.download = 'mystation_backup_' + new Date().toISOString().split('T')[0] + '.json';
     link.click();
     URL.revokeObjectURL(url);
-    this.showNotification('Dati esportati con successo!');
+    
+    app.showNotification('Dati esportati con successo!');
 }
 
 function importData(event) {
+    const app = getApp();
     const file = event.target.files[0];
     if (!file) return;
 
@@ -273,45 +304,64 @@ function importData(event) {
         try {
             const importedData = JSON.parse(e.target.result);
 
-            if (importedData.clients) this.state.data.clients = importedData.clients || [];
-            if (importedData.turni) this.state.data.turni = importedData.turni || [];
-            if (importedData.registryEntries) this.state.data.registryEntries = importedData.registryEntries || [];
-            if (importedData.priceHistory) this.state.data.priceHistory = importedData.priceHistory || [];
-            if (importedData.competitorPrices) this.state.data.competitorPrices = importedData.competitorPrices || [];
-            if (importedData.contatti) this.state.data.contatti = importedData.contatti || [];
-            if (importedData.etichette) this.state.data.etichette = importedData.etichette || [];
-            if (importedData.stazioni) this.state.data.stazioni = importedData.stazioni || [];
-            if (importedData.accounts) this.state.data.accounts = importedData.accounts || []; // <-- AGGIUNTO
+            // Importa TUTTI i dati
+            if (importedData.clients) app.state.data.clients = importedData.clients || [];
+            if (importedData.turni) app.state.data.turni = importedData.turni || [];
+            if (importedData.registryEntries) app.state.data.registryEntries = importedData.registryEntries || [];
+            if (importedData.priceHistory) app.state.data.priceHistory = importedData.priceHistory || [];
+            if (importedData.competitorPrices) app.state.data.competitorPrices = importedData.competitorPrices || [];
+            if (importedData.previousYearStock) app.state.data.previousYearStock = importedData.previousYearStock || { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
+            
+            // ✅ IMPORTA ANAGRAFICA (Rubrica contatti + etichette)
+            if (importedData.contatti) app.state.data.contatti = importedData.contatti || [];
+            if (importedData.etichette) app.state.data.etichette = importedData.etichette || [];
+            
+            // ✅ IMPORTA STAZIONI ENI
+            if (importedData.stazioni) app.state.data.stazioni = importedData.stazioni || [];
+            
+            // ✅ IMPORTA ACCOUNT PERSONALI
+            if (importedData.accounts) app.state.data.accounts = importedData.accounts || [];
 
+            // Importa todo list della home
             if (importedData.homeTodos) {
-                this.saveToStorage('homeTodos', importedData.homeTodos);
+                app.saveToStorage('homeTodos', importedData.homeTodos);
                 if (window.homeState) {
                     window.homeState.todos = importedData.homeTodos;
                 }
             }
 
-            this.saveToStorage('data', this.state.data);
-            this.showNotification('Dati importati con successo!');
-            this.hideFormModal();
-            this.switchSection(this.state.currentSection); 
+            // Salva tutto in localStorage
+            app.saveToStorage('data', app.state.data);
+            
+            app.showNotification('Dati importati con successo!');
+            app.hideFormModal();
+            
+            // Ricarica la sezione corrente per mostrare i nuovi dati
+            app.switchSection(app.state.currentSection); 
+            
         } catch (error) {
             console.error("Errore durante l'importazione:", error);
             alert('Errore durante l\'importazione: file non valido o corrotto.');
+        } finally {
+            // Reset del file input
+            event.target.value = '';
         }
     };
     reader.readAsText(file);
 }
 
 function confirmReset() {
-    this.showConfirm(
+    const app = getApp();
+    app.showConfirm(
         'Sei sicuro di voler eliminare tutti i dati?<br><br>Questa azione è irreversibile.',
-        () => resetAllData.call(this)
+        () => resetAllData()
     );
 }
 
 function resetAllData() {
     localStorage.clear();
-    this.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
+    const app = getApp();
+    app.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
 
     setTimeout(() => {
         window.location.reload();
