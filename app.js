@@ -9,6 +9,9 @@ class MyStationApp {
     
     // === COSTRUTTORE - Inizializza l'applicazione ===
     constructor() {
+        // Timeout per la chiusura del modale, per evitare race conditions
+        this.hideModalTimeout = null;
+
         // Stato reattivo dell'applicazione
         this.state = {
             // Tema e UI
@@ -27,7 +30,7 @@ class MyStationApp {
                 contatti: [],
                 etichette: [],
                 stazioni: [],
-                accounts: [], // Aggiunto per gli account
+                accounts: [],
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
@@ -68,7 +71,7 @@ class MyStationApp {
         this.initializeModules();
         this.setupEventListeners();
         this.refreshIcons();
-        this.switchSection(this.state.currentSection, true); // Primo caricamento senza animazione
+        this.switchSection(this.state.currentSection, true);
         
         console.log('✅ MyStation App inizializzata correttamente');
     }
@@ -295,16 +298,24 @@ class MyStationApp {
         this.hideConfirm();
     }
 
-    // === GESTIONE MODALE FORM ===
+    // === GESTIONE MODALE FORM (CON FIX PER RACE CONDITION) ===
     showFormModal() {
         const modalEl = document.getElementById('form-modal');
-        if (modalEl) {
-            modalEl.classList.remove('hidden');
-            modalEl.classList.add('show');
+        if (!modalEl) return;
+
+        // Annulla qualsiasi animazione di chiusura in corso e la sua pulizia.
+        if (this.hideModalTimeout) {
+            clearTimeout(this.hideModalTimeout);
+            this.hideModalTimeout = null;
         }
+
+        // Resetta lo stato del modale per una visualizzazione pulita.
+        modalEl.classList.remove('is-closing', 'hidden');
+
+        // Mostra il modale.
+        modalEl.classList.add('show');
     }
     
-    // --- FUNZIONE CORRETTA ---
     hideFormModal() {
         const modalEl = document.getElementById('form-modal');
         const contentEl = document.getElementById('form-modal-content');
@@ -312,7 +323,12 @@ class MyStationApp {
         if (modalEl) {
             modalEl.classList.add('is-closing');
 
-            setTimeout(() => {
+            // Cancella eventuali timeout precedenti per evitare accavallamenti
+            if (this.hideModalTimeout) {
+                clearTimeout(this.hideModalTimeout);
+            }
+
+            this.hideModalTimeout = setTimeout(() => {
                 modalEl.classList.remove('show', 'is-closing');
                 modalEl.classList.add('hidden');
                 if (contentEl) {
@@ -320,6 +336,7 @@ class MyStationApp {
                     // Resetta completamente le classi, lasciando solo quella di base
                     contentEl.className = 'modal-content'; 
                 }
+                this.hideModalTimeout = null; // Resetta il timeout ID
             }, 500);
         }
     }
