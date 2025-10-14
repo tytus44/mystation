@@ -6,14 +6,11 @@
 
 // === STATO LOCALE DEL MODULO REGISTRO ===
 let registroState = {
-    // View mode (persistente)
-    registryViewMode: null, // Non più usato per i form
-    
-    // Stato locale
     registrySort: { column: 'date', direction: 'desc' },
     registrySearchQuery: '',
     registryTimeFilter: 'all', 
     editingRegistry: null,
+    carichiCollapsed: false, // Stato per la sezione elenco carichi
     registryForm: { 
         date: '', 
         autistaName: '', 
@@ -25,44 +22,34 @@ let registroState = {
 };
 
 // === INIZIALIZZAZIONE MODULO REGISTRO ===
-// Inizio funzione initRegistroDiCarico
 function initRegistroDiCarico() {
     console.log('📋 Inizializzazione modulo Registro di Carico...');
+    const app = this;
     
     // Carica stato persistente
-    registroState.registryTimeFilter = this.loadFromStorage('registryTimeFilter', 'all');
+    registroState.registryTimeFilter = app.loadFromStorage('registryTimeFilter', 'all');
+    registroState.carichiCollapsed = app.loadFromStorage('carichiCollapsed', false);
     
     // Inizializza form
     resetRegistryForm.call(this);
     
     console.log('✅ Modulo Registro di Carico inizializzato');
 }
-// Fine funzione initRegistroDiCarico
 
 // === RENDER SEZIONE REGISTRO ===
-// Inizio funzione renderRegistroSection
 function renderRegistroSection(container) {
     console.log('🎨 Rendering sezione Registro di Carico...');
     
     const app = this;
-    
-    // La sezione ora renderizza sempre e solo la vista a lista
     renderRegistroListView.call(app, container);
-    
-    // Setup event listeners
     setupRegistroEventListeners.call(app);
-    
-    // Refresh icone
     app.refreshIcons();
 }
-// Fine funzione renderRegistroSection
 
 // === RENDER VISTA LISTA ===
-// Inizio funzione renderRegistroListView
 function renderRegistroListView(container) {
     const app = this;
     const summary = getAnnualSummary.call(app);
-    const stats = getRegistryStats.call(app);
     
     container.innerHTML = `
         <div class="space-y-6">
@@ -176,30 +163,33 @@ function renderRegistroListView(container) {
                 </div>
             </div>
 
-            <div class="card no-print">
-                <div class="card-header">
+            <div class="card no-print collapsible-section ${registroState.carichiCollapsed ? 'collapsed' : ''}">
+                <div class="card-header collapsible-header" data-section-name="carichi">
                     <h2 class="card-title">Elenco Carichi</h2>
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
                 </div>
-                <div class="table-container">
-                    <table class="table" id="registry-table">
-                        <thead>
-                            <tr>
-                                <th><button class="flex items-center" data-sort="date">
-                                    Data <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
-                                </button></th>
-                                <th><button class="flex items-center" data-sort="autistaName">
-                                    Autista <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
-                                </button></th>
-                                <th>Benzina</th>
-                                <th>Gasolio</th>
-                                <th>Diesel+</th>
-                                <th>Hvolution</th>
-                                <th class="text-right">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="registry-tbody">
-                        </tbody>
-                    </table>
+                <div class="card-body collapsible-content">
+                    <div class="table-container">
+                        <table class="table" id="registry-table">
+                            <thead>
+                                <tr>
+                                    <th><button class="flex items-center" data-sort="date">
+                                        Data <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
+                                    </button></th>
+                                    <th><button class="flex items-center" data-sort="autistaName">
+                                        Autista <i data-lucide="arrow-up-down" class="w-3 h-3 ml-1.5"></i>
+                                    </button></th>
+                                    <th>Benzina</th>
+                                    <th>Gasolio</th>
+                                    <th>Diesel+</th>
+                                    <th>Hvolution</th>
+                                    <th class="text-right">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registry-tbody">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -208,9 +198,7 @@ function renderRegistroListView(container) {
     renderRegistryStats.call(app);
     renderRegistryTable.call(app);
 }
-// Fine funzione renderRegistroListView
 
-// Inizio funzione getRegistroFormHTML
 function getRegistroFormHTML() {
     const isEdit = !!registroState.editingRegistry;
     const title = isEdit ? 'Modifica Carico' : 'Nuovo Carico';
@@ -231,7 +219,6 @@ function getRegistroFormHTML() {
         `;
     };
 
-    // INIZIO MODIFICA: Rimossa l'icona calendario e il suo contenitore 'input-group' per coerenza con le altre sezioni.
     return `
         <div class="card-header">
             <h2 class="card-title">${title}</h2>
@@ -292,61 +279,70 @@ function getRegistroFormHTML() {
             </div>
         </div>
     `;
-    // FINE MODIFICA
 }
-// Fine funzione getRegistroFormHTML
 
-// === SETUP EVENT LISTENERS ===
-// Inizio funzione setupRegistroEventListeners
-function setupRegistroEventListeners() {
-    const app = this;
+// === SETUP EVENT LISTENERS (CON DELEGAZIONE) ===
+function handleRegistroClick(event) {
+    const app = getApp();
+    const target = event.target;
     
-    const searchInput = document.getElementById('registry-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            registroState.registrySearchQuery = e.target.value;
-            renderRegistryTable.call(app);
-        });
+    const collapsibleHeader = target.closest('.collapsible-header[data-section-name="carichi"]');
+    if (collapsibleHeader) {
+        const sectionEl = collapsibleHeader.closest('.collapsible-section');
+        const isCollapsed = sectionEl.classList.toggle('collapsed');
+        registroState.carichiCollapsed = isCollapsed;
+        app.saveToStorage('carichiCollapsed', isCollapsed);
+        return;
     }
     
-    const timeFilterButtons = document.querySelectorAll('[data-time-filter]');
-    timeFilterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const filter = btn.getAttribute('data-time-filter');
-            setTimeFilter.call(app, filter);
-        });
-    });
+    const timeFilterBtn = target.closest('[data-time-filter]');
+    if (timeFilterBtn) {
+        setTimeFilter.call(app, timeFilterBtn.dataset.timeFilter);
+    }
     
+    if (target.closest('#new-carico-btn')) {
+        showCreateCarico.call(app);
+    }
+
+    const sortBtn = target.closest('#registry-table [data-sort]');
+    if (sortBtn) {
+        sortRegistry.call(app, sortBtn.dataset.sort);
+    }
+}
+
+function handleRegistroInput(event) {
+    if (event.target.id === 'registry-search') {
+        registroState.registrySearchQuery = event.target.value;
+        renderRegistryTable.call(getApp());
+    }
+}
+
+function handleRegistroChange(event) {
+    const app = getApp();
     const prevYearInputs = ['benzina', 'gasolio', 'dieselPlus', 'hvolution'];
-    prevYearInputs.forEach(product => {
-        const input = document.getElementById(`prev-year-${product}`);
-        if (input) {
-            input.addEventListener('change', (e) => {
-                app.state.data.previousYearStock[product] = parseFloat(e.target.value) || 0;
-                app.saveToStorage('data', app.state.data);
-                renderRegistroListView.call(app, document.getElementById('section-registro'));
-            });
-        }
-    });
-    
-    const newCaricoBtn = document.getElementById('new-carico-btn');
-    if (newCaricoBtn) {
-        newCaricoBtn.addEventListener('click', () => {
-            showCreateCarico.call(app);
-        });
+    const product = prevYearInputs.find(p => event.target.id === `prev-year-${p}`);
+    if (product) {
+        app.state.data.previousYearStock[product] = parseFloat(event.target.value) || 0;
+        app.saveToStorage('data', app.state.data);
+        renderRegistroListView.call(app, document.getElementById('section-registro'));
     }
-    
-    const sortButtons = document.querySelectorAll('#registry-table [data-sort]');
-    sortButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const column = btn.getAttribute('data-sort');
-            sortRegistry.call(app, column);
-        });
-    });
 }
-// Fine funzione setupRegistroEventListeners
 
-// Inizio funzione setupRegistroFormEventListeners
+function setupRegistroEventListeners() {
+    const container = document.getElementById('section-registro');
+    if (!container) return;
+
+    // Rimuove i listener precedenti per evitare duplicazioni
+    container.removeEventListener('click', handleRegistroClick);
+    container.removeEventListener('input', handleRegistroInput);
+    container.removeEventListener('change', handleRegistroChange);
+
+    // Aggiunge i nuovi listener delegati
+    container.addEventListener('click', handleRegistroClick);
+    container.addEventListener('input', handleRegistroInput);
+    container.addEventListener('change', handleRegistroChange);
+}
+
 function setupRegistroFormEventListeners() {
     const app = getApp();
     const saveBtn = document.getElementById('save-carico-btn');
@@ -397,10 +393,8 @@ function setupRegistroFormEventListeners() {
         });
     });
 }
-// Fine funzione setupRegistroFormEventListeners
 
 // === FUNZIONI NAVIGAZIONE / GESTIONE MODALI ===
-// Inizio funzione showCreateCarico
 function showCreateCarico() {
     const app = this;
     registroState.editingRegistry = null;
@@ -415,9 +409,7 @@ function showCreateCarico() {
     app.refreshIcons();
     app.showFormModal();
 }
-// Fine funzione showCreateCarico
 
-// Inizio funzione showEditCarico
 function showEditCarico(carico) {
     const app = this;
     registroState.editingRegistry = carico;
@@ -440,10 +432,8 @@ function showEditCarico(carico) {
     app.refreshIcons();
     app.showFormModal();
 }
-// Fine funzione showEditCarico
 
 // === FUNZIONI FILTRI E ORDINAMENTO ===
-// Inizio funzione setTimeFilter
 function setTimeFilter(filter) {
     registroState.registryTimeFilter = filter;
     this.saveToStorage('registryTimeFilter', filter);
@@ -452,9 +442,7 @@ function setTimeFilter(filter) {
     renderRegistryStats.call(this);
     renderRegistryTable.call(this);
 }
-// Fine funzione setTimeFilter
 
-// Inizio funzione updateRegistroFilterButtons
 function updateRegistroFilterButtons(activeFilter) {
     const timeFilterButtons = document.querySelectorAll('[data-time-filter]');
     timeFilterButtons.forEach(btn => {
@@ -465,9 +453,7 @@ function updateRegistroFilterButtons(activeFilter) {
         btn.classList.toggle('btn-secondary', !isActive);
     });
 }
-// Fine funzione updateRegistroFilterButtons
 
-// Inizio funzione sortRegistry
 function sortRegistry(column) {
     if (registroState.registrySort.column === column) {
         registroState.registrySort.direction = registroState.registrySort.direction === 'asc' ? 'desc' : 'asc';
@@ -478,10 +464,8 @@ function sortRegistry(column) {
     
     renderRegistryTable.call(this);
 }
-// Fine funzione sortRegistry
 
 // === FUNZIONI DATI ===
-// Inizio funzione getFilteredRegistryEntries
 function getFilteredRegistryEntries() {
     if (!Array.isArray(this.state.data.registryEntries)) return [];
     
@@ -507,9 +491,7 @@ function getFilteredRegistryEntries() {
     
     return filteredEntries;
 }
-// Fine funzione getFilteredRegistryEntries
 
-// Inizio funzione sortedRegistry
 function sortedRegistry() {
     const filtered = getFilteredRegistryEntries.call(this);
     return filtered.sort((a, b) => {
@@ -523,9 +505,7 @@ function sortedRegistry() {
         return 0;
     });
 }
-// Fine funzione sortedRegistry
 
-// Inizio funzione getRegistryStats
 function getRegistryStats() {
     const entries = getFilteredRegistryEntries.call(this);
     const stats = { totalLiters: 0, topProduct: 'N/D', topDriver: 'N/D' };
@@ -569,9 +549,7 @@ function getRegistryStats() {
     
     return stats;
 }
-// Fine funzione getRegistryStats
 
-// Inizio funzione getAnnualSummary
 function getAnnualSummary() {
     const currentYear = new Date().getFullYear();
     const summary = {
@@ -603,10 +581,8 @@ function getAnnualSummary() {
     
     return summary;
 }
-// Fine funzione getAnnualSummary
 
 // === FUNZIONI FORM ===
-// Inizio funzione resetRegistryForm
 function resetRegistryForm() {
     registroState.registryForm = {
         date: this.getTodayFormatted(),
@@ -617,9 +593,7 @@ function resetRegistryForm() {
         hvolution: { carico: 0, differenza: 0 }
     };
 }
-// Fine funzione resetRegistryForm
 
-// Inizio funzione updateRegistryFormValue
 function updateRegistryFormValue(path, value) {
     const keys = path.split('.');
     let current = registroState.registryForm;
@@ -632,9 +606,7 @@ function updateRegistryFormValue(path, value) {
     current[finalKey] = value === '' ? (finalKey === 'autistaName' || finalKey === 'date' ? '' : 0) : 
                         (finalKey === 'autistaName' || finalKey === 'date' ? value : parseFloat(value) || 0);
 }
-// Fine funzione updateRegistryFormValue
 
-// Inizio funzione saveCarico
 function saveCarico() {
     if (!registroState.registryForm.date || !registroState.registryForm.autistaName.trim()) {
         this.showNotification('Data e nome autista sono obbligatori');
@@ -681,9 +653,7 @@ function saveCarico() {
     this.hideFormModal();
     renderRegistroListView.call(this, document.getElementById('section-registro'));
 }
-// Fine funzione saveCarico
 
-// Inizio funzione deleteCarico
 function deleteCarico(caricoId) {
     const carico = this.state.data.registryEntries.find(c => c.id === caricoId);
     if (!carico) return;
@@ -694,11 +664,9 @@ function deleteCarico(caricoId) {
         renderRegistroListView.call(this, document.getElementById('section-registro'));
     });
 }
-// Fine funzione deleteCarico
 
 
 // === RENDER FUNZIONI SPECIFICHE ===
-// Inizio funzione renderRegistryStats
 function renderRegistryStats() {
     const app = this;
     const stats = getRegistryStats.call(app);
@@ -706,7 +674,6 @@ function renderRegistryStats() {
     
     if (container) {
         container.innerHTML = `
-            <!-- Card Blu: Totale Litri Caricati -->
             <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
                 <div class="stat-content">
                     <div class="stat-label" style="color: #ffffff;">Totale Litri Caricati</div>
@@ -716,7 +683,6 @@ function renderRegistryStats() {
                     <i data-lucide="droplets"></i>
                 </div>
             </div>
-            <!-- Card Verde: Prodotto Top -->
             <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                 <div class="stat-content">
                     <div class="stat-label" style="color: #ffffff;">Prodotto Top</div>
@@ -726,7 +692,6 @@ function renderRegistryStats() {
                     <i data-lucide="droplet"></i>
                 </div>
             </div>
-            <!-- Card Lilla: Autista Top -->
             <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
                 <div class="stat-content">
                     <div class="stat-label" style="color: #ffffff;">Autista Top</div>
@@ -740,9 +705,7 @@ function renderRegistryStats() {
         app.refreshIcons();
     }
 }
-// Fine funzione renderRegistryStats
 
-// Inizio funzione renderRegistryTable
 function renderRegistryTable() {
     const tbody = document.getElementById('registry-tbody');
     if (!tbody) return;
@@ -787,10 +750,7 @@ function renderRegistryTable() {
     
     this.refreshIcons();
 }
-// Fine funzione renderRegistryTable
 
-// INIZIO MODIFICA: Rinominata la funzione per evitare conflitti
-// Inizio funzione formatRegistryProductColumn
 function formatRegistryProductColumn(product) {
     if (!product) return '-';
     
@@ -803,10 +763,7 @@ function formatRegistryProductColumn(product) {
         <div class="${diffClass}">Diff: ${differenza >= 0 ? '+' : ''}${differenza.toLocaleString('it-IT')} L</div>
     </div>`;
 }
-// Fine funzione formatRegistryProductColumn
-// FINE MODIFICA
 
-// Inizio funzione showSkeletonLoader
 function showSkeletonLoader(container) {
     const skeletonHTML = `
         <div class="space-y-6">
@@ -862,10 +819,8 @@ function showSkeletonLoader(container) {
     `;
     container.innerHTML = skeletonHTML;
 }
-// Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ===
-// Inizio funzione editCaricoById
 function editCaricoById(caricoId) {
     const app = getApp();
     const carico = app.state.data.registryEntries.find(c => c.id === caricoId);
@@ -873,14 +828,11 @@ function editCaricoById(caricoId) {
         showEditCarico.call(app, carico);
     }
 }
-// Fine funzione editCaricoById
 
-// Inizio funzione deleteCaricoById
 function deleteCaricoById(caricoId) {
     const app = getApp();
     deleteCarico.call(app, caricoId);
 }
-// Fine funzione deleteCaricoById
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {

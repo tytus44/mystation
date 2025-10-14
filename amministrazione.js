@@ -6,53 +6,36 @@
 // =============================================
 
 // === STATO LOCALE DEL MODULO AMMINISTRAZIONE ===
-// Inizio funzione amministrazioneState
 let amministrazioneState = {
-    // View mode e filtri (persistenti)
-    amministrazioneViewMode: null, // Ora sempre 'list'
-    adminFilters: null,            // Caricato dal localStorage
-    
-    // Stato locale
+    adminFilters: null,
     adminSort: { column: 'name', direction: 'asc' },
     newClientName: '',
-    
-    transactionForm: { description: 'Carburante', amount: null }
+    transactionForm: { description: 'Carburante', amount: null },
+    clientiCollapsed: false, // Stato per la sezione elenco clienti
 };
-// Fine funzione amministrazioneState
 
 // === INIZIALIZZAZIONE MODULO AMMINISTRAZIONE ===
-// Inizio funzione initAmministrazione
 function initAmministrazione() {
     console.log('🛡️ Inizializzazione modulo Amministrazione...');
+    const app = this;
     
-    // Carica stato persistente - SEMPRE 'list' ora
-    amministrazioneState.amministrazioneViewMode = 'list';
-    amministrazioneState.adminFilters = this.loadFromStorage('adminFilters', { search: '' });
+    amministrazioneState.adminFilters = app.loadFromStorage('adminFilters', { search: '' });
+    amministrazioneState.clientiCollapsed = app.loadFromStorage('clientiCollapsed', false);
     
     console.log('✅ Modulo Amministrazione inizializzato');
 }
-// Fine funzione initAmministrazione
 
 // === RENDER SEZIONE AMMINISTRAZIONE ===
-// Inizio funzione renderAmministrazioneSection
 function renderAmministrazioneSection(container) {
     console.log('🎨 Rendering sezione Amministrazione...');
     
     const app = this;
-    
-    // Renderizza sempre e solo la vista lista
     renderAmministrazioneListView.call(app, container);
-    
-    // Setup event listeners
     setupAmministrazioneEventListeners.call(app);
-    
-    // Refresh icone
     app.refreshIcons();
 }
-// Fine funzione renderAmministrazioneSection
 
 // === RENDER VISTA LISTA CLIENTI ===
-// Inizio funzione renderAmministrazioneListView
 function renderAmministrazioneListView(container) {
     const app = this;
     
@@ -68,7 +51,7 @@ function renderAmministrazioneListView(container) {
                     <div class="stat-icon blue">
                         <i data-lucide="users"></i>
                     </div>
-                    </div>
+                </div>
                 <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Credito</div>
@@ -77,7 +60,7 @@ function renderAmministrazioneListView(container) {
                     <div class="stat-icon green">
                         <i data-lucide="trending-up"></i>
                     </div>
-                    </div>
+                </div>
                 <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Debito</div>
@@ -86,16 +69,15 @@ function renderAmministrazioneListView(container) {
                     <div class="stat-icon red">
                         <i data-lucide="trending-down"></i>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <div class="filters-bar">
                 <div class="filter-group">
-
-<div class="input-group">
-    <i data-lucide="search" class="input-group-icon"></i>
-    <input type="search" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
-</div>
+                    <div class="input-group">
+                        <i data-lucide="search" class="input-group-icon"></i>
+                        <input type="search" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
+                    </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button id="new-client-btn" class="btn btn-primary">
@@ -105,32 +87,40 @@ function renderAmministrazioneListView(container) {
                         <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Stampa Lista
                     </button>
                 </div>
-                </div>
+            </div>
 
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                <button data-sort="name">
-                                    Nome <i data-lucide="${amministrazioneState.adminSort.column === 'name' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
-                                </button>
-                            </th>
-                            <th>
-                                <button data-sort="balance">
-                                    Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
-                                </button>
-                            </th>
-                            <th style="min-width: 150px;">
-                                <button data-sort="lastTransactionDate">
-                                    Ultima Operazione <i data-lucide="${amministrazioneState.adminSort.column === 'lastTransactionDate' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
-                                </button>
-                            </th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clients-tbody"></tbody>
-                </table>
+            <div class="card collapsible-section ${amministrazioneState.clientiCollapsed ? 'collapsed' : ''}">
+                <div class="card-header collapsible-header" data-section-name="clienti">
+                    <h2 class="card-title">Elenco Clienti</h2>
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
+                </div>
+                <div class="card-body collapsible-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <button data-sort="name">
+                                            Nome <i data-lucide="${amministrazioneState.adminSort.column === 'name' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button data-sort="balance">
+                                            Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                        </button>
+                                    </th>
+                                    <th style="min-width: 150px;">
+                                        <button data-sort="lastTransactionDate">
+                                            Ultima Operazione <i data-lucide="${amministrazioneState.adminSort.column === 'lastTransactionDate' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                        </button>
+                                    </th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -138,9 +128,7 @@ function renderAmministrazioneListView(container) {
     renderClientsTable.call(app);
     app.refreshIcons();
 }
-// Fine funzione renderAmministrazioneListView
 
-// Inizio funzione getAmministrazioneFormHTML
 function getAmministrazioneFormHTML() {
     const title = 'Nuovo Cliente';
     const clientName = amministrazioneState.newClientName;
@@ -162,9 +150,7 @@ function getAmministrazioneFormHTML() {
         </div>
     `;
 }
-// Fine funzione getAmministrazioneFormHTML
 
-// Inizio funzione getClientModalHTML
 function getClientModalHTML(client) {
     const app = getApp();
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
@@ -275,9 +261,7 @@ function getClientModalHTML(client) {
         </div>
     `;
 }
-// Fine funzione getClientModalHTML
 
-// Inizio funzione setupAmministrazioneFormEventListeners
 function setupAmministrazioneFormEventListeners() {
     const app = getApp();
     const saveBtn = document.getElementById('save-client-btn');
@@ -304,70 +288,63 @@ function setupAmministrazioneFormEventListeners() {
     const close = () => app.hideFormModal();
     if (cancelBtnBottom) cancelBtnBottom.addEventListener('click', close);
 }
-// Fine funzione setupAmministrazioneFormEventListeners
 
-// === SETUP EVENT LISTENERS ===
-// Inizio funzione setupAmministrazioneEventListeners
-function setupAmministrazioneEventListeners() {
-    const app = this;
-    
-    // Ricerca
-    const searchInput = document.getElementById('admin-search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            amministrazioneState.adminFilters.search = e.target.value;
-            app.saveToStorage('adminFilters', amministrazioneState.adminFilters);
-            
-            renderClientsTable.call(app);
-            const clearBtn = document.getElementById('admin-clear-search-btn');
-            if (clearBtn) {
-                clearBtn.classList.toggle('hidden', !e.target.value);
-            }
-        });
-    }
-    
-    // Pulsante di cancellazione della ricerca
-    const clearSearchBtn = document.getElementById('admin-clear-search-btn');
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', () => {
-            amministrazioneState.adminFilters.search = '';
-            app.saveToStorage('adminFilters', amministrazioneState.adminFilters);
-            
-            if (searchInput) searchInput.value = '';
-            clearSearchBtn.classList.add('hidden');
-            renderClientsTable.call(app);
-            searchInput?.focus();
-        });
+// === SETUP EVENT LISTENERS (CON DELEGAZIONE) ===
+function handleAdminClick(event) {
+    const app = getApp();
+    const target = event.target;
+
+    const collapsibleHeader = target.closest('.collapsible-header[data-section-name="clienti"]');
+    if (collapsibleHeader) {
+        const sectionEl = collapsibleHeader.closest('.collapsible-section');
+        const isCollapsed = sectionEl.classList.toggle('collapsed');
+        amministrazioneState.clientiCollapsed = isCollapsed;
+        app.saveToStorage('clientiCollapsed', isCollapsed);
+        return;
     }
 
-    // Pulsanti navigazione
-    const newClientBtn = document.getElementById('new-client-btn');
-    if (newClientBtn) {
-        newClientBtn.addEventListener('click', () => {
-            showCreateClient.call(app);
-        });
+    if (target.closest('#new-client-btn')) showCreateClient.call(app);
+    if (target.closest('#print-clients-btn')) printClientsList.call(app);
+
+    const sortBtn = target.closest('[data-sort]');
+    if (sortBtn) {
+        sortAdmin.call(app, sortBtn.dataset.sort);
     }
-    
-    const printClientsBtn = document.getElementById('print-clients-btn');
-    if (printClientsBtn) {
-        printClientsBtn.addEventListener('click', () => {
-            printClientsList.call(app);
-        });
-    }
-    
-    // Sorting tabella
-    const sortButtons = document.querySelectorAll('[data-sort]');
-    sortButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const column = btn.getAttribute('data-sort');
-            sortAdmin.call(app, column);
-        });
-    });
 }
-// Fine funzione setupAmministrazioneEventListeners
+
+function handleAdminInput(event) {
+    const app = getApp();
+    if (event.target.id === 'admin-search-input') {
+        const query = event.target.value;
+        amministrazioneState.adminFilters.search = query;
+        app.saveToStorage('adminFilters', amministrazioneState.adminFilters);
+
+        // Se l'utente sta cercando e la tabella è collassata, la espande
+        const clientSection = document.querySelector('.card.collapsible-section');
+        if (query.trim() !== '' && clientSection && clientSection.classList.contains('collapsed')) {
+            clientSection.classList.remove('collapsed');
+            amministrazioneState.clientiCollapsed = false;
+            app.saveToStorage('clientiCollapsed', false);
+        }
+
+        renderClientsTable.call(app);
+    }
+}
+
+function setupAmministrazioneEventListeners() {
+    const container = document.getElementById('section-amministrazione');
+    if (!container) return;
+
+    // Rimuove i listener precedenti per evitare duplicazioni
+    container.removeEventListener('click', handleAdminClick);
+    container.removeEventListener('input', handleAdminInput);
+
+    // Aggiunge i nuovi listener delegati
+    container.addEventListener('click', handleAdminClick);
+    container.addEventListener('input', handleAdminInput);
+}
 
 // === FUNZIONI NAVIGAZIONE / GESTIONE MODALI ===
-// Inizio funzione showCreateClient
 function showCreateClient() {
     const app = this;
     amministrazioneState.newClientName = '';
@@ -380,15 +357,12 @@ function showCreateClient() {
     app.showFormModal();
     document.getElementById('client-name-input')?.focus();
 }
-// Fine funzione showCreateClient
 
-// Inizio funzione showClientModal
 function showClientModal(clientId) {
     const app = this;
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
 
-    // Reset del form transazione prima di aprire il modale
     amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
 
     const modalContentEl = document.getElementById('form-modal-content');
@@ -399,11 +373,9 @@ function showClientModal(clientId) {
     app.refreshIcons();
     app.showFormModal();
 }
-// Fine funzione showClientModal
 
 // === FUNZIONI ORDINAMENTO E FILTRI ===
 
-// Inizio funzione sortAdmin
 function sortAdmin(column) {
     if (amministrazioneState.adminSort.column === column) {
         amministrazioneState.adminSort.direction = amministrazioneState.adminSort.direction === 'asc' ? 'desc' : 'asc';
@@ -414,9 +386,7 @@ function sortAdmin(column) {
     
     renderClientsTable.call(this);
 }
-// Fine funzione sortAdmin
 
-// Inizio funzione sortedClients
 function sortedClients() {
     if (!Array.isArray(this.state.data.clients)) return [];
     
@@ -449,29 +419,23 @@ function sortedClients() {
         }
     });
 }
-// Fine funzione sortedClients
 
 // === FUNZIONI STATISTICHE ===
-// Inizio funzione totalCredit
 function totalCredit() {
     if (!Array.isArray(this.state.data.clients)) return 0;
     return this.state.data.clients.reduce((sum, client) => {
         return sum + Math.max(0, client.balance || 0);
     }, 0);
 }
-// Fine funzione totalCredit
 
-// Inizio funzione totalDebit
 function totalDebit() {
     if (!Array.isArray(this.state.data.clients)) return 0;
     return this.state.data.clients.reduce((sum, client) => {
         return sum + Math.abs(Math.min(0, client.balance || 0));
     }, 0);
 }
-// Fine funzione totalDebit
 
 // === OPERAZIONI CLIENTI ===
-// Inizio funzione addNewClient
 function addNewClient() {
     if (amministrazioneState.newClientName.trim() === '') {
         this.showNotification('Il nome del cliente non può essere vuoto.');
@@ -491,9 +455,7 @@ function addNewClient() {
     this.hideFormModal();
     renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
 }
-// Fine funzione addNewClient
 
-// Inizio funzione deleteClient
 function deleteClient(clientId) {
     const client = this.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
@@ -506,10 +468,8 @@ function deleteClient(clientId) {
         renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
     });
 }
-// Fine funzione deleteClient
 
 // === GESTIONE TRANSAZIONI INLINE (ORA NEL MODALE) ===
-// Inizio funzione addTransactionInline
 function addTransactionInline(clientId, type) {
     const app = getApp();
     const descInput = document.getElementById(`transaction-description-${clientId}`);
@@ -548,9 +508,7 @@ function addTransactionInline(clientId, type) {
     showClientModal.call(app, clientId); 
     renderClientsTable.call(app);
 }
-// Fine funzione addTransactionInline
 
-// Inizio funzione settleAccountInline
 function settleAccountInline(clientId) {
     const app = getApp();
     const client = app.state.data.clients.find(c => c.id === clientId);
@@ -573,9 +531,7 @@ function settleAccountInline(clientId) {
         }
     );
 }
-// Fine funzione settleAccountInline
 
-// Inizio funzione deleteTransactionInline
 function deleteTransactionInline(clientId, transactionId) {
     const app = getApp();
     
@@ -598,9 +554,7 @@ function deleteTransactionInline(clientId, transactionId) {
     showClientModal.call(app, clientId);
     renderClientsTable.call(app);
 }
-// Fine funzione deleteTransactionInline
 
-// Inizio funzione printAccountInline
 function printAccountInline(clientId) {
     const app = getApp();
     const client = app.state.data.clients.find(c => c.id === clientId);
@@ -655,9 +609,7 @@ function printAccountInline(clientId) {
         }, 100);
     }, 100);
 }
-// Fine funzione printAccountInline
 
-// Inizio funzione toggleEditTransaction
 function toggleEditTransaction(clientId, transactionId) {
     const app = getApp();
     const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
@@ -685,9 +637,7 @@ function toggleEditTransaction(clientId, transactionId) {
     }
     app.refreshIcons();
 }
-// Fine funzione toggleEditTransaction
 
-// Inizio funzione saveEditTransaction
 function saveEditTransaction(clientId, transactionId) {
     const app = getApp();
     const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
@@ -739,16 +689,12 @@ function saveEditTransaction(clientId, transactionId) {
     showClientModal.call(app, clientId);
     renderClientsTable.call(app);
 }
-// Fine funzione saveEditTransaction
 
-// Inizio funzione formatTransactionAmount
 function formatTransactionAmount(amount) {
     return amount > 0 ? '+' + this.formatCurrency(amount) : this.formatCurrency(amount);
 }
-// Fine funzione formatTransactionAmount
 
 // === RENDER TABELLA CLIENTI ===
-// Inizio funzione renderClientsTable
 function renderClientsTable() {
     const tbody = document.getElementById('clients-tbody');
     if (!tbody) return;
@@ -790,13 +736,10 @@ function renderClientsTable() {
     
     this.refreshIcons();
 }
-// Fine funzione renderClientsTable
 
 // === FUNZIONI STAMPA - VERSIONI CORRETTE ===
-// Inizio funzione printClientsList
 function printClientsList() {
     const app = this;
-    // INIZIO MODIFICA: Ordinamento alfabetico e impostazione titolo/data come da richiesta
     const clients = [...app.state.data.clients].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it-IT'));
 
     const printHeader = document.querySelector('#print-clients-content h1');
@@ -805,7 +748,6 @@ function printClientsList() {
     }
     
     document.getElementById('print-clients-date').textContent = `Dati aggiornati al: ${app.formatDate(new Date())}`;
-    // FINE MODIFICA
     
     const clientsTableBody = document.getElementById('print-clients-list');
     const pairs = [];
@@ -836,9 +778,7 @@ function printClientsList() {
         }, 100);
     }, 100);
 }
-// Fine funzione printClientsList
 
-// Inizio funzione showSkeletonLoader
 function showSkeletonLoader(container) {
     const skeletonHTML = `
         <div class="space-y-6">
@@ -886,7 +826,6 @@ function showSkeletonLoader(container) {
     `;
     container.innerHTML = skeletonHTML;
 }
-// Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ===
 function showClientModalById(clientId) {

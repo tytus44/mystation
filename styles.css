@@ -1,6 +1,5 @@
 /* =============================================
    MyStation Dashboard - Complete CSS System
-   Sostituisce Tailwind/Flowbite con CSS vanilla
    ============================================= */
 
 /* === CSS RESET === */
@@ -932,12 +931,10 @@ select.form-control {
     margin-top: var(--spacing-md);
 }
 
-/* INIZIO MODIFICA: Aumentata la larghezza massima per i modali 'wide' */
 .modal-content.modal-wide {
     max-width: 800px;
     width: 90vw;
 }
-/* FINE MODIFICA */
 
 .modal-content.modal-todo {
     max-width: 500px;
@@ -1442,7 +1439,6 @@ select.form-control {
     padding: var(--spacing-sm);
 }
 
-/* Inizio definizione calculator-display */
 .calculator-display {
     background-color: var(--calc-display-bg);
     border: 1px solid var(--calc-display-border);
@@ -1475,18 +1471,14 @@ select.form-control {
     font-weight: 700;
     color: var(--color-primary);
 }
-/* Fine definizione calculator-display */
 
-/* Inizio definizione calculator-buttons e calculator-grid */
 .calculator-buttons,
 .calculator-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
 }
-/* Fine definizione calculator-buttons e calculator-grid */
 
-/* Inizio definizione calc-btn */
 .calc-btn {
     background-color: var(--bg-primary);
     border: 1px solid var(--border-primary);
@@ -1539,7 +1531,6 @@ select.form-control {
 .calc-btn.equal:hover {
     opacity: 0.9;
 }
-/* Fine definizione calc-btn */
 
 /* === INPUT NUMERO === */
 
@@ -2429,8 +2420,6 @@ select.form-control {
    CSS AGGIUNTIVO PER MODALE IMPOSTAZIONI
    ============================================= */
 
-/* === LAYOUT MODALE IMPOSTAZIONI === */
-
 .impostazioni-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2458,85 +2447,6 @@ select.form-control {
     border-bottom: 2px solid var(--color-primary);
 }
 
-/* === GRIGLIA TEMI COLORE === */
-
-.color-theme-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-sm);
-}
-
-.color-theme-option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: var(--radius-md);
-    transition: background-color 0.2s ease;
-}
-
-.color-theme-option:hover {
-    background-color: var(--bg-tertiary);
-}
-
-.color-theme-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-sm);
-}
-
-.color-theme-circle span {
-    font-size: 12px;
-}
-
-.color-theme-circle:hover {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-md);
-}
-
-.color-theme-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    text-align: center;
-}
-
-/* === STILI TEMI COLORE === */
-
-.color-theme-circle.theme-default {
-    background: linear-gradient(135deg, #2563eb, #60a5fa);
-}
-
-.color-theme-circle.theme-viola {
-    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-}
-
-.color-theme-circle.theme-azzurro {
-    background: linear-gradient(135deg, #06b6d4, #22d3ee);
-}
-
-.color-theme-circle.theme-verde {
-    background: linear-gradient(135deg, #10b981, #34d399);
-}
-
-.color-theme-circle.theme-arancione {
-    background: linear-gradient(135deg, #f97316, #fb923c);
-}
-
-.color-theme-circle.theme-rosa {
-    background: linear-gradient(135deg, #ec4899, #f472b6);
-}
-
-/* === RESPONSIVE === */
-
 @media (max-width: 768px) {
     .impostazioni-layout {
         grid-template-columns: 1fr;
@@ -2549,161 +2459,6 @@ select.form-control {
         padding-right: 0;
         padding-bottom: var(--spacing-lg);
         margin-bottom: var(--spacing-lg);
-    }
-    
-    .color-theme-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .color-theme-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-sm);
-    }
-    
-    .color-theme-circle {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .color-theme-circle span {
-        font-size: 10px;
-    }
-}
-/* ============================================= */
-/* Stili per le nuove cards nella sezione Info   */
-/* ============================================= */
-
-.info-card .card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: #ffffff;
-    padding: 0.75rem 1rem;
-    border-top-left-radius: var(--radius-md);
-    border-top-right-radius: var(--radius-md);
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.info-card .card-header i {
-    width: 1.25rem;
-    height: 1.25rem;
-}
-
-.info-card .card-header .card-title {
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-.info-card .card-header.green { background-color: #10b981; }
-.info-card .card-header.yellow { background-color: #f59e0b; }
-.info-card .card-header.pink { background-color: #ec4899; }
-
-.info-card .card-body {
-    padding: 1rem;
-    min-height: 160px; /* Altezza minima per allineare le card */
-}
-
-.info-links-list, .info-phone-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.info-links-list li a {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-decoration: none;
-    color: var(--color-primary);
-    font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-sm);
-    transition: background-color 0.2s;
-}
-
-.info-links-list li a:hover {
-    background-color: var(--background-secondary);
-    color: var(--color-accent);
-}
-
-.info-links-list li a i {
-    width: 1rem;
-    height: 1rem;
-    color: var(--color-secondary);
-}
-
-.info-phone-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-sm);
-    transition: background-color 0.2s;
-    line-height: 1.4;
-}
-
-.info-phone-list li:hover {
-     background-color: var(--background-secondary);
-}
-
-.info-phone-list li span {
-    font-weight: 500;
-    color: var(--color-primary);
-    flex-grow: 1;
-}
-
-.info-phone-list li a {
-    font-weight: 600;
-    color: var(--color-accent);
-    text-decoration: none;
-    white-space: nowrap;
-    margin-left: 1rem;
-}
-
-.info-phone-list li a:hover {
-    text-decoration: underline;
-}
-
-/* === RESPONSIVE === */
-
-@media (max-width: 768px) {
-    .impostazioni-layout {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-lg);
-    }
-    
-    .impostazioni-section:first-child {
-        border-right: none;
-        border-bottom: 1px solid var(--border-primary);
-        padding-right: 0;
-        padding-bottom: var(--spacing-lg);
-        margin-bottom: var(--spacing-lg);
-    }
-    
-    .color-theme-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .color-theme-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-sm);
-    }
-    
-    .color-theme-circle {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .color-theme-circle span {
-        font-size: 10px;
     }
 }
 
@@ -2739,7 +2494,7 @@ select.form-control {
 
 .info-card .card-body {
     padding: 1rem;
-    min-height: 160px; /* Altezza minima per allineare le card */
+    min-height: 160px;
 }
 
 .info-links-list, .info-phone-list {
@@ -2764,7 +2519,7 @@ select.form-control {
 }
 
 .info-links-list li a:hover {
-    background-color: var(--bg-secondary);
+     background-color: var(--bg-secondary);
 }
 
 .info-links-list li a i {
@@ -2805,12 +2560,60 @@ select.form-control {
     text-decoration: underline;
 }
 
-/* ======================================= */
-/* Stili specifici per i modali            */
-/* ======================================= */
-
+/* === Stili specifici per i modali === */
 .modal-content.modal-account {
-    max-width: 600px; /* <-- NUOVA REGOLA QUI */
+    max-width: 600px;
     width: 90vw;
     text-align: left;
+}
+
+/* === Stili per le sezioni collassabili === */
+.collapsible-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.collapsible-content {
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out, border-width 0.4s ease-in-out;
+    overflow: hidden;
+    max-height: 20000px; 
+    border-top: 1px solid var(--border-primary);
+}
+
+.collapse-toggle {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-in-out, background-color 0.2s;
+}
+
+.collapse-toggle svg { /* Corretto da 'i' a 'svg' */
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--text-secondary);
+}
+            
+.collapsible-header:hover .collapse-toggle {
+     background-color: var(--bg-tertiary);
+}
+
+.collapsed .collapsible-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+}
+
+.collapsed .collapse-toggle {
+    transform: rotate(180deg);
+}
+
+.theme-dark .collapse-toggle svg { /* Corretto da 'i' a 'svg' */
+    color: var(--text-primary);
 }

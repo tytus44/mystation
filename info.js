@@ -7,7 +7,9 @@
 // === STATO LOCALE DEL MODULO INFO ===
 let infoState = {
     searchQueryStazioni: '',
-    searchQueryAccounts: '', // Aggiunto per la ricerca account
+    searchQueryAccounts: '',
+    stazioniCollapsed: false, // Stato per la sezione stazioni
+    accountsCollapsed: false, // Stato per la sezione account
 };
 
 // === INIZIALIZZAZIONE MODULO INFO ===
@@ -15,10 +17,13 @@ function initInfo() {
     console.log('ℹ️ Inizializzazione modulo Info...');
     const app = this;
 
+    // Carica lo stato di collasso dal localStorage
+    infoState.stazioniCollapsed = app.loadFromStorage('stazioniCollapsed', false);
+    infoState.accountsCollapsed = app.loadFromStorage('accountsCollapsed', false);
+
     if (!app.state.data.stazioni) {
         app.state.data.stazioni = [];
     }
-    // Aggiunge l'array 'accounts' allo stato globale se non esiste
     if (!app.state.data.accounts) {
         app.state.data.accounts = [];
     }
@@ -81,7 +86,7 @@ function getInfoCardsHTML() {
     `;
 }
 
-// === RENDER SEZIONE INFO (CON ORDINE INVERTITO) ===
+// === RENDER SEZIONE INFO (CON SEZIONI COLLASSABILI) ===
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
     const app = this;
@@ -90,11 +95,12 @@ function renderInfoSection(container) {
         <div class="space-y-6">
             ${getInfoCardsHTML()}
 
-            <div class="card">
-                 <div class="card-header">
+            <div class="card collapsible-section ${infoState.stazioniCollapsed ? 'collapsed' : ''}">
+                 <div class="card-header collapsible-header" data-section-name="stazioni">
                     <h2 class="card-title">Impianti ENILIVE Roma</h2>
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-content">
                     <div class="filters-bar" style="background: none; border: none; padding: 0; margin-bottom: 1.5rem;">
                         <div class="filter-group">
                             <div class="input-group">
@@ -131,11 +137,12 @@ function renderInfoSection(container) {
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
+            <div class="card collapsible-section ${infoState.accountsCollapsed ? 'collapsed' : ''}">
+                <div class="card-header collapsible-header" data-section-name="accounts">
                     <h2 class="card-title">Gestione Account Personali</h2>
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-content">
                     <div class="filters-bar" style="background: none; border: none; padding: 0; margin-bottom: 1.5rem;">
                         <div class="filter-group">
                              <div class="input-group">
@@ -171,7 +178,7 @@ function renderInfoSection(container) {
     app.refreshIcons();
 }
 
-// --- NUOVE FUNZIONI PER GESTIONE ACCOUNT ---
+// --- FUNZIONI PER GESTIONE ACCOUNT ---
 
 function renderAccountsGrid() {
     const app = this;
@@ -428,7 +435,7 @@ function deleteAccountsList() {
     );
 }
 
-// --- FUNZIONI ESISTENTI PER GESTIONE STAZIONI ---
+// --- FUNZIONI PER GESTIONE STAZIONI ---
 
 function renderStazioniTable() {
     const app = this;
@@ -541,46 +548,76 @@ function normalizeString(str) {
     return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
 }
 
-// === SETUP EVENT LISTENERS ===
+// === SETUP EVENT LISTENERS (CORRETTO) ===
 function setupInfoEventListeners() {
-    const app = this;
-    
-    const searchStazioniInput = document.getElementById('info-search-stazioni-input');
-    if (searchStazioniInput) {
-        searchStazioniInput.addEventListener('input', (e) => {
-            infoState.searchQueryStazioni = e.target.value;
-            renderStazioniTable.call(app);
-        });
-    }
-    const importStazioniBtn = document.getElementById('import-stazioni-btn');
-    const importStazioniFile = document.getElementById('import-stazioni-file');
-    if (importStazioniBtn && importStazioniFile) {
-        importStazioniBtn.addEventListener('click', () => importStazioniFile.click());
-        importStazioniFile.addEventListener('change', (e) => importStazioniFromCSV.call(app, e));
-    }
-    const printStazioniBtn = document.getElementById('print-stazioni-btn');
-    if(printStazioniBtn) printStazioniBtn.addEventListener('click', () => printStazioni.call(app));
-    const deleteStazioniBtn = document.getElementById('delete-stazioni-btn');
-    if(deleteStazioniBtn) deleteStazioniBtn.addEventListener('click', () => deleteStazioniList.call(app));
+    const app = getApp();
+    const container = document.getElementById('section-info');
+    if (!container) return;
 
-    const searchAccountsInput = document.getElementById('info-search-accounts-input');
-    if (searchAccountsInput) {
-        searchAccountsInput.addEventListener('input', (e) => {
-            infoState.searchQueryAccounts = e.target.value;
-            renderAccountsGrid.call(app);
-        });
-    }
-    const importAccountsBtn = document.getElementById('import-accounts-btn');
-    const importAccountsFile = document.getElementById('import-accounts-file');
-    if (importAccountsBtn && importAccountsFile) {
-        importAccountsBtn.addEventListener('click', () => importAccountsFile.click());
-        importAccountsFile.addEventListener('change', (e) => importAccountsFromCSV.call(app, e));
-    }
-    const exportAccountsBtn = document.getElementById('export-accounts-btn');
-    if(exportAccountsBtn) exportAccountsBtn.addEventListener('click', () => exportAccountsToCSV.call(app));
-    const deleteAccountsBtn = document.getElementById('delete-accounts-btn');
-    if(deleteAccountsBtn) deleteAccountsBtn.addEventListener('click', () => deleteAccountsList.call(app));
+    // Rimuove i listener precedenti per evitare duplicazioni
+    container.removeEventListener('click', handleInfoClick);
+    container.removeEventListener('input', handleInfoInput);
+    container.removeEventListener('change', handleInfoChange);
+
+    // Aggiunge i nuovi listener delegati
+    container.addEventListener('click', handleInfoClick);
+    container.addEventListener('input', handleInfoInput);
+    container.addEventListener('change', handleInfoChange);
 }
+
+// Handler delegato per tutti i click nella sezione Info
+function handleInfoClick(event) {
+    const app = getApp();
+    const target = event.target;
+
+    // Gestione sezioni collassabili
+    const collapsibleHeader = target.closest('.collapsible-header');
+    if (collapsibleHeader) {
+        const sectionName = collapsibleHeader.dataset.sectionName;
+        const sectionEl = collapsibleHeader.closest('.collapsible-section');
+        const isCollapsed = sectionEl.classList.toggle('collapsed');
+
+        if (sectionName === 'stazioni') {
+            infoState.stazioniCollapsed = isCollapsed;
+            app.saveToStorage('stazioniCollapsed', isCollapsed);
+        } else if (sectionName === 'accounts') {
+            infoState.accountsCollapsed = isCollapsed;
+            app.saveToStorage('accountsCollapsed', isCollapsed);
+        }
+        return;
+    }
+
+    // Gestione pulsanti Stazioni
+    if (target.closest('#import-stazioni-btn')) document.getElementById('import-stazioni-file').click();
+    if (target.closest('#print-stazioni-btn')) printStazioni.call(app);
+    if (target.closest('#delete-stazioni-btn')) deleteStazioniList.call(app);
+
+    // Gestione pulsanti Account
+    if (target.closest('#import-accounts-btn')) document.getElementById('import-accounts-file').click();
+    if (target.closest('#export-accounts-btn')) exportAccountsToCSV.call(app);
+    if (target.closest('#delete-accounts-btn')) deleteAccountsList.call(app);
+}
+
+// Handler delegato per gli input
+function handleInfoInput(event) {
+    const app = getApp();
+    if (event.target.id === 'info-search-stazioni-input') {
+        infoState.searchQueryStazioni = event.target.value;
+        renderStazioniTable.call(app);
+    }
+    if (event.target.id === 'info-search-accounts-input') {
+        infoState.searchQueryAccounts = event.target.value;
+        renderAccountsGrid.call(app);
+    }
+}
+
+// Handler delegato per i change (es. upload file)
+function handleInfoChange(event) {
+    const app = getApp();
+    if (event.target.id === 'import-stazioni-file') importStazioniFromCSV.call(app, event);
+    if (event.target.id === 'import-accounts-file') importAccountsFromCSV.call(app, event);
+}
+
 
 function getStatCardColorByIndex(index) {
     if (typeof STAT_CARD_COLORS !== 'undefined') {
