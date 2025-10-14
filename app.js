@@ -243,7 +243,7 @@ class MyStationApp {
     }
     
     // === NOTIFICHE ===
-    showNotification(message, type = 'success') { // Aggiunto parametro type
+    showNotification(message, type = 'success') {
         const notificationEl = document.getElementById('notification');
         const messageEl = notificationEl.querySelector('.notification-message');
         
@@ -303,11 +303,11 @@ class MyStationApp {
             modalEl.classList.add('show');
         }
     }
-
+    
+    // --- FUNZIONE CORRETTA ---
     hideFormModal() {
         const modalEl = document.getElementById('form-modal');
         const contentEl = document.getElementById('form-modal-content');
-        const modalContent = modalEl?.querySelector('.modal-content');
         
         if (modalEl) {
             modalEl.classList.add('is-closing');
@@ -317,7 +317,8 @@ class MyStationApp {
                 modalEl.classList.add('hidden');
                 if (contentEl) {
                     contentEl.innerHTML = ''; 
-                    contentEl.classList.remove('modal-wide');
+                    // Resetta completamente le classi, lasciando solo quella di base
+                    contentEl.className = 'modal-content'; 
                 }
             }, 500);
         }
