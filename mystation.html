@@ -9,7 +9,6 @@
     <meta property="og:title" content="MyStation Dashboard">
     <meta property="og:description" content="Applicazione per la gestione di una stazione di servizio.">
     
-    <!-- ⚠️ SISTEMA DI AUTENTICAZIONE - NON RIMUOVERE ⚠️ -->
     <script src="credentials.js"></script>
     <script src="auth.js"></script>
     <script>
@@ -18,8 +17,6 @@
             requireAuth();
         }
     </script>
-    <!-- ⚠️ FINE SISTEMA DI AUTENTICAZIONE ⚠️ -->
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -105,8 +102,10 @@
         <table class="print-table">
             <thead>
                 <tr>
-                    <th>Denominazione</th>
+                    <th>PV</th>
+                    <th>Ragione Sociale</th>
                     <th>Indirizzo</th>
+                    <th>Telefono</th>
                 </tr>
             </thead>
             <tbody id="print-info-list">
@@ -161,7 +160,6 @@
                 <div class="sidebar-footer">
                     <div class="sidebar-divider"></div>
                     <ul class="sidebar-menu">
-                        <!-- Pulsante Logout -->
                         <li>
                             <button type="button" onclick="logout()" class="sidebar-link" style="color: #ef4444;">
                                 <i data-lucide="log-out"></i><span>Esci</span>

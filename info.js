@@ -106,7 +106,7 @@ function renderInfoSection(container) {
                             <div class="input-group">
                                 <i data-lucide="search" class="input-group-icon"></i>
                                 <input type="search" id="info-search-stazioni-input" class="form-control" 
-                                       placeholder="Cerca per denominazione o indirizzo..." 
+                                       placeholder="Cerca per PV, ragione sociale, indirizzo..." 
                                        value="${infoState.searchQueryStazioni}" autocomplete="off">
                             </div>
                         </div>
@@ -127,8 +127,10 @@ function renderInfoSection(container) {
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Denominazione</th>
-                                    <th>Indirizzo</th>
+                                    <th style="width: 10%;">PV</th>
+                                    <th style="width: 35%;">Ragione Sociale</th>
+                                    <th style="width: 40%;">Indirizzo</th>
+                                    <th style="width: 15%;">Telefono</th>
                                 </tr>
                             </thead>
                             <tbody id="stazioni-tbody"></tbody>
@@ -437,6 +439,7 @@ function deleteAccountsList() {
 
 // --- FUNZIONI PER GESTIONE STAZIONI ---
 
+// INIZIO MODIFICA: Funzione aggiornata per visualizzare le 4 colonne
 function renderStazioniTable() {
     const app = this;
     const tbody = document.getElementById('stazioni-tbody');
@@ -444,10 +447,12 @@ function renderStazioniTable() {
 
     const stazioni = getFilteredStazioni.call(app);
 
+    stazioni.sort((a, b) => (parseInt(a.pv, 10) || 0) - (parseInt(b.pv, 10) || 0));
+
     if (stazioni.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="2" class="text-center py-12">
+                <td colspan="4" class="text-center py-12">
                     <div class="empty-state">
                         <i data-lucide="fuel"></i>
                         <div class="empty-state-title">Nessuna stazione di servizio trovata</div>
@@ -459,15 +464,19 @@ function renderStazioniTable() {
     } else {
         tbody.innerHTML = stazioni.map(stazione => `
             <tr class="hover:bg-secondary">
-                <td class="font-medium text-primary">${stazione.denominazione}</td>
-                <td class="text-primary">${stazione.indirizzo}</td>
+                <td class="font-medium text-primary">${stazione.pv || '-'}</td>
+                <td>${stazione.ragioneSociale || '-'}</td>
+                <td>${stazione.indirizzo || '-'}</td>
+                <td>${stazione.telefono || '-'}</td>
             </tr>
         `).join('');
     }
 
     app.refreshIcons();
 }
+// FINE MODIFICA
 
+// INIZIO MODIFICA: Funzione di ricerca aggiornata per i 4 campi
 function getFilteredStazioni() {
     const app = this;
     let stazioni = [...(app.state.data.stazioni || [])];
@@ -475,14 +484,18 @@ function getFilteredStazioni() {
 
     if (query) {
         stazioni = stazioni.filter(s =>
-            s.denominazione.toLowerCase().includes(query) ||
-            s.indirizzo.toLowerCase().includes(query)
+            (s.pv && s.pv.toLowerCase().includes(query)) ||
+            (s.ragioneSociale && s.ragioneSociale.toLowerCase().includes(query)) ||
+            (s.indirizzo && s.indirizzo.toLowerCase().includes(query)) ||
+            (s.telefono && s.telefono.toLowerCase().includes(query))
         );
     }
 
     return stazioni;
 }
+// FINE MODIFICA
 
+// INIZIO MODIFICA: Logica di importazione rafforzata per gestire delimitatori nell'indirizzo
 function importStazioniFromCSV(event) {
     const app = this;
     const file = event.target.files[0];
@@ -492,37 +505,72 @@ function importStazioniFromCSV(event) {
     reader.onload = (e) => {
         try {
             const text = e.target.result;
-            const rows = text.split('\n').slice(1);
+            const lines = text.trim().split(/\r\n|\n/);
+            
+            if (lines.length < 2) {
+                return app.showNotification("Il file CSV è vuoto o non valido.", "error");
+            }
+            
+            const dataRows = lines.slice(1).filter(line => line.trim() !== '');
+            const delimiter = dataRows[0].includes(';') ? ';' : ',';
+            
             const importedStazioni = [];
             
-            rows.forEach(row => {
-                const columns = row.split(';'); 
-                let denominazione = columns[0] ? columns[0].trim().replace(/"/g, '') : '';
-                let indirizzo = columns[1] ? columns[1].trim().replace(/"/g, '') : '';
+            dataRows.forEach(row => {
+                const columns = row.split(delimiter);
+
+                if (columns.length < 2) return; // Salta righe malformate
+
+                // I primi due campi sono sempre fissi
+                const pv = (columns[0] || '').trim().replace(/"/g, '');
+                const ragioneSociale = (columns[1] || '').trim().replace(/"/g, '');
+
+                let indirizzo = '';
+                let telefono = '';
+
+                // Cerca l'indice della colonna che inizia con +39
+                const phoneIndex = columns.findIndex(col => col.trim().startsWith('+39'));
+
+                if (phoneIndex > 1) {
+                    // Se troviamo il telefono, tutto ciò che sta tra la ragione sociale e il telefono è l'indirizzo
+                    indirizzo = columns.slice(2, phoneIndex).join(delimiter).trim().replace(/"/g, '');
+                    // Tutto ciò che sta dall'indice del telefono in poi è il numero di telefono
+                    telefono = columns.slice(phoneIndex).join(delimiter).trim().replace(/"/g, '');
+                } else {
+                    // Fallback: se non troviamo un telefono che inizia con +39
+                    // consideriamo l'ultimo campo come telefono e il resto come indirizzo.
+                    if (columns.length > 3) {
+                        telefono = (columns[columns.length - 1] || '').trim().replace(/"/g, '');
+                        indirizzo = columns.slice(2, columns.length - 1).join(delimiter).trim().replace(/"/g, '');
+                    } else if (columns.length === 3) {
+                        indirizzo = (columns[2] || '').trim().replace(/"/g, '');
+                    }
+                }
                 
-                denominazione = normalizeString(denominazione);
-                indirizzo = normalizeString(indirizzo);
-                
-                if (denominazione && indirizzo) {
-                    importedStazioni.push({ denominazione, indirizzo });
+                if (pv && ragioneSociale) {
+                    importedStazioni.push({ pv, ragioneSociale, indirizzo, telefono });
                 }
             });
 
-            app.state.data.stazioni = importedStazioni;
-            app.saveToStorage('data', app.state.data);
-            app.showNotification(`${importedStazioni.length} stazioni importate con successo.`);
-            renderStazioniTable.call(app);
+            if (importedStazioni.length > 0) {
+                app.state.data.stazioni = importedStazioni;
+                app.saveToStorage('data', app.state.data);
+                app.showNotification(`${importedStazioni.length} impianti importati con successo!`);
+                renderStazioniTable.call(app);
+            } else {
+                app.showNotification("Nessun dato valido trovato nel file CSV. Controlla il formato.", "warning");
+            }
 
         } catch (error) {
             console.error("Errore durante l'importazione CSV:", error);
-            app.showNotification("Errore durante l'importazione del file.", "error");
+            app.showNotification("Errore critico durante la lettura del file.", "error");
         } finally {
             event.target.value = '';
         }
     };
     reader.readAsText(file, 'UTF-8');
 }
-
+// FINE MODIFICA
 
 function deleteStazioniList() {
     const app = this;
@@ -543,10 +591,54 @@ function deleteStazioniList() {
     );
 }
 
-function normalizeString(str) {
-    if (!str) return '';
-    return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+// INIZIO MODIFICA: Funzione di stampa aggiornata per le 4 colonne
+function printStazioni() {
+    const app = getApp();
+    const stazioni = getFilteredStazioni.call(app);
+
+    if (stazioni.length === 0) {
+        return app.showNotification("Nessun impianto da stampare.");
+    }
+    
+    stazioni.sort((a, b) => (parseInt(a.pv, 10) || 0) - (parseInt(b.pv, 10) || 0));
+
+    const dateElement = document.getElementById('print-info-date');
+    if (dateElement) {
+        dateElement.textContent = `Elenco aggiornato al ${app.formatDateForFilename()}`;
+    }
+    
+    const printList = document.getElementById('print-info-list');
+    if (!printList) {
+        console.error("Elemento 'print-info-list' non trovato nel DOM.");
+        return;
+    }
+    
+    printList.innerHTML = stazioni.map(stazione => `
+        <tr>
+            <td>${stazione.pv || '-'}</td>
+            <td>${stazione.ragioneSociale || '-'}</td>
+            <td>${stazione.indirizzo || '-'}</td>
+            <td>${stazione.telefono || '-'}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('print-content').classList.add('hidden');
+    document.getElementById('print-clients-content').classList.add('hidden');
+    document.getElementById('virtual-print-content').classList.add('hidden');
+    document.getElementById('print-anagrafica-content').classList.add('hidden');
+    
+    const printContentEl = document.getElementById('print-info-content');
+    printContentEl.classList.remove('hidden');
+
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+            printContentEl.classList.add('hidden');
+        }, 100);
+    }, 100);
 }
+// FINE MODIFICA
+
 
 // === SETUP EVENT LISTENERS (CORRETTO) ===
 function setupInfoEventListeners() {
