@@ -5,7 +5,7 @@
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===
-let homeState = {// Fine funzione renderHomeSection
+let homeState = {
 
     // Calcolatore IVA
     ivaCalculator: {
@@ -16,6 +16,7 @@ let homeState = {// Fine funzione renderHomeSection
         }
     },
 
+    // INIZIO MODIFICA: Aggiunta la proprietà 'count'
     // Conta Banconote
     banconoteCounter: {
         500: null,
@@ -24,8 +25,10 @@ let homeState = {// Fine funzione renderHomeSection
         50: null,
         20: null,
         10: null,
-        total: 0
+        total: 0,
+        count: 0
     },
+    // FINE MODIFICA
 
     // Scheda attiva per la card Calcolatore/Contatore
     activeHomeCardTab: 'iva',
@@ -81,7 +84,6 @@ function initHome() {
 }
 // Fine funzione initHome
 
-// === RENDER SEZIONE HOME ===
 // === RENDER SEZIONE HOME ===
 // Inizio funzione renderHomeSection
 function renderHomeSection(container) {
@@ -223,13 +225,17 @@ function renderHomeSection(container) {
                                     <div class="form-group mb-0"><label class="form-label">€ 20</label><input type="number" data-taglio="20" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[20] || ''}" placeholder="0" autocomplete="off"></div>
                                     <div class="form-group mb-0"><label class="form-label">€ 10</label><input type="number" data-taglio="10" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[10] || ''}" placeholder="0" autocomplete="off"></div>
                                 </div>
-                                <div class="product-box p-4">
+                                <div class="product-box p-4 space-y-2">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-medium text-lg text-primary">Totale Banconote</span>
+                                        <span class="font-medium text-lg text-primary">Totale Importo</span>
                                         <span id="banconote-total" class="text-xl font-bold text-success">${app.formatCurrency(homeState.banconoteCounter.total)}</span>
                                     </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium text-secondary">Numero Banconote</span>
+                                        <span id="banconote-count" class="text-lg font-bold text-primary">${app.formatInteger(homeState.banconoteCounter.count || 0)}</span>
+                                    </div>
                                 </div>
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -399,9 +405,12 @@ function updateIvaDisplay() {
 }
 // Fine funzione updateIvaDisplay
 
+// INIZIO MODIFICA: Aggiornata la funzione per calcolare e mostrare anche il numero di banconote
 // Inizio funzione calcolaTotaleBanconote
 function calcolaTotaleBanconote() {
     const counter = homeState.banconoteCounter;
+    
+    // Calcola l'importo totale
     const totale = (counter[500] || 0) * 500 +
                    (counter[200] || 0) * 200 +
                    (counter[100] || 0) * 100 +
@@ -410,12 +419,29 @@ function calcolaTotaleBanconote() {
                    (counter[10] || 0) * 10;
     homeState.banconoteCounter.total = totale;
 
+    // Calcola il numero totale di banconote
+    const numeroBanconote = (parseInt(counter[500], 10) || 0) +
+                            (parseInt(counter[200], 10) || 0) +
+                            (parseInt(counter[100], 10) || 0) +
+                            (parseInt(counter[50], 10) || 0) +
+                            (parseInt(counter[20], 10) || 0) +
+                            (parseInt(counter[10], 10) || 0);
+    homeState.banconoteCounter.count = numeroBanconote;
+
+
+    // Aggiorna l'interfaccia
     const totaleEl = document.getElementById('banconote-total');
     if (totaleEl) {
         totaleEl.textContent = this.formatCurrency(totale);
     }
+
+    const countEl = document.getElementById('banconote-count');
+    if (countEl) {
+        countEl.textContent = this.formatInteger(numeroBanconote);
+    }
 }
 // Fine funzione calcolaTotaleBanconote
+// FINE MODIFICA
 
 // === FUNZIONI CALENDARIO ===
 // Inizio funzione initCalendar
