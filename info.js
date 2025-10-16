@@ -155,7 +155,10 @@ function renderInfoSection(container) {
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
-                             <button id="import-accounts-btn" class="btn btn-primary">
+                             <button id="new-account-btn" class="btn btn-primary">
+                                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Aggiungi
+                             </button>
+                             <button id="import-accounts-btn" class="btn btn-secondary">
                                 <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importa
                             </button>
                             <button id="export-accounts-btn" class="btn btn-secondary">
@@ -165,7 +168,7 @@ function renderInfoSection(container) {
                                 <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Lista
                             </button>
                         </div>
-                    </div>
+                        </div>
                     <input type="file" id="import-accounts-file" accept=".csv" style="display: none;">
                     <div id="accounts-grid" class="contatti-grid">
                         </div>
@@ -196,7 +199,7 @@ function renderAccountsGrid() {
             <div class="empty-state" style="grid-column: 1 / -1;">
                 <i data-lucide="key-round"></i>
                 <div class="empty-state-title">Nessun account trovato</div>
-                <div class="empty-state-description">Importa un file CSV per iniziare.</div>
+                <div class="empty-state-description">Aggiungi un nuovo account o importa un file CSV.</div>
             </div>`;
     } else {
         grid.innerHTML = accounts.map((account, index) => {
@@ -233,6 +236,66 @@ function getFilteredAccounts() {
     }
     return accounts;
 }
+
+// INIZIO NUOVA FUNZIONE: Apre il modale per un nuovo account
+function openNewAccountModal() {
+    const app = getApp();
+
+    const modalHTML = `
+        <div class="modal-header">
+            <h2>Nuovo Account</h2>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Nome Account</label>
+                <input type="text" id="account-name-input" class="form-control" style="max-width: 100%;" placeholder="Es. Account Google">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Contenuto (Username, Password, etc.)</label>
+                <textarea id="account-content-textarea" class="form-control" style="max-width: 100%; height: 200px; min-height: 150px;" placeholder="username: example@email.com\npassword: P@ssw0rd!"></textarea>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button id="cancel-account-modal-btn" class="btn btn-secondary">Annulla</button>
+            <button id="save-new-account-modal-btn" class="btn btn-success">Salva Account</button>
+        </div>
+    `;
+
+    const modalContentEl = document.getElementById('form-modal-content');
+    modalContentEl.innerHTML = modalHTML;
+    modalContentEl.classList.add('modal-account');
+
+    document.getElementById('save-new-account-modal-btn').addEventListener('click', saveNewAccountFromModal);
+    document.getElementById('cancel-account-modal-btn').addEventListener('click', () => app.hideFormModal());
+
+    app.showFormModal();
+    document.getElementById('account-name-input').focus();
+}
+// FINE NUOVA FUNZIONE
+
+// INIZIO NUOVA FUNZIONE: Salva il nuovo account
+function saveNewAccountFromModal() {
+    const app = getApp();
+    const name = document.getElementById('account-name-input').value.trim();
+    const content = document.getElementById('account-content-textarea').value.trim();
+
+    if (!name) {
+        return app.showNotification('Il nome dell\'account non può essere vuoto.', 'error');
+    }
+
+    const newAccount = {
+        id: app.generateUniqueId('account'),
+        name: name,
+        content: content
+    };
+
+    app.state.data.accounts.push(newAccount);
+    app.saveToStorage('data', app.state.data);
+    app.showNotification('Account aggiunto con successo.');
+    app.hideFormModal();
+    renderAccountsGrid.call(app);
+}
+// FINE NUOVA FUNZIONE
 
 function openAccountModal(accountId) {
     const app = getApp();
@@ -684,7 +747,10 @@ function handleInfoClick(event) {
     if (target.closest('#print-stazioni-btn')) printStazioni.call(app);
     if (target.closest('#delete-stazioni-btn')) deleteStazioniList.call(app);
 
-    // Gestione pulsanti Account
+    // INIZIO MODIFICA: Aggiunto handler per il nuovo pulsante "Aggiungi"
+    if (target.closest('#new-account-btn')) openNewAccountModal.call(app);
+    // FINE MODIFICA
+    
     if (target.closest('#import-accounts-btn')) document.getElementById('import-accounts-file').click();
     if (target.closest('#export-accounts-btn')) exportAccountsToCSV.call(app);
     if (target.closest('#delete-accounts-btn')) deleteAccountsList.call(app);
