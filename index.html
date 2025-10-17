@@ -14,7 +14,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     
     <style>
-        /* Background animato con onde blu */
+        /* ...il tuo CSS rimane invariato... */
         body {
             position: relative;
             min-height: 100vh;
@@ -466,7 +466,6 @@
         </svg>
     </div>
 
-    <!-- Modale di stato login -->
     <div class="login-status-backdrop" id="login-status-backdrop"></div>
     <div class="login-status-modal" id="login-status-modal">
         <div class="login-status-icon" id="login-status-icon">
@@ -500,8 +499,7 @@
                             id="username" 
                             class="form-control" 
                             placeholder="Inserisci il tuo nome utente"
-                            autocomplete="username"
-                            required
+                            autocomplete="off" required
                         >
                     </div>
 
@@ -513,8 +511,7 @@
                                 id="password" 
                                 class="form-control" 
                                 placeholder="Inserisci la tua password"
-                                autocomplete="current-password"
-                                required
+                                autocomplete="off" required
                             >
                             <button type="button" class="toggle-password" id="toggle-password" tabindex="-1">
                                 <i data-lucide="eye"></i>
