@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foglio di Chiusura Cassa</title>
+    <style>
+        /* Stili generali */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            font-size: 0.9em;
+        }
+
+        /* Contenitore principale del foglio A4 */
+        .page {
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm;
+            margin: 10mm auto;
+            background: white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column; /* Imposta layout verticale */
+        }
+
+        /* Contenuto principale con due colonne */
+        .main-content {
+            display: flex;
+            flex-grow: 1;
+            border: 1px solid black; /* Aggiunge il bordo esterno */
+        }
+
+        .column {
+            flex: 1;
+            padding: 0 10px; /* Aggiunge un po' di spazio interno alle colonne */
+        }
+
+        .column:first-child {
+            border-right: 1px solid black;
+        }
+        
+        /* Stili per la colonna di destra */
+        .right-column-content {
+            padding: 20px 10px; /* Aumenta padding interno */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .report-item {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid black;
+            /* INIZIO MODIFICA: Aumentato lo spazio tra testo e riga */
+            padding-bottom: 40px; 
+            /* FINE MODIFICA */
+            margin-bottom: 40px; 
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 30px; 
+            margin-bottom: 40px;
+        }
+
+        .product-item {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid black;
+            /* INIZIO MODIFICA: Aumentato lo spazio tra testo e riga */
+            padding-bottom: 40px;
+            /* FINE MODIFICA */
+            margin-bottom: 25px;
+        }
+
+        /* Stili specifici per la stampa */
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .page {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        
+        <div class="main-content">
+
+            <div class="column">
+                </div>
+
+            <div class="column">
+                <div class="right-column-content">
+                    <div class="report-item">TOT Litri Giornaliero</div>
+                    <div class="report-item">TOT Importo Giornaliero</div>
+                    
+                    <div>
+                        <div class="report-item">Imponibile</div>
+                        <div class="report-item">IVA 22%</div>
+                    </div>
+
+                    <div>
+                        <div class="section-title">Giacenza Prodotti</div>
+                        <div class="product-item">Benzina</div>
+                        <div class="product-item">Gasolio</div>
+                        <div class="product-item">Diesel+</div>
+                        <div class="product-item">Hvolution</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
