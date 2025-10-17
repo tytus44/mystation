@@ -310,12 +310,27 @@ function handleRegistroClick(event) {
     }
 }
 
+// INIZIO MODIFICA: La funzione ora espande la tabella se è collassata durante la ricerca
 function handleRegistroInput(event) {
+    const app = getApp();
     if (event.target.id === 'registry-search') {
-        registroState.registrySearchQuery = event.target.value;
-        renderRegistryTable.call(getApp());
+        const query = event.target.value;
+        registroState.registrySearchQuery = query;
+
+        // Logica per espandere la tabella
+        const carichiSection = document.querySelector('.collapsible-header[data-section-name="carichi"]')?.closest('.collapsible-section');
+
+        // Se l'utente sta cercando e la tabella è collassata, la espande
+        if (query.trim() !== '' && carichiSection && carichiSection.classList.contains('collapsed')) {
+            carichiSection.classList.remove('collapsed');
+            registroState.carichiCollapsed = false;
+            app.saveToStorage('carichiCollapsed', false);
+        }
+
+        renderRegistryTable.call(app);
     }
 }
+// FINE MODIFICA
 
 function handleRegistroChange(event) {
     const app = getApp();

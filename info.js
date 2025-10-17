@@ -31,7 +31,7 @@ function initInfo() {
     console.log('✅ Modulo Info inizializzato');
 }
 
-// === HTML DELLE CARD INFORMATIVE ===
+// === HTML DELLE CARD INFORMATIVE (MODIFICATO) ===
 function getInfoCardsHTML() {
     return `
     <div class="grid grid-cols-3 gap-6">
@@ -51,10 +51,11 @@ function getInfoCardsHTML() {
                 </ul>
             </div>
         </div>
+
         <div class="card info-card">
             <div class="card-header yellow">
                 <i data-lucide="landmark"></i>
-                <h3 class="card-title">Banche e Enti</h3>
+                <h3 class="card-title">Collegamenti Utili</h3>
             </div>
             <div class="card-body">
                 <ul class="info-links-list">
@@ -64,12 +65,14 @@ function getInfoCardsHTML() {
                     <li><a href="https://iampe.adm.gov.it/sam/UI/Login?realm=/adm&locale=it&goto=https%3A%2F%2Fwww.adm.gov.it%2Fportale%2Fweb%2Fguest%2Flogin%3Fp_p_id%3D58%26p_p_lifecycle%3D0%26_58_redirect%3D%252Fportale%252F-%252Fcorrispettivi-distributori-carburanti" target="_blank" rel="noopener noreferrer">Agenzia Dogane <i data-lucide="external-link"></i></a></li>
                     <li><a href="http://gestori.cipreg.org/" target="_blank" rel="noopener noreferrer">Cipreg (gestori) <i data-lucide="external-link"></i></a></li>
                 </ul>
+                <div class="sidebar-divider" style="margin: 0.75rem 0;"></div>
+
             </div>
         </div>
         <div class="card info-card">
             <div class="card-header pink">
                 <i data-lucide="phone"></i>
-                <h3 class="card-title">Numeri Utili</h3>
+                <h3 class="card-title">Assistenza</h3>
             </div>
             <div class="card-body">
                 <ul class="info-phone-list">
@@ -78,11 +81,11 @@ function getInfoCardsHTML() {
                     <li><span>POS Unicredit</span> <a href="tel:800900280">800 900 280</a></li>
                     <li><span>POS Enilive</span> <a href="tel:800999720">800 999 720</a></li>
                     <li><span>Deposito ENI</span> <a href="tel:0691820084">06 9182 0084</a></li>
-                    <li><span>ARETI (guasti)</span> <a href="tel:800130336">800 130 336</a></li>
+                    <li><span>Fortech</span> <a href="tel:800216756">800 216 756</a></li>
                 </ul>
             </div>
         </div>
-    </div>
+        </div>
     `;
 }
 
@@ -237,7 +240,6 @@ function getFilteredAccounts() {
     return accounts;
 }
 
-// INIZIO NUOVA FUNZIONE: Apre il modale per un nuovo account
 function openNewAccountModal() {
     const app = getApp();
 
@@ -271,9 +273,7 @@ function openNewAccountModal() {
     app.showFormModal();
     document.getElementById('account-name-input').focus();
 }
-// FINE NUOVA FUNZIONE
 
-// INIZIO NUOVA FUNZIONE: Salva il nuovo account
 function saveNewAccountFromModal() {
     const app = getApp();
     const name = document.getElementById('account-name-input').value.trim();
@@ -295,7 +295,6 @@ function saveNewAccountFromModal() {
     app.hideFormModal();
     renderAccountsGrid.call(app);
 }
-// FINE NUOVA FUNZIONE
 
 function openAccountModal(accountId) {
     const app = getApp();
@@ -502,7 +501,6 @@ function deleteAccountsList() {
 
 // --- FUNZIONI PER GESTIONE STAZIONI ---
 
-// INIZIO MODIFICA: Funzione aggiornata per visualizzare le 4 colonne
 function renderStazioniTable() {
     const app = this;
     const tbody = document.getElementById('stazioni-tbody');
@@ -537,9 +535,7 @@ function renderStazioniTable() {
 
     app.refreshIcons();
 }
-// FINE MODIFICA
 
-// INIZIO MODIFICA: Funzione di ricerca aggiornata per i 4 campi
 function getFilteredStazioni() {
     const app = this;
     let stazioni = [...(app.state.data.stazioni || [])];
@@ -556,9 +552,7 @@ function getFilteredStazioni() {
 
     return stazioni;
 }
-// FINE MODIFICA
 
-// INIZIO MODIFICA: Logica di importazione rafforzata per gestire delimitatori nell'indirizzo
 function importStazioniFromCSV(event) {
     const app = this;
     const file = event.target.files[0];
@@ -582,26 +576,20 @@ function importStazioniFromCSV(event) {
             dataRows.forEach(row => {
                 const columns = row.split(delimiter);
 
-                if (columns.length < 2) return; // Salta righe malformate
+                if (columns.length < 2) return; 
 
-                // I primi due campi sono sempre fissi
                 const pv = (columns[0] || '').trim().replace(/"/g, '');
                 const ragioneSociale = (columns[1] || '').trim().replace(/"/g, '');
 
                 let indirizzo = '';
                 let telefono = '';
 
-                // Cerca l'indice della colonna che inizia con +39
                 const phoneIndex = columns.findIndex(col => col.trim().startsWith('+39'));
 
                 if (phoneIndex > 1) {
-                    // Se troviamo il telefono, tutto ciò che sta tra la ragione sociale e il telefono è l'indirizzo
                     indirizzo = columns.slice(2, phoneIndex).join(delimiter).trim().replace(/"/g, '');
-                    // Tutto ciò che sta dall'indice del telefono in poi è il numero di telefono
                     telefono = columns.slice(phoneIndex).join(delimiter).trim().replace(/"/g, '');
                 } else {
-                    // Fallback: se non troviamo un telefono che inizia con +39
-                    // consideriamo l'ultimo campo come telefono e il resto come indirizzo.
                     if (columns.length > 3) {
                         telefono = (columns[columns.length - 1] || '').trim().replace(/"/g, '');
                         indirizzo = columns.slice(2, columns.length - 1).join(delimiter).trim().replace(/"/g, '');
@@ -633,7 +621,6 @@ function importStazioniFromCSV(event) {
     };
     reader.readAsText(file, 'UTF-8');
 }
-// FINE MODIFICA
 
 function deleteStazioniList() {
     const app = this;
@@ -654,7 +641,6 @@ function deleteStazioniList() {
     );
 }
 
-// INIZIO MODIFICA: Funzione di stampa aggiornata per le 4 colonne
 function printStazioni() {
     const app = getApp();
     const stazioni = getFilteredStazioni.call(app);
@@ -700,7 +686,6 @@ function printStazioni() {
         }, 100);
     }, 100);
 }
-// FINE MODIFICA
 
 
 // === SETUP EVENT LISTENERS (CORRETTO) ===
