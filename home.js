@@ -2,6 +2,8 @@
 // FILE: home.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Home / Dashboard con layout ottimizzato.
+// --- MODIFICATO per unire card IVA/Banconote/Ordine ---
+// --- MODIFICATO per spinner e subtotali in Conta Banconote ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===
@@ -16,7 +18,6 @@ let homeState = {
         }
     },
 
-    // INIZIO MODIFICA: Aggiunta la proprietà 'count'
     // Conta Banconote
     banconoteCounter: {
         500: null,
@@ -28,11 +29,10 @@ let homeState = {
         total: 0,
         count: 0
     },
-    // FINE MODIFICA
 
-    // Scheda attiva per la card Calcolatore/Contatore
+    // Scheda attiva per la card Calcolatore/Contatore/Ordine
     activeHomeCardTab: 'iva',
-    
+
     // Calendario
     calendar: {
         currentDate: new Date(),
@@ -40,10 +40,10 @@ let homeState = {
         days: [],
         selectedDate: null // Data selezionata in formato YYYY-MM-DD
     },
-    
+
     // Ordine carburante (persistente)
     ordineCarburante: null,
-    
+
     // Calcolatrice
     calculator: {
         display: '0',
@@ -61,7 +61,7 @@ let homeState = {
 function initHome() {
     console.log('🏠 Inizializzazione modulo Home...');
     const app = this;
-    
+
     homeState.ordineCarburante = app.loadFromStorage('ordineCarburante', {
         benzina: 0,
         gasolio: 0,
@@ -70,25 +70,25 @@ function initHome() {
     });
 
     homeState.todos = app.loadFromStorage('homeTodos', []);
-    
+
     const today = new Date();
-    // CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario con toISOString()
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     homeState.calendar.selectedDate = `${year}-${month}-${day}`;
-    
+
     initCalendar.call(app);
-    
+
     console.log('✅ Modulo Home inizializzato');
 }
 // Fine funzione initHome
 
 // === RENDER SEZIONE HOME ===
+
 // Inizio funzione renderHomeSection
 function renderHomeSection(container) {
     console.log('🎨 Rendering sezione Home...');
-    
+
     const app = this;
     const stats = getHomeDashboardStats.call(app);
 
@@ -99,7 +99,7 @@ function renderHomeSection(container) {
         hvolution: '#06b6d4',
         adblue: '#6b7280'
     };
-    
+
     container.innerHTML = `
         <div class="space-y-6">
             <div class="grid grid-cols-3 gap-6">
@@ -178,15 +178,19 @@ function renderHomeSection(container) {
                     <div class="card-body"><div id="todo-list" class="todo-list"></div></div>
                 </div>
             </div>
+
             <div class="grid grid-cols-3 gap-6">
-                <div class="card">
+
+                <div class="card col-span-2">
                     <div class="card-header">
                         <div class="btn-group w-full">
                             <button class="btn ${homeState.activeHomeCardTab === 'iva' ? 'btn-primary active' : 'btn-secondary'}" data-tab="iva">Calcola IVA</button>
                             <button class="btn ${homeState.activeHomeCardTab === 'banconote' ? 'btn-primary active' : 'btn-secondary'}" data-tab="banconote">Conta Banconote</button>
+                            <button class="btn ${homeState.activeHomeCardTab === 'carburante' ? 'btn-primary active' : 'btn-secondary'}" data-tab="carburante">Ordine Carburante</button>
                         </div>
                     </div>
                     <div class="card-body">
+
                         <div id="iva-calculator-content" class="${homeState.activeHomeCardTab === 'iva' ? '' : 'hidden'}">
                             <div class="space-y-4">
                                 <div class="form-group">
@@ -215,30 +219,34 @@ function renderHomeSection(container) {
                                 </div>
                             </div>
                         </div>
-                        <div id="banconote-counter-content" class="${homeState.activeHomeCardTab === 'banconote' ? '' : 'hidden'}">
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="form-group mb-0"><label class="form-label">€ 500</label><input type="number" data-taglio="500" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[500] || ''}" placeholder="0" autocomplete="off"></div>
-                                    <div class="form-group mb-0"><label class="form-label">€ 200</label><input type="number" data-taglio="200" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[200] || ''}" placeholder="0" autocomplete="off"></div>
-                                    <div class="form-group mb-0"><label class="form-label">€ 100</label><input type="number" data-taglio="100" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[100] || ''}" placeholder="0" autocomplete="off"></div>
-                                    <div class="form-group mb-0"><label class="form-label">€ 50</label><input type="number" data-taglio="50" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[50] || ''}" placeholder="0" autocomplete="off"></div>
-                                    <div class="form-group mb-0"><label class="form-label">€ 20</label><input type="number" data-taglio="20" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[20] || ''}" placeholder="0" autocomplete="off"></div>
-                                    <div class="form-group mb-0"><label class="form-label">€ 10</label><input type="number" data-taglio="10" class="form-control banconote-input" style="max-width: 100%;" value="${homeState.banconoteCounter[10] || ''}" placeholder="0" autocomplete="off"></div>
-                                </div>
-                                <div class="product-box p-4 space-y-2">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-medium text-lg text-primary">Totale Importo</span>
-                                        <span id="banconote-total" class="text-xl font-bold text-success">${app.formatCurrency(homeState.banconoteCounter.total)}</span>
+
+                        <div id="banconote-counter-content" class="space-y-4 ${homeState.activeHomeCardTab === 'banconote' ? '' : 'hidden'}">
+                            <div class="space-y-3" id="banconote-inputs-container">
+                                {/* I campi verranno generati da renderBanconoteInputs() */}
+                            </div>
+
+                            <div class="product-box mt-4 p-3 rounded-lg" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                                <div class="flex items-center justify-between">
+                                    <div style="width: 100px; text-align: center;">
+                                        <span class="text-lg font-bold text-primary">TOTALE</span>
                                     </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-medium text-secondary">Numero Banconote</span>
+                                    <div style="width: 200px; text-align: center;">
                                         <span id="banconote-count" class="text-lg font-bold text-primary">${app.formatInteger(homeState.banconoteCounter.count || 0)}</span>
                                     </div>
+                                    <div style="width: 150px; text-align: center;"> 
+                                        <span id="banconote-total" class="text-xl font-bold text-success">${app.formatCurrency(homeState.banconoteCounter.total)}</span>
+                                    </div>
                                 </div>
-                                </div>
+                            </div>
                         </div>
+
+                        <div id="carburante-container" class="space-y-4 ${homeState.activeHomeCardTab === 'carburante' ? '' : 'hidden'}">
+                            {/* Questo contenuto viene riempito dalla funzione renderOrdineCarburante() */}
+                        </div>
+
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-body calculator">
                         <div id="calculator-display-container" class="calculator-display">
@@ -268,20 +276,20 @@ function renderHomeSection(container) {
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header"><h3 class="card-title">Calcolo Ordine Carburante</h3></div>
-                    <div class="card-body space-y-4" id="carburante-container"></div>
-                </div>
+
             </div>
+
         </div>
     `;
-    
+
     setupHomeEventListeners.call(app);
-    
+
     renderCalendar.call(app);
     renderTodos.call(app);
     renderOrdineCarburante.call(app);
-    
+
+    renderBanconoteInputs.call(app);
+
     app.refreshIcons();
 }
 // Fine funzione renderHomeSection
@@ -290,30 +298,23 @@ function renderHomeSection(container) {
 // Inizio funzione setupHomeEventListeners
 function setupHomeEventListeners() {
     const app = this;
-    
+
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => setActiveHomeCardTab(btn.dataset.tab));
     });
-    
+
     document.getElementById('iva-importo')?.addEventListener('input', (e) => {
         homeState.ivaCalculator.importoLordo = parseFloat(e.target.value) || null;
         calcolaIva.call(app);
     });
 
-    document.querySelectorAll('.banconote-input').forEach(input => {
-        input.addEventListener('input', (e) => {
-            const taglio = e.target.dataset.taglio;
-            homeState.banconoteCounter[taglio] = parseInt(e.target.value, 10) || null;
-            calcolaTotaleBanconote.call(app);
-        });
-    });
+    // Listener per banconote Rimosso, viene gestito dinamicamente
 
     document.getElementById('calendar-prev')?.addEventListener('click', () => changeMonth.call(app, -1));
     document.getElementById('calendar-next')?.addEventListener('click', () => changeMonth.call(app, 1));
 	document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
 		homeState.calendar.currentDate = new Date();
 		const today = new Date();
-		// CORREZIONE: Costruisce la data YYYY-MM-DD manualmente per evitare problemi di fuso orario
 		const year = today.getFullYear();
 		const month = String(today.getMonth() + 1).padStart(2, '0');
 		const day = String(today.getDate()).padStart(2, '0');
@@ -369,6 +370,8 @@ function setActiveHomeCardTab(tab) {
 
     document.getElementById('iva-calculator-content').classList.toggle('hidden', tab !== 'iva');
     document.getElementById('banconote-counter-content').classList.toggle('hidden', tab !== 'banconote');
+    // Aggiunta questa riga per il nuovo tab
+    document.getElementById('carburante-container').classList.toggle('hidden', tab !== 'carburante');
 }
 // Fine funzione setActiveHomeCardTab
 
@@ -392,7 +395,7 @@ function updateIvaDisplay() {
     const lordoEl = document.getElementById('iva-lordo');
     const imponibileEl = document.getElementById('iva-imponibile');
     const ivaEl = document.getElementById('iva-iva');
-    
+
     if (lordoEl) {
         lordoEl.textContent = this.formatCurrency(homeState.ivaCalculator.importoLordo || 0);
     }
@@ -405,31 +408,34 @@ function updateIvaDisplay() {
 }
 // Fine funzione updateIvaDisplay
 
-// INIZIO MODIFICA: Aggiornata la funzione per calcolare e mostrare anche il numero di banconote
+// INIZIO MODIFICA: Aggiornata la funzione per calcolare e mostrare anche i subtotali
 // Inizio funzione calcolaTotaleBanconote
 function calcolaTotaleBanconote() {
+    const app = this;
     const counter = homeState.banconoteCounter;
-    
-    // Calcola l'importo totale
-    const totale = (counter[500] || 0) * 500 +
-                   (counter[200] || 0) * 200 +
-                   (counter[100] || 0) * 100 +
-                   (counter[50] || 0) * 50 +
-                   (counter[20] || 0) * 20 +
-                   (counter[10] || 0) * 10;
-    homeState.banconoteCounter.total = totale;
+    const tagli = [500, 200, 100, 50, 20, 10];
 
-    // Calcola il numero totale di banconote
-    const numeroBanconote = (parseInt(counter[500], 10) || 0) +
-                            (parseInt(counter[200], 10) || 0) +
-                            (parseInt(counter[100], 10) || 0) +
-                            (parseInt(counter[50], 10) || 0) +
-                            (parseInt(counter[20], 10) || 0) +
-                            (parseInt(counter[10], 10) || 0);
+    let totale = 0;
+    let numeroBanconote = 0;
+
+    tagli.forEach(taglio => {
+        const quantita = parseInt(counter[taglio], 10) || 0;
+        const subtotale = quantita * taglio;
+
+        totale += subtotale;
+        numeroBanconote += quantita;
+
+        // Aggiorna il subtotale nell'interfaccia
+        const subtotaleEl = document.getElementById(`banconote-subtotal-${taglio}`);
+        if (subtotaleEl) {
+            subtotaleEl.textContent = app.formatCurrency(subtotale);
+        }
+    });
+
+    homeState.banconoteCounter.total = totale;
     homeState.banconoteCounter.count = numeroBanconote;
 
-
-    // Aggiorna l'interfaccia
+    // Aggiorna l'interfaccia dei totali
     const totaleEl = document.getElementById('banconote-total');
     if (totaleEl) {
         totaleEl.textContent = this.formatCurrency(totale);
@@ -443,7 +449,111 @@ function calcolaTotaleBanconote() {
 // Fine funzione calcolaTotaleBanconote
 // FINE MODIFICA
 
+// NUOVE FUNZIONI AGGIUNTE PER GLI SPINNER BANCONOTE
+
+// Inizio funzione renderBanconoteInputs
+function renderBanconoteInputs() {
+    const app = this; // Usa 'this'
+    const container = document.getElementById('banconote-inputs-container');
+    if (!container) return;
+
+    const tagli = [500, 200, 100, 50, 20, 10];
+
+    container.innerHTML = tagli.map(taglio => {
+        const quantita = homeState.banconoteCounter[taglio] || 0;
+        const subtotale = quantita * taglio;
+
+        return `
+            <div class="flex items-center justify-between p-3 rounded-lg" style="border: 1px solid var(--border-primary); background-color: var(--bg-secondary);">
+                
+                <div style="width: 100px; text-align: center;">
+                    <span class="text-lg font-medium text-primary">€ ${taglio}</span>
+                </div>
+                
+                <div style="width: 200px;">
+                    <div class="number-input-group">
+                        <button type="button" class="number-input-btn" data-action="decrement-banconota" data-taglio="${taglio}">
+                            <i data-lucide="minus"></i>
+                        </button>
+                        <input type="text" id="banconota-quantita-${taglio}" value="${app.formatInteger(quantita)}" readonly class="number-input-field" />
+                        <button type="button" class="number-input-btn" data-action="increment-banconota" data-taglio="${taglio}">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div style="width: 150px; text-align: center;">
+                    <span id="banconote-subtotal-${taglio}" class="text-lg font-bold text-success">
+                        ${app.formatCurrency(subtotale)}
+                    </span>
+                </div>
+                
+            </div>
+        `;
+    }).join('');
+
+    // Listener (invariati)
+    container.querySelectorAll('[data-action="increment-banconota"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const taglio = btn.dataset.taglio;
+            incrementBanconota.call(app, taglio);
+        });
+    });
+
+    container.querySelectorAll('[data-action="decrement-banconota"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const taglio = btn.dataset.taglio;
+            decrementBanconota.call(app, taglio);
+        });
+    });
+
+    app.refreshIcons();
+}
+// Fine funzione renderBanconoteInputs
+
+// Inizio funzione incrementBanconota
+function incrementBanconota(taglio) {
+    // const app = this; // Non necessario se si usa 'this' direttamente
+    const taglioNum = parseInt(taglio, 10);
+    let quantita = homeState.banconoteCounter[taglioNum] || 0;
+    quantita++;
+    homeState.banconoteCounter[taglioNum] = quantita;
+
+    updateBanconotaInput.call(this, taglioNum, quantita); // Usa .call(this)
+}
+// Fine funzione incrementBanconota
+
+// Inizio funzione decrementBanconota
+function decrementBanconota(taglio) {
+    // const app = this; // Non necessario
+    const taglioNum = parseInt(taglio, 10);
+    let quantita = homeState.banconoteCounter[taglioNum] || 0;
+    if (quantita > 0) {
+        quantita--;
+    }
+
+    homeState.banconoteCounter[taglioNum] = quantita > 0 ? quantita : null;
+
+    updateBanconotaInput.call(this, taglioNum, quantita); // Usa .call(this)
+}
+// Fine funzione decrementBanconota
+
+// Inizio funzione updateBanconotaInput
+function updateBanconotaInput(taglio, quantita) {
+    const app = this; // Qui 'this' è corretto perché la funzione è chiamata con .call(this)
+    const quantitaInput = document.getElementById(`banconota-quantita-${taglio}`);
+    if (quantitaInput) {
+        quantitaInput.value = app.formatInteger(quantita);
+    }
+
+    calcolaTotaleBanconote.call(app); // Passa il contesto anche qui
+}
+// Fine funzione updateBanconotaInput
+
+// FINE NUOVE FUNZIONI
+
 // === FUNZIONI CALENDARIO ===
+// ... (codice calendario invariato) ...
 // Inizio funzione initCalendar
 function initCalendar() {
     renderCalendar.call(this);
@@ -455,8 +565,8 @@ function renderCalendar() {
     const date = homeState.calendar.currentDate;
     const year = date.getFullYear();
     const month = date.getMonth(); // 0-indexed (Gennaio = 0)
-    
-    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
                        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
     homeState.calendar.monthYear = `${monthNames[month]} ${year}`;
 
@@ -468,34 +578,33 @@ function renderCalendar() {
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const firstDayIndex = (firstDayOfMonth + 6) % 7;
     const lastDateOfMonth = new Date(year, month + 1, 0).getDate();
-    
+
     let daysArray = [];
     for (let i = 0; i < firstDayIndex; i++) {
         daysArray.push({ value: '', isToday: false, isHoliday: false, isSunday: false, todos: [], date: null });
     }
-    
+
     const oggi = new Date();
-    // CORREZIONE: Costruisce la data YYYY-MM-DD manually per evitare problemi di fuso orario con toISOString()
     const oggiYear = oggi.getFullYear();
     const oggiMonth = String(oggi.getMonth() + 1).padStart(2, '0');
     const oggiDay = String(oggi.getDate()).padStart(2, '0');
     const oggiString = `${oggiYear}-${oggiMonth}-${oggiDay}`;
-    
+
     for (let i = 1; i <= lastDateOfMonth; i++) {
         const monthString = String(month + 1).padStart(2, '0');
         const dayString = String(i).padStart(2, '0');
         const dateString = `${year}-${monthString}-${dayString}`;
-        
+
         const dataCorrente = new Date(year, month, i); // Usata solo per i check festivi/domenica
         const isToday = dateString === oggiString;
         const isSunday = isDomenica(dataCorrente);
         const isHoliday = isFestivaItaliana.call(this, dataCorrente);
-        
+
         const todosForDay = homeState.todos.filter(todo => todo.dueDate === dateString);
-        
+
         daysArray.push({ value: i, isToday, isHoliday, isSunday, todos: todosForDay, date: dateString });
     }
-    
+
     homeState.calendar.days = daysArray;
     renderCalendarDays();
 }
@@ -505,13 +614,13 @@ function renderCalendar() {
 function renderCalendarDays() {
     const container = document.getElementById('calendar-container');
     if (!container) return;
-    
+
     container.querySelectorAll('.calendar-day').forEach(el => el.remove());
-    
+
     homeState.calendar.days.forEach(day => {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        
+
         const dayNumber = document.createElement('span');
         dayNumber.textContent = day.value;
         dayEl.appendChild(dayNumber);
@@ -523,12 +632,12 @@ function renderCalendarDays() {
 
         if (day.date === homeState.calendar.selectedDate) dayEl.classList.add('selected');
         if (!day.value) dayEl.classList.add('empty');
-        
+
         if (day.todos && day.todos.length > 0) {
             dayEl.classList.add('has-todo');
             const dotsContainer = document.createElement('div');
             dotsContainer.className = 'todo-dots-container';
-            
+
             const importanceOrder = { 'urgent': 1, 'priority': 2, 'standard': 3 };
             const sortedTodos = [...day.todos].sort((a, b) => {
                 return (importanceOrder[a.color] || 3) - (importanceOrder[b.color] || 3);
@@ -543,7 +652,7 @@ function renderCalendarDays() {
             sortedTodos.slice(0, 3).forEach(todo => {
                 const dot = document.createElement('span');
                 const dotClass = colorToDotClass[todo.color] || 'dot-3';
-                
+
                 dot.className = `todo-dot ${dotClass}`;
 
                 if (todo.completed) {
@@ -714,7 +823,7 @@ function getHomeDashboardStats() {
     const shiftCount = todayTurni.length;
     const shiftNames = todayTurni.map(t => t.turno).join(', ');
     const prices = getLatestPrices.call(this);
-    
+
     let totalIperself = 0;
     let totalServito = 0;
     let totalRevenue = 0;
@@ -724,7 +833,7 @@ function getHomeDashboardStats() {
     const margineAdblue = 0.40;
 
     const productTotals = { benzina: { servito: 0, iperself: 0 }, gasolio: { servito: 0, iperself: 0 }, dieselplus: { servito: 0, iperself: 0 }, hvolution: { servito: 0, iperself: 0 }, adblue: { servito: 0, iperself: 0 }};
-    
+
     todayTurni.forEach(turno => {
         const isRiepilogo = turno.turno === 'Riepilogo Mensile';
 
@@ -743,15 +852,13 @@ function getHomeDashboardStats() {
             }
 
             const iperselfL = fdtL + prepayL;
-            
+
             productTotals[product].iperself += iperselfL;
             productTotals[product].servito += servitoL;
 
-            // INIZIO MODIFICA: Rimossa la condizione errata per un calcolo corretto
             totalIperself += iperselfL;
-            // FINE MODIFICA
             totalServito += servitoL;
-            
+
             const priceKey = product === 'dieselplus' ? 'dieselPlus' : product;
             const basePrice = prices[priceKey] || 0;
             if (basePrice > 0) {
@@ -784,13 +891,13 @@ function getHomeDashboardStats() {
         productServitoPercentages[product] = pTotal > 0 ? Math.round((productTotals[product].servito / pTotal) * 100) : 0;
     }
 
-    return { 
-        totalLitersToday, 
-        overallServitoPercentage, 
-        productServitoPercentages, 
-        totalRevenueToday: totalRevenue, 
-        shiftCount, 
-        shiftNames, 
+    return {
+        totalLitersToday,
+        overallServitoPercentage,
+        productServitoPercentages,
+        totalRevenueToday: totalRevenue,
+        shiftCount,
+        shiftNames,
         productLiters,
         totalMarginToday
     };
@@ -806,7 +913,7 @@ function handleCalculatorInput(value) {
     const calc = homeState.calculator;
 
     if (value === 'C') { resetCalculator.call(app); return; }
-    
+
     if (value === '±') {
         if (calc.display !== '0') {
             calc.display = String(parseFloat(calc.display) * -1);
@@ -859,18 +966,18 @@ function handleOperator(nextOperator) {
 function performCalculation(isChained = false) {
     const calc = homeState.calculator;
     if (calc.firstOperand == null || calc.operator == null) return;
-    
+
     const secondOperand = parseFloat(calc.display);
     const calculations = {
         '+': (a, b) => a + b, '-': (a, b) => a - b,
         '*': (a, b) => a * b, '/': (a, b) => a / b
     };
     const result = calculations[calc.operator](calc.firstOperand, secondOperand);
-    
+
     if (!isChained) {
         calc.equation = `${calc.firstOperand} ${calc.operator} ${secondOperand} =`;
     }
-    
+
     calc.display = String(parseFloat(result.toPrecision(12)));
     calc.firstOperand = result;
     if (!isChained) {
@@ -933,7 +1040,7 @@ function showAddTodoModal(dateString) {
                 <label class="form-label">Descrizione attività</label>
                 <input type="text" id="todo-text" class="form-control" style="max-width: 100%;" autocomplete="off">
             </div>
-            
+
             <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
                     <label class="form-label">Scadenza</label>
@@ -964,7 +1071,7 @@ function showAddTodoModal(dateString) {
                     </div>
                 </div>
             </div>
-            
+
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-todo-btn" class="btn btn-primary">Salva Attività</button></div>
         </div>`;
     modalContentEl.classList.add('modal-todo');
@@ -979,7 +1086,7 @@ function showEditTodoModal(todo) {
     const app = getApp();
     homeState.editingTodo = todo;
     const modalContentEl = document.getElementById('form-modal-content');
-    
+
     const currentColor = todo.color || 'standard';
 
     modalContentEl.innerHTML = `
@@ -1022,7 +1129,7 @@ function showEditTodoModal(todo) {
 
             <div class="flex justify-end space-x-4 mt-6"><button id="cancel-edit-todo-btn-bottom" class="btn btn-secondary">Annulla</button><button id="update-todo-btn" class="btn btn-primary">Aggiorna Attività</button></div>
         </div>`;
-        
+
     modalContentEl.classList.add('modal-todo');
     setupEditTodoModalEventListeners.call(app);
     app.refreshIcons();
@@ -1058,20 +1165,20 @@ function saveTodo() {
     const dueDate = document.getElementById('todo-due-date-iso').value;
     const color = document.querySelector('input[name="todo-color"]:checked').value;
 
-    if (!text || !dueDate) { 
-        app.showNotification('Descrizione e data sono obbligatorie.'); 
-        return; 
+    if (!text || !dueDate) {
+        app.showNotification('Descrizione e data sono obbligatorie.');
+        return;
     }
-    if (homeState.todos.length >= 5) { 
-        app.showNotification('Puoi aggiungere un massimo di 5 attività.'); 
-        app.hideFormModal(); 
-        return; 
+    if (homeState.todos.length >= 5) {
+        app.showNotification('Puoi aggiungere un massimo di 5 attività.');
+        app.hideFormModal();
+        return;
     }
     const newTodo = { id: app.generateUniqueId('todo'), text, dueDate, completed: false, color: color };
     homeState.todos.push(newTodo);
     app.saveToStorage('homeTodos', homeState.todos);
     app.hideFormModal();
-    
+
     renderCalendar.call(app);
     renderTodos.call(app);
 }
@@ -1103,7 +1210,7 @@ function updateTodo() {
     app.saveToStorage('homeTodos', homeState.todos);
     app.hideFormModal();
     homeState.editingTodo = null;
-    
+
     renderCalendar.call(app);
     renderTodos.call(app);
 }
@@ -1128,7 +1235,7 @@ function deleteTodo(todoId) {
 // Inizio funzione toggleTodo
 function toggleTodo(todoId) {
     const app = this;
-    homeState.todos = homeState.todos.map(todo => 
+    homeState.todos = homeState.todos.map(todo =>
         todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
     );
     app.saveToStorage('homeTodos', homeState.todos);
