@@ -6,7 +6,7 @@
 
 // ✅ INIZIO COSTANTI GOOGLE DRIVE
 const CLIENT_ID = "35786706503-ca33v1uc30ppffbci9aiu5db3vunperh.apps.googleusercontent.com";
-const API_KEY = "AIzaSyDSZmoTJFt2NqbiwbJNlAGvg9braxq_pvc"; // La tua Chiave API
+const API_KEY = "AIzaSyDSZmoTJFt2NqbiwbJNlAGvg9braxq_pvc";
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = "https://www.googleapis.com/auth/drive.file"; // Permesso per creare/leggere file creati dall'app
 // ✅ FINE COSTANTI GOOGLE DRIVE
