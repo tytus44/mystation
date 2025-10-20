@@ -179,9 +179,9 @@ function renderHomeSection(container) {
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-6">
+<div class="grid grid-cols-2 gap-6">
 
-                <div class="card col-span-2">
+                <div class="card">
                     <div class="card-header">
                         <div class="btn-group w-full">
                             <button class="btn ${homeState.activeHomeCardTab === 'iva' ? 'btn-primary active' : 'btn-secondary'}" data-tab="iva">Calcola IVA</button>
