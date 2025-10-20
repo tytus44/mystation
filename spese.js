@@ -141,7 +141,7 @@ function getSpeseStatsHTML(app, stats) {
         .sort(([, a], [, b]) => b.total - a.total)
         .map(([tagId, data]) => `
             <div class="flex justify-between items-center text-sm py-1">
-                <div class="flex items-center gap-2">
+<div class="flex items-center" style="gap: 0.75rem;">
                     <span style="width: 10px; height: 10px; background-color: ${data.color}; border-radius: 50%;"></span>
                     <span class="font-medium">${data.name}</span>
                 </div>
@@ -557,7 +557,7 @@ function getTagManagerHTML() {
 
     const tagsList = tags.map(tag => `
         <div class="todo-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem;">
-            <div class="flex items-center gap-2">
+<div class="flex items-center" style="gap: 0.75rem;">
                 <span style="width: 14px; height: 14px; background-color: ${tag.color}; border-radius: 50%;"></span>
                 <span class_="font-medium">${tag.name}</span>
             </div>
