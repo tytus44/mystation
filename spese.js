@@ -70,7 +70,7 @@ function renderSpeseSection(container) {
     container.innerHTML = `
         <div class="space-y-6">
             
-            <div id="spese-stats-container" class="stats-grid"> 
+            <div id="spese-stats-container" class="stats-grid" style="align-items: start;"> 
                 ${getSpeseStatsHTML(app, stats)} 
             </div>
 
