@@ -1,6 +1,6 @@
 // =============================================
 // FILE: spese.js (Vanilla JavaScript Version)
-// DESCRIZIONE: Modulo per la gestione della
+// DESCrizione: Modulo per la gestione della
 // sezione Spese (registrazione, etichette, report).
 // =============================================
 
@@ -25,7 +25,8 @@ let speseState = {
         name: '',
         color: '#6b7280'
     },
-    editingTagId: null
+    editingTagId: null,
+    speseCollapsed: false // Stato per collassare la tabella spese
 };
 
 // === COSTANTI ===
@@ -52,6 +53,8 @@ function initSpese() {
         tagId: 'all'
     });
     
+    speseState.speseCollapsed = app.loadFromStorage('speseCollapsed', false); // Carica stato collasso
+    
     resetExpenseForm.call(app);
     
     console.log('✅ Modulo Spese inizializzato');
@@ -62,13 +65,13 @@ function renderSpeseSection(container) {
     console.log('🎨 Rendering sezione Spese...');
     const app = this;
     
-    const stats = calculateStats.call(app);
+    const stats = calculateStats.call(app); // Calcola le statistiche aggiornate
     
     container.innerHTML = `
         <div class="space-y-6">
             
-            <div id="spese-stats-container" class="stats-grid">
-                ${getSpeseStatsHTML(app, stats)}
+            <div id="spese-stats-container" class="stats-grid"> 
+                ${getSpeseStatsHTML(app, stats)} 
             </div>
 
             <div class="filters-bar">
@@ -100,34 +103,38 @@ function renderSpeseSection(container) {
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
+            <div class="card collapsible-section ${speseState.speseCollapsed ? 'collapsed' : ''}">
+                <div class="card-header collapsible-header" data-section-name="spese">
                     <h2 class="card-title">Elenco Spese</h2>
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button> 
                 </div>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <button data-sort="date">
-                                        Data <i data-lucide="${speseState.sort.column === 'date' ? (speseState.sort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
-                                    </button>
-                                </th>
-                                <th>Descrizione</th>
-                                <th>Etichetta</th>
-                                <th>
-                                    <button data-sort="amount">
-                                        Importo <i data-lucide="${speseState.sort.column === 'amount' ? (speseState.sort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
-                                    </button>
-                                </th>
-                                <th>Pagamento</th>
-                                <th>Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="spese-tbody"></tbody>
-                    </table>
+                <div class="card-body collapsible-content" style="padding: 0;">
+                    <div class="table-container" style="border: none; border-radius: 0;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <button data-sort="date">
+                                            Data <i data-lucide="${speseState.sort.column === 'date' ? (speseState.sort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                        </button>
+                                    </th>
+                                    <th>Descrizione</th>
+                                    <th>Etichetta</th>
+                                    <th>
+                                        <button data-sort="amount">
+                                            Importo <i data-lucide="${speseState.sort.column === 'amount' ? (speseState.sort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i>
+                                        </button>
+                                    </th>
+                                    <th>Pagamento</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spese-tbody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+            
         </div>
     `;
     
@@ -136,12 +143,14 @@ function renderSpeseSection(container) {
     app.refreshIcons();
 }
 
+
 function getSpeseStatsHTML(app, stats) {
+    // Genera HTML per riepilogo per etichetta
     const totalByTagHTML = Object.entries(stats.totalByTag)
         .sort(([, a], [, b]) => b.total - a.total)
         .map(([tagId, data]) => `
             <div class="flex justify-between items-center text-sm py-1">
-<div class="flex items-center" style="gap: 0.75rem;">
+                <div class="flex items-center" style="gap: 0.75rem;"> 
                     <span style="width: 10px; height: 10px; background-color: ${data.color}; border-radius: 50%;"></span>
                     <span class="font-medium">${data.name}</span>
                 </div>
@@ -149,6 +158,17 @@ function getSpeseStatsHTML(app, stats) {
             </div>
         `).join('');
 
+    // Genera HTML per riepilogo per modalità
+    const totalByPaymentHTML = Object.entries(stats.totalByPaymentMethod)
+        .sort(([, a], [, b]) => b.total - a.total) // Ordina per totale decrescente
+        .map(([key, data]) => `
+            <div class="flex justify-between items-center text-sm py-1">
+                <span class="font-medium">${data.name}</span>
+                <span class="font-bold">${app.formatCurrency(data.total)}</span>
+            </div>
+        `).join('');
+
+    // Ritorna l'HTML per tutte e tre le card della griglia
     return `
         <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
             <div class="stat-content">
@@ -159,10 +179,18 @@ function getSpeseStatsHTML(app, stats) {
                 <i data-lucide="trending-down"></i>
             </div>
         </div>
-        <div class="card col-span-2">
-            <div class="card-header"><h3 class="card-title">Riepilogo per Etichetta (Periodo)</h3></div>
-            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 200px; overflow-y: auto;">
-                ${totalByTagHTML || '<p class="text-secondary text-sm">Nessuna spesa nel periodo selezionato.</p>'}
+
+        <div class="card"> 
+            <div class="card-header"><h3 class="card-title">Riepilogo per Etichetta</h3></div>
+            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 150px; overflow-y: auto;"> 
+                ${totalByTagHTML || '<p class="text-secondary text-sm">Nessuna spesa nel periodo.</p>'}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Riepilogo per Modalità</h3></div>
+            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 150px; overflow-y: auto;"> 
+                ${totalByPaymentHTML || '<p class="text-secondary text-sm">Nessuna spesa nel periodo.</p>'}
             </div>
         </div>
     `;
@@ -256,27 +284,37 @@ function getFilteredAndSortedExpenses() {
 function calculateStats() {
     const app = this;
     const expenses = getFilteredAndSortedExpenses.call(app);
-    const tagsMap = getTagsMap.call(app);
+    const tagsMap = getTagsMap.call(app); // Usa .call(this) o assicurati sia definita correttamente
 
     const stats = {
         totalPeriod: 0,
-        totalByTag: {}
+        totalByTag: {},
+        totalByPaymentMethod: {} // Inizializza l'oggetto
     };
 
     expenses.forEach(spesa => {
         stats.totalPeriod += spesa.amount;
         
+        // Calcolo per Etichetta
         const tagId = spesa.tagId || 'none';
         const tag = tagsMap[tagId] || { name: 'Senza Etichetta', color: '#6b7280' };
-        
         if (!stats.totalByTag[tagId]) {
             stats.totalByTag[tagId] = { name: tag.name, color: tag.color, total: 0 };
         }
         stats.totalByTag[tagId].total += spesa.amount;
+
+        // Calcolo per Metodo di Pagamento
+        const paymentMethodKey = spesa.paymentMethod;
+        const paymentMethodName = PAYMENT_METHODS[paymentMethodKey] || paymentMethodKey; 
+        if (!stats.totalByPaymentMethod[paymentMethodKey]) {
+            stats.totalByPaymentMethod[paymentMethodKey] = { name: paymentMethodName, total: 0 };
+        }
+        stats.totalByPaymentMethod[paymentMethodKey].total += spesa.amount;
     });
 
     return stats;
 }
+
 
 // === EVENT LISTENERS ===
 
@@ -295,6 +333,18 @@ function handleSpeseClick(event) {
     const app = getApp();
     const target = event.target;
 
+    // Gestione collasso tabella
+    const collapsibleHeader = target.closest('.collapsible-header[data-section-name="spese"]');
+    if (collapsibleHeader) {
+        const sectionEl = collapsibleHeader.closest('.collapsible-section');
+        const isCollapsed = sectionEl.classList.toggle('collapsed');
+        speseState.speseCollapsed = isCollapsed;
+        app.saveToStorage('speseCollapsed', isCollapsed);
+        app.refreshIcons(); // Aggiorna l'icona chevron
+        return; // Interrompi qui se è stato cliccato l'header
+    }
+
+    // Gestione altri bottoni
     if (target.closest('#new-spesa-btn')) {
         showSpesaModal.call(app);
     }
@@ -348,6 +398,7 @@ function sortSpese(column) {
     // Aggiorna icone header tabella
     document.querySelectorAll('#spese-tbody th button[data-sort]').forEach(btn => {
         const icon = btn.querySelector('i');
+        if(!icon) return; // Aggiunto controllo se l'icona esiste
         if (btn.dataset.sort === speseState.sort.column) {
             icon.setAttribute('data-lucide', speseState.sort.direction === 'asc' ? 'chevron-up' : 'chevron-down');
         } else {
@@ -557,7 +608,7 @@ function getTagManagerHTML() {
 
     const tagsList = tags.map(tag => `
         <div class="todo-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem;">
-<div class="flex items-center" style="gap: 0.75rem;">
+            <div class="flex items-center" style="gap: 0.75rem;"> 
                 <span style="width: 14px; height: 14px; background-color: ${tag.color}; border-radius: 50%;"></span>
                 <span class_="font-medium">${tag.name}</span>
             </div>
@@ -763,13 +814,14 @@ function getTagOptions(app, selectedTagId, includeAll = false, noneText = 'Nessu
     return options;
 }
 
-function getTagsMap() {
-    const app = this;
+function getTagsMap() { // Rimosso 'app' come argomento
+    const app = this; // Ottiene 'app' dal contesto 'this'
     return (app.state.data.speseEtichette || []).reduce((map, tag) => {
         map[tag.id] = tag;
         return map;
     }, {});
 }
+
 
 // === FUNZIONI GLOBALI PER EVENTI ===
 function editSpesaById(spesaId) {
