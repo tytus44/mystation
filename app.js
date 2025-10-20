@@ -31,6 +31,10 @@ class MyStationApp {
                 etichette: [],
                 stazioni: [],
                 accounts: [],
+                // --- INIZIO MODIFICA ---
+                spese: [],
+                speseEtichette: [],
+                // --- FINE MODIFICA ---
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
@@ -64,6 +68,15 @@ class MyStationApp {
         if (typeof this.state.data.previousYearStock === 'undefined') {
             this.state.data.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
         }
+        
+        // --- INIZIO MODIFICA ---
+        if (!this.state.data.spese) {
+            this.state.data.spese = [];
+        }
+        if (!this.state.data.speseEtichette) {
+            this.state.data.speseEtichette = [];
+        }
+        // --- FINE MODIFICA ---
         
         this.updateTheme();
         this.updateSidebarLayout();
@@ -127,6 +140,9 @@ class MyStationApp {
         if (typeof initHome === 'function') initHome.call(this);
         if (typeof initVirtualStation === 'function') initVirtualStation.call(this);
         if (typeof initAmministrazione === 'function') initAmministrazione.call(this);
+        // --- INIZIO MODIFICA ---
+        if (typeof initSpese === 'function') initSpese.call(this);
+        // --- FINE MODIFICA ---
         if (typeof initAnagrafica === 'function') initAnagrafica.call(this);
         if (typeof initRegistroDiCarico === 'function') initRegistroDiCarico.call(this);
         if (typeof initGestionePrezzi === 'function') initGestionePrezzi.call(this);
@@ -197,6 +213,9 @@ class MyStationApp {
                 case 'home': if (typeof renderHomeSection === 'function') renderHomeSection.call(this, sectionEl); break;
                 case 'virtual': if (typeof renderVirtualSection === 'function') renderVirtualSection.call(this, sectionEl); break;
                 case 'amministrazione': if (typeof renderAmministrazioneSection === 'function') renderAmministrazioneSection.call(this, sectionEl); break;
+                // --- INIZIO MODIFICA ---
+                case 'spese': if (typeof renderSpeseSection === 'function') renderSpeseSection.call(this, sectionEl); break;
+                // --- FINE MODIFICA ---
                 case 'anagrafica': if (typeof renderAnagraficaSection === 'function') renderAnagraficaSection.call(this, sectionEl); break;
                 case 'registro': if (typeof renderRegistroSection === 'function') renderRegistroSection.call(this, sectionEl); break;
                 case 'prezzi': if (typeof renderPrezziSection === 'function') renderPrezziSection.call(this, sectionEl); break;
