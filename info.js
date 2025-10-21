@@ -15,12 +15,13 @@ let infoState = {
 // === INIZIALIZZAZIONE MODULO INFO ===
 function initInfo() {
     console.log('ℹ️ Inizializzazione modulo Info...');
-    const app = this;
+    const app = this; // 'this' è l'istanza dell'app passata da app.js
 
     // Carica lo stato di collasso dal localStorage
     infoState.stazioniCollapsed = app.loadFromStorage('stazioniCollapsed', false);
     infoState.accountsCollapsed = app.loadFromStorage('accountsCollapsed', false);
 
+    // Inizializza gli array nello stato dati se non esistono
     if (!app.state.data.stazioni) {
         app.state.data.stazioni = [];
     }
@@ -31,8 +32,9 @@ function initInfo() {
     console.log('✅ Modulo Info inizializzato');
 }
 
-// === HTML DELLE CARD INFORMATIVE (MODIFICATO) ===
+// === HTML DELLE CARD INFORMATIVE ===
 function getInfoCardsHTML() {
+    // Questa funzione non dipende dall'istanza 'app', può rimanere così
     return `
     <div class="grid grid-cols-3 gap-6">
         <div class="card info-card">
@@ -89,10 +91,121 @@ function getInfoCardsHTML() {
     `;
 }
 
-// === RENDER SEZIONE INFO (CON SEZIONI COLLASSABILI) ===
+// === SETUP EVENT LISTENERS (SPOSTATO PRIMA DI RENDERINFOSECTION) ===
+function setupInfoEventListeners(app) { // Riceve 'app' come argomento
+    const container = document.getElementById('section-info');
+    if (!container) return;
+
+    // Rimuove i listener precedenti usando i riferimenti salvati
+    if (container._infoClickHandler) {
+        container.removeEventListener('click', container._infoClickHandler);
+    }
+    if (container._infoInputHandler) {
+        container.removeEventListener('input', container._infoInputHandler);
+    }
+    if (container._infoChangeHandler) {
+        container.removeEventListener('change', container._infoChangeHandler);
+    }
+
+    // Crea i listener "bound" legando 'this' all'istanza 'app'
+    const boundClickHandler = handleInfoClick.bind(app);
+    const boundInputHandler = handleInfoInput.bind(app);
+    const boundChangeHandler = handleInfoChange.bind(app);
+
+    // Salva i riferimenti per poterli rimuovere la prossima volta
+    container._infoClickHandler = boundClickHandler;
+    container._infoInputHandler = boundInputHandler;
+    container._infoChangeHandler = boundChangeHandler;
+
+    // Aggiunge i nuovi listener "bound"
+    container.addEventListener('click', boundClickHandler);
+    container.addEventListener('input', boundInputHandler);
+    container.addEventListener('change', boundChangeHandler);
+}
+
+// Handler delegato per tutti i click nella sezione Info
+function handleInfoClick(event) {
+    const app = this; // 'this' è l'istanza dell'app grazie a .bind(app)
+    if (!app) {
+        console.error("Istanza App (this) non trovata in handleInfoClick");
+        return;
+    }
+    const target = event.target;
+
+    // Gestione sezioni collassabili
+    const collapsibleHeader = target.closest('.collapsible-header');
+    if (collapsibleHeader) {
+        const sectionName = collapsibleHeader.dataset.sectionName;
+        const sectionEl = collapsibleHeader.closest('.collapsible-section');
+        if (!sectionEl) return;
+        const isCollapsed = sectionEl.classList.toggle('collapsed');
+
+        if (sectionName === 'stazioni') {
+            infoState.stazioniCollapsed = isCollapsed;
+            app.saveToStorage('stazioniCollapsed', isCollapsed);
+        } else if (sectionName === 'accounts') {
+            infoState.accountsCollapsed = isCollapsed;
+            app.saveToStorage('accountsCollapsed', isCollapsed);
+        }
+        app.refreshIcons(); // Aggiorna icona chevron
+        return;
+    }
+
+    // Gestione pulsanti Stazioni
+    if (target.closest('#import-stazioni-btn')) {
+        const fileInput = document.getElementById('import-stazioni-file');
+        if (fileInput) fileInput.click();
+    }
+    if (target.closest('#print-stazioni-btn')) printStazioni.call(app);
+    if (target.closest('#delete-stazioni-btn')) deleteStazioniList.call(app);
+
+    // Gestione pulsanti Account
+    if (target.closest('#new-account-btn')) openNewAccountModal.call(app);
+    if (target.closest('#import-accounts-btn')) {
+         const fileInput = document.getElementById('import-accounts-file');
+         if (fileInput) fileInput.click();
+    }
+    if (target.closest('#export-accounts-btn')) exportAccountsToCSV.call(app);
+    if (target.closest('#delete-accounts-btn')) deleteAccountsList.call(app);
+
+    // Gestione click su card Account (usa onclick globale, vedi openAccountModal)
+    // const accountCard = target.closest('.contatto-card[onclick]');
+    // Non serve codice specifico qui se usi l'attributo onclick
+}
+
+// Handler delegato per gli input
+function handleInfoInput(event) {
+    const app = this; // 'this' è l'istanza dell'app
+    if (!app) {
+        console.error("Istanza App (this) non trovata in handleInfoInput");
+        return;
+    }
+    if (event.target.id === 'info-search-stazioni-input') {
+        infoState.searchQueryStazioni = event.target.value;
+        renderStazioniTable.call(app);
+    }
+    if (event.target.id === 'info-search-accounts-input') {
+        infoState.searchQueryAccounts = event.target.value;
+        renderAccountsGrid.call(app);
+    }
+}
+
+// Handler delegato per i change (es. upload file)
+function handleInfoChange(event) {
+    const app = this; // 'this' è l'istanza dell'app
+    if (!app) {
+        console.error("Istanza App (this) non trovata in handleInfoChange");
+        return;
+    }
+    if (event.target.id === 'import-stazioni-file') importStazioniFromCSV.call(app, event);
+    if (event.target.id === 'import-accounts-file') importAccountsFromCSV.call(app, event);
+}
+
+
+// === RENDER SEZIONE INFO (CHIAMA SETUP EVENT LISTENERS ALLA FINE) ===
 function renderInfoSection(container) {
     console.log('🎨 Rendering sezione Info...');
-    const app = this;
+    const app = this; // 'this' è l'istanza dell'app
 
     container.innerHTML = `
         <div class="space-y-6">
@@ -101,15 +214,15 @@ function renderInfoSection(container) {
             <div class="card collapsible-section ${infoState.stazioniCollapsed ? 'collapsed' : ''}">
                  <div class="card-header collapsible-header" data-section-name="stazioni">
                     <h2 class="card-title">Impianti ENILIVE Roma</h2>
-                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
+                    <button class="collapse-toggle"><i data-lucide="${infoState.stazioniCollapsed ? 'chevron-down' : 'chevron-up'}"></i></button>
                 </div>
                 <div class="card-body collapsible-content">
                     <div class="filters-bar" style="background: none; border: none; padding: 0; margin-bottom: 1.5rem;">
                         <div class="filter-group">
                             <div class="input-group">
                                 <i data-lucide="search" class="input-group-icon"></i>
-                                <input type="search" id="info-search-stazioni-input" class="form-control" 
-                                       placeholder="Cerca per PV, ragione sociale, indirizzo..." 
+                                <input type="search" id="info-search-stazioni-input" class="form-control"
+                                       placeholder="Cerca per PV, ragione sociale, indirizzo..."
                                        value="${infoState.searchQueryStazioni}" autocomplete="off">
                             </div>
                         </div>
@@ -145,15 +258,15 @@ function renderInfoSection(container) {
             <div class="card collapsible-section ${infoState.accountsCollapsed ? 'collapsed' : ''}">
                 <div class="card-header collapsible-header" data-section-name="accounts">
                     <h2 class="card-title">Gestione Account Personali</h2>
-                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
+                     <button class="collapse-toggle"><i data-lucide="${infoState.accountsCollapsed ? 'chevron-down' : 'chevron-up'}"></i></button>
                 </div>
                 <div class="card-body collapsible-content">
                     <div class="filters-bar" style="background: none; border: none; padding: 0; margin-bottom: 1.5rem;">
                         <div class="filter-group">
                              <div class="input-group">
                                 <i data-lucide="search" class="input-group-icon"></i>
-                                <input type="search" id="info-search-accounts-input" class="form-control" 
-                                       placeholder="Cerca per nome account..." 
+                                <input type="search" id="info-search-accounts-input" class="form-control"
+                                       placeholder="Cerca per nome account..."
                                        value="${infoState.searchQueryAccounts}" autocomplete="off">
                             </div>
                         </div>
@@ -180,21 +293,24 @@ function renderInfoSection(container) {
         </div>
     `;
 
-    renderAccountsGrid.call(app);
-    renderStazioniTable.call(app);
-    setupInfoEventListeners.call(app);
+    renderAccountsGrid.call(app); // Usa call per passare 'app' come 'this'
+    renderStazioniTable.call(app); // Usa call per passare 'app' come 'this'
+    setupInfoEventListeners(app); // Passa 'app' esplicitamente QUI!
     app.refreshIcons();
 }
 
 // --- FUNZIONI PER GESTIONE ACCOUNT ---
+// (Le funzioni da openNewAccountModal in poi rimangono come nel blocco precedente)
+// Assicurati che usino 'this' o '.call(app)' dove necessario,
+// TRANNE openAccountModal che usa window.myStation.
 
 function renderAccountsGrid() {
-    const app = this;
+    const app = this; // Usa this
     const grid = document.getElementById('accounts-grid');
     if (!grid) return;
 
-    const accounts = getFilteredAccounts.call(app);
-    
+    const accounts = getFilteredAccounts.call(app); // Usa call
+
     accounts.sort((a, b) => a.name.localeCompare(b.name));
 
     if (accounts.length === 0) {
@@ -208,7 +324,7 @@ function renderAccountsGrid() {
         grid.innerHTML = accounts.map((account, index) => {
             const colors = getStatCardColorByIndex(index);
             const cardStyle = `background-color: ${colors.background}; border-color: ${colors.border};`;
-            
+            // Chiamiamo openAccountModal tramite attributo onclick, deve funzionare globalmente
             return `
                 <div class="contatto-card" onclick="openAccountModal('${account.id}')" style="${cardStyle}">
                     <div class="contatto-card-header">
@@ -227,21 +343,21 @@ function renderAccountsGrid() {
 }
 
 function getFilteredAccounts() {
-    const app = this;
+    const app = this; // Usa this
     let accounts = [...(app.state.data.accounts || [])];
     const query = infoState.searchQueryAccounts.toLowerCase().trim();
 
     if (query) {
         accounts = accounts.filter(acc =>
-            acc.name.toLowerCase().includes(query) ||
-            acc.content.toLowerCase().includes(query)
+            (acc.name && acc.name.toLowerCase().includes(query)) ||
+            (acc.content && acc.content.toLowerCase().includes(query))
         );
     }
     return accounts;
 }
 
 function openNewAccountModal() {
-    const app = getApp();
+    const app = this; // Usa this
 
     const modalHTML = `
         <div class="modal-header">
@@ -265,19 +381,29 @@ function openNewAccountModal() {
 
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = modalHTML;
+    modalContentEl.classList.remove('modal-wide');
     modalContentEl.classList.add('modal-account');
 
-    document.getElementById('save-new-account-modal-btn').addEventListener('click', saveNewAccountFromModal);
-    document.getElementById('cancel-account-modal-btn').addEventListener('click', () => app.hideFormModal());
+    const saveBtn = document.getElementById('save-new-account-modal-btn');
+    const cancelBtn = document.getElementById('cancel-account-modal-btn');
+
+    if (saveBtn) saveBtn.onclick = () => saveNewAccountFromModal.call(app);
+    if (cancelBtn) cancelBtn.onclick = () => app.hideFormModal();
 
     app.showFormModal();
-    document.getElementById('account-name-input').focus();
+    const nameInput = document.getElementById('account-name-input');
+    if (nameInput) nameInput.focus();
 }
 
 function saveNewAccountFromModal() {
-    const app = getApp();
-    const name = document.getElementById('account-name-input').value.trim();
-    const content = document.getElementById('account-content-textarea').value.trim();
+    const app = this; // Usa this
+    const nameInput = document.getElementById('account-name-input');
+    const contentInput = document.getElementById('account-content-textarea');
+
+    if (!nameInput || !contentInput) return;
+
+    const name = nameInput.value.trim();
+    const content = contentInput.value.trim();
 
     if (!name) {
         return app.showNotification('Il nome dell\'account non può essere vuoto.', 'error');
@@ -296,8 +422,13 @@ function saveNewAccountFromModal() {
     renderAccountsGrid.call(app);
 }
 
+// Funzione globale chiamata da onclick="..."
 function openAccountModal(accountId) {
-    const app = getApp();
+    const app = window.myStation; // Usa globale qui!
+    if (!app) {
+        console.error("Istanza globale app (window.myStation) non trovata in openAccountModal");
+        return;
+    }
     const account = app.state.data.accounts.find(acc => acc.id === accountId);
     if (!account) return;
 
@@ -325,20 +456,31 @@ function openAccountModal(accountId) {
 
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = modalHTML;
+    modalContentEl.classList.remove('modal-wide');
     modalContentEl.classList.add('modal-account');
 
-    document.getElementById('save-account-modal-btn').addEventListener('click', saveAccountFromModal);
-    document.getElementById('cancel-account-modal-btn').addEventListener('click', () => app.hideFormModal());
-    document.getElementById('delete-account-btn').addEventListener('click', () => deleteAccountFromModal(account.id));
+    const saveBtn = document.getElementById('save-account-modal-btn');
+    const cancelBtn = document.getElementById('cancel-account-modal-btn');
+    const deleteBtn = document.getElementById('delete-account-btn');
+
+    if (saveBtn) saveBtn.onclick = () => saveAccountFromModal.call(app);
+    if (cancelBtn) cancelBtn.onclick = () => app.hideFormModal();
+    if (deleteBtn) deleteBtn.onclick = () => deleteAccountFromModal.call(app, accountId);
 
     app.showFormModal();
 }
 
 function saveAccountFromModal() {
-    const app = getApp();
-    const accountId = document.getElementById('account-id-input').value;
-    const newName = document.getElementById('account-name-input').value.trim();
-    const newContent = document.getElementById('account-content-textarea').value.trim();
+    const app = this; // Usa this
+    const idInput = document.getElementById('account-id-input');
+    const nameInput = document.getElementById('account-name-input');
+    const contentInput = document.getElementById('account-content-textarea');
+
+    if (!idInput || !nameInput || !contentInput) return;
+
+    const accountId = idInput.value;
+    const newName = nameInput.value.trim();
+    const newContent = contentInput.value.trim();
 
     if (!newName) {
         return app.showNotification('Il nome dell\'account non può essere vuoto.', 'error');
@@ -353,14 +495,17 @@ function saveAccountFromModal() {
         app.showNotification('Account aggiornato con successo.');
         app.hideFormModal();
         renderAccountsGrid.call(app);
+    } else {
+         app.showNotification('Errore: account non trovato.', 'error');
+         app.hideFormModal();
     }
 }
 
 function deleteAccountFromModal(accountId) {
-    const app = getApp();
-    app.hideFormModal(); 
-    
-    setTimeout(() => { 
+    const app = this; // Usa this
+    app.hideFormModal();
+
+    setTimeout(() => {
         app.showConfirm(
             `Sei sicuro di voler eliminare questo account?<br><br>L'azione è irreversibile.`,
             () => {
@@ -370,11 +515,11 @@ function deleteAccountFromModal(accountId) {
                 renderAccountsGrid.call(app);
             }
         );
-    }, 300);
+    }, 500);
 }
 
 function importAccountsFromCSV(event) {
-    const app = this;
+    const app = this; // Usa this
     const file = event.target.files[0];
     if (!file) return;
 
@@ -390,65 +535,49 @@ function importAccountsFromCSV(event) {
                 const char = text[i];
                 if (char === '"') {
                     if (inQuotes && text[i + 1] === '"') {
-                        currentRow += '"';
-                        i++;
+                        currentRow += '"'; i++;
                     } else {
                         inQuotes = !inQuotes;
                     }
-                }
-                if ((char === '\n' || char === '\r') && !inQuotes) {
-                    if (currentRow.trim()) {
-                        rows.push(currentRow);
-                    }
+                } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                    if (currentRow.trim() || rows.length > 0) rows.push(currentRow);
                     currentRow = '';
-                    if (char === '\r' && text[i + 1] === '\n') {
-                        i++;
-                    }
+                    if (char === '\r' && text[i + 1] === '\n') i++;
                 } else {
                     currentRow += char;
                 }
             }
-            if (currentRow.trim()) {
-                rows.push(currentRow);
-            }
+            if (currentRow || rows.length > 0) rows.push(currentRow);
 
-            if (rows.length > 0 && rows[0].toLowerCase().startsWith('nome;contenuto')) {
+            if (rows.length > 0 && rows[0].trim().toLowerCase().startsWith('nome;contenuto')) {
                 rows.shift();
             }
 
             const importedAccounts = [];
-            rows.forEach(row => {
+            rows.forEach((row, index) => {
                 const delimiterIndex = row.indexOf(';');
                 if (delimiterIndex !== -1) {
-                    const name = row.substring(0, delimiterIndex).trim();
+                    let name = row.substring(0, delimiterIndex).trim();
                     let content = row.substring(delimiterIndex + 1).trim();
-
-                    if (content.startsWith('"') && content.endsWith('"')) {
-                        content = content.substring(1, content.length - 1).replace(/""/g, '"');
-                    }
-                    
-                    if (name) {
-                        importedAccounts.push({
-                            id: app.generateUniqueId('account'),
-                            name: name,
-                            content: content
-                        });
-                    }
+                    if (name.startsWith('"') && name.endsWith('"')) name = name.substring(1, name.length - 1).replace(/""/g, '"');
+                    if (content.startsWith('"') && content.endsWith('"')) content = content.substring(1, content.length - 1).replace(/""/g, '"');
+                    if (name) importedAccounts.push({ id: app.generateUniqueId('account'), name: name, content: content });
+                    else console.warn(`Riga ${index + 1} saltata: nome mancante.`);
+                } else if (row.trim()) {
+                    console.warn(`Riga ${index + 1} saltata: delimitatore ';' non trovato.`);
                 }
             });
 
-            if (importedAccounts.length === 0) {
-                 return app.showNotification("Nessun account valido trovato. Il formato deve essere NOME;\"CONTENUTO\"", "error");
-            }
+            if (importedAccounts.length === 0) return app.showNotification("Nessun account valido trovato nel CSV.", "warning");
 
             app.state.data.accounts = [...app.state.data.accounts, ...importedAccounts];
             app.saveToStorage('data', app.state.data);
-            app.showNotification(`${importedAccounts.length} account importati con successo.`);
+            app.showNotification(`${importedAccounts.length} account importati.`);
             renderAccountsGrid.call(app);
 
         } catch (error) {
             console.error("Errore importazione CSV:", error);
-            app.showNotification("Errore durante la lettura del file.", "error");
+            app.showNotification("Errore lettura file CSV.", "error");
         } finally {
             event.target.value = '';
         }
@@ -456,45 +585,58 @@ function importAccountsFromCSV(event) {
     reader.readAsText(file, 'UTF-8');
 }
 
-
 function exportAccountsToCSV() {
-    const app = this;
-    const accounts = getFilteredAccounts.call(app);
+    const app = this; // Usa this
+    const accounts = getFilteredAccounts.call(app); // Usa call
 
-    if (accounts.length === 0) {
-        return app.showNotification("Nessun account da esportare.");
-    }
+    if (accounts.length === 0) return app.showNotification("Nessun account da esportare.");
 
     const headers = ['Nome', 'Contenuto'];
-    const rows = accounts.map(acc => [acc.name, acc.content]);
+    const escapeCSV = (field) => {
+        const str = (field === null || field === undefined) ? '' : String(field);
+        if (str.includes('"') || str.includes(';') || str.includes('\n') || str.includes('\r')) {
+            return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+    };
 
-    const csvContent = [headers, ...rows]
-        .map(row => row.map(field => `"${(field || '').toString().replace(/"/g, '""')}"`).join(';'))
-        .join('\n');
+    const csvRows = [
+        headers.map(escapeCSV).join(';'),
+        ...accounts.map(acc => [acc.name, acc.content].map(escapeCSV).join(';'))
+    ];
+    const csvContent = csvRows.join('\n');
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `elenco_account_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    
-    app.showNotification("Elenco account esportato con successo.");
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = `elenco_account_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    } else {
+         app.showNotification("Esportazione non supportata.", "error");
+    }
+    app.showNotification("Account esportati.");
 }
 
-
 function deleteAccountsList() {
-    const app = this;
+    const app = this; // Usa this
     if (!app.state.data.accounts || app.state.data.accounts.length === 0) {
-        return app.showNotification("La lista degli account è già vuota.");
+        return app.showNotification("Lista account già vuota.");
     }
 
     app.showConfirm(
-        `Sei sicuro di voler eliminare TUTTI gli account?<br><br>L'azione è irreversibile.`,
+        `Eliminare TUTTI gli account?<br><br>L'azione è irreversibile.`,
         () => {
             app.state.data.accounts = [];
             app.saveToStorage('data', app.state.data);
             renderAccountsGrid.call(app);
-            app.showNotification("Elenco account eliminato con successo.");
+            app.showNotification("Lista account eliminata.");
         }
     );
 }
@@ -502,11 +644,11 @@ function deleteAccountsList() {
 // --- FUNZIONI PER GESTIONE STAZIONI ---
 
 function renderStazioniTable() {
-    const app = this;
+    const app = this; // Usa this
     const tbody = document.getElementById('stazioni-tbody');
     if (!tbody) return;
 
-    const stazioni = getFilteredStazioni.call(app);
+    const stazioni = getFilteredStazioni.call(app); // Usa call
 
     stazioni.sort((a, b) => (parseInt(a.pv, 10) || 0) - (parseInt(b.pv, 10) || 0));
 
@@ -516,8 +658,8 @@ function renderStazioniTable() {
                 <td colspan="4" class="text-center py-12">
                     <div class="empty-state">
                         <i data-lucide="fuel"></i>
-                        <div class="empty-state-title">Nessuna stazione di servizio trovata</div>
-                        <div class="empty-state-description">Importa un file CSV per iniziare.</div>
+                        <div class="empty-state-title">Nessuna stazione trovata</div>
+                        <div class="empty-state-description">Importa un file CSV.</div>
                     </div>
                 </td>
             </tr>
@@ -532,29 +674,27 @@ function renderStazioniTable() {
             </tr>
         `).join('');
     }
-
     app.refreshIcons();
 }
 
 function getFilteredStazioni() {
-    const app = this;
+    const app = this; // Usa this
     let stazioni = [...(app.state.data.stazioni || [])];
     const query = infoState.searchQueryStazioni.toLowerCase().trim();
 
     if (query) {
         stazioni = stazioni.filter(s =>
-            (s.pv && s.pv.toLowerCase().includes(query)) ||
+            (s.pv && String(s.pv).toLowerCase().includes(query)) ||
             (s.ragioneSociale && s.ragioneSociale.toLowerCase().includes(query)) ||
             (s.indirizzo && s.indirizzo.toLowerCase().includes(query)) ||
-            (s.telefono && s.telefono.toLowerCase().includes(query))
+            (s.telefono && String(s.telefono).toLowerCase().includes(query))
         );
     }
-
     return stazioni;
 }
 
 function importStazioniFromCSV(event) {
-    const app = this;
+    const app = this; // Usa this
     const file = event.target.files[0];
     if (!file) return;
 
@@ -562,59 +702,65 @@ function importStazioniFromCSV(event) {
     reader.onload = (e) => {
         try {
             const text = e.target.result;
-            const lines = text.trim().split(/\r\n|\n/);
-            
-            if (lines.length < 2) {
-                return app.showNotification("Il file CSV è vuoto o non valido.", "error");
+            const lines = text.trim().split(/\r?\n/);
+
+            if (lines.length < 1) return app.showNotification("File CSV stazioni vuoto.", "warning");
+
+            // Rimuovi header flessibile
+            if (lines[0].toLowerCase().includes('pv') && lines[0].toLowerCase().includes('ragionesociale')) {
+                 lines.shift();
             }
-            
-            const dataRows = lines.slice(1).filter(line => line.trim() !== '');
-            const delimiter = dataRows[0].includes(';') ? ';' : ',';
-            
+             if (lines.length === 0) return app.showNotification("File CSV stazioni contiene solo header.", "warning");
+
+
+            const delimiter = lines[0].includes(';') ? ';' : ',';
             const importedStazioni = [];
-            
-            dataRows.forEach(row => {
-                const columns = row.split(delimiter);
 
-                if (columns.length < 2) return; 
+            lines.forEach((row, index) => {
+                if (!row.trim()) return;
 
-                const pv = (columns[0] || '').trim().replace(/"/g, '');
-                const ragioneSociale = (columns[1] || '').trim().replace(/"/g, '');
+                // Split CSV robusto (semplificato)
+                const columns = [];
+                let currentColumn = '';
+                let inQuotes = false;
+                for (let i = 0; i < row.length; i++) {
+                     const char = row[i];
+                     if (char === '"') {
+                         if (inQuotes && row[i+1] === '"') { currentColumn += '"'; i++; }
+                         else { inQuotes = !inQuotes; }
+                     } else if (char === delimiter && !inQuotes) {
+                         columns.push(currentColumn.trim()); currentColumn = '';
+                     } else {
+                         currentColumn += char;
+                     }
+                 }
+                columns.push(currentColumn.trim());
 
-                let indirizzo = '';
-                let telefono = '';
+                if (columns.length >= 2) {
+                    const pv = columns[0] || '';
+                    const ragioneSociale = columns[1] || '';
+                    const indirizzo = columns[2] || '';
+                    const telefono = columns[3] || '';
 
-                const phoneIndex = columns.findIndex(col => col.trim().startsWith('+39'));
-
-                if (phoneIndex > 1) {
-                    indirizzo = columns.slice(2, phoneIndex).join(delimiter).trim().replace(/"/g, '');
-                    telefono = columns.slice(phoneIndex).join(delimiter).trim().replace(/"/g, '');
+                    if (pv && ragioneSociale) importedStazioni.push({ pv, ragioneSociale, indirizzo, telefono });
+                    else console.warn(`Riga ${index + 1} stazioni saltata: PV o Ragione Sociale mancante.`);
                 } else {
-                    if (columns.length > 3) {
-                        telefono = (columns[columns.length - 1] || '').trim().replace(/"/g, '');
-                        indirizzo = columns.slice(2, columns.length - 1).join(delimiter).trim().replace(/"/g, '');
-                    } else if (columns.length === 3) {
-                        indirizzo = (columns[2] || '').trim().replace(/"/g, '');
-                    }
-                }
-                
-                if (pv && ragioneSociale) {
-                    importedStazioni.push({ pv, ragioneSociale, indirizzo, telefono });
+                     console.warn(`Riga ${index + 1} stazioni saltata: colonne insufficienti.`);
                 }
             });
 
             if (importedStazioni.length > 0) {
-                app.state.data.stazioni = importedStazioni;
+                app.state.data.stazioni = importedStazioni; // Sovrascrive
                 app.saveToStorage('data', app.state.data);
-                app.showNotification(`${importedStazioni.length} impianti importati con successo!`);
+                app.showNotification(`${importedStazioni.length} impianti importati.`);
                 renderStazioniTable.call(app);
             } else {
-                app.showNotification("Nessun dato valido trovato nel file CSV. Controlla il formato.", "warning");
+                app.showNotification("Nessun dato stazione valido trovato nel CSV.", "warning");
             }
 
         } catch (error) {
-            console.error("Errore durante l'importazione CSV:", error);
-            app.showNotification("Errore critico durante la lettura del file.", "error");
+            console.error("Errore importazione CSV Stazioni:", error);
+            app.showNotification("Errore lettura file CSV stazioni.", "error");
         } finally {
             event.target.value = '';
         }
@@ -623,45 +769,35 @@ function importStazioniFromCSV(event) {
 }
 
 function deleteStazioniList() {
-    const app = this;
-
+    const app = this; // Usa this
     if (!app.state.data.stazioni || app.state.data.stazioni.length === 0) {
-        app.showNotification("La lista è già vuota.");
-        return;
+        return app.showNotification("Lista stazioni già vuota.");
     }
-
     app.showConfirm(
-        `Sei sicuro di voler eliminare l'intero elenco di stazioni?<br><br>L'azione è irreversibile.`,
+        `Eliminare l'elenco stazioni?<br><br>Azione irreversibile.`,
         () => {
             app.state.data.stazioni = [];
             app.saveToStorage('data', app.state.data);
             renderStazioniTable.call(app);
-            app.showNotification("Elenco stazioni eliminato con successo.");
+            app.showNotification("Elenco stazioni eliminato.");
         }
     );
 }
 
 function printStazioni() {
-    const app = getApp();
+    const app = this; // Usa this
     const stazioni = getFilteredStazioni.call(app);
 
-    if (stazioni.length === 0) {
-        return app.showNotification("Nessun impianto da stampare.");
-    }
-    
+    if (stazioni.length === 0) return app.showNotification("Nessun impianto da stampare.");
+
     stazioni.sort((a, b) => (parseInt(a.pv, 10) || 0) - (parseInt(b.pv, 10) || 0));
 
     const dateElement = document.getElementById('print-info-date');
-    if (dateElement) {
-        dateElement.textContent = `Elenco aggiornato al ${app.formatDateForFilename()}`;
-    }
-    
+    if (dateElement) dateElement.textContent = `Elenco aggiornato al ${app.formatDateForFilename()}`;
+
     const printList = document.getElementById('print-info-list');
-    if (!printList) {
-        console.error("Elemento 'print-info-list' non trovato nel DOM.");
-        return;
-    }
-    
+    if (!printList) return console.error("Elemento 'print-info-list' non trovato.");
+
     printList.innerHTML = stazioni.map(stazione => `
         <tr>
             <td>${stazione.pv || '-'}</td>
@@ -671,108 +807,28 @@ function printStazioni() {
         </tr>
     `).join('');
 
-    document.getElementById('print-content').classList.add('hidden');
-    document.getElementById('print-clients-content').classList.add('hidden');
-    document.getElementById('virtual-print-content').classList.add('hidden');
-    document.getElementById('print-anagrafica-content').classList.add('hidden');
-    
+    document.querySelectorAll('.print-section').forEach(el => el.classList.add('hidden'));
     const printContentEl = document.getElementById('print-info-content');
-    printContentEl.classList.remove('hidden');
-
-    setTimeout(() => {
-        window.print();
-        setTimeout(() => {
-            printContentEl.classList.add('hidden');
-        }, 100);
-    }, 100);
-}
-
-
-// === SETUP EVENT LISTENERS (CORRETTO) ===
-function setupInfoEventListeners() {
-    const app = getApp();
-    const container = document.getElementById('section-info');
-    if (!container) return;
-
-    // Rimuove i listener precedenti per evitare duplicazioni
-    container.removeEventListener('click', handleInfoClick);
-    container.removeEventListener('input', handleInfoInput);
-    container.removeEventListener('change', handleInfoChange);
-
-    // Aggiunge i nuovi listener delegati
-    container.addEventListener('click', handleInfoClick);
-    container.addEventListener('input', handleInfoInput);
-    container.addEventListener('change', handleInfoChange);
-}
-
-// Handler delegato per tutti i click nella sezione Info
-function handleInfoClick(event) {
-    const app = getApp();
-    const target = event.target;
-
-    // Gestione sezioni collassabili
-    const collapsibleHeader = target.closest('.collapsible-header');
-    if (collapsibleHeader) {
-        const sectionName = collapsibleHeader.dataset.sectionName;
-        const sectionEl = collapsibleHeader.closest('.collapsible-section');
-        const isCollapsed = sectionEl.classList.toggle('collapsed');
-
-        if (sectionName === 'stazioni') {
-            infoState.stazioniCollapsed = isCollapsed;
-            app.saveToStorage('stazioniCollapsed', isCollapsed);
-        } else if (sectionName === 'accounts') {
-            infoState.accountsCollapsed = isCollapsed;
-            app.saveToStorage('accountsCollapsed', isCollapsed);
-        }
-        return;
-    }
-
-    // Gestione pulsanti Stazioni
-    if (target.closest('#import-stazioni-btn')) document.getElementById('import-stazioni-file').click();
-    if (target.closest('#print-stazioni-btn')) printStazioni.call(app);
-    if (target.closest('#delete-stazioni-btn')) deleteStazioniList.call(app);
-
-    // INIZIO MODIFICA: Aggiunto handler per il nuovo pulsante "Aggiungi"
-    if (target.closest('#new-account-btn')) openNewAccountModal.call(app);
-    // FINE MODIFICA
-    
-    if (target.closest('#import-accounts-btn')) document.getElementById('import-accounts-file').click();
-    if (target.closest('#export-accounts-btn')) exportAccountsToCSV.call(app);
-    if (target.closest('#delete-accounts-btn')) deleteAccountsList.call(app);
-}
-
-// Handler delegato per gli input
-function handleInfoInput(event) {
-    const app = getApp();
-    if (event.target.id === 'info-search-stazioni-input') {
-        infoState.searchQueryStazioni = event.target.value;
-        renderStazioniTable.call(app);
-    }
-    if (event.target.id === 'info-search-accounts-input') {
-        infoState.searchQueryAccounts = event.target.value;
-        renderAccountsGrid.call(app);
+    if (printContentEl) {
+        printContentEl.classList.remove('hidden');
+        requestAnimationFrame(() => { window.print(); });
+    } else {
+         console.error("Elemento 'print-info-content' non trovato.");
     }
 }
 
-// Handler delegato per i change (es. upload file)
-function handleInfoChange(event) {
-    const app = getApp();
-    if (event.target.id === 'import-stazioni-file') importStazioniFromCSV.call(app, event);
-    if (event.target.id === 'import-accounts-file') importAccountsFromCSV.call(app, event);
-}
-
-
+// Funzione helper per colori
 function getStatCardColorByIndex(index) {
-    if (typeof STAT_CARD_COLORS !== 'undefined') {
+    if (typeof STAT_CARD_COLORS !== 'undefined' && Array.isArray(STAT_CARD_COLORS) && STAT_CARD_COLORS.length > 0) {
         return STAT_CARD_COLORS[index % STAT_CARD_COLORS.length];
     }
-    return { background: 'rgba(107, 114, 128, 0.18)', border: 'rgba(107, 114, 128, 0.65)' };
+    return { background: 'rgba(107, 114, 128, 0.1)', border: 'rgba(107, 114, 128, 0.4)' };
 }
 
 // === EXPORT GLOBALI ===
 if (typeof window !== 'undefined') {
     window.initInfo = initInfo;
     window.renderInfoSection = renderInfoSection;
-    window.infoState = infoState;
+    // openAccountModal DEVE essere globale
     window.openAccountModal = openAccountModal;
 }

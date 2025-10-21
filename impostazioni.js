@@ -13,32 +13,36 @@ let impostazioniState = {
 // === INIZIALIZZAZIONE MODULO IMPOSTAZIONI ===
 function initImpostazioni() {
     console.log('⚙️ Inizializzazione modulo Impostazioni...');
-    // Durante l'inizializzazione usiamo 'this' perché viene chiamata con .call(this)
+    // 'this' qui si riferisce all'istanza dell'app passata con .call(this) da app.js
     impostazioniState.borderRadius = this.loadFromStorage('borderRadius', 'medium');
     updateBorderRadius();
-    
+
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
         updateFullscreenToggle();
     });
-    
+
     console.log('✅ Modulo Impostazioni inizializzato');
 }
 
 // === MODAL IMPOSTAZIONI ===
-function showImpostazioniModal(app) {
+function showImpostazioniModal(app) { // Riceve l'istanza app
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
-    
+
     modalContent.classList.add('modal-wide');
+    // Passiamo 'app' a getImpostazioniModalHTML se necessario (qui non serve)
     modalContent.innerHTML = getImpostazioniModalHTML(app);
-    
+
+    // Passiamo 'app' a setupImpostazioniEventListeners
     setupImpostazioniEventListeners(app);
     app.refreshIcons();
     app.showFormModal();
 }
 
-function getImpostazioniModalHTML(app) {
+function getImpostazioniModalHTML(app) { // Riceve app
+    // Nota: 'app.state.isDarkMode', 'app.state.isSidebarCollapsed' funzionano
+    // se 'app' è l'istanza corretta.
     return `
         <div class="card-body">
 
@@ -145,13 +149,15 @@ function getImpostazioniModalHTML(app) {
 }
 
 // === EVENT HANDLERS ===
+// Nota: Questi handler ora assumono che 'this' sia l'istanza dell'app,
+// perché verranno legati con .bind(app) o chiamati con .call(app)
 function handleImpostazioniClick(event) {
-    const app = getApp();
+    const app = this; // 'this' è l'istanza dell'app
     if (!app) {
-        console.error('App non disponibile');
+        console.error('App instance (this) non disponibile in handleImpostazioniClick');
         return;
     }
-    
+
     const target = event.target;
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
@@ -160,10 +166,10 @@ function handleImpostazioniClick(event) {
         modalContent.querySelector('#import-file')?.click();
     }
     if (target.closest('#export-btn')) {
-        exportData.call(app);
+        exportData.call(app); // Usa .call(app) per sicurezza
     }
     if (target.closest('#reset-data-btn')) {
-        confirmReset.call(app);
+        confirmReset.call(app); // Usa .call(app) per sicurezza
     }
     if (target.closest('#close-impostazioni-btn')) {
         app.hideFormModal();
@@ -176,6 +182,7 @@ function handleImpostazioniClick(event) {
         app.saveToStorage('borderRadius', newRadius);
         updateBorderRadius();
 
+        // Aggiorna i bottoni nel modale
         modalContent.querySelectorAll('[data-radius]').forEach(btn => {
             const isActive = btn.dataset.radius === newRadius;
             btn.classList.toggle('btn-primary', isActive);
@@ -186,12 +193,12 @@ function handleImpostazioniClick(event) {
 }
 
 function handleImpostazioniChange(event) {
-    const app = getApp();
-    if (!app) {
-        console.error('App non disponibile');
+    const app = this; // 'this' è l'istanza dell'app
+     if (!app) {
+        console.error('App instance (this) non disponibile in handleImpostazioniChange');
         return;
     }
-    
+
     const target = event.target;
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
@@ -202,26 +209,33 @@ function handleImpostazioniChange(event) {
         }
     }
     if (target.matches('#fullscreen-toggle')) {
-        toggleFullscreen();
+        toggleFullscreen(); // Questa funzione non dipende da 'app'
     }
     if (target.matches('#sidebar-collapse-toggle')) {
         app.toggleSidebarCollapse();
     }
     if (target.matches('#import-file')) {
-        importData.call(app, event);
+        importData.call(app, event); // Usa .call(app) per sicurezza
     }
 }
 
 // === SETUP EVENT LISTENERS ===
-function setupImpostazioniEventListeners(app) {
+function setupImpostazioniEventListeners(app) { // Riceve 'app'
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
-    modalContent.removeEventListener('click', handleImpostazioniClick);
-    modalContent.removeEventListener('change', handleImpostazioniChange);
+    // Rimuovi eventuali listener precedenti per evitare duplicati
+    // Potrebbe essere necessario memorizzare i riferimenti ai listener se questo non funziona
+    // Ma proviamo prima così: leghiamo 'this' all'istanza 'app'
+    const boundClickHandler = handleImpostazioniClick.bind(app);
+    const boundChangeHandler = handleImpostazioniChange.bind(app);
 
-    modalContent.addEventListener('click', handleImpostazioniClick);
-    modalContent.addEventListener('change', handleImpostazioniChange);
+    // Salva i riferimenti per poterli rimuovere dopo (opzionale ma buona pratica)
+    modalContent._impostazioniClickHandler = boundClickHandler;
+    modalContent._impostazioniChangeHandler = boundChangeHandler;
+
+    modalContent.addEventListener('click', boundClickHandler);
+    modalContent.addEventListener('change', boundChangeHandler);
 }
 
 // === FUNZIONI TEMA E DISPLAY ===
@@ -234,6 +248,8 @@ function updateBorderRadius() {
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
+            // Potremmo usare app.showNotification se fosse disponibile qui
+            console.error(`Errore schermo intero: ${err.message}`);
             alert(`Errore nell'attivare la modalita a schermo intero: ${err.message} (${err.name})`);
         });
     } else {
@@ -252,9 +268,10 @@ function updateFullscreenToggle() {
 
 // === FUNZIONI IMPORT/EXPORT ===
 
+// Funzione exportData aggiornata per includere spese e speseEtichette
 function exportData() {
-    const app = getApp();
-    
+    const app = this; // 'this' ora si riferisce all'istanza dell'app
+
     // Crea un oggetto con TUTTI i dati dell'applicazione
     const dataToExport = {
         // Dati principali dell'applicazione
@@ -264,17 +281,21 @@ function exportData() {
         priceHistory: app.state.data.priceHistory || [],
         competitorPrices: app.state.data.competitorPrices || [],
         previousYearStock: app.state.data.previousYearStock || { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 },
-        
-        // ✅ DATI ANAGRAFICA (Rubrica contatti + etichette)
+
+        // DATI ANAGRAFICA (Rubrica contatti + etichette)
         contatti: app.state.data.contatti || [],
         etichette: app.state.data.etichette || [],
-        
-        // ✅ DATI STAZIONI ENI
+
+        // DATI STAZIONI ENI
         stazioni: app.state.data.stazioni || [],
-        
-        // ✅ DATI ACCOUNT PERSONALI
+
+        // DATI ACCOUNT PERSONALI
         accounts: app.state.data.accounts || [],
-        
+
+        // ✅ DATI SPESE AGGIUNTI QUI
+        spese: app.state.data.spese || [],
+        speseEtichette: app.state.data.speseEtichette || [],
+
         // Todo list della home (salvati separatamente in localStorage)
         homeTodos: app.loadFromStorage('homeTodos', [])
     };
@@ -290,12 +311,13 @@ function exportData() {
     link.download = 'mystation_backup_' + new Date().toISOString().split('T')[0] + '.json';
     link.click();
     URL.revokeObjectURL(url);
-    
+
     app.showNotification('Dati esportati con successo!');
 }
 
+// Funzione importData aggiornata per includere spese e speseEtichette
 function importData(event) {
-    const app = getApp();
+    const app = this; // 'this' ora si riferisce all'istanza dell'app
     const file = event.target.files[0];
     if (!file) return;
 
@@ -304,46 +326,56 @@ function importData(event) {
         try {
             const importedData = JSON.parse(e.target.result);
 
-            // Importa TUTTI i dati
-            if (importedData.clients) app.state.data.clients = importedData.clients || [];
-            if (importedData.turni) app.state.data.turni = importedData.turni || [];
-            if (importedData.registryEntries) app.state.data.registryEntries = importedData.registryEntries || [];
-            if (importedData.priceHistory) app.state.data.priceHistory = importedData.priceHistory || [];
-            if (importedData.competitorPrices) app.state.data.competitorPrices = importedData.competitorPrices || [];
-            if (importedData.previousYearStock) app.state.data.previousYearStock = importedData.previousYearStock || { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
-            
-            // ✅ IMPORTA ANAGRAFICA (Rubrica contatti + etichette)
-            if (importedData.contatti) app.state.data.contatti = importedData.contatti || [];
-            if (importedData.etichette) app.state.data.etichette = importedData.etichette || [];
-            
-            // ✅ IMPORTA STAZIONI ENI
-            if (importedData.stazioni) app.state.data.stazioni = importedData.stazioni || [];
-            
-            // ✅ IMPORTA ACCOUNT PERSONALI
-            if (importedData.accounts) app.state.data.accounts = importedData.accounts || [];
+            // Importa TUTTI i dati, controllando se esistono nel file importato
+            // Usiamo '!== undefined' per distinguere tra una chiave mancante e una chiave con valore null/[]
+            if (importedData.clients !== undefined) app.state.data.clients = importedData.clients || [];
+            if (importedData.turni !== undefined) app.state.data.turni = importedData.turni || [];
+            if (importedData.registryEntries !== undefined) app.state.data.registryEntries = importedData.registryEntries || [];
+            if (importedData.priceHistory !== undefined) app.state.data.priceHistory = importedData.priceHistory || [];
+            if (importedData.competitorPrices !== undefined) app.state.data.competitorPrices = importedData.competitorPrices || [];
+            if (importedData.previousYearStock !== undefined) app.state.data.previousYearStock = importedData.previousYearStock || { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
+
+            // IMPORTA ANAGRAFICA (Rubrica contatti + etichette)
+            if (importedData.contatti !== undefined) app.state.data.contatti = importedData.contatti || [];
+            if (importedData.etichette !== undefined) app.state.data.etichette = importedData.etichette || [];
+
+            // IMPORTA STAZIONI ENI
+            if (importedData.stazioni !== undefined) app.state.data.stazioni = importedData.stazioni || [];
+
+            // IMPORTA ACCOUNT PERSONALI
+            if (importedData.accounts !== undefined) app.state.data.accounts = importedData.accounts || [];
+
+            // ✅ IMPORTA SPESE AGGIUNTO QUI
+            if (importedData.spese !== undefined) app.state.data.spese = importedData.spese || [];
+            if (importedData.speseEtichette !== undefined) app.state.data.speseEtichette = importedData.speseEtichette || [];
 
             // Importa todo list della home
-            if (importedData.homeTodos) {
-                app.saveToStorage('homeTodos', importedData.homeTodos);
-                if (window.homeState) {
-                    window.homeState.todos = importedData.homeTodos;
+            if (importedData.homeTodos !== undefined) {
+                app.saveToStorage('homeTodos', importedData.homeTodos || []);
+                // Aggiorna anche lo stato locale del modulo home se esiste
+                if (typeof window.homeState !== 'undefined' && window.homeState) {
+                    window.homeState.todos = importedData.homeTodos || [];
                 }
             }
 
-            // Salva tutto in localStorage
+            // Salva tutto l'oggetto data aggiornato in localStorage
             app.saveToStorage('data', app.state.data);
-            
+
             app.showNotification('Dati importati con successo!');
             app.hideFormModal();
-            
+
             // Ricarica la sezione corrente per mostrare i nuovi dati
-            app.switchSection(app.state.currentSection); 
-            
+            // Passiamo 'true' per forzare il rendering completo della sezione
+            const currentSection = app.state.currentSection || 'home';
+            app.switchSection(currentSection, true);
+
+
         } catch (error) {
             console.error("Errore durante l'importazione:", error);
-            alert('Errore durante l\'importazione: file non valido o corrotto.');
+            app.showNotification('Errore durante l\'importazione: file non valido o corrotto.', 'error');
+            // alert('Errore durante l\'importazione: file non valido o corrotto.'); // Rimuovi alert se showNotification è sufficiente
         } finally {
-            // Reset del file input
+            // Reset del file input per permettere di ricaricare lo stesso file
             event.target.value = '';
         }
     };
@@ -351,16 +383,16 @@ function importData(event) {
 }
 
 function confirmReset() {
-    const app = getApp();
+    const app = this; // Usa 'this'
     app.showConfirm(
         'Sei sicuro di voler eliminare tutti i dati?<br><br>Questa azione è irreversibile.',
-        () => resetAllData()
+        () => resetAllData.call(app) // Usa .call(app) per passare il contesto corretto
     );
 }
 
 function resetAllData() {
+    const app = this; // Usa 'this'
     localStorage.clear();
-    const app = getApp();
     app.showNotification('Tutti i dati sono stati eliminati. Ricaricamento in corso...');
 
     setTimeout(() => {
@@ -369,8 +401,9 @@ function resetAllData() {
 }
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
+// Rendi disponibili globalmente le funzioni necessarie per essere chiamate da app.js
 if (typeof window !== 'undefined') {
     window.initImpostazioni = initImpostazioni;
     window.showImpostazioniModal = showImpostazioniModal;
-    window.impostazioniState = impostazioniState;
+    // Non esportiamo impostazioniState perché è gestito internamente
 }
