@@ -50,17 +50,17 @@
             flex-direction: column;
         }
         
-        /* Stile per "TOTALE LITRI" e "TOTALE IMPORTO" (linea sotto) */
         .report-item {
             font-size: 1.3em;
             font-weight: bold;
             text-transform: uppercase;
             border-bottom: 1px solid black;
+            /* INIZIO MODIFICA: Aumentato lo spazio tra testo e riga */
             padding-bottom: 40px; 
+            /* FINE MODIFICA */
             margin-bottom: 40px; 
         }
 
-        /* Stile per "GIACENZA PRODOTTI" */
         .section-title {
             font-size: 1.3em;
             font-weight: bold;
@@ -68,43 +68,17 @@
             margin-top: 30px; 
             margin-bottom: 40px;
         }
-        
-        /* --- INIZIO MODIFICHE CSS --- */
 
-        /* Nuova classe per centrare il testo */
-        .text-center {
-            text-align: center;
-        }
-
-        /* Nuovo stile per item con linea a fianco (Imponibile, IVA, Prodotti) */
-        .field-item {
+        .product-item {
             font-size: 1.3em;
             font-weight: bold;
             text-transform: uppercase;
-            display: flex;
-            align-items: baseline; /* Allinea testo e linea */
-            margin-bottom: 25px; /* Spazio tra le righe */
-        }
-        
-        .field-item span {
-            white-space: nowrap; /* Evita che il testo vada a capo */
-            margin-right: 10px; /* Spazio tra testo e linea */
-        }
-        
-        .field-item .line {
-            flex-grow: 1; /* La linea occupa lo spazio rimanente */
             border-bottom: 1px solid black;
+            /* INIZIO MODIFICA: Aumentato lo spazio tra testo e riga */
+            padding-bottom: 40px;
+            /* FINE MODIFICA */
+            margin-bottom: 25px;
         }
-
-        /* Rimuoviamo lo stile .product-item non più usato */
-        /*
-        .product-item {
-            ...
-        }
-        */
-        
-        /* --- FINE MODIFICHE CSS --- */
-
 
         /* Stili specifici per la stampa */
         @page {
@@ -137,42 +111,22 @@
 
             <div class="column">
                 <div class="right-column-content">
-                    
-                    <div class="report-item text-center">TOTALE LITRI</div>
-                    <div class="report-item text-center">TOTALE IMPORTO</div>
+                    <div class="report-item">TOT Litri Giornaliero</div>
+                    <div class="report-item">TOT Importo Giornaliero</div>
                     
                     <div>
-                        <div class="field-item">
-                            <span>IMPONIBILE</span>
-                            <div class="line"></div>
-                        </div>
-                        <div class="field-item">
-                            <span>IVA 22%</span>
-                            <div class="line"></div>
-                        </div>
+                        <div class="report-item">Imponibile</div>
+                        <div class="report-item">IVA 22%</div>
                     </div>
 
                     <div>
-                        <div class="section-title text-center">GIACENZA PRODOTTI</div>
-                        
-                        <div class="field-item">
-                            <span>BENZINA</span>
-                            <div class="line"></div>
-                        </div>
-                        <div class="field-item">
-                            <span>GASOLIO</span>
-                            <div class="line"></div>
-                        </div>
-                        <div class="field-item">
-                            <span>DIESEL+</span>
-                            <div class="line"></div>
-                        </div>
-                        <div class="field-item">
-                            <span>HVOLUTION</span>
-                            <div class="line"></div>
-                        </div>
+                        <div class="section-title">Giacenza Prodotti</div>
+                        <div class="product-item">Benzina</div>
+                        <div class="product-item">Gasolio</div>
+                        <div class="product-item">Diesel+</div>
+                        <div class="product-item">Hvolution</div>
                     </div>
-                    </div>
+                </div>
             </div>
 
         </div>
