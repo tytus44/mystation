@@ -774,7 +774,7 @@ function formatRegistryProductColumn(product) {
     const diffClass = differenza >= 0 ? 'text-success' : 'text-danger';
     
     return `<div class="text-sm">
-        <div>Carico: <span class="font-medium">${carico.toLocaleString('it-IT')} L</span></div>
+        <div>Carico: <span class="font-medium">${carico.toLocaleString('it-IT')}</span></div>
         <div class="${diffClass}">Diff: ${differenza >= 0 ? '+' : ''}${differenza.toLocaleString('it-IT')} L</div>
     </div>`;
 }
