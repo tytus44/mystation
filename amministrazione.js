@@ -771,10 +771,19 @@ function printClientsList() {
     document.getElementById('print-content').classList.add('hidden');
     document.getElementById('virtual-print-content').classList.add('hidden');
     
+    // --- INIZIO MODIFICA ---
+    const originalTitle = document.title;
+    const today = app.formatToItalianDate(new Date());
+    document.title = `Lista_Clienti_${today}`;
+    // --- FINE MODIFICA ---
+
     setTimeout(() => {
         window.print();
         setTimeout(() => {
             document.getElementById('print-clients-content').classList.add('hidden');
+            // --- INIZIO MODIFICA ---
+            document.title = originalTitle; // Ripristina il titolo originale
+            // --- FINE MODIFICA ---
         }, 100);
     }, 100);
 }

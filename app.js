@@ -354,6 +354,12 @@ class MyStationApp {
                     contentEl.innerHTML = ''; 
                     // Resetta completamente le classi, lasciando solo quella di base
                     contentEl.className = 'modal-content'; 
+                    
+                    // --- INIZIO MODIFICA (Risolve il bug del doppio click) ---
+                    // Rimuoviamo l'attributo "guardia" per permettere 
+                    // ai listener di essere ri-aggiunti la prossima volta.
+                    contentEl.removeAttribute('data-listeners-attached');
+                    // --- FINE MODIFICA ---
                 }
                 this.hideModalTimeout = null; // Resetta il timeout ID
             }, 500);
