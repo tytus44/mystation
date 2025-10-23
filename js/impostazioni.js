@@ -146,7 +146,6 @@ function getImpostazioniModalHTML(app) {
                                 <i data-lucide="alert-triangle" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
                                 Zona di pericolo
                             </label>
-                            <p class="text-sm text-secondary mb-4">Questo eliminerà tutti i dati salvati</p>
                             <button type="button" id="reset-data-btn" class="btn btn-danger w-full">
                                 <i data-lucide="trash-2"></i>
                                 <span>Cancella tutti i dati</span>
