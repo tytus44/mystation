@@ -1,6 +1,7 @@
 // =============================================
 // FILE: auth.js
 // DESCRIZIONE: Gestione autenticazione lato client
+// --- MODIFICATO per percorsi relativi corretti (Logout) ---
 // =============================================
 
 // Funzione per creare hash SHA-256 di una stringa
@@ -63,13 +64,22 @@ function logout() {
     localStorage.removeItem('mystation_auth');
     localStorage.removeItem('mystation_auth_expiry');
     localStorage.removeItem('mystation_user');
-    window.location.href = 'index.html';
+    
+    // === INIZIO MODIFICA ===
+    // Questa funzione è chiamata da mystation.html (che è in /html/)
+    // Deve "salire" di un livello (../) per trovare index.html
+    window.location.href = '../index.html'; 
+    // === FINE MODIFICA ===
 }
 
 // Funzione per proteggere una pagina
 function requireAuth() {
     if (!checkAuth()) {
-        window.location.href = 'index.html';
+        // === INIZIO MODIFICA ===
+        // Questa funzione è chiamata da mystation.html (che è in /html/)
+        // Deve "salire" di un livello (../) per trovare index.html
+        window.location.href = '../index.html'; 
+        // === FINE MODIFICA ===
     }
 }
 
@@ -134,7 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         // Se già autenticato, vai alla dashboard
         if (checkAuth()) {
-            window.location.href = 'mystation.html';
+            
+            // Questo script è su index.html (nella root)
+            // Deve "entrare" in /html/ per trovare mystation.html
+            window.location.href = 'html/mystation.html'; // <-- CORRETTO
             return;
         }
 
@@ -203,7 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Reindirizza dopo 1200ms
                 setTimeout(() => {
-                    window.location.href = 'mystation.html';
+                    // Questo script è su index.html (nella root)
+                    // Deve "entrare" in /html/ per trovare mystation.html
+                    window.location.href = 'html/mystation.html'; // <-- CORRETTO
                 }, 1200);
             } else {
                 // Login fallito - nascondi modale e mostra errore
