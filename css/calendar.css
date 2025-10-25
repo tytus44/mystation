@@ -1,0 +1,174 @@
+/* ======================== */
+/* STILI CALENDARIO HOME    */
+/* ======================== */
+
+.calendar-nav-btn {
+    background: none;
+    border: none;
+    padding: var(--spacing-xs); /* 0.25rem */
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    cursor: pointer;
+    color: var(--text-secondary); /* Usa variabile testo */
+    transition: background-color 0.2s ease;
+    display: flex; /* Aggiunto per allineare icona */
+    align-items: center; /* Aggiunto per allineare icona */
+    justify-content: center; /* Aggiunto per allineare icona */
+}
+
+.calendar-nav-btn:hover {
+    background-color: var(--bg-tertiary); /* Usa variabile sfondo */
+}
+
+/* Assicurati che le icone dentro i bottoni abbiano dimensione */
+.calendar-nav-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.calendar-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary); /* Usa variabile testo */
+    min-width: 6.25rem; /* 100px */
+    text-align: center;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.125rem; /* 2px */
+    text-align: center;
+}
+
+.calendar-day-header {
+    font-size: 0.875rem; /* Ridotto leggermente */
+    font-weight: 500;
+    color: var(--text-secondary); /* Usa variabile testo */
+    padding: var(--spacing-sm) 0; /* 0.5rem */
+    text-transform: uppercase; /* Aggiunto per coerenza */
+    letter-spacing: 0.5px; /* Aggiunto per leggibilità */
+}
+
+.calendar-day-header.sunday {
+    color: var(--color-danger); /* Usa variabile danger */
+    font-weight: 600;
+}
+
+.calendar-day {
+    padding: var(--spacing-sm); /* 0.5rem */
+    font-size: 0.875rem; /* Dimensione giorno */
+    cursor: pointer;
+    border-radius: var(--radius-lg); /* Usa variabile arrotondamento */
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column; /* Modificato per contenere dots */
+    align-items: center;
+    justify-content: center; /* Centra numero e dots */
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-primary); /* Usa variabile bordo */
+    position: relative;
+    background-color: var(--bg-primary); /* Sfondo base */
+}
+
+.calendar-day span:first-child { /* Stile per il numero del giorno */
+    margin-bottom: 2px; /* Spazio tra numero e dots */
+}
+
+
+.calendar-day:hover:not(.empty):not(.today):not(.selected) {
+    border-color: var(--color-primary); /* Usa variabile primary */
+    transform: scale(1.05);
+    background-color: var(--bg-tertiary); /* Sfondo hover */
+}
+
+.calendar-day.today {
+    background-color: rgba(37, 99, 235, 0.15); /* Primary con opacità */
+    color: var(--color-primary); /* Usa variabile primary */
+    font-weight: 700;
+    border-color: rgba(37, 99, 235, 0.5); /* Primary semi-trasparente */
+    transform: none !important; /* Disabilita scale su oggi */
+}
+
+.calendar-day.selected {
+    background-color: var(--color-primary) !important; /* Usa variabile primary */
+    color: white !important; /* Testo bianco su sfondo primario */
+    font-weight: 700;
+    border-color: var(--color-primary) !important; /* Usa variabile primary */
+    transform: scale(1.1);
+    z-index: 1; /* Porta in primo piano il selezionato */
+}
+
+/* Stili per domenica/festivi */
+.calendar-day.holiday,
+.calendar-day.sunday {
+    color: var(--color-danger); /* Usa variabile danger */
+}
+
+.calendar-day.holiday:hover:not(.selected):not(.today),
+.calendar-day.sunday:hover:not(.selected):not(.today) {
+    background-color: rgba(255, 32, 78, 0.05); /* Danger leggero su hover */
+    border-color: rgba(255, 32, 78, 0.4); /* Danger semi-trasparente */
+}
+
+.calendar-day.today.holiday,
+.calendar-day.today.sunday {
+    background-color: rgba(255, 32, 78, 0.15); /* Danger con opacità per oggi festivo/domenica */
+    color: var(--color-danger); /* Usa variabile danger */
+    border-color: rgba(255, 32, 78, 0.4); /* Danger semi-trasparente */
+    transform: none !important; /* Disabilita scale */
+}
+
+.calendar-day.empty {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+}
+.calendar-day.empty:hover {
+    transform: none;
+}
+
+
+/* Stili per i puntini ToDo */
+.todo-dots-container {
+    position: absolute;
+    bottom: 5px; /* Posiziona in basso */
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    height: 7px; /* Altezza fissa */
+    pointer-events: none; /* Non intercettare click */
+}
+
+.todo-dot {
+    width: 6px; /* Dimensione puntini */
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0; /* Impedisce che si stringano */
+}
+
+/* Colori specifici per i puntini */
+.todo-dot.dot-urgent { background-color: var(--color-danger); } /* Rosso */
+.todo-dot.dot-priority { background-color: var(--color-warning); } /* Giallo/Arancio */
+.todo-dot.dot-standard { background-color: var(--color-info); } /* Blu/Ciano */
+.todo-dot.dot-unknown { background-color: var(--color-secondary); } /* Grigio */
+
+
+.todo-dot.completed {
+    opacity: 0.4; /* Opacità per completati */
+    /* Potresti aggiungere uno stile diverso, es. bordo */
+    /* background-color: transparent;
+    border: 1px solid currentColor; */
+}
+
+/* Se il giorno selezionato ha i dots, cambiamo il colore per contrasto */
+.calendar-day.selected .todo-dot {
+    background-color: rgba(255, 255, 255, 0.7); /* Puntini bianchi semi-trasparenti */
+}
+.calendar-day.selected .todo-dot.completed {
+     opacity: 0.5;
+     /* background-color: transparent;
+     border: 1px solid rgba(255, 255, 255, 0.5); */
+}

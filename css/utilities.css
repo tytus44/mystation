@@ -1,0 +1,198 @@
+/* ======================== */
+/* STILI UTILITIES HOME     */
+/* (IVA, Banconote, Ordine) */
+/* ======================== */
+
+/* Stile per i tab (già presente in styles.css come .btn-group, ma lo includiamo per completezza) */
+/* Se .btn-group è già definito globalmente, questa parte può essere omessa */
+.utilities-tab-group {
+    display: inline-flex;
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    overflow: hidden;
+    border: 1px solid var(--border-secondary); /* Usa variabile bordo */
+    width: 100%; /* Occupa tutta la larghezza del contenitore */
+}
+
+.utilities-tab-group .btn {
+    flex: 1; /* Distribuisce lo spazio equamente */
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid var(--border-secondary); /* Separatore tra bottoni */
+    font-size: 0.875rem; /* Testo leggermente più piccolo per i tab */
+    padding: 0.5rem 0.75rem; /* Padding ridotto per i tab */
+    height: auto; /* Altezza automatica */
+    min-height: 2.25rem; /* Altezza minima */
+}
+
+.utilities-tab-group .btn:last-child {
+    border-right: none; /* Rimuovi bordo destro all'ultimo bottone */
+}
+
+.utilities-tab-group .btn.active {
+    background-color: var(--color-primary) !important; /* Usa variabile primary */
+    color: var(--text-inverse) !important; /* Usa variabile testo inverso */
+}
+
+/* Stili specifici per i contenuti delle tab */
+.utilities-content-section {
+    /* Stili base se necessario, es. padding */
+    /* padding-top: var(--spacing-md); */
+}
+
+.utilities-content-section.hidden {
+    display: none !important;
+}
+
+/* Stili IVA Calculator */
+#iva-risultati .product-box {
+    padding: 0.75rem; /* Padding ridotto per i risultati IVA */
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    border-width: 1px;
+    border-style: solid;
+}
+
+/* Colori specifici per i box risultati IVA (basati su variabili globali) */
+#iva-risultati .iva-box-lordo { background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3); } /* Grigio/Secondary */
+#iva-risultati .iva-box-imponibile { background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3); } /* Blu/Primary */
+#iva-risultati .iva-box-iva { background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3); } /* Giallo/Warning */
+
+#iva-risultati .iva-box-lordo span:first-child { color: var(--color-secondary); }
+#iva-risultati .iva-box-lordo span:last-child { color: var(--color-secondary); }
+#iva-risultati .iva-box-imponibile span:first-child { color: var(--color-primary); }
+#iva-risultati .iva-box-imponibile span:last-child { color: var(--color-primary); }
+#iva-risultati .iva-box-iva span:first-child { color: var(--color-warning); }
+#iva-risultati .iva-box-iva span:last-child { color: var(--color-warning); }
+
+
+/* Stili Banconote Counter & Ordine Carburante (Number Input) */
+.number-input-group {
+    display: flex;
+    border: 1px solid var(--border-secondary); /* Usa variabile bordo */
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    overflow: hidden;
+    width: 100%; /* Adatta alla larghezza del contenitore */
+    background-color: var(--bg-secondary); /* Sfondo leggero per il gruppo */
+}
+
+.number-input-btn {
+    background-color: var(--bg-tertiary); /* Usa variabile sfondo */
+    border: none;
+    padding: 0.5rem 0.75rem; /* Padding ridotto per bottoni +/- */
+    cursor: pointer;
+    color: var(--text-primary); /* Usa variabile testo */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.number-input-btn:hover:not(:disabled) {
+    background-color: var(--color-primary); /* Usa variabile primary */
+    color: var(--text-inverse); /* Usa variabile testo inverso */
+}
+
+.number-input-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+.number-input-btn i { /* Assicura dimensione icone */
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+.number-input-field {
+    border: none;
+    background-color: transparent; /* Sfondo trasparente, eredita da number-input-group */
+    text-align: center;
+    font-weight: 500;
+    color: var(--text-primary); /* Usa variabile testo */
+    width: 100%; /* Occupa spazio rimanente */
+    flex: 1;
+    padding: 0.5rem 0.25rem; /* Padding interno campo */
+    font-size: 0.9rem; /* Dimensione testo input */
+    min-width: 40px; /* Larghezza minima per leggibilità */
+    appearance: textfield; /* Nasconde freccette default su input number (se usato) */
+    -moz-appearance: textfield;
+}
+/* Nasconde freccette Webkit */
+.number-input-field::-webkit-outer-spin-button,
+.number-input-field::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-input-field:focus {
+    outline: none;
+    /* Optional: background leggermente diverso su focus */
+    /* background-color: var(--bg-primary); */
+}
+
+/* Stili specifici Banconote Counter */
+.banconote-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem; /* Padding ridotto per righe banconote */
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    border: 1px solid var(--border-primary); /* Usa variabile bordo */
+    background-color: var(--bg-secondary); /* Usa variabile sfondo */
+    gap: 1rem; /* Spazio tra elementi */
+}
+
+.banconote-taglio { width: 100px; text-align: center; }
+.banconote-input-wrapper { width: 200px; }
+.banconote-subtotale { width: 150px; text-align: center; }
+
+.banconote-total-box {
+    margin-top: 1rem;
+    padding: 1rem; /* Padding maggiore per totale */
+    border-radius: var(--radius-lg); /* Usa variabile arrotondamento */
+    background-color: rgba(37, 99, 235, 0.05); /* Sfondo blu leggero */
+    border: 1px solid rgba(37, 99, 235, 0.3); /* Bordo blu leggero */
+}
+.banconote-total-box .flex {
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+/* Stili Ordine Carburante */
+.carburante-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-primary); /* Separatore righe */
+    gap: 1rem;
+}
+.carburante-row:last-child {
+    border-bottom: none; /* Rimuovi bordo ultima riga */
+}
+
+.carburante-product-info { width: 125px; }
+.carburante-input-wrapper { width: 200px; }
+.carburante-importo { width: 125px; text-align: right; }
+
+.carburante-product-info .text-secondary { font-size: 0.8rem; } /* Dimensione prezzo/L */
+
+.carburante-total-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-secondary); /* Sfondo neutro per totale carburante */
+    border: 1px solid var(--border-primary);
+}
+.carburante-total-box .flex {
+    align-items: flex-end; /* Allinea in basso */
+    justify-content: space-between;
+}
+.carburante-total-box .text-secondary { font-size: 0.875rem; } /* Label totali */
+
+/* Colori specifici importo carburante */
+.carburante-importo.text-green { color: var(--color-success); }
+.carburante-importo.text-yellow { color: var(--color-warning); }
+.carburante-importo.text-red { color: var(--color-danger); }
+.carburante-importo.text-blue { color: var(--color-info); }

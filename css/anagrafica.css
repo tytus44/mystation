@@ -1,0 +1,424 @@
+/* ======================== */
+/* STILI SEZIONE ANAGRAFICA */
+/* ======================== */
+
+.anagrafica-layout {
+    display: grid;
+    /* Grid per sidebar etichette e contenuto principale */
+    grid-template-columns: 240px 1fr; /* Larghezza fissa sidebar, resto flessibile */
+    gap: var(--spacing-lg); /* Spazio tra le colonne */
+    align-items: start; /* Allinea in alto */
+}
+
+/* Stili sidebar etichette */
+.anagrafica-sidebar .card-header {
+    padding: var(--spacing-md);
+}
+.anagrafica-sidebar .card-body {
+    padding: var(--spacing-md);
+}
+.etichette-list {
+    list-style: none;
+    /* Spazio tra le etichette gestito da space-y (Tailwind-like utility) */
+    /* Se non usi utility, aggiungi: */
+    /* display: flex; flex-direction: column; gap: var(--spacing-xs); */
+}
+.etichetta-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    text-decoration: none;
+    color: var(--text-secondary); /* Usa variabile testo */
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.etichetta-item:hover {
+    background-color: var(--bg-tertiary); /* Usa variabile sfondo */
+    color: var(--text-primary); /* Usa variabile testo */
+}
+.etichetta-item.active {
+    background-color: var(--color-primary); /* Usa variabile primary */
+    color: var(--text-inverse); /* Usa variabile testo inverso */
+}
+/* Pallino colorato etichetta */
+.etichetta-color-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: var(--spacing-md);
+    flex-shrink: 0;
+}
+/* Badge/Tag etichetta (usato anche nelle card) */
+.etichetta-badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 1rem; /* Arrotondamento pillola */
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap; /* Non mandare a capo */
+    /* Colori verranno applicati inline o con classi specifiche */
+    border: 1px solid currentColor; /* Bordo usa il colore del testo */
+    background-color: color-mix(in srgb, currentColor 15%, transparent); /* Sfondo leggermente colorato */
+}
+
+/* Barra azioni multiple */
+.bulk-actions-bar {
+    background-color: rgba(220, 38, 38, 0.05); /* Sfondo rosso leggero */
+    border: 1px solid rgba(220, 38, 38, 0.2); /* Bordo rosso leggero */
+    border-radius: var(--radius-lg); /* Usa variabile arrotondamento */
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-danger); /* Usa variabile danger */
+    margin-bottom: var(--spacing-lg); /* Aggiunto spazio sotto */
+}
+.bulk-actions-bar .flex { /* Se usi flex come utility */
+    display: flex;
+    align-items: center;
+}
+.bulk-actions-bar .space-x-4 { /* Se usi space come utility */
+    gap: var(--spacing-md);
+}
+
+/* Stile riga selezionata nella tabella (se presente) */
+#contatti-table tr.selected {
+    background-color: rgba(37, 99, 235, 0.05); /* Sfondo blu leggero */
+}
+.theme-dark #contatti-table tr.selected {
+    background-color: rgba(37, 99, 235, 0.1); /* Sfondo blu più visibile in dark */
+}
+
+/* Stili per la vista a card */
+.cards-container {
+    padding: var(--spacing-md);
+}
+.select-all-container { /* Contenitore checkbox "Seleziona tutto" */
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-primary); /* Usa variabile bordo */
+    margin-bottom: var(--spacing-md);
+}
+/* Stile checkbox personalizzato */
+.checkbox-container {
+    display: inline-flex; /* Cambiato a inline-flex per usarlo accanto al testo */
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary); /* Usa variabile testo */
+    gap: var(--spacing-sm); /* Spazio tra checkbox e label */
+    position: relative; /* Per nascondere input */
+    user-select: none; /* Impedisce selezione testo label */
+}
+.checkbox-container input[type="checkbox"] {
+    opacity: 0; /* Nascondi checkbox nativa */
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+.checkmark { /* Box checkbox finto */
+    width: 18px;
+    height: 18px;
+    background-color: var(--bg-primary); /* Usa variabile sfondo */
+    border: 2px solid var(--border-primary); /* Usa variabile bordo */
+    border-radius: 4px; /* Arrotondamento leggero */
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.checkmark::after { /* Segno di spunta */
+    content: "";
+    position: absolute;
+    /* Posizionamento segno spunta */
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid var(--text-inverse); /* Usa variabile testo inverso */
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0; /* Nascosto di default */
+    transition: opacity 0.2s ease;
+}
+.checkbox-container input[type="checkbox"]:checked + .checkmark { /* Stile quando checkato */
+    background-color: var(--color-primary); /* Usa variabile primary */
+    border-color: var(--color-primary); /* Usa variabile primary */
+}
+.checkbox-container input[type="checkbox"]:checked + .checkmark::after {
+    opacity: 1; /* Mostra segno spunta */
+}
+.checkbox-container:hover .checkmark { /* Bordo blu su hover */
+    border-color: var(--color-primary); /* Usa variabile primary */
+}
+.theme-dark .checkmark { /* Stile checkmark in dark */
+    background-color: var(--bg-tertiary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.theme-dark .select-all-container { /* Stile bordo in dark */
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Griglia card contatti */
+.contatti-grid {
+    display: grid;
+    /* Colonne responsive */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Adatta numero colonne */
+    gap: var(--spacing-lg); /* Spazio tra le card */
+}
+
+/* Stile singola card contatto */
+.contatto-card {
+    background-color: rgba(37, 99, 235, 0.08); /* Sfondo blu leggero */
+    border: 1px solid rgba(37, 99, 235, 0.25); /* Bordo blu leggero */
+    border-radius: var(--radius-lg); /* Usa variabile arrotondamento */
+    padding: var(--spacing-lg);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative; /* Per icone assolute */
+    overflow: hidden; /* Per evitare overflow icone */
+    animation: fadeInUp 0.3s ease-out; /* Animazione entrata */
+}
+.contatto-card:hover {
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); /* Ombra blu su hover */
+    transform: translateY(-2px); /* Effetto sollevamento */
+    border-color: rgba(37, 99, 235, 0.5); /* Bordo più visibile */
+}
+/* Stili card in dark mode */
+.theme-dark .contatto-card {
+    background-color: rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.35);
+}
+.theme-dark .contatto-card:hover {
+    border-color: var(--color-primary); /* Bordo primario su hover */
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+/* Stile card selezionata */
+.contatto-card.selected {
+    border-color: var(--color-warning); /* Bordo giallo per selezione (esempio) */
+    background-color: rgba(255, 215, 0, 0.1); /* Sfondo giallo leggero */
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3); /* Glow giallo */
+}
+.theme-dark .contatto-card.selected {
+    background-color: rgba(255, 215, 0, 0.15);
+}
+
+/* Header della card (avatar e nome) */
+.contatto-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md); /* Spazio tra avatar e info */
+    margin-bottom: var(--spacing-md); /* Spazio sotto l'header */
+}
+
+/* Avatar (cerchio con iniziali - o immagine se implementata) */
+.contatto-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 80%, white));
+    border-radius: 50%; /* Cerchio */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-inverse); /* Usa variabile testo inverso */
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    text-transform: uppercase; /* Iniziali maiuscole */
+}
+
+/* Contenitore info principali (nome, azienda) */
+.contatto-main-info {
+    flex: 1; /* Occupa spazio disponibile */
+    min-width: 0; /* Per ellipsis su testi lunghi */
+}
+.contatto-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary); /* Usa variabile testo */
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+    white-space: nowrap; /* Impedisce a capo */
+    overflow: hidden; /* Nasconde overflow */
+    text-overflow: ellipsis; /* Aggiunge puntini */
+}
+.contatto-company {
+    color: var(--text-secondary); /* Usa variabile testo */
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem 0;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Contenitore bottoni azioni (edit, delete - appaiono su hover) */
+.contatto-actions {
+    display: flex;
+    gap: var(--spacing-xs); /* Spazio tra bottoni */
+    flex-shrink: 0;
+    opacity: 0; /* Nascosti di default */
+    transition: opacity 0.2s ease;
+    position: absolute; /* Posizionati in alto a destra */
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+}
+.contatto-card:hover .contatto-actions {
+    opacity: 1; /* Mostra su hover della card */
+}
+
+/* Stile bottone icona (usato per edit/delete nelle card) */
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-primary); /* Usa variabile bordo */
+    background-color: var(--bg-primary); /* Usa variabile sfondo */
+    border-radius: var(--radius-md); /* Usa variabile arrotondamento */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary); /* Usa variabile testo */
+}
+.btn-icon:hover {
+    background-color: var(--bg-tertiary); /* Usa variabile sfondo */
+    border-color: var(--color-primary); /* Usa variabile primary */
+    color: var(--color-primary); /* Usa variabile primary */
+}
+.btn-icon svg { /* Dimensione icona interna */
+    width: 14px;
+    height: 14px;
+}
+/* Stili btn-icon in dark mode */
+.theme-dark .btn-icon {
+    background-color: var(--bg-tertiary);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.theme-dark .btn-icon:hover {
+    background-color: var(--bg-primary);
+    border-color: var(--color-primary);
+}
+
+/* Corpo della card (telefono, email) */
+.contatto-card-body {
+    margin-bottom: var(--spacing-md);
+}
+.contatti-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm); /* Spazio tra righe info */
+}
+.contatto-info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm); /* Spazio tra icona e testo */
+    color: var(--text-secondary); /* Usa variabile testo */
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.contatto-info-item svg { /* Dimensione icona telefono/email */
+    width: 12px !important;
+    height: 12px !important;
+    flex-shrink: 0; /* Non ridurre icona */
+}
+
+/* Footer della card (note) */
+.contatto-card-footer {
+    border-top: 1px solid var(--border-primary); /* Usa variabile bordo */
+    padding-top: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+.theme-dark .contatto-card-footer { /* Bordo in dark mode */
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.contatto-note {
+    display: flex;
+    align-items: flex-start; /* Allinea icona in alto */
+    gap: var(--spacing-sm); /* Spazio icona/testo */
+    color: var(--text-secondary); /* Usa variabile testo */
+    font-size: 0.85rem;
+    line-height: 1.4;
+    /* Gestione testo note lungo (opzionale) */
+    /* max-height: 4.2em; /* Mostra circa 3 righe */
+    /* overflow: hidden; */
+}
+.contatto-note svg { /* Dimensione icona note */
+    width: 12px !important;
+    height: 12px !important;
+    flex-shrink: 0;
+    margin-top: 2px; /* Allinea meglio con la prima riga di testo */
+}
+
+/* Icona utente decorativa in basso a destra */
+.contatto-user-icon {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    opacity: 0.2; /* Molto trasparente */
+    transition: opacity 0.2s ease;
+    pointer-events: none; /* Non intercettare click */
+    color: currentColor; /* Usa colore del bordo della card */
+}
+.contatto-user-icon svg {
+    width: 64px;
+    height: 64px;
+}
+.contatto-card:hover .contatto-user-icon {
+    opacity: 0.4; /* Leggermente più visibile su hover */
+}
+
+/* Badge etichetta dentro la card (se necessario) */
+.contatto-card .etichetta-badge {
+    margin-top: var(--spacing-sm); /* Spazio sopra il badge */
+    /* Stile ereditato da .etichetta-badge */
+}
+
+/* Stili per form modale Anagrafica (se diversi da form generici) */
+.form-grid { /* Layout griglia nel modale */
+    display: grid;
+    gap: var(--spacing-md);
+    grid-template-columns: repeat(2, 1fr); /* 2 colonne */
+}
+.form-group.span-2 { /* Campo che occupa 2 colonne */
+    grid-column: span 2;
+}
+/* Allarga input a tutta larghezza nel modale anagrafica */
+#form-modal-content .form-control {
+    max-width: 100%;
+}
+
+.modal-footer .btn { /* Stile bottoni nel footer modale */
+    min-width: 120px; /* Larghezza minima bottoni */
+}
+
+/* Responsive specifico Anagrafica (se necessario) */
+@media (max-width: 768px) {
+    .anagrafica-layout {
+        grid-template-columns: 1fr; /* Una colonna su mobile */
+    }
+    .contatti-grid {
+        grid-template-columns: 1fr; /* Una card per riga su mobile */
+    }
+    .contatto-card .contatto-actions {
+        opacity: 1; /* Azioni sempre visibili su mobile (hover non affidabile) */
+        position: static; /* Togli posizionamento assoluto */
+        margin-top: var(--spacing-md); /* Spazio sopra le azioni */
+        justify-content: flex-end; /* Allinea a destra */
+    }
+     .contatto-card-header {
+        margin-bottom: var(--spacing-sm); /* Riduci spazio */
+    }
+    .contatto-card-body {
+        margin-bottom: var(--spacing-sm);
+    }
+     .contatto-card-footer {
+        margin-top: var(--spacing-sm);
+        padding-top: var(--spacing-sm);
+    }
+    .contatto-user-icon { display: none; } /* Nascondi icona decorativa */
+
+    .form-grid {
+        grid-template-columns: 1fr; /* Una colonna nel form modale */
+    }
+}
