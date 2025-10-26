@@ -484,7 +484,7 @@ select.form-control { -webkit-appearance: none; appearance: none; cursor: pointe
 
 /* === CALCOLATRICE === */
 .calculator { padding: var(--spacing-sm); }
-.calculator-display { background-color: var(--calc-display-bg); border: 1px solid var(--calc-display-border); grid-column: 1 / -1; padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); text-align: right; word-wrap: break-word; word-break: break-all; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: var(--spacing-md); }
+.calculator-display { background-color: var(--calc-display-bg); border: 1px solid var(--calc-display-border); grid-column: 1 / -1; padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-md); text-align: right; word-wrap: break-word; word-break: break-all; min-height: 40px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: var(--spacing-md); }
 .calculator-display .equation { font-size: 1rem; color: var(--calc-function-text); height: 20px; }
 .calculator-display .result { font-size: 2.5rem; font-weight: 700; color: var(--color-primary); }
 .calculator-buttons, .calculator-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }

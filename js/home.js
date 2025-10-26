@@ -6,19 +6,24 @@
 // --- MODIFICATO per spinner e subtotali in Conta Banconote ---
 // --- MODIFICATO per usare nuove variabili font-size ---
 // --- MODIFICATO per separare card utility ---
+// --- MODIFICATO Calcolatore IVA con doppio input ---
+// --- MODIFICATO stile e altezza input Conta Banconote ---
+// --- MODIFICATO stile Totale Banconote e min-height Calcolatrice ---
+// --- MODIFICATO: Rimosse intestazioni totali Ordine Carburante ---
+// --- MODIFICATO: Corretto allineamento display calcolatrice (solo verticale) ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===
 let homeState = {
     ivaCalculator: {
         importoLordo: null,
-        risultati: { imponibile: 0, iva: 0 }
+        importoImponibile: null, // Aggiunto stato per imponibile/netto
+        risultati: { lordo: 0, imponibile: 0, iva: 0 } // Aggiornato risultati
     },
     banconoteCounter: {
-        500: null, 200: null, 100: null, 50: null, 20: null, 10: null,
+        200: null, 100: null, 50: null, 20: null, 10: null,
         total: 0, count: 0
     },
-    // activeHomeCardTab: 'iva', // Rimosso stato tab
     calendar: {
         currentDate: new Date(), monthYear: '', days: [],
         selectedDate: null
@@ -58,6 +63,11 @@ function renderHomeSection(container) {
     const app = this;
     const stats = getHomeDashboardStats.call(app);
     const colors = { benzina: '#10b981', gasolio: '#f59e0b', dieselplus: '#dc2626', hvolution: '#06b6d4', adblue: '#6b7280' };
+
+    // Formatta i valori iniziali per gli input IVA (se presenti)
+    const initialLordo = homeState.ivaCalculator.importoLordo !== null ? homeState.ivaCalculator.importoLordo.toFixed(2) : '';
+    const initialImponibile = homeState.ivaCalculator.importoImponibile !== null ? homeState.ivaCalculator.importoImponibile.toFixed(2) : '';
+
 
     container.innerHTML = `
         <div class="space-y-6">
@@ -131,51 +141,36 @@ function renderHomeSection(container) {
 
             <div class="grid grid-cols-2 gap-6">
 
-                
                 <div class="card">
-                    <div class="card-header"><h3 class="card-title">Calcola IVA</h3></div>
-                    <div class="card-body">
-                        <div id="iva-calculator-content">
-                             <div class="space-y-4">
-                                <div class="form-group">
-                                    <label class="form-label">Importo Lordo (€)</label>
-                                    <input type="number" id="iva-importo" step="0.01" placeholder="0.00" class="form-control text-md" value="${homeState.ivaCalculator.importoLordo || ''}" style="max-width: 100%;" autocomplete="off">
-                                </div>
-                                <div id="iva-risultati" class="space-y-4">
-                                    <div class="product-box p-3" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
-                                        <div class="flex justify-between items-center">
-                                            <span class="font-medium" style="color: var(--color-secondary);">Totale Lordo</span>
-                                            <span id="iva-lordo" class="text-md font-bold" style="color: var(--color-secondary);">${app.formatCurrency(homeState.ivaCalculator.importoLordo || 0)}</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-box p-3" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
-                                        <div class="flex justify-between items-center">
-                                            <span class="font-medium" style="color: var(--color-primary);">Imponibile</span>
-                                            <span id="iva-imponibile" class="text-md font-bold" style="color: var(--color-primary);">${app.formatCurrency(homeState.ivaCalculator.risultati.imponibile)}</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-box p-3" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
-                                        <div class="flex justify-between items-center">
-                                            <span class="font-medium" style="color: var(--color-warning);">IVA (22%)</span>
-                                            <span id="iva-iva" class="text-md font-bold text-warning">${app.formatCurrency(homeState.ivaCalculator.risultati.iva)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="card-body calculator">
+                        <div id="calculator-display-container" class="calculator-display" style="min-height: 50px; height: 50px; justify-content: space-around; padding: 5px 15px;">
+                            <div class="equation" style="height: 15px; font-size: 0.75rem;">${homeState.calculator.equation}</div>
+                            <div class="result" style="font-size: 1.5rem; font-weight: 700;">${homeState.calculator.display}</div>
+                        </div>
+                        <div id="calc-buttons" class="calculator-buttons">
+                            <button class="calc-btn function" data-value="C">C</button><button class="calc-btn function" data-value="±">±</button>
+                            <button class="calc-btn function" data-value="%">%</button><button class="calc-btn operator" data-value="/">÷</button>
+                            <button class="calc-btn number" data-value="7">7</button><button class="calc-btn number" data-value="8">8</button>
+                            <button class="calc-btn number" data-value="9">9</button><button class="calc-btn operator" data-value="*">×</button>
+                            <button class="calc-btn number" data-value="4">4</button><button class="calc-btn number" data-value="5">5</button>
+                            <button class="calc-btn number" data-value="6">6</button><button class="calc-btn operator" data-value="-">−</button>
+                            <button class="calc-btn number" data-value="1">1</button><button class="calc-btn number" data-value="2">2</button>
+                            <button class="calc-btn number" data-value="3">3</button><button class="calc-btn operator" data-value="+">+</button>
+                            <button class="calc-btn number zero" data-value="0">0</button><button class="calc-btn number" data-value=".">.</button>
+                            <button class="calc-btn operator equal" data-value="=">=</button>
                         </div>
                     </div>
                 </div>
-
 
                 <div class="card">
                     <div class="card-header"><h3 class="card-title">Conta Banconote</h3></div>
                     <div class="card-body">
                         <div id="banconote-counter-content" class="space-y-4">
-                            <div class="space-y-3" id="banconote-inputs-container"></div>
+                            <div class="space-y-4" id="banconote-inputs-container"></div>
                             <div class="product-box mt-4 p-3 rounded-lg" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
                                 <div class="flex items-center justify-between">
-                                    <div style="width: 100px; text-align: center;"><span class="text-md font-bold text-primary">TOTALE</span></div>
-                                    <div style="width: 200px; text-align: center;"><span id="banconote-count" class="text-md font-bold text-primary">${app.formatInteger(homeState.banconoteCounter.count || 0)}</span></div>
+                                    <div style="width: 100px; text-align: center;"><span class="font-medium text-primary">TOTALE</span></div>
+                                    <div style="width: 200px; text-align: center;"><span id="banconote-count" class="text-lg font-bold text-primary">${app.formatInteger(homeState.banconoteCounter.count || 0)}</span></div>
                                     <div style="width: 150px; text-align: center;"><span id="banconote-total" class="text-lg font-bold text-success">${app.formatCurrency(homeState.banconoteCounter.total)}</span></div>
                                 </div>
                             </div>
@@ -193,25 +188,45 @@ function renderHomeSection(container) {
 
 
                 <div class="card">
-                    <div class="card-body calculator">
-                        <div id="calculator-display-container" class="calculator-display">
-                            <div class="equation">${homeState.calculator.equation}</div>
-                            <div class="result">${homeState.calculator.display}</div>
-                        </div>
-                        <div id="calc-buttons" class="calculator-buttons">
-                            <button class="calc-btn function" data-value="C">C</button><button class="calc-btn function" data-value="±">±</button>
-                            <button class="calc-btn function" data-value="%">%</button><button class="calc-btn operator" data-value="/">÷</button>
-                            <button class="calc-btn number" data-value="7">7</button><button class="calc-btn number" data-value="8">8</button>
-                            <button class="calc-btn number" data-value="9">9</button><button class="calc-btn operator" data-value="*">×</button>
-                            <button class="calc-btn number" data-value="4">4</button><button class="calc-btn number" data-value="5">5</button>
-                            <button class="calc-btn number" data-value="6">6</button><button class="calc-btn operator" data-value="-">−</button>
-                            <button class="calc-btn number" data-value="1">1</button><button class="calc-btn number" data-value="2">2</button>
-                            <button class="calc-btn number" data-value="3">3</button><button class="calc-btn operator" data-value="+">+</button>
-                            <button class="calc-btn number zero" data-value="0">0</button><button class="calc-btn number" data-value=".">.</button>
-                            <button class="calc-btn operator equal" data-value="=">=</button>
+                    <div class="card-header"><h3 class="card-title">Calcola IVA</h3></div>
+                    <div class="card-body">
+                        <div id="iva-calculator-content">
+                             <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="form-group mb-0">
+                                        <label class="form-label">Importo Lordo (€)</label>
+                                        <input type="number" id="iva-importo-lordo" step="0.01" placeholder="0.00" class="form-control text-md" value="${initialLordo}" style="max-width: 100%;" autocomplete="off">
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <label class="form-label">Imponibile / Netto (€)</label>
+                                        <input type="number" id="iva-importo-imponibile" step="0.01" placeholder="0.00" class="form-control text-md" value="${initialImponibile}" style="max-width: 100%;" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div id="iva-risultati" class="space-y-4 pt-4">
+                                    <div class="product-box p-3" style="background-color: rgba(107, 114, 128, 0.05); border-color: rgba(107, 114, 128, 0.3);">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-medium" style="color: var(--color-secondary);">Totale Lordo</span>
+                                            <span id="iva-lordo-display" class="text-md font-bold" style="color: var(--color-secondary);">${app.formatCurrency(homeState.ivaCalculator.risultati.lordo)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-box p-3" style="background-color: rgba(37, 99, 235, 0.05); border-color: rgba(37, 99, 235, 0.3);">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-medium" style="color: var(--color-primary);">Imponibile</span>
+                                            <span id="iva-imponibile-display" class="text-md font-bold" style="color: var(--color-primary);">${app.formatCurrency(homeState.ivaCalculator.risultati.imponibile)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-box p-3" style="background-color: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3);">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-medium" style="color: var(--color-warning);">IVA (22%)</span>
+                                            <span id="iva-iva-display" class="text-md font-bold text-warning">${app.formatCurrency(homeState.ivaCalculator.risultati.iva)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
         </div>
@@ -223,6 +238,8 @@ function renderHomeSection(container) {
     renderOrdineCarburante.call(app);
     renderBanconoteInputs.call(app);
     app.refreshIcons();
+    // Aggiorna display IVA iniziale se ci sono valori nello stato
+    updateIvaDisplay.call(app);
 }
 // Fine funzione renderHomeSection
 
@@ -231,10 +248,11 @@ function renderHomeSection(container) {
 function setupHomeEventListeners() {
     const app = this;
 
-    // Listener per tab rimossi
-    // document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => setActiveHomeCardTab(btn.dataset.tab)));
+    // Listener IVA
+    document.getElementById('iva-importo-lordo')?.addEventListener('input', handleLordoInput.bind(app));
+    document.getElementById('iva-importo-imponibile')?.addEventListener('input', handleImponibileInput.bind(app));
 
-    document.getElementById('iva-importo')?.addEventListener('input', (e) => { homeState.ivaCalculator.importoLordo = parseFloat(e.target.value) || null; calcolaIva.call(app); });
+    // Calendario
     document.getElementById('calendar-prev')?.addEventListener('click', () => changeMonth.call(app, -1));
     document.getElementById('calendar-next')?.addEventListener('click', () => changeMonth.call(app, 1));
     document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
@@ -246,33 +264,112 @@ function setupHomeEventListeners() {
         const dayEl = e.target.closest('.calendar-day:not(.empty)');
         if (dayEl) { homeState.calendar.selectedDate = dayEl.dataset.date; renderCalendarDays(); showAddTodoModal.call(app, dayEl.dataset.date); }
     });
+
+    // Calcolatrice
     document.getElementById('calc-buttons')?.addEventListener('click', (e) => { if (e.target.matches('button')) handleCalculatorInput.call(app, e.target.dataset.value); });
+
+    // To-Do
     document.getElementById('todo-list')?.addEventListener('click', (e) => {
         const todoItem = e.target.closest('.todo-item'); if (!todoItem) return;
         const deleteBtn = e.target.closest('.delete-btn');
         if (deleteBtn) { deleteTodo.call(app, deleteBtn.dataset.todoId); return; }
+        // Se non è il pulsante delete, apri la modale di modifica
         const todoId = todoItem.dataset.todoId; const todoToEdit = homeState.todos.find(t => t.id === todoId);
         if (todoToEdit) showEditTodoModal.call(app, todoToEdit);
     });
+
+    // Banconote e Ordine (event listeners attaccati in renderBanconoteInputs e renderOrdineCarburante)
 }
 // Fine funzione setupHomeEventListeners
 
 // === FUNZIONI CALCOLATORE IVA E CONTA BANCONOTE ===
-// Funzione setActiveHomeCardTab rimossa
 
-// Inizio funzione calcolaIva
-function calcolaIva() { const lordo = homeState.ivaCalculator.importoLordo; if (lordo === null || isNaN(lordo) || lordo <= 0) homeState.ivaCalculator.risultati = { imponibile: 0, iva: 0 }; else { const aliquota = 22 / 100; const imponibile = lordo / (1 + aliquota); homeState.ivaCalculator.risultati.imponibile = imponibile; homeState.ivaCalculator.risultati.iva = lordo - imponibile; } updateIvaDisplay.call(this); }
-// Fine funzione calcolaIva
+// Inizio funzione handleLordoInput
+function handleLordoInput(e) {
+    const lordoValue = parseFloat(e.target.value) || null;
+    homeState.ivaCalculator.importoLordo = lordoValue;
+    homeState.ivaCalculator.importoImponibile = null; // Resetta l'altro input nello stato
+    calcolaDaLordo.call(this, lordoValue);
+}
+// Fine funzione handleLordoInput
+
+// Inizio funzione handleImponibileInput
+function handleImponibileInput(e) {
+    const imponibileValue = parseFloat(e.target.value) || null;
+    homeState.ivaCalculator.importoImponibile = imponibileValue;
+    homeState.ivaCalculator.importoLordo = null; // Resetta l'altro input nello stato
+    calcolaDaNetto.call(this, imponibileValue);
+}
+// Fine funzione handleImponibileInput
+
+// Inizio funzione calcolaDaLordo
+function calcolaDaLordo(lordo) {
+    if (lordo === null || isNaN(lordo) || lordo <= 0) {
+        homeState.ivaCalculator.risultati = { lordo: 0, imponibile: 0, iva: 0 };
+    } else {
+        const aliquota = 22 / 100;
+        const imponibile = lordo / (1 + aliquota);
+        const iva = lordo - imponibile;
+        homeState.ivaCalculator.risultati = { lordo: lordo, imponibile: imponibile, iva: iva };
+    }
+    updateIvaDisplay.call(this);
+}
+// Fine funzione calcolaDaLordo
+
+// Inizio funzione calcolaDaNetto
+function calcolaDaNetto(imponibile) {
+    if (imponibile === null || isNaN(imponibile) || imponibile <= 0) {
+        homeState.ivaCalculator.risultati = { lordo: 0, imponibile: 0, iva: 0 };
+    } else {
+        const aliquota = 22 / 100;
+        const iva = imponibile * aliquota;
+        const lordo = imponibile + iva;
+        homeState.ivaCalculator.risultati = { lordo: lordo, imponibile: imponibile, iva: iva };
+    }
+    updateIvaDisplay.call(this);
+}
+// Fine funzione calcolaDaNetto
+
 // Inizio funzione updateIvaDisplay
-function updateIvaDisplay() { const lordoEl = document.getElementById('iva-lordo'); const imponibileEl = document.getElementById('iva-imponibile'); const ivaEl = document.getElementById('iva-iva'); if (lordoEl) lordoEl.textContent = this.formatCurrency(homeState.ivaCalculator.importoLordo || 0); if (imponibileEl) imponibileEl.textContent = this.formatCurrency(homeState.ivaCalculator.risultati.imponibile); if (ivaEl) ivaEl.textContent = this.formatCurrency(homeState.ivaCalculator.risultati.iva); }
+function updateIvaDisplay() {
+    const lordoDisplayEl = document.getElementById('iva-lordo-display');
+    const imponibileDisplayEl = document.getElementById('iva-imponibile-display');
+    const ivaDisplayEl = document.getElementById('iva-iva-display');
+    const lordoInputEl = document.getElementById('iva-importo-lordo');
+    const imponibileInputEl = document.getElementById('iva-importo-imponibile');
+
+    const { lordo, imponibile, iva } = homeState.ivaCalculator.risultati;
+
+    // Aggiorna i display dei risultati
+    if (lordoDisplayEl) lordoDisplayEl.textContent = this.formatCurrency(lordo);
+    if (imponibileDisplayEl) imponibileDisplayEl.textContent = this.formatCurrency(imponibile);
+    if (ivaDisplayEl) ivaDisplayEl.textContent = this.formatCurrency(iva);
+
+    // Aggiorna l'altro campo input (se non è quello appena modificato)
+    // Se i risultati sono 0 (input vuoto/non valido), pulisci entrambi gli input
+    if (lordo === 0 && imponibile === 0) {
+        if (lordoInputEl && document.activeElement !== lordoInputEl) lordoInputEl.value = '';
+        if (imponibileInputEl && document.activeElement !== imponibileInputEl) imponibileInputEl.value = '';
+    } else {
+        // Aggiorna l'input imponibile se l'utente ha inserito il lordo
+        if (homeState.ivaCalculator.importoLordo !== null && imponibileInputEl && document.activeElement !== imponibileInputEl) {
+            imponibileInputEl.value = imponibile > 0 ? imponibile.toFixed(2) : '';
+        }
+        // Aggiorna l'input lordo se l'utente ha inserito l'imponibile
+        else if (homeState.ivaCalculator.importoImponibile !== null && lordoInputEl && document.activeElement !== lordoInputEl) {
+            lordoInputEl.value = lordo > 0 ? lordo.toFixed(2) : '';
+        }
+    }
+}
 // Fine funzione updateIvaDisplay
+
 // Inizio funzione calcolaTotaleBanconote
-function calcolaTotaleBanconote() { const app = this; const counter = homeState.banconoteCounter; const tagli = [500, 200, 100, 50, 20, 10]; let totale = 0; let numeroBanconote = 0; tagli.forEach(taglio => { const quantita = parseInt(counter[taglio], 10) || 0; const subtotale = quantita * taglio; totale += subtotale; numeroBanconote += quantita; const subtotaleEl = document.getElementById(`banconote-subtotal-${taglio}`); if (subtotaleEl) subtotaleEl.textContent = app.formatCurrency(subtotale); }); homeState.banconoteCounter.total = totale; homeState.banconoteCounter.count = numeroBanconote; const totaleEl = document.getElementById('banconote-total'); if (totaleEl) totaleEl.textContent = this.formatCurrency(totale); const countEl = document.getElementById('banconote-count'); if (countEl) countEl.textContent = this.formatInteger(numeroBanconote); }
+function calcolaTotaleBanconote() { const app = this; const counter = homeState.banconoteCounter; const tagli = [200, 100, 50, 20, 10]; let totale = 0; let numeroBanconote = 0; tagli.forEach(taglio => { const quantita = parseInt(counter[taglio], 10) || 0; const subtotale = quantita * taglio; totale += subtotale; numeroBanconote += quantita; const subtotaleEl = document.getElementById(`banconote-subtotal-${taglio}`); if (subtotaleEl) subtotaleEl.textContent = app.formatCurrency(subtotale); }); homeState.banconoteCounter.total = totale; homeState.banconoteCounter.count = numeroBanconote; const totaleEl = document.getElementById('banconote-total'); if (totaleEl) totaleEl.textContent = this.formatCurrency(totale); const countEl = document.getElementById('banconote-count'); if (countEl) countEl.textContent = this.formatInteger(numeroBanconote); }
 // Fine funzione calcolaTotaleBanconote
 // Inizio funzione renderBanconoteInputs
 function renderBanconoteInputs() {
-    const app = this; const container = document.getElementById('banconote-inputs-container'); if (!container) return; const tagli = [500, 200, 100, 50, 20, 10];
-    container.innerHTML = tagli.map(taglio => { const quantita = homeState.banconoteCounter[taglio] || 0; const subtotale = quantita * taglio; return ` <div class="flex items-center justify-between p-3 rounded-lg" style="border: 1px solid var(--border-primary); background-color: var(--bg-secondary);"><div style="width: 100px; text-align: center;"><span class="text-md font-medium text-primary">€ ${taglio}</span></div><div style="width: 200px;"><div class="number-input-group"><button type="button" class="number-input-btn" data-action="decrement-banconota" data-taglio="${taglio}"><i data-lucide="minus"></i></button><input type="text" id="banconota-quantita-${taglio}" value="${app.formatInteger(quantita)}" readonly class="number-input-field" /><button type="button" class="number-input-btn" data-action="increment-banconota" data-taglio="${taglio}"><i data-lucide="plus"></i></button></div></div><div style="width: 150px; text-align: center;"><span id="banconote-subtotal-${taglio}" class="text-md font-bold text-success">${app.formatCurrency(subtotale)}</span></div></div> `; }).join('');
+    const app = this; const container = document.getElementById('banconote-inputs-container'); if (!container) return; const tagli = [200, 100, 50, 20, 10];
+    container.innerHTML = tagli.map(taglio => { const quantita = homeState.banconoteCounter[taglio] || 0; const subtotale = quantita * taglio; return ` <div class="flex items-center justify-between p-3 rounded-lg"><div style="width: 100px; text-align: center;"><span class="font-medium text-primary">€ ${taglio}</span></div><div style="width: 200px;"><div class="number-input-group" style="height: 2.5rem;"><button type="button" class="number-input-btn" data-action="decrement-banconota" data-taglio="${taglio}"><i data-lucide="minus"></i></button><input type="text" id="banconota-quantita-${taglio}" value="${app.formatInteger(quantita)}" readonly class="number-input-field" /><button type="button" class="number-input-btn" data-action="increment-banconota" data-taglio="${taglio}"><i data-lucide="plus"></i></button></div></div><div style="width: 150px; text-align: center;"><span id="banconote-subtotal-${taglio}" class="font-medium text-primary">${app.formatCurrency(subtotale)}</span></div></div> `; }).join('');
     container.querySelectorAll('[data-action="increment-banconota"]').forEach(btn => btn.addEventListener('click', () => incrementBanconota.call(app, btn.dataset.taglio))); container.querySelectorAll('[data-action="decrement-banconota"]').forEach(btn => btn.addEventListener('click', () => decrementBanconota.call(app, btn.dataset.taglio))); app.refreshIcons();
 }
 // Fine funzione renderBanconoteInputs
@@ -287,7 +384,6 @@ function updateBanconotaInput(taglio, quantita) { const app = this; const quanti
 // Fine funzione updateBanconotaInput
 
 // === FUNZIONI CALENDARIO ===
-// ... (codice calendario invariato rispetto all'ultima versione) ...
 // Inizio funzione initCalendar
 function initCalendar() { renderCalendar.call(this); }
 // Fine funzione initCalendar
@@ -302,7 +398,6 @@ function changeMonth(offset) { const newDate = new Date(homeState.calendar.curre
 // Fine funzione changeMonth
 
 // === FUNZIONI FESTIVITÀ ITALIANE ===
-// ... (codice invariato) ...
 // Inizio funzione calcolaPasqua
 function calcolaPasqua(anno) { const a = anno % 19, b = Math.floor(anno / 100), c = anno % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mese = Math.floor((h + l - 7 * m + 114) / 31), giorno = ((h + l - 7 * m + 114) % 31) + 1; return new Date(anno, mese - 1, giorno); }
 // Fine funzione calcolaPasqua
@@ -314,21 +409,21 @@ function isDomenica(data) { return data.getDay() === 0; }
 // Fine funzione isDomenica
 
 // === FUNZIONI ORDINE CARBURANTE ===
-// ... (codice invariato rispetto all'ultima versione) ...
 // Inizio funzione renderOrdineCarburante
-function renderOrdineCarburante() { const container = document.getElementById('carburante-container'); if (!container) return; const app = this; const prodotti = [{ key: 'benzina', name: 'Benzina', color: 'green', textColorClass: 'text-success' },{ key: 'gasolio', name: 'Gasolio', color: 'yellow', textColorClass: 'text-warning' },{ key: 'dieselPlus', name: 'Diesel+', color: 'red', textColorClass: 'text-danger' },{ key: 'hvolution', name: 'Hvolution', color: 'blue', textColorClass: 'text-info' }]; const prezzi = getLatestPrices.call(app); let html = prodotti.map(p => { const quantita = homeState.ordineCarburante[p.key]; const importo = quantita * (prezzi[p.key] || 0); return `<div class="flex items-center justify-between p-3 rounded-lg"><div style="width: 125px;"><span class="font-medium ${p.textColorClass}">${p.name}</span><div class="text-sm text-secondary">${app.formatCurrency(prezzi[p.key] || 0, true)}/L</div></div><div style="width: 200px;"><div class="number-input-group"><button type="button" class="number-input-btn" data-action="decrement" data-product="${p.key}"><i data-lucide="minus"></i></button><input type="text" id="carburante-quantita-${p.key}" value="${app.formatInteger(quantita)}" readonly class="number-input-field" /><button type="button" class="number-input-btn" data-action="increment" data-product="${p.key}"><i data-lucide="plus"></i></button></div></div><div class="text-right" style="width: 125px;"><span id="carburante-importo-${p.key}" class="font-bold text-${p.color}">${app.formatCurrency(importo)}</span></div></div>`; }).join(''); const totaleLitri = getTotaleLitri.call(app), totaleImporto = getTotaleImporto.call(app); html += `<div class="product-box mt-4 p-4"><div class="flex items-end justify-between"><div><div class="text-sm text-secondary">Prodotti:</div><div class="text-lg font-bold text-primary">Totale</div></div><div><div class="text-sm text-secondary text-right">Litri:</div><div id="carburante-totale-litri" class="text-lg font-bold text-primary text-right">${app.formatInteger(totaleLitri)}</div></div><div><div class="text-sm text-secondary text-right">Importo:</div><div id="carburante-totale-importo" class="text-lg font-bold text-success text-right">${app.formatCurrency(totaleImporto)}</div></div></div></div>`; container.innerHTML = html; setupCarburanteEventListeners.call(app); app.refreshIcons(); }
+function renderOrdineCarburante() { const container = document.getElementById('carburante-container'); if (!container) return; const app = this; const prodotti = [{ key: 'benzina', name: 'Benzina', color: 'green', textColorClass: 'text-success' },{ key: 'gasolio', name: 'Gasolio', color: 'yellow', textColorClass: 'text-warning' },{ key: 'dieselPlus', name: 'Diesel+', color: 'red', textColorClass: 'text-danger' },{ key: 'hvolution', name: 'Hvolution', color: 'blue', textColorClass: 'text-info' }]; const prezzi = getLatestPrices.call(app); let html = prodotti.map(p => { const quantita = homeState.ordineCarburante[p.key] || 0; // Aggiunto fallback a 0
+    const importo = quantita * (prezzi[p.key] || 0); return `<div class="flex items-center justify-between p-3 rounded-lg"><div style="width: 125px;"><span class="font-medium ${p.textColorClass}">${p.name}</span><div class="text-sm text-secondary">${app.formatCurrency(prezzi[p.key] || 0, true)}/L</div></div><div style="width: 200px;"><div class="number-input-group" style="height: 2.5rem;"><button type="button" class="number-input-btn" data-action="decrement" data-product="${p.key}"><i data-lucide="minus"></i></button><input type="text" id="carburante-quantita-${p.key}" value="${app.formatInteger(quantita)}" readonly class="number-input-field" /><button type="button" class="number-input-btn" data-action="increment" data-product="${p.key}"><i data-lucide="plus"></i></button></div></div><div class="text-right" style="width: 125px;"><span id="carburante-importo-${p.key}" class="font-bold text-${p.color}">${app.formatCurrency(importo)}</span></div></div>`; }).join(''); const totaleLitri = getTotaleLitri.call(app), totaleImporto = getTotaleImporto.call(app); html += `<div class="product-box mt-4 p-4"><div class="flex items-end justify-between"><div><div class="text-lg font-bold text-primary">Totale</div></div><div><div id="carburante-totale-litri" class="text-lg font-bold text-primary text-right">${app.formatInteger(totaleLitri)}</div></div><div><div id="carburante-totale-importo" class="text-lg font-bold text-success text-right">${app.formatCurrency(totaleImporto)}</div></div></div></div>`; container.innerHTML = html; setupCarburanteEventListeners.call(app); app.refreshIcons(); }
 // Fine funzione renderOrdineCarburante
 // Inizio funzione setupCarburanteEventListeners
 function setupCarburanteEventListeners() { const app = this; document.querySelectorAll('#carburante-container [data-action][data-product]').forEach(btn => btn.addEventListener('click', () => { const action = btn.getAttribute('data-action'), product = btn.getAttribute('data-product'); if (action === 'increment') incrementCarburante.call(app, product); else if (action === 'decrement') decrementCarburante.call(app, product); })); }
 // Fine funzione setupCarburanteEventListeners
 // Inizio funzione incrementCarburante
-function incrementCarburante(prodotto) { homeState.ordineCarburante[prodotto] += 1000; this.saveToStorage('ordineCarburante', homeState.ordineCarburante); updateOrdineCarburanteUI.call(this, prodotto); }
+function incrementCarburante(prodotto) { homeState.ordineCarburante[prodotto] = (homeState.ordineCarburante[prodotto] || 0) + 1000; this.saveToStorage('ordineCarburante', homeState.ordineCarburante); updateOrdineCarburanteUI.call(this, prodotto); }
 // Fine funzione incrementCarburante
 // Inizio funzione decrementCarburante
-function decrementCarburante(prodotto) { if (homeState.ordineCarburante[prodotto] >= 1000) { homeState.ordineCarburante[prodotto] -= 1000; this.saveToStorage('ordineCarburante', homeState.ordineCarburante); updateOrdineCarburanteUI.call(this, prodotto); } }
+function decrementCarburante(prodotto) { let currentQuantity = homeState.ordineCarburante[prodotto] || 0; if (currentQuantity >= 1000) { homeState.ordineCarburante[prodotto] = currentQuantity - 1000; this.saveToStorage('ordineCarburante', homeState.ordineCarburante); updateOrdineCarburanteUI.call(this, prodotto); } }
 // Fine funzione decrementCarburante
 // Inizio funzione updateOrdineCarburanteUI
-function updateOrdineCarburanteUI(prodotto) { const app = this; const quantita = homeState.ordineCarburante[prodotto]; const importo = calcolaImportoCarburante.call(app, prodotto); const quantitaEl = document.getElementById(`carburante-quantita-${prodotto}`); const importoEl = document.getElementById(`carburante-importo-${prodotto}`); if (quantitaEl) quantitaEl.value = app.formatInteger(quantita); if (importoEl) importoEl.textContent = app.formatCurrency(importo); const totaleLitri = getTotaleLitri.call(app), totaleImporto = getTotaleImporto.call(app); const totaleLitriEl = document.getElementById('carburante-totale-litri'); const totaleImportoEl = document.getElementById('carburante-totale-importo'); if (totaleLitriEl) totaleLitriEl.textContent = app.formatInteger(totaleLitri); if (totaleImportoEl) totaleImportoEl.textContent = app.formatCurrency(totaleImporto); }
+function updateOrdineCarburanteUI(prodotto) { const app = this; const quantita = homeState.ordineCarburante[prodotto] || 0; const importo = calcolaImportoCarburante.call(app, prodotto); const quantitaEl = document.getElementById(`carburante-quantita-${prodotto}`); const importoEl = document.getElementById(`carburante-importo-${prodotto}`); if (quantitaEl) quantitaEl.value = app.formatInteger(quantita); if (importoEl) importoEl.textContent = app.formatCurrency(importo); const totaleLitri = getTotaleLitri.call(app), totaleImporto = getTotaleImporto.call(app); const totaleLitriEl = document.getElementById('carburante-totale-litri'); const totaleImportoEl = document.getElementById('carburante-totale-importo'); if (totaleLitriEl) totaleLitriEl.textContent = app.formatInteger(totaleLitri); if (totaleImportoEl) totaleImportoEl.textContent = app.formatCurrency(totaleImporto); }
 // Fine funzione updateOrdineCarburanteUI
 // Inizio funzione getLatestPrices
 function getLatestPrices() { if (!Array.isArray(this.state.data.priceHistory) || this.state.data.priceHistory.length === 0) return { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0, adblue: 0 }; return [...this.state.data.priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; }
@@ -337,20 +432,18 @@ function getLatestPrices() { if (!Array.isArray(this.state.data.priceHistory) ||
 function calcolaImportoCarburante(prodotto) { const litri = homeState.ordineCarburante[prodotto] || 0; const prezzi = getLatestPrices.call(this); const prezzo = prezzi[prodotto] || 0; return litri * prezzo; }
 // Fine funzione calcolaImportoCarburante
 // Inizio funzione getTotaleLitri
-function getTotaleLitri() { return Object.values(homeState.ordineCarburante).reduce((total, litri) => total + litri, 0); }
+function getTotaleLitri() { return Object.values(homeState.ordineCarburante).reduce((total, litri) => total + (litri || 0), 0); }
 // Fine funzione getTotaleLitri
 // Inizio funzione getTotaleImporto
 function getTotaleImporto() { const prodotti = ['benzina', 'gasolio', 'dieselPlus', 'hvolution']; return prodotti.reduce((total, prodotto) => total + calcolaImportoCarburante.call(this, prodotto), 0); }
 // Fine funzione getTotaleImporto
 
 // === FUNZIONI STATISTICHE HOME ===
-// ... (codice invariato rispetto all'ultima versione) ...
 // Inizio funzione getHomeDashboardStats
 function getHomeDashboardStats() { const app = this; const today = new Date(); today.setHours(0, 0, 0, 0); const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1); const todayTurni = (app.state.data.turni || []).filter(t => new Date(t.date) >= today && new Date(t.date) < tomorrow); const shiftCount = todayTurni.length; const shiftNames = todayTurni.map(t => t.turno).join(', '); const prices = getLatestPrices.call(this); let totalIperself = 0, totalServito = 0, totalRevenue = 0, totalMarginToday = 0; const margineFdtPay = 0.035 + 0.005, margineServito = 0.065 + 0.015, margineAdblue = 0.40; const productTotals = { benzina: { servito: 0, iperself: 0 }, gasolio: { servito: 0, iperself: 0 }, dieselplus: { servito: 0, iperself: 0 }, hvolution: { servito: 0, iperself: 0 }, adblue: { servito: 0, iperself: 0 }}; todayTurni.forEach(turno => { const isRiepilogo = turno.turno === 'Riepilogo Mensile'; for (const product in productTotals) { let fdtL = 0, prepayL = 0, servitoL = 0; if (isRiepilogo) { fdtL = parseFloat(turno.fdt?.[product]) || 0; prepayL = parseFloat(turno.prepay?.[product]) || 0; servitoL = parseFloat(turno.servito?.[product]) || 0; } else { prepayL = parseFloat(turno.prepay?.[product]) || 0; servitoL = parseFloat(turno.servito?.[product]) || 0; } const iperselfL = fdtL + prepayL; productTotals[product].iperself += iperselfL; productTotals[product].servito += servitoL; totalIperself += iperselfL; totalServito += servitoL; const priceKey = product === 'dieselplus' ? 'dieselPlus' : product; const basePrice = prices[priceKey] || 0; if (basePrice > 0) { if (product === 'adblue') totalRevenue += servitoL * basePrice; else { const prezzo_iperself = basePrice + 0.005, prezzo_servito = basePrice + 0.015 + 0.210; totalRevenue += (iperselfL * prezzo_iperself) + (servitoL * prezzo_servito); } } if (product === 'adblue') totalMarginToday += servitoL * margineAdblue; else { totalMarginToday += iperselfL * margineFdtPay; totalMarginToday += servitoL * margineServito; } } }); const totalLitersToday = totalIperself + totalServito; const overallServitoPercentage = totalLitersToday > 0 ? Math.round((totalServito / totalLitersToday) * 100) : 0; const productLiters = {}, productServitoPercentages = {}; for (const product in productTotals) { const pTotal = productTotals[product].servito + productTotals[product].iperself; productLiters[product] = pTotal; productServitoPercentages[product] = pTotal > 0 ? Math.round((productTotals[product].servito / pTotal) * 100) : 0; } return { totalLitersToday, overallServitoPercentage, productServitoPercentages, totalRevenueToday: totalRevenue, shiftCount, shiftNames, productLiters, totalMarginToday }; }
 // Fine funzione getHomeDashboardStats
 
 // === FUNZIONI CALCOLATRICE ===
-// ... (codice invariato rispetto all'ultima versione) ...
 // Inizio funzione handleCalculatorInput
 function handleCalculatorInput(value) { const app = this; const isNumber = !isNaN(parseFloat(value)); const isOperator = ['+', '-', '*', '/'].includes(value); const calc = homeState.calculator; if (value === 'C') { resetCalculator.call(app); return; } if (value === '±') { if (calc.display !== '0') calc.display = String(parseFloat(calc.display) * -1); } else if (value === '%') calc.display = String(parseFloat(calc.display) / 100); else if (isNumber) { if (calc.waitingForSecondOperand) { calc.display = value; calc.waitingForSecondOperand = false; } else calc.display = calc.display === '0' ? value : calc.display + value; } else if (value === '.') { if (!calc.display.includes('.')) calc.display += '.'; } else if (isOperator) handleOperator.call(app, value); else if (value === '=') performCalculation.call(app); updateCalculatorDisplay.call(app); }
 // Fine funzione handleCalculatorInput
@@ -368,7 +461,6 @@ function updateCalculatorDisplay() { const container = document.getElementById('
 // Fine funzione updateCalculatorDisplay
 
 // === FUNZIONI TO-DO ===
-// ... (codice invariato rispetto all'ultima versione) ...
 // Inizio funzione renderTodos
 function renderTodos() { const app = this; const todoList = document.getElementById('todo-list'); if (todoList) { const sortedTodos = [...homeState.todos].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)); todoList.innerHTML = ` ${sortedTodos.map(todo => `<div class="todo-item ${todo.completed ? 'completed' : ''} color-${todo.color || 'standard'}" data-todo-id="${todo.id}"><div class="flex-grow"><span>${todo.text}</span> ${todo.dueDate ? `<div class="text-sm text-secondary">Scadenza: ${app.formatDate(todo.dueDate)}</div>` : ''}</div><button class="delete-btn ml-auto" data-todo-id="${todo.id}"><i data-lucide="x" class="w-4 h-4"></i></button></div>`).join('')} ${homeState.todos.length === 0 ? '<p class="text-secondary">Nessuna attività. Clicca un giorno sul calendario per aggiungerne una!</p>' : ''} `; } app.refreshIcons(); }
 // Fine funzione renderTodos
