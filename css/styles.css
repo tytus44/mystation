@@ -55,17 +55,17 @@ body {
     --color-accent-calc: #29c7b9;
 
     --bg-primary: #ffffff;
-    --bg-secondary: #f9fafb;
-    --bg-tertiary: #f3f4f6;
-    --bg-body: #f9fafb;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --bg-body: #fafbfc;
 
-    --border-primary: #e5e7eb;
-    --border-secondary: #d1d5db;
+    --border-primary: #e2e8f0;
+    --border-secondary: #cbd5e1;
     --border-focus: var(--color-primary);
 
-    --text-primary: #000000;
-    --text-secondary: #000000;
-    --text-tertiary: #9ca3af;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
     --text-inverse: #ffffff;
 
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -93,8 +93,8 @@ body {
     --animation-duration-fast: 0.2s;
     --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
-    --calc-display-bg: rgba(37, 99, 235, 0.1);
-    --calc-display-border: rgba(37, 99, 235, 0.3);
+    --calc-display-bg: rgba(37, 99, 235, 0.08);
+    --calc-display-border: rgba(37, 99, 235, 0.25);
     --calc-operator-bg: #2563eb;
     --calc-function-text: #1d4ed8;
 
@@ -112,24 +112,24 @@ html[data-theme-radius="high"] { --radius-base: var(--radius-val-high); }
     --glass-border: rgba(51, 65, 85, 0.5);
     --glass-blur: blur(16px);
 
-    --bg-primary: #2c3543;
-    --bg-secondary: #1f2937;
-    --bg-tertiary: #374151;
-    --bg-body: #111827;
+    --bg-primary: #334155;
+    --bg-secondary: #475569;
+    --bg-tertiary: #334155;
+    --bg-body: #0a0f1e;
     --border-primary: #374151;
     --border-secondary: #4b5563;
-    --text-primary: #d1d5db;
-    --text-secondary: #d1d5db;
-    --text-tertiary: #9ca3af;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
     --text-inverse: #ffffff;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
 
-    --calc-display-bg: rgba(96, 165, 250, 0.1);
-    --calc-display-border: rgba(96, 165, 250, 0.4);
-    --calc-operator-bg: #60a5fa;
-    --calc-function-text: #93c5fd;
+    --calc-display-bg: rgba(59, 130, 246, 0.12);
+    --calc-display-border: rgba(59, 130, 246, 0.35);
+    --calc-operator-bg: #3b82f6;
+    --calc-function-text: #60a5fa;
 
     .btn-primary {
         background-color: var(--color-primary);
