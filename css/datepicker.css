@@ -1,0 +1,147 @@
+/* ======================== */
+/* STILI DS-DATEPICKER      */
+/* ======================== */
+* { box-sizing: border-box; }
+:host {
+    display: inline-block;
+    width: 100%;
+}
+.wrapper {
+    position: relative;
+    width: 100%;
+}
+.input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md); /* Usa variabile per arrotondamento */
+    background-color: var(--bg-primary); /* Usa variabile per sfondo */
+    color: var(--text-primary); /* Usa variabile per testo */
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color var(--animation-duration-fast) var(--animation-timing),
+                box-shadow var(--animation-duration-fast) var(--animation-timing);
+}
+.input:hover:not(:disabled) {
+    border-color: var(--border-focus); /* Usa variabile per focus */
+}
+.input:focus {
+    outline: none;
+    border-color: var(--border-focus); /* Usa variabile per focus */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Colore primario per ombra focus */
+}
+.input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.calendar {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    background-color: var(--bg-primary); /* Usa variabile per sfondo */
+    border: 1px solid var(--border-primary); /* Usa variabile per bordo */
+    border-radius: var(--radius-lg); /* Usa variabile per arrotondamento */
+    box-shadow: var(--shadow-lg); /* Usa variabile per ombra */
+    padding: 1rem;
+    z-index: 1000;
+    min-width: 320px;
+    display: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all var(--animation-duration-fast) var(--animation-timing);
+}
+.calendar.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.nav-btn {
+    background-color: var(--bg-tertiary); /* Usa variabile per sfondo */
+    border: 1px solid var(--border-primary); /* Usa variabile per bordo */
+    border-radius: var(--radius-sm); /* Usa variabile per arrotondamento */
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--animation-duration-fast) var(--animation-timing);
+    color: var(--text-secondary); /* Usa variabile per testo */
+    font-weight: 600;
+}
+.nav-btn:hover {
+    background-color: var(--color-primary); /* Usa variabile per colore primario */
+    color: var(--text-inverse); /* Usa variabile per testo inverso */
+    border-color: var(--color-primary); /* Usa variabile per colore primario */
+}
+.title {
+    font-weight: 600;
+    text-align: center;
+    min-width: 150px;
+    color: var(--text-primary); /* Usa variabile per testo */
+    font-size: 1rem;
+}
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.weekday {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-tertiary); /* Usa variabile per testo terziario */
+    padding: 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+.day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm); /* Usa variabile per arrotondamento */
+    cursor: pointer;
+    transition: all var(--animation-duration-fast) var(--animation-timing);
+    font-size: 0.875rem;
+    color: var(--text-primary); /* Usa variabile per testo */
+    font-weight: 500;
+}
+.day:hover:not(.empty):not(.today):not(.selected) {
+    background-color: var(--bg-tertiary); /* Usa variabile per sfondo */
+    border-color: var(--border-focus); /* Usa variabile per focus */
+}
+.day.empty {
+    cursor: default;
+    color: transparent;
+}
+.day.today {
+    background-color: rgba(37, 99, 235, 0.15); /* Colore primario con opacità */
+    color: var(--color-primary); /* Usa variabile per colore primario */
+    font-weight: 700;
+    border-color: var(--color-primary); /* Usa variabile per colore primario */
+}
+.day.selected {
+    background-color: var(--color-primary); /* Usa variabile per colore primario */
+    color: var(--text-inverse); /* Usa variabile per testo inverso */
+    font-weight: 700;
+    border-color: var(--color-primary); /* Usa variabile per colore primario */
+}
+.day.other-month {
+    color: var(--text-tertiary); /* Usa variabile per testo terziario */
+}

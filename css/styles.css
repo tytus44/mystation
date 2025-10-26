@@ -49,7 +49,6 @@ html[data-theme-radius="high"] { --radius-base: var(--radius-val-high); }
     --text-primary: #d1d5db;         /* Testo principale */
     --text-secondary: #d1d5db;       /* Testo secondario (uguale al primario per leggibilità) */
     --text-tertiary: #9ca3af;        /* Testo terziario (placeholder, icone) */
-    --text-inverse: #111827;         /* Testo su sfondi colorati (es. bottoni primari) */
 
     /* Ombre (leggermente più scure/definite) */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
