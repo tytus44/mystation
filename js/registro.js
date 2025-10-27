@@ -132,10 +132,11 @@ function renderRegistroListView(container) {
 }
 // Fine funzione renderRegistroListView
 
+/* INIZIO SEZIONE MODIFICATA */
 // Inizio funzione getRegistroFormHTML
 function getRegistroFormHTML() {
     const isEdit = !!registroState.editingRegistry; const title = isEdit ? 'Modifica Carico' : 'Nuovo Carico'; const app = getApp();
-    const createNumberInput = (product, field, step) => { const value = registroState.registryForm[product][field]; return `<div class="number-input-group"><button type="button" class="number-input-btn" data-action="decrement" data-product="${product}" data-field="${field}" data-step="${step}"><i data-lucide="minus"></i></button><input type="text" value="${app.formatInteger(value)}" readonly class="number-input-field" /><button type="button" class="number-input-btn" data-action="increment" data-product="${product}" data-field="${field}" data-step="${step}"><i data-lucide="plus"></i></button></div>`; };
+    const createNumberInput = (product, field, step) => { const value = registroState.registryForm[product][field]; return `<div class="number-input-group"><button type="button" class="number-input-btn btn" data-action="decrement" data-product="${product}" data-field="${field}" data-step="${step}"><i data-lucide="minus"></i></button><input type="text" value="${app.formatInteger(value)}" readonly class="number-input-field form-control" /><button type="button" class="number-input-btn btn" data-action="increment" data-product="${product}" data-field="${field}" data-step="${step}"><i data-lucide="plus"></i></button></div>`; };
     return `
         <div class="card-header"><h2 class="card-title">${title}</h2></div>
         <div class="card-body">
@@ -161,6 +162,7 @@ function getRegistroFormHTML() {
         </div>`;
 }
 // Fine funzione getRegistroFormHTML
+/* FINE SEZIONE MODIFICATA */
 
 // === SETUP EVENT LISTENERS (CON DELEGAZIONE) ===
 // Inizio funzione handleRegistroClick
