@@ -2,7 +2,6 @@
 // FILE: anagrafica.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Anagrafica (contatti, import/export).
-// --- MODIFICATO per usare nuove variabili font-size ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO ANAGRAFICA ===
@@ -201,8 +200,7 @@ function openContattoModal(contatto = null) {
     if (contatto) { anagraficaState.contattoForm = { ...contatto }; anagraficaState.editingContatto = contatto.id; } else resetContattoForm();
     const modalHTML = `
         <div class="modal-header">
-            <h2 class="text-lg">${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
-            <button id="close-contatto-modal-btn" class="modal-close-btn"><i data-lucide="x"></i></button>
+            <h2 class="card-title">${isEditing ? 'Modifica Contatto' : 'Nuovo Contatto'}</h2>
         </div>
         <div class="modal-body">
             <div class="space-y-4">
@@ -218,14 +216,19 @@ function openContattoModal(contatto = null) {
                 <div><label class="form-label">Note</label><input type="text" id="contatto-note" class="form-control" value="${anagraficaState.contattoForm.note}" style="width: 100%; max-width: none;"></div>
             </div>
         </div>
-        <div class="modal-actions" style="align-items: center;">
-            ${isEditing ? `<button id="delete-contatto-modal-btn" class="btn btn-danger" style="margin-right: auto;"><i data-lucide="trash-2" class="mr-2"></i>Elimina</button>` : ''}
-            <button id="cancel-contatto-modal-btn" class="btn btn-secondary">Annulla</button>
-            <button id="save-contatto-modal-btn" class="btn btn-success">${isEditing ? 'Salva' : 'Aggiungi'}</button>
+        <div class="modal-footer" style="justify-content: space-between;">
+            <div>
+                ${isEditing ? `<button id="delete-contatto-modal-btn" class="btn btn-danger"><i data-lucide="trash-2" class="mr-2"></i>Elimina</button>` : ''}
+            </div>
+            <div class="flex gap-4">
+                <button id="cancel-contatto-modal-btn" class="btn btn-secondary">Annulla</button>
+                <button id="save-contatto-modal-btn" class="btn btn-success">${isEditing ? 'Salva' : 'Aggiungi'}</button>
+            </div>
         </div>`;
     const modalContentEl = document.getElementById('form-modal-content'); modalContentEl.innerHTML = modalHTML;
+    modalContentEl.classList.remove('modal-wide');
+    modalContentEl.classList.add('modal-account');
     document.getElementById('save-contatto-modal-btn').addEventListener('click', () => saveContattoFromModal.call(app));
-    document.getElementById('close-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
     document.getElementById('cancel-contatto-modal-btn').addEventListener('click', () => app.hideFormModal());
     if (isEditing) document.getElementById('delete-contatto-modal-btn').addEventListener('click', () => deleteContatto.call(app, anagraficaState.editingContatto));
     app.showFormModal(); app.refreshIcons();

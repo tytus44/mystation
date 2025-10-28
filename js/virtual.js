@@ -2,9 +2,6 @@
 // FILE: virtual.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione VirtualStation (turni, statistiche, grafici).
-// --- MODIFICATO per usare nuove variabili font-size ---
-// --- MODIFICATO per rimuovere pulsanti salva immagine ---
-// --- MODIFICATO per rimuovere bordo grafico prodotti ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO VIRTUAL ===
@@ -205,10 +202,98 @@ function renderVirtualListView(container) {
 // Fine funzione renderVirtualListView
 
 // Inizio funzione getVirtualFormHTML
-function getVirtualFormHTML() { const isEdit = !!virtualState.editingTurno; const title = isEdit ? 'Modifica Turno' : 'Nuovo Turno'; return ` <div class="card-header"><h2 class="card-title">${title}</h2></div><div class="card-body"><div class="grid grid-cols-12 gap-4 items-end mb-4"><div class="col-span-3"><div class="form-group mb-0"><label class="form-label">Data</label><div class="input-group"><i data-lucide="calendar" class="input-group-icon"></i><input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}" autocomplete="off"></div></div></div><div class="col-span-9"><div class="form-group mb-0"><label class="form-label">Tipo Turno</label><div class="btn-group w-full" role="group"><button type="button" class="btn ${virtualState.turnoForm.turno === 'Notte' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Notte">Notte</button><button type="button" class="btn ${virtualState.turnoForm.turno === 'Mattina' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Mattina">Mattina</button><button type="button" class="btn ${virtualState.turnoForm.turno === 'Pausa' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pausa">Pausa</button><button type="button" class="btn ${virtualState.turnoForm.turno === 'Pomeriggio' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pomeriggio">Pomeriggio</button><button type="button" class="btn ${virtualState.turnoForm.turno === 'Weekend' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Weekend">Weekend</button></div></div></div></div><div class="table-container"><table class="table"><thead><tr><th style="width: 25%;">Prodotto</th><th style="width: 37.5%;">Prepay (L)</th><th style="width: 37.5%;">Servito (L)</th></tr></thead><tbody><tr><td class="font-medium text-primary">Gasolio</td><td><input type="number" id="prepay-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.gasolio || ''}" autocomplete="off"></td><td><input type="number" id="servito-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.gasolio || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">Diesel+</td><td><input type="number" id="prepay-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.dieselplus || ''}" autocomplete="off"></td><td><input type="number" id="servito-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.dieselplus || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">AdBlue</td><td></td><td><input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">Benzina</td><td><input type="number" id="prepay-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.benzina || ''}" autocomplete="off"></td><td><input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">Hvolution</td><td><input type="number" id="prepay-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.hvolution || ''}" autocomplete="off"></td><td><input type="number" id="servito-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.hvolution || ''}" autocomplete="off"></td></tr></tbody></table></div><div class="flex justify-end space-x-4 mt-4"><button id="cancel-turno-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-turno-btn" class="btn btn-success">Salva Turno</button></div></div> `; }
+function getVirtualFormHTML() {
+    const isEdit = !!virtualState.editingTurno;
+    const title = isEdit ? 'Modifica Turno' : 'Nuovo Turno';
+    return `
+        <div class="card-header"><h2 class="card-title">${title}</h2></div>
+        <div class="card-body">
+            <div class="grid grid-cols-12 gap-4 items-end mb-4">
+                <div class="col-span-3">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Data</label>
+                        <div class="input-group">
+                            <i data-lucide="calendar" class="input-group-icon"></i>
+                            <input type="text" id="turno-date" class="form-control" placeholder="gg.mm.aaaa" value="${virtualState.turnoForm.date}" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-9">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Tipo Turno</label>
+                        <div class="btn-group w-full" role="group">
+                            <button type="button" class="btn ${virtualState.turnoForm.turno === 'Notte' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Notte">Notte</button>
+                            <button type="button" class="btn ${virtualState.turnoForm.turno === 'Mattina' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Mattina">Mattina</button>
+                            <button type="button" class="btn ${virtualState.turnoForm.turno === 'Pausa' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pausa">Pausa</button>
+                            <button type="button" class="btn ${virtualState.turnoForm.turno === 'Pomeriggio' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Pomeriggio">Pomeriggio</button>
+                            <button type="button" class="btn ${virtualState.turnoForm.turno === 'Weekend' ? 'btn-primary' : 'btn-secondary'} turno-tab" data-turno="Weekend">Weekend</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead><tr><th style="width: 25%;">Prodotto</th><th style="width: 37.5%;">Prepay (L)</th><th style="width: 37.5%;">Servito (L)</th></tr></thead>
+                    <tbody>
+                        <tr><td class="font-medium text-primary">Gasolio</td><td><input type="number" id="prepay-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.gasolio || ''}" autocomplete="off"></td><td><input type="number" id="servito-gasolio" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.gasolio || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">Diesel+</td><td><input type="number" id="prepay-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.dieselplus || ''}" autocomplete="off"></td><td><input type="number" id="servito-dieselplus" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.dieselplus || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">AdBlue</td><td></td><td><input type="number" id="servito-adblue" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.adblue || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">Benzina</td><td><input type="number" id="prepay-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.benzina || ''}" autocomplete="off"></td><td><input type="number" id="servito-benzina" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.benzina || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">Hvolution</td><td><input type="number" id="prepay-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.prepay.hvolution || ''}" autocomplete="off"></td><td><input type="number" id="servito-hvolution" class="form-control" step="0.01" placeholder="0.00" value="${virtualState.turnoForm.servito.hvolution || ''}" autocomplete="off"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-turno-btn-bottom" class="btn btn-secondary">Annulla</button>
+            <button id="save-turno-btn" class="btn btn-success">Salva Turno</button>
+        </div>
+    `;
+}
 // Fine funzione getVirtualFormHTML
 // Inizio funzione getMeseFormHTML
-function getMeseFormHTML(turno = null) { const isEdit = !!turno; const title = isEdit ? 'Modifica Riepilogo Mensile' : 'Nuovo Riepilogo Mensile'; const app = getApp(); let dateValue = app.getTodayFormatted(); if (isEdit) dateValue = app.formatToItalianDate(turno.date); const fdt = isEdit ? turno.fdt || {} : {}; const prepay = isEdit ? turno.prepay || {} : {}; const servito = isEdit ? turno.servito || {} : {}; return ` <div class="card-header"><h2 class="card-title">${title}</h2></div><div class="card-body"><div class="grid grid-cols-12 gap-4 items-end mb-4"><div class="col-span-3"><div class="form-group mb-0"><label class="form-label">Data di Riferimento</label><div class="input-group"><i data-lucide="calendar" class="input-group-icon"></i><input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off"></div></div></div></div><div class="table-container mt-4"><table class="table"><thead><tr><th style="width: 25%;">Prodotto</th><th style="width: 25%;">FaiDaTe</th><th style="width: 25%;">Servito</th><th style="width: 25%;">Prepay</th></tr></thead><tbody><tr><td class="font-medium text-primary">Gasolio</td><td><input type="number" id="fdt-gasolio" class="form-control" step="0.01" placeholder="0" value="${fdt.gasolio || ''}" autocomplete="off"></td><td><input type="number" id="servito-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${servito.gasolio || ''}" autocomplete="off"></td><td><input type="number" id="prepay-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.gasolio || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">Diesel+</td><td><input type="number" id="fdt-dieselplus" class="form-control" step="0.01" placeholder="0" value="${fdt.dieselplus || ''}" autocomplete="off"></td><td><input type="number" id="servito-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${servito.dieselplus || ''}" autocomplete="off"></td><td><input type="number" id="prepay-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.dieselplus || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">AdBlue</td><td></td><td><input type="number" id="servito-adblue-mese" class="form-control" step="0.01" placeholder="0" value="${servito.adblue || ''}" autocomplete="off"></td><td></td></tr><tr><td class="font-medium text-primary">Benzina</td><td><input type="number" id="fdt-benzina" class="form-control" step="0.01" placeholder="0" value="${fdt.benzina || ''}" autocomplete="off"></td><td><input type="number" id="servito-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${servito.benzina || ''}" autocomplete="off"></td><td><input type="number" id="prepay-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.benzina || ''}" autocomplete="off"></td></tr><tr><td class="font-medium text-primary">Hvolution</td><td><input type="number" id="fdt-hvolution" class="form-control" step="0.01" placeholder="0" value="${fdt.hvolution || ''}" autocomplete="off"></td><td><input type="number" id="servito-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${servito.hvolution || ''}" autocomplete="off"></td><td><input type="number" id="prepay-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.hvolution || ''}" autocomplete="off"></td></tr></tbody></table></div><div class="flex justify-end space-x-4 mt-4"><button id="cancel-mese-btn" class="btn btn-secondary">Annulla</button><button id="save-mese-btn" class="btn btn-primary">Salva Riepilogo</button></div></div> `; }
+function getMeseFormHTML(turno = null) {
+    const isEdit = !!turno;
+    const title = isEdit ? 'Modifica Riepilogo Mensile' : 'Nuovo Riepilogo Mensile';
+    const app = getApp();
+    let dateValue = app.getTodayFormatted();
+    if (isEdit) dateValue = app.formatToItalianDate(turno.date);
+    const fdt = isEdit ? turno.fdt || {} : {};
+    const prepay = isEdit ? turno.prepay || {} : {};
+    const servito = isEdit ? turno.servito || {} : {};
+    return `
+        <div class="card-header"><h2 class="card-title">${title}</h2></div>
+        <div class="card-body">
+            <div class="grid grid-cols-12 gap-4 items-end mb-4">
+                <div class="col-span-3">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Data di Riferimento</label>
+                        <div class="input-group">
+                            <i data-lucide="calendar" class="input-group-icon"></i>
+                            <input type="text" id="mese-data-input" class="form-control" placeholder="gg.mm.aaaa" value="${dateValue}" ${isEdit ? 'readonly' : ''} autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container mt-4">
+                <table class="table">
+                    <thead><tr><th style="width: 25%;">Prodotto</th><th style="width: 25%;">FaiDaTe</th><th style="width: 25%;">Servito</th><th style="width: 25%;">Prepay</th></tr></thead>
+                    <tbody>
+                        <tr><td class="font-medium text-primary">Gasolio</td><td><input type="number" id="fdt-gasolio" class="form-control" step="0.01" placeholder="0" value="${fdt.gasolio || ''}" autocomplete="off"></td><td><input type="number" id="servito-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${servito.gasolio || ''}" autocomplete="off"></td><td><input type="number" id="prepay-gasolio-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.gasolio || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">Diesel+</td><td><input type="number" id="fdt-dieselplus" class="form-control" step="0.01" placeholder="0" value="${fdt.dieselplus || ''}" autocomplete="off"></td><td><input type="number" id="servito-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${servito.dieselplus || ''}" autocomplete="off"></td><td><input type="number" id="prepay-dieselplus-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.dieselplus || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">AdBlue</td><td></td><td><input type="number" id="servito-adblue-mese" class="form-control" step="0.01" placeholder="0" value="${servito.adblue || ''}" autocomplete="off"></td><td></td></tr>
+                        <tr><td class="font-medium text-primary">Benzina</td><td><input type="number" id="fdt-benzina" class="form-control" step="0.01" placeholder="0" value="${fdt.benzina || ''}" autocomplete="off"></td><td><input type="number" id="servito-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${servito.benzina || ''}" autocomplete="off"></td><td><input type="number" id="prepay-benzina-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.benzina || ''}" autocomplete="off"></td></tr>
+                        <tr><td class="font-medium text-primary">Hvolution</td><td><input type="number" id="fdt-hvolution" class="form-control" step="0.01" placeholder="0" value="${fdt.hvolution || ''}" autocomplete="off"></td><td><input type="number" id="servito-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${servito.hvolution || ''}" autocomplete="off"></td><td><input type="number" id="prepay-hvolution-mese" class="form-control" step="0.01" placeholder="0" value="${prepay.hvolution || ''}" autocomplete="off"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-mese-btn" class="btn btn-secondary">Annulla</button>
+            <button id="save-mese-btn" class="btn btn-primary">Salva Riepilogo</button>
+        </div>
+    `;
+}
 // Fine funzione getMeseFormHTML
 
 // === SETUP EVENT LISTENERS VISTA LISTA ===

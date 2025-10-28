@@ -2,9 +2,6 @@
 // FILE: prezzi.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Gestione Prezzi (listini e concorrenza).
-// --- MODIFICATO per usare nuove variabili font-size ---
-// --- MODIFICATO colore AdBlue ---
-// --- MODIFICATO colori differenza concorrenza e grassetto storico ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO PREZZI ===
@@ -122,10 +119,118 @@ function renderPrezziListView(container) {
 // Fine funzione renderPrezziListView
 
 // Inizio funzione getListinoFormHTML
-function getListinoFormHTML() { const app = getApp(); const isEdit = !!prezziState.editingListino; const title = isEdit ? 'Modifica Listino' : 'Nuovo Listino'; if (!isEdit) { const currentPricesData = currentPrices.call(app); prezziState.listinoForm.benzina = currentPricesData.benzina || ''; prezziState.listinoForm.gasolio = currentPricesData.gasolio || ''; prezziState.listinoForm.dieselPlus = currentPricesData.dieselPlus || ''; prezziState.listinoForm.hvolution = currentPricesData.hvolution || ''; prezziState.listinoForm.adblue = currentPricesData.adblue || ''; } return ` <div class="card-header"><h2 class="card-title">${title}</h2></div><div class="card-body" style="padding: 1rem;"><div style="display: flex; flex-direction: column; gap: 1rem;"><div class="form-group" style="margin-bottom: 0;"><input type="text" id="listino-date" class="form-control" placeholder="Data (gg.mm.aaaa)" value="${prezziState.listinoForm.date}" autocomplete="off"></div><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;"><div class="product-box" style="border-color: rgba(16, 185, 129, 0.65); padding: 0.75rem;"><label class="form-label font-medium" style="color: var(--color-success); margin-bottom: 0.5rem;">Benzina</label><input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina}" autocomplete="off"></div><div class="product-box" style="border-color: rgba(245, 158, 11, 0.65); padding: 0.75rem;"><label class="form-label font-medium" style="color: var(--color-warning); margin-bottom: 0.5rem;">Gasolio</label><input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio}" autocomplete="off"></div><div class="product-box" style="border-color: rgba(255, 32, 78, 0.65); padding: 0.75rem;"><label class="form-label font-medium" style="color: var(--color-danger); margin-bottom: 0.5rem;">Diesel+</label><input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus}" autocomplete="off"></div><div class="product-box" style="border-color: rgba(6, 182, 212, 0.65); padding: 0.75rem;"><label class="form-label font-medium" style="color: #06b6d4; margin-bottom: 0.5rem;">Hvolution</label><input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution}" autocomplete="off"></div><div class="product-box" style="border-color: rgba(107, 114, 128, 0.65); padding: 0.75rem;"><label class="form-label font-medium" style="color: var(--color-secondary); margin-bottom: 0.5rem;">AdBlue</label><input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue}" autocomplete="off"></div></div><div class="flex items-center justify-end space-x-4" style="margin-top: 0.5rem;"><button id="cancel-listino-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-listino-btn" class="btn btn-success">Salva Listino</button></div></div></div> `; }
+function getListinoFormHTML() {
+    const app = getApp();
+    const isEdit = !!prezziState.editingListino;
+    const title = isEdit ? 'Modifica Listino' : 'Nuovo Listino';
+    if (!isEdit) {
+        const currentPricesData = currentPrices.call(app);
+        prezziState.listinoForm.benzina = currentPricesData.benzina || '';
+        prezziState.listinoForm.gasolio = currentPricesData.gasolio || '';
+        prezziState.listinoForm.dieselPlus = currentPricesData.dieselPlus || '';
+        prezziState.listinoForm.hvolution = currentPricesData.hvolution || '';
+        prezziState.listinoForm.adblue = currentPricesData.adblue || '';
+    }
+    return `
+        <div class="modal-header"><h2 class="card-title">${title}</h2></div>
+        <div class="modal-body" style="padding: 1rem;">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="text" id="listino-date" class="form-control" placeholder="Data (gg.mm.aaaa)" value="${prezziState.listinoForm.date}" autocomplete="off">
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="product-box" style="border-color: rgba(16, 185, 129, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-success); margin-bottom: 0.5rem;">Benzina</label>
+                        <input type="number" step="0.001" id="listino-benzina" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.benzina}" autocomplete="off">
+                    </div>
+                    <div class="product-box" style="border-color: rgba(245, 158, 11, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-warning); margin-bottom: 0.5rem;">Gasolio</label>
+                        <input type="number" step="0.001" id="listino-gasolio" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.gasolio}" autocomplete="off">
+                    </div>
+                    <div class="product-box" style="border-color: rgba(255, 32, 78, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-danger); margin-bottom: 0.5rem;">Diesel+</label>
+                        <input type="number" step="0.001" id="listino-dieselPlus" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.dieselPlus}" autocomplete="off">
+                    </div>
+                    <div class="product-box" style="border-color: rgba(6, 182, 212, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: #06b6d4; margin-bottom: 0.5rem;">Hvolution</label>
+                        <input type="number" step="0.001" id="listino-hvolution" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.hvolution}" autocomplete="off">
+                    </div>
+                    <div class="product-box" style="border-color: rgba(107, 114, 128, 0.65); padding: 0.75rem;">
+                        <label class="form-label font-medium" style="color: var(--color-secondary); margin-bottom: 0.5rem;">AdBlue</label>
+                        <input type="number" step="0.001" id="listino-adblue" class="form-control" placeholder="1.000" value="${prezziState.listinoForm.adblue}" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-listino-btn-bottom" class="btn btn-secondary">Annulla</button>
+            <button id="save-listino-btn" class="btn btn-success">Salva Listino</button>
+        </div>
+    `;
+}
 // Fine funzione getListinoFormHTML
 // Inizio funzione getConcorrenzaFormHTML
-function getConcorrenzaFormHTML() { const app = getApp(); const currentCompetitorPrices = competitorPrices.call(app); if (!prezziState.concorrenzaForm.myoil.benzina) { prezziState.concorrenzaForm.myoil.benzina = currentCompetitorPrices.myoil?.benzina || ''; prezziState.concorrenzaForm.myoil.gasolio = currentCompetitorPrices.myoil?.gasolio || ''; prezziState.concorrenzaForm.esso.benzina = currentCompetitorPrices.esso?.benzina || ''; prezziState.concorrenzaForm.esso.gasolio = currentCompetitorPrices.esso?.gasolio || ''; prezziState.concorrenzaForm.q8.benzina = currentCompetitorPrices.q8?.benzina || ''; prezziState.concorrenzaForm.q8.gasolio = currentCompetitorPrices.q8?.gasolio || ''; } return ` <div class="card-header"><h2 class="card-title">Aggiorna Prezzi Concorrenza</h2></div><div class="card-body"><div class="space-y-6"><div class="form-group max-w-sm"><input type="text" id="concorrenza-date" class="form-control" placeholder="Data (gg.mm.aaaa)" value="${prezziState.concorrenzaForm.date}" autocomplete="off"></div><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;"><div class="product-box" style="border-color: rgba(139, 92, 246, 0.65);"><h4 class="product-title text-center" style="color: #8b5cf6">MyOil</h4><div class="form-group"><label class="form-label text-sm">Benzina</label><input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off"></div><div class="form-group"><label class="form-label text-sm">Gasolio</label><input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off"></div></div><div class="product-box" style="border-color: rgba(255, 32, 78, 0.65);"><h4 class="product-title text-center" style="color: var(--color-danger)">Esso</h4><div class="form-group"><label class="form-label text-sm">Benzina</label><input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off"></div><div class="form-group"><label class="form-label text-sm">Gasolio</label><input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off"></div></div><div class="product-box" style="border-color: rgba(8, 145, 178, 0.65);"><h4 class="product-title text-center" style="color: rgb(8, 145, 178)">Q8</h4><div class="form-group"><label class="form-label text-sm">Benzina</label><input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off"></div><div class="form-group"><label class="form-label text-sm">Gasolio</label><input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off"></div></div></div><div class="flex items-center justify-end space-x-4"><button id="cancel-concorrenza-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-concorrenza-btn" class="btn btn-success">Salva Prezzi</button></div></div></div> `; }
+function getConcorrenzaFormHTML() {
+    const app = getApp();
+    const currentCompetitorPrices = competitorPrices.call(app);
+    if (!prezziState.concorrenzaForm.myoil.benzina) {
+        prezziState.concorrenzaForm.myoil.benzina = currentCompetitorPrices.myoil?.benzina || '';
+        prezziState.concorrenzaForm.myoil.gasolio = currentCompetitorPrices.myoil?.gasolio || '';
+        prezziState.concorrenzaForm.esso.benzina = currentCompetitorPrices.esso?.benzina || '';
+        prezziState.concorrenzaForm.esso.gasolio = currentCompetitorPrices.esso?.gasolio || '';
+        prezziState.concorrenzaForm.q8.benzina = currentCompetitorPrices.q8?.benzina || '';
+        prezziState.concorrenzaForm.q8.gasolio = currentCompetitorPrices.q8?.gasolio || '';
+    }
+    return `
+        <div class="modal-header"><h2 class="card-title">Aggiorna Prezzi Concorrenza</h2></div>
+        <div class="modal-body">
+            <div class="space-y-6">
+                <div class="form-group max-w-sm">
+                    <input type="text" id="concorrenza-date" class="form-control" placeholder="Data (gg.mm.aaaa)" value="${prezziState.concorrenzaForm.date}" autocomplete="off">
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="product-box" style="border-color: rgba(139, 92, 246, 0.65);">
+                        <h4 class="product-title text-center" style="color: #8b5cf6">MyOil</h4>
+                        <div class="form-group">
+                            <label class="form-label text-sm">Benzina</label>
+                            <input type="number" step="0.001" id="myoil-benzina" class="form-control" value="${prezziState.concorrenzaForm.myoil.benzina}" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-sm">Gasolio</label>
+                            <input type="number" step="0.001" id="myoil-gasolio" class="form-control" value="${prezziState.concorrenzaForm.myoil.gasolio}" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="product-box" style="border-color: rgba(255, 32, 78, 0.65);">
+                        <h4 class="product-title text-center" style="color: var(--color-danger)">Esso</h4>
+                        <div class="form-group">
+                            <label class="form-label text-sm">Benzina</label>
+                            <input type="number" step="0.001" id="esso-benzina" class="form-control" value="${prezziState.concorrenzaForm.esso.benzina}" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-sm">Gasolio</label>
+                            <input type="number" step="0.001" id="esso-gasolio" class="form-control" value="${prezziState.concorrenzaForm.esso.gasolio}" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="product-box" style="border-color: rgba(8, 145, 178, 0.65);">
+                        <h4 class="product-title text-center" style="color: rgb(8, 145, 178)">Q8</h4>
+                        <div class="form-group">
+                            <label class="form-label text-sm">Benzina</label>
+                            <input type="number" step="0.001" id="q8-benzina" class="form-control" value="${prezziState.concorrenzaForm.q8.benzina}" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-sm">Gasolio</label>
+                            <input type="number" step="0.001" id="q8-gasolio" class="form-control" value="${prezziState.concorrenzaForm.q8.gasolio}" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-concorrenza-btn-bottom" class="btn btn-secondary">Annulla</button>
+            <button id="save-concorrenza-btn" class="btn btn-success">Salva Prezzi</button>
+        </div>
+    `;
+}
 // Fine funzione getConcorrenzaFormHTML
 
 // === SETUP EVENT LISTENERS ===

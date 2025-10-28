@@ -2,8 +2,6 @@
 // FILE: impostazioni.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Impostazioni (tema, import/export, reset).
-// --- MODIFICATO per percorsi relativi ai file .pdf ---
-// --- MODIFICATO per usare nuove variabili font-size ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
@@ -42,7 +40,10 @@ function showImpostazioniModal(app) {
 // Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML(app) {
     return `
-        <div class="card-body">
+        <div class="modal-header">
+             <h2 class="card-title">Impostazioni</h2>
+        </div>
+        <div class="modal-body">
             <div class="impostazioni-layout">
                 <div class="impostazioni-section" style="gap: 1.5rem;">
                     <h3 class="impostazioni-section-title">Personalizzazione</h3>
@@ -114,9 +115,9 @@ function getImpostazioniModalHTML(app) {
                     </div>
                 </div>
             </div>
-            <div class="modal-actions" style="border-top: 1px solid var(--border-primary); padding-top: 1.5rem; margin-top: 1.5rem;">
-                <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="close-impostazioni-btn" class="btn btn-secondary">Chiudi</button>
         </div>
     `;
 }

@@ -46,17 +46,17 @@ const TAG_COLORS = [
 function initSpese() {
     console.log('💸 Inizializzazione modulo Spese...');
     const app = this;
-    
+
     speseState.filters = app.loadFromStorage('speseFilters', {
         month: (new Date().getMonth() + 1).toString(),
         year: new Date().getFullYear().toString(),
         tagId: 'all'
     });
-    
+
     speseState.speseCollapsed = app.loadFromStorage('speseCollapsed', false); // Carica stato collasso
-    
+
     resetExpenseForm.call(app);
-    
+
     console.log('✅ Modulo Spese inizializzato');
 }
 
@@ -64,14 +64,14 @@ function initSpese() {
 function renderSpeseSection(container) {
     console.log('🎨 Rendering sezione Spese...');
     const app = this;
-    
+
     const stats = calculateStats.call(app); // Calcola le statistiche aggiornate
-    
+
     container.innerHTML = `
         <div class="space-y-6">
-            
-            <div id="spese-stats-container" class="stats-grid" style="align-items: start;"> 
-                ${getSpeseStatsHTML(app, stats)} 
+
+            <div id="spese-stats-container" class="stats-grid" style="align-items: start;">
+                ${getSpeseStatsHTML(app, stats)}
             </div>
 
             <div class="filters-bar">
@@ -106,7 +106,7 @@ function renderSpeseSection(container) {
             <div class="card collapsible-section ${speseState.speseCollapsed ? 'collapsed' : ''}">
                 <div class="card-header collapsible-header" data-section-name="spese">
                     <h2 class="card-title">Elenco Spese</h2>
-                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button> 
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
                 </div>
                 <div class="card-body collapsible-content" style="padding: 0;">
                     <div class="table-container" style="border: none; border-radius: 0;">
@@ -134,10 +134,10 @@ function renderSpeseSection(container) {
                     </div>
                 </div>
             </div>
-            
+
         </div>
     `;
-    
+
     renderSpeseTable.call(app);
     setupSpeseEventListeners.call(app);
     app.refreshIcons();
@@ -150,7 +150,7 @@ function getSpeseStatsHTML(app, stats) {
         .sort(([, a], [, b]) => b.total - a.total)
         .map(([tagId, data]) => `
             <div class="flex justify-between items-center text-sm py-1">
-                <div class="flex items-center" style="gap: 0.75rem;"> 
+                <div class="flex items-center" style="gap: 0.75rem;">
                     <span style="width: 10px; height: 10px; background-color: ${data.color}; border-radius: 50%;"></span>
                     <span class="font-medium">${data.name}</span>
                 </div>
@@ -180,16 +180,16 @@ function getSpeseStatsHTML(app, stats) {
             </div>
         </div>
 
-        <div class="card"> 
+        <div class="card">
             <div class="card-header"><h3 class="card-title">Riepilogo per Etichetta</h3></div>
-            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 150px; overflow-y: auto;"> 
+            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 150px; overflow-y: auto;">
                 ${totalByTagHTML || '<p class="text-secondary text-sm">Nessuna spesa nel periodo.</p>'}
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Riepilogo per Modalità</h3></div>
-            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 150px; overflow-y: auto;"> 
+            <div class="card-header"><h3 class="card-title">Riepilogo per Modalità </h3></div>
+            <div class="card-body" style="padding: 1rem 1.5rem; max-height: 150px; overflow-y: auto;">
                 ${totalByPaymentHTML || '<p class="text-secondary text-sm">Nessuna spesa nel periodo.</p>'}
             </div>
         </div>
@@ -221,10 +221,10 @@ function renderSpeseTable() {
     } else {
         tbody.innerHTML = expenses.map(spesa => {
             const tag = tagsMap[spesa.tagId];
-            const tagHTML = tag 
+            const tagHTML = tag
                 ? `<span class="etichetta-badge" style="background-color: ${tag.color}20; color: ${tag.color}; border: 1px solid ${tag.color}80;">${tag.name}</span>`
                 : '<span class="text-secondary">-</span>';
-            
+
             return `
                 <tr class="hover:bg-secondary">
                     <td class="font-medium text-primary">${app.formatDate(spesa.date)}</td>
@@ -234,10 +234,10 @@ function renderSpeseTable() {
                     <td>${PAYMENT_METHODS[spesa.paymentMethod] || spesa.paymentMethod}</td>
                     <td class="text-right">
                         <div class="flex items-center justify-end space-x-2">
-                            <button class="btn btn-success btn-sm" onclick="editSpesaById('${spesa.id}')" title="Modifica">
+                            <button class="btn btn-success btn-sm" onclick="editSpesaById('${spesa.id}')" title="Modifica spesa">
                                 <i data-lucide="edit"></i>
                             </button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteSpesaById('${spesa.id}')" title="Elimina">
+                            <button class="btn btn-danger btn-sm" onclick="deleteSpesaById('${spesa.id}')" title="Elimina spesa">
                                 <i data-lucide="trash-2"></i>
                             </button>
                         </div>
@@ -252,7 +252,7 @@ function renderSpeseTable() {
 function getFilteredAndSortedExpenses() {
     const app = this;
     let expenses = [...(app.state.data.spese || [])];
-    
+
     // Filtra per mese e anno
     if (speseState.filters.month !== 'all') {
         expenses = expenses.filter(s => (new Date(s.date).getMonth() + 1).toString() === speseState.filters.month);
@@ -260,7 +260,7 @@ function getFilteredAndSortedExpenses() {
     if (speseState.filters.year !== 'all') {
         expenses = expenses.filter(s => new Date(s.date).getFullYear().toString() === speseState.filters.year);
     }
-    
+
     // Filtra per etichetta
     if (speseState.filters.tagId !== 'all') {
         expenses = expenses.filter(s => s.tagId === speseState.filters.tagId);
@@ -277,7 +277,7 @@ function getFilteredAndSortedExpenses() {
         }
         return 0;
     });
-    
+
     return expenses;
 }
 
@@ -294,7 +294,7 @@ function calculateStats() {
 
     expenses.forEach(spesa => {
         stats.totalPeriod += spesa.amount;
-        
+
         // Calcolo per Etichetta
         const tagId = spesa.tagId || 'none';
         const tag = tagsMap[tagId] || { name: 'Senza Etichetta', color: '#6b7280' };
@@ -305,7 +305,7 @@ function calculateStats() {
 
         // Calcolo per Metodo di Pagamento
         const paymentMethodKey = spesa.paymentMethod;
-        const paymentMethodName = PAYMENT_METHODS[paymentMethodKey] || paymentMethodKey; 
+        const paymentMethodName = PAYMENT_METHODS[paymentMethodKey] || paymentMethodKey;
         if (!stats.totalByPaymentMethod[paymentMethodKey]) {
             stats.totalByPaymentMethod[paymentMethodKey] = { name: paymentMethodName, total: 0 };
         }
@@ -324,7 +324,7 @@ function setupSpeseEventListeners() {
 
     container.removeEventListener('click', handleSpeseClick);
     container.removeEventListener('change', handleSpeseChange);
-    
+
     container.addEventListener('click', handleSpeseClick);
     container.addEventListener('change', handleSpeseChange);
 }
@@ -351,7 +351,7 @@ function handleSpeseClick(event) {
     if (target.closest('#manage-tags-btn')) {
         showTagModal.call(app);
     }
-    
+
     const sortBtn = target.closest('[data-sort]');
     if (sortBtn) {
         sortSpese.call(app, sortBtn.dataset.sort);
@@ -362,7 +362,7 @@ function handleSpeseChange(event) {
     const app = getApp();
     const target = event.target;
     let filtersChanged = false;
-    
+
     if (target.id === 'spese-filter-month') {
         speseState.filters.month = target.value;
         filtersChanged = true;
@@ -394,7 +394,7 @@ function sortSpese(column) {
         speseState.sort.column = column;
         speseState.sort.direction = 'desc';
     }
-    
+
     // Aggiorna icone header tabella
     document.querySelectorAll('#spese-tbody th button[data-sort]').forEach(btn => {
         const icon = btn.querySelector('i');
@@ -405,7 +405,7 @@ function sortSpese(column) {
             icon.setAttribute('data-lucide', 'chevrons-up-down');
         }
     });
-    
+
     renderSpeseTable.call(app);
     app.refreshIcons();
 }
@@ -426,7 +426,7 @@ function resetExpenseForm() {
 
 function showSpesaModal(spesa = null) {
     const app = this;
-    
+
     if (spesa) {
         speseState.expenseForm = {
             id: spesa.id,
@@ -442,9 +442,9 @@ function showSpesaModal(spesa = null) {
 
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getSpesaFormHTML.call(app);
-    
+
     modalContentEl.classList.remove('modal-wide');
-    
+
     setupSpesaFormEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
@@ -456,32 +456,32 @@ function getSpesaFormHTML() {
     const form = speseState.expenseForm;
     const isEditing = !!form.id;
 
-    const paymentOptions = Object.entries(PAYMENT_METHODS).map(([key, value]) => 
+    const paymentOptions = Object.entries(PAYMENT_METHODS).map(([key, value]) =>
         `<option value="${key}" ${form.paymentMethod === key ? 'selected' : ''}>${value}</option>`
     ).join('');
-    
+
     const tagOptions = getTagOptions(app, form.tagId, true, 'Nessuna Etichetta');
 
     return `
-        <div class="card-header">
+        <div class="modal-header">
             <h2 class="card-title">${isEditing ? 'Modifica Spesa' : 'Nuova Spesa'}</h2>
         </div>
-        <div class="card-body">
+        <div class="modal-body">
             <div class="space-y-4">
                 <div class="form-group">
                     <label class="form-label">Descrizione</label>
-                    <input type="text" id="spesa-description" class="form-control" style="max-width: 100%;" 
+                    <input type="text" id="spesa-description" class="form-control" style="max-width: 100%;"
                            value="${form.description}" placeholder="es. Cancelleria, Bolletta, etc.">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">Importo (€)</label>
-                        <input type="number" id="spesa-amount" class="form-control" style="max-width: 100%;" 
+                        <input type="number" id="spesa-amount" class="form-control" style="max-width: 100%;"
                                step="0.01" placeholder="0.00" value="${form.amount || ''}">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Data</label>
-                        <input type="text" id="spesa-date" class="form-control" style="max-width: 100%;" 
+                        <input type="text" id="spesa-date" class="form-control" style="max-width: 100%;"
                                value="${form.date}" placeholder="gg.mm.aaaa">
                     </div>
                 </div>
@@ -500,13 +500,14 @@ function getSpesaFormHTML() {
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-end space-x-4 mt-6">
-                <button id="cancel-spesa-btn" class="btn btn-secondary">Annulla</button>
-                <button id="save-spesa-btn" class="btn btn-success">Salva Spesa</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-spesa-btn" class="btn btn-secondary">Annulla</button>
+            <button id="save-spesa-btn" class="btn btn-success">Salva Spesa</button>
         </div>
     `;
 }
+
 
 function setupSpesaFormEventListeners() {
     const app = getApp();
@@ -519,16 +520,16 @@ function saveSpesa() {
     const description = document.getElementById('spesa-description').value.trim();
     const amount = parseFloat(document.getElementById('spesa-amount').value);
     const date = document.getElementById('spesa-date').value.trim();
-    
+
     if (!description || isNaN(amount) || amount <= 0 || !date) {
         return app.showNotification('Descrizione, importo e data sono obbligatori.', 'error');
     }
     if (!app.validateItalianDate(date)) {
         return app.showNotification('Formato data non valido. Usa gg.mm.aaaa', 'error');
     }
-    
+
     const parsedDate = app.parseItalianDate(date).toISOString();
-    
+
     const spesaData = {
         date: parsedDate,
         description: description,
@@ -581,13 +582,13 @@ function showTagModal() {
     const app = this;
     speseState.editingTagId = null;
     resetTagForm();
-    
+
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getTagManagerHTML.call(app);
-    
+
     modalContentEl.classList.remove('modal-wide');
     modalContentEl.classList.add('modal-todo'); // Riusa stile modale todo
-    
+
     setupTagManagerEventListeners.call(app);
     app.refreshIcons();
     app.showFormModal();
@@ -599,7 +600,7 @@ function getTagManagerHTML() {
     const form = speseState.tagForm;
     const isEditing = !!speseState.editingTagId;
 
-    const colorOptions = TAG_COLORS.map(color => 
+    const colorOptions = TAG_COLORS.map(color =>
         `<label class="color-radio" style="margin: 0;" title="${color}">
             <input type="radio" name="tag-color" value="${color}" ${form.color === color ? 'checked' : ''}>
             <span style="background-color: ${color}; width: 28px; height: 28px;"></span>
@@ -608,30 +609,29 @@ function getTagManagerHTML() {
 
     const tagsList = tags.map(tag => `
         <div class="todo-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem;">
-            <div class="flex items-center" style="gap: 0.75rem;"> 
+            <div class="flex items-center" style="gap: 0.75rem;">
                 <span style="width: 14px; height: 14px; background-color: ${tag.color}; border-radius: 50%;"></span>
                 <span class_="font-medium">${tag.name}</span>
             </div>
             <div class="flex items-center space-x-1">
-                <button class="btn btn-success btn-xs" onclick="editSpeseTag('${tag.id}')" title="Modifica">
-                    <i data-lucide="edit"></i>
-                </button>
-                <button class="btn btn-danger btn-xs" onclick="deleteSpeseTag('${tag.id}')" title="Elimina">
-                    <i data-lucide="trash-2"></i>
-                </button>
+                 <button onclick="editSpeseTag('${tag.id}')" title="Modifica etichetta" style="background: none; border: none; box-shadow: none; padding: 0; cursor: pointer; color: inherit;">
+                     <i data-lucide="edit" style="width: 1.1rem; height: 1.1rem;"></i>
+                 </button>
+                 <button onclick="deleteSpeseTag('${tag.id}')" title="Elimina etichetta" style="background: none; border: none; box-shadow: none; padding: 0; cursor: pointer; color: inherit;">
+                     <i data-lucide="trash-2" style="width: 1.1rem; height: 1.1rem;"></i>
+                 </button>
             </div>
         </div>
     `).join('');
 
     return `
-        <div class="card-header"><h2 class="card-title">Gestisci Etichette Spese</h2></div>
-        <div class="card-body">
+        <div class="modal-header"><h2 class="card-title">Gestisci Etichette Spese</h2></div>
+        <div class="modal-body pb-6">
             <div class="space-y-4">
                 <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
                     <h4 class="font-medium text-primary mb-3">${isEditing ? 'Modifica Etichetta' : 'Nuova Etichetta'}</h4>
                     <div class="form-group">
-                        <label class="form-label">Nome</label>
-                        <input type="text" id="tag-name-input" class="form-control" style="max-width: 100%;" 
+                        <input type="text" id="tag-name-input" class="form-control" style="max-width: 100%;"
                                value="${form.name}" placeholder="es. Utenze, Manutenzione...">
                     </div>
                     <div class="form-group">
@@ -645,23 +645,24 @@ function getTagManagerHTML() {
                         <button id="save-tag-btn" class="btn btn-success">${isEditing ? 'Salva Modifiche' : 'Aggiungi'}</button>
                     </div>
                 </div>
-                
+
                 <div class="space-y-2" style="max-height: 250px; overflow-y: auto; padding-right: 0.5rem;">
                     ${tagsList || '<p class="text-secondary text-sm text-center">Nessuna etichetta creata.</p>'}
                 </div>
             </div>
-            <div class="flex justify-end space-x-4 mt-6">
-                <button id="close-tag-modal-btn" class="btn btn-secondary">Chiudi</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+             <button id="close-tag-modal-btn" class="btn btn-secondary">Chiudi</button>
         </div>
     `;
 }
+
 
 function setupTagManagerEventListeners() {
     const app = getApp();
     document.getElementById('save-tag-btn').addEventListener('click', () => saveSpeseTag.call(app));
     document.getElementById('close-tag-modal-btn').addEventListener('click', () => app.hideFormModal());
-    
+
     const cancelBtn = document.getElementById('cancel-edit-tag-btn');
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
@@ -676,11 +677,11 @@ function saveSpeseTag() {
     const app = this;
     const name = document.getElementById('tag-name-input').value.trim();
     const colorRadio = document.querySelector('input[name="tag-color"]:checked');
-    
+
     if (!name || !colorRadio) {
         return app.showNotification('Nome e colore sono obbligatori.', 'error');
     }
-    
+
     const color = colorRadio.value;
 
     if (speseState.editingTagId) {
@@ -700,7 +701,7 @@ function saveSpeseTag() {
         app.state.data.speseEtichette.push(newTag);
         app.showNotification('Etichetta aggiunta');
     }
-    
+
     app.saveToStorage('data', app.state.data);
     speseState.editingTagId = null;
     resetTagForm();
@@ -732,7 +733,7 @@ function deleteSpeseTag(tagId) {
     app.showConfirm(message, () => {
         // 1. Rimuovi l'etichetta
         app.state.data.speseEtichette = app.state.data.speseEtichette.filter(t => t.id !== tagId);
-        
+
         // 2. Se era usata, rimuovi il tagId dalle spese
         if (isUsed) {
             app.state.data.spese = app.state.data.spese.map(s => {
@@ -742,16 +743,16 @@ function deleteSpeseTag(tagId) {
                 return s;
             });
         }
-        
+
         app.saveToStorage('data', app.state.data);
         app.showNotification('Etichetta eliminata');
-        
+
         // Se stavo modificando questa, resetta il form
         if (speseState.editingTagId === tagId) {
             speseState.editingTagId = null;
             resetTagForm();
         }
-        
+
         refreshTagModal.call(app);
     });
 }
@@ -791,9 +792,9 @@ function getMonthOptions(selectedMonth) {
 function getYearOptions(app, selectedYear) {
     const years = new Set(app.state.data.spese.map(s => new Date(s.date).getFullYear()));
     years.add(new Date().getFullYear());
-    
+
     const sortedYears = [...years].sort((a, b) => b - a);
-    
+
     let options = '<option value="all">Tutti gli Anni</option>';
     sortedYears.forEach(year => {
         const yearValue = year.toString();
@@ -804,10 +805,10 @@ function getYearOptions(app, selectedYear) {
 
 function getTagOptions(app, selectedTagId, includeAll = false, noneText = 'Nessuna Etichetta') {
     const tags = app.state.data.speseEtichette.sort((a, b) => a.name.localeCompare(b.name));
-    
+
     let options = includeAll ? '<option value="all">Tutte le Etichette</option>' : '';
     options += `<option value="">${noneText}</option>`;
-    
+
     tags.forEach(tag => {
         options += `<option value="${tag.id}" ${selectedTagId === tag.id ? 'selected' : ''}>${tag.name}</option>`;
     });

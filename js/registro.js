@@ -2,10 +2,6 @@
 // FILE: registro.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Registro di Carico.
-// --- MODIFICATO per usare nuove variabili font-size ---
-// --- MODIFICATO larghezza modale e input carico/differenza ---
-// --- MODIFICATO ripristino modal-wide ---
-// --- MODIFICATO larghezza colonne modale carico ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO REGISTRO ===
@@ -138,8 +134,8 @@ function getRegistroFormHTML() {
     const isEdit = !!registroState.editingRegistry; const title = isEdit ? 'Modifica Carico' : 'Nuovo Carico'; const app = getApp();
     const createNumberInput = (product, field, step) => { const value = registroState.registryForm[product][field]; return `<div class="number-input-group"><button type="button" class="number-input-btn btn" data-action="decrement" data-product="${product}" data-field="${field}" data-step="${step}"><i data-lucide="minus"></i></button><input type="text" value="${app.formatInteger(value)}" readonly class="number-input-field form-control" /><button type="button" class="number-input-btn btn" data-action="increment" data-product="${product}" data-field="${field}" data-step="${step}"><i data-lucide="plus"></i></button></div>`; };
     return `
-        <div class="card-header"><h2 class="card-title">${title}</h2></div>
-        <div class="card-body">
+        <div class="modal-header"><h2 class="card-title">${title}</h2></div>
+        <div class="modal-body">
             <div class="space-y-6">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group"><label class="form-label">Data</label><input type="text" id="carico-date" class="form-control" placeholder="gg.mm.aaaa" value="${registroState.registryForm.date}" autocomplete="off"></div>
@@ -157,8 +153,11 @@ function getRegistroFormHTML() {
                         <tr><td class="font-medium text-primary">Diesel+</td><td>${createNumberInput('dieselPlus', 'carico', 1000)}</td><td>${createNumberInput('dieselPlus', 'differenza', 1)}</td></tr>
                         <tr><td class="font-medium text-primary">Hvolution</td><td>${createNumberInput('hvolution', 'carico', 1000)}</td><td>${createNumberInput('hvolution', 'differenza', 1)}</td></tr>
                     </tbody></table></div>
-                <div class="flex items-center justify-end space-x-4"><button id="cancel-carico-btn-bottom" class="btn btn-secondary">Annulla</button><button id="save-carico-btn" class="btn btn-success">Salva Carico</button></div>
             </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-carico-btn-bottom" class="btn btn-secondary">Annulla</button>
+            <button id="save-carico-btn" class="btn btn-success">Salva Carico</button>
         </div>`;
 }
 // Fine funzione getRegistroFormHTML

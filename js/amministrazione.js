@@ -2,8 +2,6 @@
 // FILE: amministrazione.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
 // sezione Amministrazione (clienti, conti).
-// --- MODIFICATO PER USARE MODALE UNICO PER GESTIONE CLIENTE ---
-// --- MODIFICATO per usare nuove variabili font-size ---
 // =============================================
 
 // === STATO LOCALE DEL MODULO AMMINISTRAZIONE ===
@@ -119,10 +117,10 @@ function getAmministrazioneFormHTML() {
                 <label class="form-label">Nome Cliente</label>
                 <input type="text" id="client-name-input" class="form-control" placeholder="es. Mario Rossi" value="${clientName}" style="max-width: 100%;" autocomplete="off">
             </div>
-            <div class="flex items-center justify-end space-x-4 mt-6">
-                <button id="cancel-client-btn-bottom" class="btn btn-secondary">Annulla</button>
-                <button id="save-client-btn" class="btn btn-success">Salva Cliente</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="cancel-client-btn-bottom" class="btn btn-secondary">Annulla</button>
+            <button id="save-client-btn" class="btn btn-success">Salva Cliente</button>
         </div>
     `;
 }
@@ -199,7 +197,9 @@ function getClientModalHTML(client) {
                     }
                 </div>
             </div>
-            <div class="modal-actions"><button class="btn btn-secondary" onclick="getApp().hideFormModal()">Chiudi</button></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="getApp().hideFormModal()">Chiudi</button>
         </div>
     `;
 }

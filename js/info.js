@@ -361,7 +361,7 @@ function openNewAccountModal() {
 
     const modalHTML = `
         <div class="modal-header">
-            <h2>Nuovo Account</h2>
+            <h2 class="card-title">Nuovo Account</h2>
         </div>
         <div class="modal-body">
             <div class="form-group">
@@ -373,7 +373,7 @@ function openNewAccountModal() {
                 <textarea id="account-content-textarea" class="form-control" style="max-width: 100%; height: 200px; min-height: 150px;" placeholder="username: example@email.com\npassword: P@ssw0rd!"></textarea>
             </div>
         </div>
-        <div class="modal-actions">
+        <div class="modal-footer">
             <button id="cancel-account-modal-btn" class="btn btn-secondary">Annulla</button>
             <button id="save-new-account-modal-btn" class="btn btn-success">Salva Account</button>
         </div>
@@ -394,6 +394,7 @@ function openNewAccountModal() {
     const nameInput = document.getElementById('account-name-input');
     if (nameInput) nameInput.focus();
 }
+
 
 function saveNewAccountFromModal() {
     const app = this; // Usa this
@@ -434,7 +435,7 @@ function openAccountModal(accountId) {
 
     const modalHTML = `
         <div class="modal-header">
-            <h2>Dati Account: ${account.name}</h2>
+            <h2 class="card-title">Dati Account: ${account.name}</h2>
         </div>
         <div class="modal-body">
             <input type="hidden" id="account-id-input" value="${account.id}">
@@ -447,10 +448,14 @@ function openAccountModal(accountId) {
                 <textarea id="account-content-textarea" class="form-control" style="max-width: 100%; height: 200px; min-height: 150px;">${account.content}</textarea>
             </div>
         </div>
-        <div class="modal-actions">
-            <button id="delete-account-btn" class="btn btn-danger" style="margin-right: auto;">Elimina</button>
-            <button id="cancel-account-modal-btn" class="btn btn-secondary">Annulla</button>
-            <button id="save-account-modal-btn" class="btn btn-success">Salva</button>
+        <div class="modal-footer" style="justify-content: space-between;">
+             <div>
+                 <button id="delete-account-btn" class="btn btn-danger">Elimina</button>
+             </div>
+             <div class="flex gap-4">
+                 <button id="cancel-account-modal-btn" class="btn btn-secondary">Annulla</button>
+                 <button id="save-account-modal-btn" class="btn btn-success">Salva</button>
+             </div>
         </div>
     `;
 
@@ -469,6 +474,7 @@ function openAccountModal(accountId) {
 
     app.showFormModal();
 }
+
 
 function saveAccountFromModal() {
     const app = this; // Usa this
