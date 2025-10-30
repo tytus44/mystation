@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulo Cassa A4</title>
+    <style>
+        /* INIZIO STILI */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Sfondo grigio per vedere il foglio */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page {
+            width: 210mm;
+            /* Altezza A4 gestita dal contenuto fisso */
+            min-height: 297mm; 
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10mm auto;
+            padding: 15mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tabella principale */
+        .main-table {
+            width: 98%;
+            border-collapse: collapse;
+            border: 2px solid black;
+        }
+
+        /* Stili per la riga header (Data/Turni) */
+        
+        /* Wrapper TD (rimuove padding) */
+        .main-table .header-cell-td-wrapper {
+             padding: 0;
+             border: 1px solid black;
+             border-bottom-width: 1px;
+        }
+        
+        /* Contenitore DIV interno (ora è il flex container) */
+        .main-table .header-cell-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            height: 40px; 
+            box-sizing: border-box;
+        }
+
+        .main-table .header-item {
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            width: 48%; /* Assegna larghezza a data e turni */
+        }
+        
+        .main-table .header-item .line {
+            border-bottom: 1px solid black;
+            height: 20px;
+            margin-left: 10px;
+            flex-grow: 1; /* Occupa lo spazio rimanente */
+        }
+
+
+        .main-table th,
+        .main-table td {
+            border: 1px solid black;
+            padding: 6px 8px;
+            vertical-align: middle;
+            box-sizing: border-box;
+        }
+        
+        .main-table td {
+            height: 36px; /* Altezza fissa per le righe (Modificata) */
+        }
+
+        .main-table th {
+            background-color: #f2f2f2;
+            font-size: 1.2em;
+            text-align: center;
+            height: 40px; /* Altezza fissa per header tabella */
+        }
+        
+        .main-table th:first-child {
+            border-right: 3px solid black; /* Linea spessa su TH */
+        }
+
+        /* Colonna 1 (Etichette IN) */
+        .main-table td:nth-child(1) {
+            width: 30%;
+            font-weight: bold;
+        }
+
+        /* Colonna 2 (Valori IN) */
+        .main-table td:nth-child(2) {
+            width: 20%;
+            border-right-width: 3px; /* Linea centrale spessa */
+        }
+
+        /* Colonna 3 (Etichette OUT) */
+        .main-table td:nth-child(3) {
+            width: 30%;
+            font-weight: bold;
+        }
+
+        /* Colonna 4 (Valori OUT) */
+        .main-table td:nth-child(4) {
+            width: 20%;
+        }
+
+        /* Righe vuote (escluse le prime 3 e le ultime 4) */
+        .main-table tr:nth-child(n+4):not(:nth-last-child(-n+4)) td {
+            font-weight: normal;
+            vertical-align: top;
+        }
+        
+        /* Stili per le righe riepilogo (ultime 4) */
+        .main-table tr:nth-last-child(-n+4) td {
+             font-weight: normal;
+             vertical-align: middle;
+             border-left: none;
+             border-right: none;
+             border-bottom: none;
+             border-top: none; /* Rimuove i bordi delle celle */
+        }
+
+        /* Bordo superiore spesso sulla prima delle 4 righe di riepilogo */
+        .main-table tr:nth-last-child(4) td {
+            border-top: 2px solid black;
+        }
+
+        /* Ripristina il divisore verticale spesso per le righe di riepilogo */
+        .main-table tr:nth-last-child(-n+4) td:nth-child(2) {
+            border-right: 3px solid black;
+        }
+        
+        /* Stile per le etichette del riepilogo (colonna 3) */
+        .main-table tr:nth-last-child(-n+4) td:nth-child(3) {
+             font-weight: bold;
+        }
+
+
+        /* Footer (Note / Riepilogo) - Rimossi */
+
+
+        /* Stili specifici per la stampa */
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            .page {
+                width: 100%;
+                height: 100%;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+            }
+
+            @page {
+                size: A4;
+                margin: 15mm; /* Margini di stampa */
+            }
+
+            .page-header,
+            .page-footer {
+                page-break-inside: avoid;
+            }
+
+            .main-table {
+                page-break-inside: avoid; /* Evita che la tabella si spezzi se possibile */
+            }
+        }
+        /* FINE STILI */
+    </style>
+</head>
+<body>
+
+    <div class="page">
+
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <td colspan="4" class="header-cell-td-wrapper">
+                        <div class="header-cell-container">
+                            <div class="header-item">
+                                <span>DATA</span>
+                            </div>
+                            <div class="header-item">
+                                <span>TURNI</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2">IN CASSA</th>
+                    <th colspan="2">FUORI CASSA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>FONDO CASSA INIZIO</td>
+                    <td></td>
+                    <td>FONDO CASSA FINE</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>MONETE INIZIO</td>
+                    <td></td>
+                    <td>MONETE FINE</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>ALTRO</td>
+                    <td></td>
+                    <td>ALTRO</td>
+                    <td></td>
+                </tr>
+                
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+
+                    <td></td>
+                    <td></td>
+                    <td>POS</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>BUONI</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>CONTANTI</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>CONTANTI</td>
+                    <td></td>
+                </tr>
+                </tbody>
+        </table>
+        </div>
+    </body>
+</html>
