@@ -12,7 +12,7 @@ MyStation centralizza tutte le operazioni di una stazione di servizio in una pia
 
 **Registro di Carico** - Tracciamento carburante per autista, riepilogo annuale per prodotto, calcolo differenze stock
 
-**Gestione Prezzi** - Storico listini prezzi, confronto prezzi concorrenza (MyOil, Esso, Q8), calcolo margini
+**Gestione Prezzi** - Storico listini prezzi, confronto prezzi concorrenza (predefiniti MyOil, Esso, Q8), calcolo margini
 
 **Anagrafica** - Rubrica contatti, importazione da CSV (compatibile Google Contacts), export dati, stampa
 
