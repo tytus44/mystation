@@ -133,7 +133,7 @@ function getImpostazioniModalHTML(app) {
                             </div>
                         </div>
                         <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
-                             <label class="font-medium text-primary mb-4" style="display: block;">Account</label>
+                             <label class="font-medium text-primary mb-4" style="display: block;">Account login attivo</label>
                              <button type="button" data-section="esci" class="btn btn-danger w-full"><i data-lucide="log-out"></i><span>Esci</span></button>
                         </div>
                         </div> </div>
@@ -165,6 +165,7 @@ function getImpostazioniModalHTML(app) {
                             <label class="font-medium mb-2" style="display: block; color: var(--color-danger);">
                                 <i data-lucide="alert-triangle" style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>Zona di pericolo
                             </label>
+                            <p class="text-sm text-danger mb-4 font-semibold">ATTENZIONE: Questa operazione è irreversibile.</p>
                             <button type="button" id="reset-data-btn" class="btn btn-danger w-full"><i data-lucide="trash-2"></i><span>Cancella tutti i dati</span></button>
                         </div>
                     </div>
