@@ -7,9 +7,15 @@
 // === STATO LOCALE DEL MODULO AMMINISTRAZIONE ===
 let amministrazioneState = {
     adminFilters: null,
-    adminSort: { column: 'name', direction: 'asc' },
+    adminSort: {
+        column: 'name',
+        direction: 'asc'
+    },
     newClientName: '',
-    transactionForm: { description: 'Carburante', amount: null },
+    transactionForm: {
+        description: 'Carburante',
+        amount: null
+    },
     clientiCollapsed: false,
 };
 
@@ -18,7 +24,9 @@ let amministrazioneState = {
 function initAmministrazione() {
     console.log('🛡️ Inizializzazione modulo Amministrazione...');
     const app = this;
-    amministrazioneState.adminFilters = app.loadFromStorage('adminFilters', { search: '' });
+    amministrazioneState.adminFilters = app.loadFromStorage('adminFilters', {
+        search: ''
+    });
     amministrazioneState.clientiCollapsed = app.loadFromStorage('clientiCollapsed', false);
     console.log('✅ Modulo Amministrazione inizializzato');
 }
@@ -69,7 +77,7 @@ function renderAmministrazioneListView(container) {
                 <div class="filter-group">
                     <div class="input-group">
                         <i data-lucide="search" class="input-group-icon"></i>
-                        <input type="search" id="admin-search-input" class="form-control" placeholder="Nome cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
+                        <input type="search" id="admin-search-input" class="form-control" placeholder="Cerca cliente..." value="${amministrazioneState.adminFilters.search}" autocomplete="off">
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -111,8 +119,13 @@ function getAmministrazioneFormHTML() {
     const title = 'Nuovo Cliente';
     const clientName = amministrazioneState.newClientName;
     return `
-        <div class="card-header"><h2 class="card-title">${title}</h2></div>
-        <div class="card-body">
+        <div class="modal-header">
+            <h2 class="card-title">${title}</h2>
+            <button type="button" id="close-admin-icon-btn" class="modal-close-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
             <div class="form-group">
                 <label class="form-label">Nome Cliente</label>
                 <input type="text" id="client-name-input" class="form-control" placeholder="es. Mario Rossi" value="${clientName}" style="max-width: 100%;" autocomplete="off">
@@ -131,7 +144,12 @@ function getClientModalHTML(client) {
     const app = getApp();
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
     return `
-        <div class="modal-header"><h2 class="card-title">${client.name}</h2></div>
+        <div class="modal-header">
+            <h2 class="card-title">${client.name}</h2>
+            <button type="button" class="modal-close-btn" onclick="getApp().hideFormModal()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
         <div class="modal-body">
             <div class="expanded-content-frame" style="padding: 1.5rem; border: none;">
                 <div class="space-y-4 mb-6">
@@ -210,14 +228,23 @@ function setupAmministrazioneFormEventListeners() {
     const app = getApp();
     const saveBtn = document.getElementById('save-client-btn');
     const cancelBtnBottom = document.getElementById('cancel-client-btn-bottom');
+    const cancelBtnIcon = document.getElementById('close-admin-icon-btn');
     const nameInput = document.getElementById('client-name-input');
-    if (saveBtn) saveBtn.addEventListener('click', () => { addNewClient.call(app); });
+
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+        addNewClient.call(app);
+    });
     if (nameInput) {
-        nameInput.addEventListener('input', (e) => { amministrazioneState.newClientName = e.target.value; });
-        nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveBtn.click(); });
+        nameInput.addEventListener('input', (e) => {
+            amministrazioneState.newClientName = e.target.value;
+        });
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveBtn.click();
+        });
     }
     const close = () => app.hideFormModal();
     if (cancelBtnBottom) cancelBtnBottom.addEventListener('click', close);
+    if (cancelBtnIcon) cancelBtnIcon.addEventListener('click', close);
 }
 // Fine funzione setupAmministrazioneFormEventListeners
 
@@ -289,7 +316,10 @@ function showClientModal(clientId) {
     const app = this;
     const client = app.state.data.clients.find(c => c.id === clientId);
     if (!client) return;
-    amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
+    amministrazioneState.transactionForm = {
+        description: 'Carburante',
+        amount: null
+    };
     const modalContentEl = document.getElementById('form-modal-content');
     modalContentEl.innerHTML = getClientModalHTML(client);
     modalContentEl.classList.add('modal-wide');
@@ -326,12 +356,16 @@ function sortedClients() {
     return clients.sort((a, b) => {
         const dir = amministrazioneState.adminSort.direction === 'asc' ? 1 : -1;
         switch (amministrazioneState.adminSort.column) {
-            case 'name': return (a.name || '').localeCompare(b.name || '', 'it-IT') * dir;
-            case 'balance': return ((a.balance || 0) - (b.balance || 0)) * dir;
+            case 'name':
+                return (a.name || '').localeCompare(b.name || '', 'it-IT') * dir;
+            case 'balance':
+                return ((a.balance || 0) - (b.balance || 0)) * dir;
             case 'lastTransactionDate':
-                if (!a.lastTransactionDate) return 1 * dir; if (!b.lastTransactionDate) return -1 * dir;
+                if (!a.lastTransactionDate) return 1 * dir;
+                if (!b.lastTransactionDate) return -1 * dir;
                 return (a.lastTransactionDate - b.lastTransactionDate) * dir;
-            default: return 0;
+            default:
+                return 0;
         }
     });
 }
@@ -339,17 +373,31 @@ function sortedClients() {
 
 // === FUNZIONI STATISTICHE ===
 // Inizio funzione totalCredit
-function totalCredit() { if (!Array.isArray(this.state.data.clients)) return 0; return this.state.data.clients.reduce((sum, client) => sum + Math.max(0, client.balance || 0), 0); }
+function totalCredit() {
+    if (!Array.isArray(this.state.data.clients)) return 0;
+    return this.state.data.clients.reduce((sum, client) => sum + Math.max(0, client.balance || 0), 0);
+}
 // Fine funzione totalCredit
 // Inizio funzione totalDebit
-function totalDebit() { if (!Array.isArray(this.state.data.clients)) return 0; return this.state.data.clients.reduce((sum, client) => sum + Math.abs(Math.min(0, client.balance || 0)), 0); }
+function totalDebit() {
+    if (!Array.isArray(this.state.data.clients)) return 0;
+    return this.state.data.clients.reduce((sum, client) => sum + Math.abs(Math.min(0, client.balance || 0)), 0);
+}
 // Fine funzione totalDebit
 
 // === OPERAZIONI CLIENTI ===
 // Inizio funzione addNewClient
 function addNewClient() {
-    if (amministrazioneState.newClientName.trim() === '') { this.showNotification('Il nome del cliente non può essere vuoto.'); return; }
-    const newClient = { id: this.generateUniqueId('client'), name: amministrazioneState.newClientName.trim(), balance: 0, transactions: [] };
+    if (amministrazioneState.newClientName.trim() === '') {
+        this.showNotification('Il nome del cliente non può essere vuoto.');
+        return;
+    }
+    const newClient = {
+        id: this.generateUniqueId('client'),
+        name: amministrazioneState.newClientName.trim(),
+        balance: 0,
+        transactions: []
+    };
     this.state.data.clients.push(newClient);
     this.saveToStorage('data', this.state.data);
     this.showNotification('Cliente aggiunto con successo!');
@@ -360,10 +408,12 @@ function addNewClient() {
 
 // Inizio funzione deleteClient
 function deleteClient(clientId) {
-    const client = this.state.data.clients.find(c => c.id === clientId); if (!client) return;
+    const client = this.state.data.clients.find(c => c.id === clientId);
+    if (!client) return;
     this.showConfirm(`Sei sicuro di voler eliminare il cliente<br>"${client.name}"?<br><br>L'azione è irreversibile.`, () => {
         this.state.data.clients = this.state.data.clients.filter(c => c.id !== clientId);
-        this.saveToStorage('data', this.state.data); this.showNotification('Cliente eliminato.');
+        this.saveToStorage('data', this.state.data);
+        this.showNotification('Cliente eliminato.');
         renderAmministrazioneSection.call(this, document.getElementById('section-amministrazione'));
     });
 }
@@ -375,26 +425,53 @@ function addTransactionInline(clientId, type) {
     const app = getApp();
     const descInput = document.getElementById(`transaction-description-${clientId}`);
     const amountInput = document.getElementById(`transaction-amount-${clientId}`);
-    const description = descInput?.value || 'Carburante'; const amount = parseFloat(amountInput?.value);
-    if (isNaN(amount) || amount <= 0) { app.showNotification('Inserire un importo valido.'); return; }
+    const description = descInput?.value || 'Carburante';
+    const amount = parseFloat(amountInput?.value);
+    if (isNaN(amount) || amount <= 0) {
+        app.showNotification('Inserire un importo valido.');
+        return;
+    }
     const finalAmount = type === 'credit' ? amount : -amount;
-    const newTransaction = { id: app.generateUniqueId('tx'), date: new Date().toISOString(), description: description, amount: finalAmount };
+    const newTransaction = {
+        id: app.generateUniqueId('tx'),
+        date: new Date().toISOString(),
+        description: description,
+        amount: finalAmount
+    };
     app.state.data.clients = app.state.data.clients.map(client => {
-        if (client.id === clientId) return { ...client, balance: client.balance + finalAmount, transactions: [...client.transactions, newTransaction] };
+        if (client.id === clientId) return { ...client,
+            balance: client.balance + finalAmount,
+            transactions: [...client.transactions, newTransaction]
+        };
         return client;
     });
     app.saveToStorage('data', app.state.data);
-    amministrazioneState.transactionForm = { description: 'Carburante', amount: null };
-    showClientModal.call(app, clientId); renderClientsTable.call(app);
+    amministrazioneState.transactionForm = {
+        description: 'Carburante',
+        amount: null
+    };
+    showClientModal.call(app, clientId);
+    renderClientsTable.call(app);
 }
 // Fine funzione addTransactionInline
 
 // Inizio funzione settleAccountInline
 function settleAccountInline(clientId) {
-    const app = getApp(); const client = app.state.data.clients.find(c => c.id === clientId); if (!client || client.balance === 0) return;
+    const app = getApp();
+    const client = app.state.data.clients.find(c => c.id === clientId);
+    if (!client || client.balance === 0) return;
     app.showConfirm(`Sei sicuro di voler saldare il conto di<br>"${client.name}"?<br><br>Tutte le transazioni verranno eliminate e il saldo sarà azzerato.`, () => {
-        app.state.data.clients = app.state.data.clients.map(c => { if (c.id === clientId) return { ...c, balance: 0, transactions: [] }; return c; });
-        app.saveToStorage('data', app.state.data); showClientModal.call(app, clientId); renderClientsTable.call(app); app.showNotification(`Conto di ${client.name} saldato con successo.`);
+        app.state.data.clients = app.state.data.clients.map(c => {
+            if (c.id === clientId) return { ...c,
+                balance: 0,
+                transactions: []
+            };
+            return c;
+        });
+        app.saveToStorage('data', app.state.data);
+        showClientModal.call(app, clientId);
+        renderClientsTable.call(app);
+        app.showNotification(`Conto di ${client.name} saldato con successo.`);
     });
 }
 // Fine funzione settleAccountInline
@@ -404,68 +481,144 @@ function deleteTransactionInline(clientId, transactionId) {
     const app = getApp();
     app.state.data.clients = app.state.data.clients.map(client => {
         if (client.id === clientId) {
-            const txIndex = client.transactions.findIndex(tx => tx.id === transactionId); if (txIndex === -1) return client;
+            const txIndex = client.transactions.findIndex(tx => tx.id === transactionId);
+            if (txIndex === -1) return client;
             const amountToRevert = client.transactions[txIndex].amount;
-            return { ...client, balance: client.balance - amountToRevert, transactions: client.transactions.filter(tx => tx.id !== transactionId) };
-        } return client;
+            return { ...client,
+                balance: client.balance - amountToRevert,
+                transactions: client.transactions.filter(tx => tx.id !== transactionId)
+            };
+        }
+        return client;
     });
-    app.saveToStorage('data', app.state.data); showClientModal.call(app, clientId); renderClientsTable.call(app);
+    app.saveToStorage('data', app.state.data);
+    showClientModal.call(app, clientId);
+    renderClientsTable.call(app);
 }
 // Fine funzione deleteTransactionInline
 
 // Inizio funzione printAccountInline
 function printAccountInline(clientId) {
-    const app = getApp(); const client = app.state.data.clients.find(c => c.id === clientId); if (!client) return;
+    const app = getApp();
+    const client = app.state.data.clients.find(c => c.id === clientId);
+    if (!client) return;
     const transactions = client.transactions ? [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
     document.getElementById('print-client-name').textContent = `Estratto Conto - ${client.name}`;
-    if (transactions.length > 0) { const dateRange = `dal: ${app.formatDate(transactions[transactions.length - 1].date)} al: ${app.formatDate(transactions[0].date)}`; document.getElementById('print-date-range').textContent = `Periodo ${dateRange}`; }
-    else document.getElementById('print-date-range').textContent = `-`;
-    const transactionsTableBody = document.getElementById('print-transactions'); const pairs = [];
-    for (let i = 0; i < transactions.length; i += 2) pairs.push({ tx1: transactions[i], tx2: transactions[i + 1] || null });
-    transactionsTableBody.innerHTML = pairs.map(pair => { const tx1Amount = pair.tx1 ? formatTransactionAmount.call(app, pair.tx1.amount) : ''; const tx2Amount = pair.tx2 ? formatTransactionAmount.call(app, pair.tx2.amount) : ''; return `<tr><td>${pair.tx1 ? pair.tx1.description : ''}</td><td class="${pair.tx1 ? (pair.tx1.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx1Amount}</td><td>${pair.tx2 ? pair.tx2.description : ''}</td><td class="${pair.tx2 ? (pair.tx2.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx2Amount}</td></tr>`; }).join('');
+    if (transactions.length > 0) {
+        const dateRange = `dal: ${app.formatDate(transactions[transactions.length - 1].date)} al: ${app.formatDate(transactions[0].date)}`;
+        document.getElementById('print-date-range').textContent = `Periodo ${dateRange}`;
+    } else document.getElementById('print-date-range').textContent = `-`;
+    const transactionsTableBody = document.getElementById('print-transactions');
+    const pairs = [];
+    for (let i = 0; i < transactions.length; i += 2) pairs.push({
+        tx1: transactions[i],
+        tx2: transactions[i + 1] || null
+    });
+    transactionsTableBody.innerHTML = pairs.map(pair => {
+        const tx1Amount = pair.tx1 ? formatTransactionAmount.call(app, pair.tx1.amount) : '';
+        const tx2Amount = pair.tx2 ? formatTransactionAmount.call(app, pair.tx2.amount) : '';
+        return `<tr><td>${pair.tx1 ? pair.tx1.description : ''}</td><td class="${pair.tx1 ? (pair.tx1.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx1Amount}</td><td>${pair.tx2 ? pair.tx2.description : ''}</td><td class="${pair.tx2 ? (pair.tx2.amount > 0 ? 'text-success' : 'text-danger') : ''}">${tx2Amount}</td></tr>`;
+    }).join('');
     document.getElementById('print-final-balance').textContent = app.formatCurrency(client.balance);
-    document.getElementById('print-content').classList.remove('hidden'); document.getElementById('print-clients-content').classList.add('hidden'); document.getElementById('virtual-print-content').classList.add('hidden');
-    const originalTitle = document.title; const today = app.formatToItalianDate(new Date()); const clientNameForFile = client.name.replace(/\s+/g, '_'); document.title = `${clientNameForFile}_${today}`;
-    setTimeout(() => { window.print(); setTimeout(() => { document.getElementById('print-content').classList.add('hidden'); document.title = originalTitle; }, 100); }, 100);
+    document.getElementById('print-content').classList.remove('hidden');
+    document.getElementById('print-clients-content').classList.add('hidden');
+    document.getElementById('virtual-print-content').classList.add('hidden');
+    const originalTitle = document.title;
+    const today = app.formatToItalianDate(new Date());
+    const clientNameForFile = client.name.replace(/\s+/g, '_');
+    document.title = `${clientNameForFile}_${today}`;
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+            document.getElementById('print-content').classList.add('hidden');
+            document.title = originalTitle;
+        }, 100);
+    }, 100);
 }
 // Fine funzione printAccountInline
 
 // Inizio funzione toggleEditTransaction
 function toggleEditTransaction(clientId, transactionId) {
-    const app = getApp(); const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`); if (!row) return;
-    const editableCells = row.querySelectorAll('.editable-cell'); const editInputs = row.querySelectorAll('.edit-input'); const editBtn = row.querySelector('.edit-btn'); const saveBtn = row.querySelector('.save-btn');
+    const app = getApp();
+    const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
+    if (!row) return;
+    const editableCells = row.querySelectorAll('.editable-cell');
+    const editInputs = row.querySelectorAll('.edit-input');
+    const editBtn = row.querySelector('.edit-btn');
+    const saveBtn = row.querySelector('.save-btn');
     const isEditing = editBtn.classList.contains('hidden');
-    if (isEditing) { editableCells.forEach(cell => cell.classList.remove('hidden')); editInputs.forEach(input => input.classList.add('hidden')); editBtn.classList.remove('hidden'); saveBtn.classList.add('hidden'); }
-    else { editableCells.forEach(cell => cell.classList.add('hidden')); editInputs.forEach(input => input.classList.remove('hidden')); editBtn.classList.add('hidden'); saveBtn.classList.remove('hidden'); const firstInput = editInputs[0]; if (firstInput) firstInput.focus(); }
+    if (isEditing) {
+        editableCells.forEach(cell => cell.classList.remove('hidden'));
+        editInputs.forEach(input => input.classList.add('hidden'));
+        editBtn.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+    } else {
+        editableCells.forEach(cell => cell.classList.add('hidden'));
+        editInputs.forEach(input => input.classList.remove('hidden'));
+        editBtn.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+        const firstInput = editInputs[0];
+        if (firstInput) firstInput.focus();
+    }
     app.refreshIcons();
 }
 // Fine funzione toggleEditTransaction
 
 // Inizio funzione saveEditTransaction
 function saveEditTransaction(clientId, transactionId) {
-    const app = getApp(); const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`); if (!row) return;
-    const editInputs = row.querySelectorAll('.edit-input'); const [dateInput, descInput, amountInput] = editInputs;
-    const newDate = dateInput.value.trim(); const newDescription = descInput.value.trim(); const newAmount = parseFloat(amountInput.value);
-    if (!newDate || !newDescription || isNaN(newAmount)) { app.showNotification('Tutti i campi sono obbligatori e l\'importo deve essere valido.'); return; }
-    if (!app.validateItalianDate(newDate)) { app.showNotification('Formato data non valido. Usa gg.mm.aaaa'); return; }
-    const client = app.state.data.clients.find(c => c.id === clientId); if (!client) return; const transaction = client.transactions.find(tx => tx.id === transactionId); if (!transaction) return;
-    const oldAmount = transaction.amount; const amountDifference = newAmount - oldAmount;
-    const parsedDate = app.parseItalianDate(newDate); transaction.date = parsedDate.toISOString(); transaction.description = newDescription; transaction.amount = newAmount;
-    app.state.data.clients = app.state.data.clients.map(c => { if (c.id === clientId) return { ...c, balance: c.balance + amountDifference, transactions: c.transactions.map(tx => tx.id === transactionId ? transaction : tx) }; return c; });
-    app.saveToStorage('data', app.state.data); app.showNotification('Transazione aggiornata con successo!');
-    showClientModal.call(app, clientId); renderClientsTable.call(app);
+    const app = getApp();
+    const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
+    if (!row) return;
+    const editInputs = row.querySelectorAll('.edit-input');
+    const [dateInput, descInput, amountInput] = editInputs;
+    const newDate = dateInput.value.trim();
+    const newDescription = descInput.value.trim();
+    const newAmount = parseFloat(amountInput.value);
+    if (!newDate || !newDescription || isNaN(newAmount)) {
+        app.showNotification('Tutti i campi sono obbligatori e l\'importo deve essere valido.');
+        return;
+    }
+    if (!app.validateItalianDate(newDate)) {
+        app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
+        return;
+    }
+    const client = app.state.data.clients.find(c => c.id === clientId);
+    if (!client) return;
+    const transaction = client.transactions.find(tx => tx.id === transactionId);
+    if (!transaction) return;
+    const oldAmount = transaction.amount;
+    const amountDifference = newAmount - oldAmount;
+    const parsedDate = app.parseItalianDate(newDate);
+    transaction.date = parsedDate.toISOString();
+    transaction.description = newDescription;
+    transaction.amount = newAmount;
+    app.state.data.clients = app.state.data.clients.map(c => {
+        if (c.id === clientId) return { ...c,
+            balance: c.balance + amountDifference,
+            transactions: c.transactions.map(tx => tx.id === transactionId ? transaction : tx)
+        };
+        return c;
+    });
+    app.saveToStorage('data', app.state.data);
+    app.showNotification('Transazione aggiornata con successo!');
+    showClientModal.call(app, clientId);
+    renderClientsTable.call(app);
 }
 // Fine funzione saveEditTransaction
 
 // Inizio funzione formatTransactionAmount
-function formatTransactionAmount(amount) { return amount > 0 ? '+' + this.formatCurrency(amount) : this.formatCurrency(amount); }
+function formatTransactionAmount(amount) {
+    return amount > 0 ? '+' + this.formatCurrency(amount) : this.formatCurrency(amount);
+}
 // Fine funzione formatTransactionAmount
 
 // === RENDER TABELLA CLIENTI ===
 // Inizio funzione renderClientsTable
 function renderClientsTable() {
-    const tbody = document.getElementById('clients-tbody'); if (!tbody) return;
-    const app = this; const clients = sortedClients.call(app);
+    const tbody = document.getElementById('clients-tbody');
+    if (!tbody) return;
+    const app = this;
+    const clients = sortedClients.call(app);
     if (clients.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12"><div class="empty-state"><i data-lucide="users"></i><div class="empty-state-title">Nessun cliente trovato</div><div class="empty-state-description">Aggiungi un nuovo cliente o modifica i filtri di ricerca.</div></div></td></tr>`;
     } else {
@@ -490,31 +643,93 @@ function renderClientsTable() {
 // === FUNZIONI STAMPA - VERSIONI CORRETTE ===
 // Inizio funzione printClientsList
 function printClientsList() {
-    const app = this; const clients = [...app.state.data.clients].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it-IT'));
-    const printHeader = document.querySelector('#print-clients-content h1'); if (printHeader) printHeader.textContent = 'Lista Contabile Clienti';
+    const app = this;
+    const clients = [...app.state.data.clients].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it-IT'));
+    const printHeader = document.querySelector('#print-clients-content h1');
+    if (printHeader) printHeader.textContent = 'Lista Contabile Clienti';
     document.getElementById('print-clients-date').textContent = `Dati aggiornati al: ${app.formatDate(new Date())}`;
-    const clientsTableBody = document.getElementById('print-clients-list'); const pairs = [];
-    for (let i = 0; i < clients.length; i += 2) pairs.push({ client1: clients[i], client2: clients[i + 1] || null });
+    const clientsTableBody = document.getElementById('print-clients-list');
+    const pairs = [];
+    for (let i = 0; i < clients.length; i += 2) pairs.push({
+        client1: clients[i],
+        client2: clients[i + 1] || null
+    });
     clientsTableBody.innerHTML = pairs.map(pair => `<tr><td>${pair.client1.name}</td><td class="${app.getBalanceClass(pair.client1.balance)}">${app.formatCurrency(pair.client1.balance)}</td><td>${pair.client2 ? pair.client2.name : ''}</td><td class="${pair.client2 ? app.getBalanceClass(pair.client2.balance) : ''}">${pair.client2 ? app.formatCurrency(pair.client2.balance) : ''}</td></tr>`).join('');
-    document.getElementById('print-clients-content').classList.remove('hidden'); document.getElementById('print-content').classList.add('hidden'); document.getElementById('virtual-print-content').classList.add('hidden');
-    const originalTitle = document.title; const today = app.formatToItalianDate(new Date()); document.title = `Lista_Clienti_${today}`;
-    setTimeout(() => { window.print(); setTimeout(() => { document.getElementById('print-clients-content').classList.add('hidden'); document.title = originalTitle; }, 100); }, 100);
+    document.getElementById('print-clients-content').classList.remove('hidden');
+    document.getElementById('print-content').classList.add('hidden');
+    document.getElementById('virtual-print-content').classList.add('hidden');
+    const originalTitle = document.title;
+    const today = app.formatToItalianDate(new Date());
+    document.title = `Lista_Clienti_${today}`;
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+            document.getElementById('print-clients-content').classList.add('hidden');
+            document.title = originalTitle;
+        }, 100);
+    }, 100);
 }
 // Fine funzione printClientsList
 
 // Inizio funzione showSkeletonLoader
 function showSkeletonLoader(container) {
-    const skeletonHTML = `<div class="space-y-6"><div class="stats-grid"><div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;"><div style="flex: 1;"><div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div><div class="skeleton-loader" style="height: 2rem; width: 40%;"></div></div><div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div></div><div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;"><div style="flex: 1;"><div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div><div class="skeleton-loader" style="height: 2rem; width: 40%;"></div></div><div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div></div><div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;"><div style="flex: 1;"><div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div><div class="skeleton-loader" style="height: 2rem; width: 40%;"></div></div><div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div></div></div><div class="filters-bar" style="justify-content: space-between;"><div class="skeleton-loader" style="height: 2.5rem; width: 250px;"></div><div class="skeleton-loader" style="height: 2.5rem; width: 400px;"></div><div class="skeleton-loader" style="height: 2.5rem; width: 300px;"></div></div><div class="card"><div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 200px;"></div></div><div class="p-6 space-y-2"><div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div><div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div></div></div></div>`;
+    const skeletonHTML = `
+        <div class="space-y-6">
+            <div class="stats-grid">
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+                <div class="stat-card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <div class="skeleton-loader" style="height: 1rem; width: 60%; margin-bottom: 0.75rem;"></div>
+                        <div class="skeleton-loader" style="height: 2rem; width: 40%;"></div>
+                    </div>
+                    <div class="skeleton-loader" style="width: 4rem; height: 4rem; border-radius: 50%;"></div>
+                </div>
+            </div>
+            <div class="filters-bar" style="justify-content: space-between;">
+                <div class="skeleton-loader" style="height: 2.5rem; width: 250px;"></div>
+                <div class="skeleton-loader" style="height: 2.5rem; width: 400px;"></div>
+                <div class="skeleton-loader" style="height: 2.5rem; width: 300px;"></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="skeleton-loader" style="height: 1.5rem; width: 200px;"></div></div>
+                <div class="p-6 space-y-2">
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                    <div class="skeleton-loader" style="height: 2.5rem; width: 100%;"></div>
+                </div>
+            </div>
+        </div>`;
     container.innerHTML = skeletonHTML;
 }
 // Fine funzione showSkeletonLoader
 
 // === FUNZIONI GLOBALI PER EVENTI ===
 // Inizio funzione showClientModalById
-function showClientModalById(clientId) { const app = getApp(); showClientModal.call(app, clientId); }
+function showClientModalById(clientId) {
+    const app = getApp();
+    showClientModal.call(app, clientId);
+}
 // Fine funzione showClientModalById
 // Inizio funzione deleteClientById
-function deleteClientById(clientId) { const app = getApp(); deleteClient.call(app, clientId); }
+function deleteClientById(clientId) {
+    const app = getApp();
+    deleteClient.call(app, clientId);
+}
 // Fine funzione deleteClientById
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===

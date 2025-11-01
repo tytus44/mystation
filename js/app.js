@@ -106,6 +106,16 @@ class MyStationApp {
                     if (typeof showImpostazioniModal === 'function') {
                         showImpostazioniModal(this);
                     }
+                // --- INIZIO MODIFICA ---
+                } else if (section === 'esci') {
+                    this.showConfirm('Sei sicuro di voler uscire?', () => {
+                        if (typeof window.logout === 'function') {
+                            window.logout();
+                        } else {
+                            console.error('Funzione logout() non trovata.');
+                        }
+                    });
+                // --- FINE MODIFICA ---
                 } else if (section) {
                     this.switchSection(section);
                 }
