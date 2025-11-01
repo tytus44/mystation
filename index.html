@@ -32,6 +32,11 @@
             background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
             font-family: 'Poppins', sans-serif;
         }
+        
+        /* Regola per il tema scuro ripristinata per evitare interferenze */
+        .theme-dark body {
+             background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%) !important;
+        }
 
         .animated-background {
             position: fixed;
@@ -110,7 +115,6 @@
             margin-bottom: var(--spacing-xl);
         }
 
-        /* Modifica: Ingrandito il contenitore e il logo */
         .login-logo {
             width: 110px; 
             height: 110px;
@@ -128,7 +132,6 @@
             width: 66px; 
             height: 66px;
         }
-        /* Fine Modifica Logo */
 
         .login-title {
             font-size: 28px;
@@ -143,8 +146,11 @@
             color: rgba(255, 255, 255, 0.8);
             font-family: 'Poppins', sans-serif;
         }
-
+        
+        /* Ritorno al background solido della card */
         .login-card {
+            background-color: var(--bg-primary); /* Sfondo Solido */
+            border: 1px solid var(--border-primary); 
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         
@@ -175,13 +181,13 @@
             width: 100%;
             max-width: 320px;
             padding: 0.625rem 0.75rem;
-            font-size: 1.3rem;
-	    font-weight: 600;
+            font-size: 0.875rem;
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-secondary);
             border-radius: var(--radius-md);
             color: var(--text-primary);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            /* Modifica: Altezza fissa come pulsante */
             height: var(--input-height);
             font-family: 'Poppins', sans-serif;
         }
@@ -233,15 +239,36 @@
             margin-top: var(--spacing-xl);
             padding-top: var(--spacing-lg);
             border-top: 1px solid var(--border-primary);
-            font-size: 13px;
-            color: var(--text-tertiary);
+            /* Modifica: Rimosso font-size e color dal contenitore principale */
             display: flex;
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             gap: 4px;
             font-family: 'Poppins', sans-serif;
         }
+        
+        .login-footer > div {
+            /* Modifica: Colore del testo in nero (quasi nero, in base alle variabili) */
+            color: #1f2937; 
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
 
+        /* Modifica: Stili per il link di attribuzione */
+        .login-footer small {
+            font-size: 11px; /* Font più piccolo */
+            margin-top: 4px;
+        }
+
+        .login-footer small a {
+            color: #6b7280; /* Grigio scuro */
+            text-decoration: none; /* Rimuove la sottolineatura */
+        }
+        
         .heart {
             color: #ef4444;
             font-size: 14px;
@@ -450,13 +477,16 @@
     <div class="login-wrapper">
         <div class="login-header">
             <div class="login-logo">
-                <img src="logo.svg" alt="MyStation Logo" style="width: 72px; height: 72px;">
+                <img src="logo.png" alt="MyStation Logo" style="width: 72px; height: 72px;">
             </div>
             <h1 class="login-title">MyStation</h1>
             <p class="login-subtitle">Accedi alla tua dashboard</p>
         </div>
 
-        <div class="card login-card">
+        <div 
+            class="card login-card" 
+            style="background-color: var(--bg-primary); border: 1px solid var(--border-primary); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);"
+        >
             <div class="card-body">
                 <div id="error-message" class="error-message">
                     <i data-lucide="alert-circle"></i>
@@ -470,6 +500,7 @@
                             type="text" 
                             id="username" 
                             class="form-control" 
+                            placeholder="Inserisci il tuo nome utente"
                             autocomplete="off" required
                         >
                     </div>
@@ -480,6 +511,7 @@
                             type="password" 
                             id="password" 
                             class="form-control" 
+                            placeholder="Inserisci la tua password"
                             autocomplete="off" required
                         >
                         </div>
@@ -490,9 +522,14 @@
                 </form>
 
                 <div class="login-footer">
-                    <span>Programmato con</span>
-                    <span class="heart">❤</span>
-                    <span>da NeRO</span>
+                    <div>
+                        <span>Programmato con</span>
+                        <span class="heart">❤</span>
+                        <span>da NeRO</span>
+                    </div>
+                    <small>
+                        <a href="https://www.flaticon.com/free-icons/3d-modeling" title="3d modeling icons">3d modeling icons created by Freepik - Flaticon</a>
+                    </small>
                 </div>
             </div>
         </div>
