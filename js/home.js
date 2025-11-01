@@ -307,14 +307,20 @@ function setupHomeEventListeners() {
         if (e.target.matches('button')) handleCalculatorInput.call(app, e.target.dataset.value);
     });
 
-    document.getElementById('event-list-container')?.addEventListener('click', (e) => {
+document.getElementById('event-list-container')?.addEventListener('click', (e) => {
         const eventEl = e.target.closest('[data-event-id]');
         if (!eventEl) return;
         
         const eventId = eventEl.dataset.eventId;
         const eventType = eventEl.dataset.eventType;
         
-        if (e.target.closest('.delete-event-btn')) {
+        const deleteBtn = e.target.closest('.delete-event-btn');
+        
+        if (deleteBtn) {
+            // CORREZIONE: Impedisce al click di aprire la card genitore
+            e.stopPropagation(); 
+            
+            // Si assicura che il contesto (this, che è app) sia passato alla funzione
             if (eventType === 'todo') {
                 deleteTodo.call(app, eventId);
             } else {
@@ -1072,7 +1078,7 @@ function renderEventiDelGiorno(dateString) {
                             <span class="evento-durata">(${evento.durata} min)</span>
                         </div>
                         <div class="evento-descrizione">${evento.descrizione}</div>
-                        <button class="delete-event-btn" data-event-id="${evento.id}"><i data-lucide="x"></i></button>
+                        <button class="delete-event-btn"><i data-lucide="x"></i></button>
                     </div>
                 `;
             } else { // type === 'todo'
@@ -1085,7 +1091,7 @@ function renderEventiDelGiorno(dateString) {
                             <span class="evento-durata">(${prioritaTesto[evento.priorita] || 'Standard'})</span>
                         </div>
                         <div class="evento-descrizione">${evento.text}</div>
-                        <button class="delete-event-btn" data-event-id="${evento.id}"><i data-lucide="x"></i></button>
+                        <button class="delete-event-btn"><i data-lucide="x"></i></button>
                     </div>
                 `;
             }
@@ -1338,6 +1344,8 @@ function deleteTodo(todoId) {
     const app = this;
     const todo = homeState.todos.find(t => t.id === todoId);
     if (!todo) return;
+    
+    // Si assicura che app.showConfirm venga chiamato correttamente nel contesto corretto
     app.showConfirm(`Sei sicuro di voler eliminare l'attività?<br>"${todo.text}"?`, () => {
         homeState.todos = homeState.todos.filter(t => t.id !== todoId);
         app.state.data.todos = homeState.todos;
@@ -1354,6 +1362,8 @@ function deleteAppuntamento(appuntamentoId) {
     const app = this;
     const appuntamento = homeState.appuntamenti.find(a => a.id === appuntamentoId);
     if (!appuntamento) return;
+    
+    // Si assicura che app.showConfirm venga chiamato correttamente nel contesto corretto
     app.showConfirm(`Sei sicuro di voler eliminare l'appuntamento?<br>"${appuntamento.descrizione}"?`, () => {
         homeState.appuntamenti = homeState.appuntamenti.filter(a => a.id !== appuntamentoId);
         app.state.data.appuntamenti = homeState.appuntamenti;
