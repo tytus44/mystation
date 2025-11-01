@@ -227,11 +227,11 @@ function renderHomeSection(container) {
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="form-group mb-0">
                                         <label class="form-label">Importo Lordo (€)</label>
-                                        <input type="number" id="iva-importo-lordo" step="0.01" placeholder="0.00" class="form-control text-md" value="${initialLordo}" style="max-width: 100%;" autocomplete="off">
+                                        <input type="number" id="iva-importo-lordo" step="0.01" placeholder="0.00" class="form-control" value="${initialLordo}" style="max-width: 100%; font-size: var(--font-size-normal); font-weight: 500;" autocomplete="off">
                                     </div>
                                     <div class="form-group mb-0">
                                         <label class="form-label">Imponibile / Netto (€)</label>
-                                        <input type="number" id="iva-importo-imponibile" step="0.01" placeholder="0.00" class="form-control text-md" value="${initialImponibile}" style="max-width: 100%;" autocomplete="off">
+                                        <input type="number" id="iva-importo-imponibile" step="0.01" placeholder="0.00" class="form-control" value="${initialImponibile}" style="max-width: 100%; font-size: var(--font-size-normal); font-weight: 500;" autocomplete="off">
                                     </div>
                                 </div>
                                 <div id="iva-risultati" class="space-y-4 pt-4">
