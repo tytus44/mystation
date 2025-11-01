@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Esagoni concentrici -->
+  <g transform="translate(100, 100)">
+    <!-- Esagono esterno blu -->
+    <path d="M 0 -95 L 82.2 -47.5 L 82.2 47.5 L 0 95 L -82.2 47.5 L -82.2 -47.5 Z" 
+          fill="#2563eb"/>
+    
+    <!-- Esagono interno bianco -->
+    <path d="M 0 -66.5 L 57.6 -33.25 L 57.6 33.25 L 0 66.5 L -57.6 33.25 L -57.6 -33.25 Z" 
+          fill="#ffffff"/>
+    
+    <!-- Punto blu centrale -->
+    <circle cx="0" cy="0" r="23" fill="#2563eb"/>
+  </g>
+</svg>

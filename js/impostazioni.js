@@ -199,9 +199,20 @@ function handleImpostazioniClick(event) {
     }
     
     // Gestione bottone Esci (Aggiunto)
-    if (target.closest('[data-section="esci"]')) {
+    const esciBtn = target.closest('[data-section="esci"]');
+    if (esciBtn) {
         app.hideFormModal();
-        app.switchSection('esci');
+        // Chiama la funzione di logout per gestire la disconnessione e il reindirizzamento
+        app.showConfirm('Sei sicuro di voler uscire e tornare al Login?', () => {
+            if (typeof window.logout === 'function') {
+                window.logout();
+            } else {
+                // Se logout() non è definita, esegue il reindirizzamento diretto al login (index.html)
+                console.warn('Funzione window.logout() non trovata, reindirizzamento forzato.');
+                window.location.href = '../index.html'; // Percorso da /html a /index.html
+            }
+        });
+        return;
     }
 
     // Gestione Arrotondamento
