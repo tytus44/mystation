@@ -117,84 +117,83 @@
     </div>
 
     <div id="app">
-        <header class="mobile-header">
-            <div class="mobile-header-content">
-                <button id="mobile-menu-toggle" type="button" class="mobile-menu-btn">
+        <nav class="site-nav">
+             <div class="flex items-center">
+                <button type="button" class="sidebar-toggle-btn">
                     <i data-lucide="menu"></i>
                 </button>
                 <span class="mobile-title">MyStation</span>
             </div>
-        </header>
-
-        <aside id="sidebar" class="sidebar">
-            <div class="sidebar-content">
+        </nav>
+        <div class="container">
+            <aside id="sidebar" class="sidebar collapsed">
                 <div class="sidebar-header">
                     <a href="#" class="sidebar-logo" data-section="home">
                         <i data-lucide="radar"></i>
                         <span>MyStation</span>
                     </a>
-                    <div class="sidebar-divider"></div>
                 </div>
-                
-                <ul class="sidebar-menu">
-                    <li><button type="button" data-section="home" class="sidebar-link active">
-                        <i data-lucide="home"></i><span>Home</span>
-                    </button></li>
-                    <li><button type="button" data-section="virtual" class="sidebar-link">
-                        <i data-lucide="monitor-dot"></i><span>VirtualStation</span>
-                    </button></li>
-                    <li><button type="button" data-section="amministrazione" class="sidebar-link">
-                        <i data-lucide="handshake"></i><span>Amministrazione</span>
-                    </button></li>
-                    <li><button type="button" data-section="registro" class="sidebar-link">
-                        <i data-lucide="truck"></i><span>Registro di carico</span>
-                    </button></li>
-                    <li><button type="button" data-section="prezzi" class="sidebar-link">
-                        <i data-lucide="tags"></i><span>Gestione prezzi</span>
-                    </button></li>
-                    <li><button type="button" data-section="anagrafica" class="sidebar-link">
-                        <i data-lucide="users-round"></i><span>Anagrafica</span>
-                    </button></li>
-                    <li><button type="button" data-section="spese" class="sidebar-link">
-                        <i data-lucide="receipt"></i><span>Spese</span>
-                    </button></li>
-                    <li><button type="button" data-section="info" class="sidebar-link">
-                        <i data-lucide="info"></i><span>Info</span>
-                    </button></li>
-                </ul>
-                
-                <div class="sidebar-footer">
-                    <div class="sidebar-divider"></div>
+
+                <div class="sidebar-content">
                     <ul class="sidebar-menu">
-                        <li>
-                            <button type="button" data-section="esci" class="sidebar-link" style="color: #ef4444;">
-                                <i data-lucide="log-out"></i><span>Esci</span>
-                            </button>
-                            </li>
+                        <li><button type="button" data-section="home" class="sidebar-link active">
+                            <i data-lucide="home"></i><span>Home</span>
+                        </button></li>
+                        <li><button type="button" data-section="virtual" class="sidebar-link">
+                            <i data-lucide="monitor-dot"></i><span>VirtualStation</span>
+                        </button></li>
+                        <li><button type="button" data-section="amministrazione" class="sidebar-link">
+                            <i data-lucide="handshake"></i><span>Amministrazione</span>
+                        </button></li>
+                        <li><button type="button" data-section="registro" class="sidebar-link">
+                            <i data-lucide="truck"></i><span>Registro di carico</span>
+                        </button></li>
+                        <li><button type="button" data-section="prezzi" class="sidebar-link">
+                            <i data-lucide="tags"></i><span>Gestione prezzi</span>
+                        </button></li>
+                        <li><button type="button" data-section="anagrafica" class="sidebar-link">
+                            <i data-lucide="users-round"></i><span>Anagrafica</span>
+                        </button></li>
+                        <li><button type="button" data-section="spese" class="sidebar-link">
+                            <i data-lucide="receipt"></i><span>Gestione spese</span>
+                        </button></li>
+                        <li><button type="button" data-section="info" class="sidebar-link">
+                            <i data-lucide="info"></i><span>Informazioni</span>
+                        </button></li>
+                        </ul>
+                </div>
+
+                <div class="sidebar-footer">
+                     <ul class="sidebar-menu">
+                        
+                        <li><button type="button" id="fullscreen-btn" class="sidebar-link">
+                            <i data-lucide="fullscreen"></i><span>Schermo interno</span>
+                        </button></li>
+                        <li><button type="button" id="collapse-sidebar-btn" class="sidebar-link">
+                            <i data-lucide="panel-left-close"></i><span>Collassa sidebar</span>
+                        </button></li>
                         
                         <li><button type="button" data-section="impostazioni" class="sidebar-link">
                             <i data-lucide="settings"></i><span>Impostazioni</span>
                         </button></li>
-                    </ul>
+                        </ul>
                 </div>
-            </div>
-        </aside>
+            </aside>
+            <main class="main-content">
+                <div class="content-wrapper">
+                    
+                    <div id="section-home" class="content-section active"></div>
+                    <div id="section-virtual" class="content-section hidden"></div>
+                    <div id="section-amministrazione" class="content-section hidden"></div>
+                    <div id="section-registro" class="content-section hidden"></div>
+                    <div id="section-prezzi" class="content-section hidden"></div>
+                    <div id="section-anagrafica" class="content-section hidden"></div>
+                    <div id="section-spese" class="content-section hidden"></div>
+                    <div id="section-info" class="content-section hidden"></div>
 
-        <main class="main-content">
-            <div class="content-wrapper">
-                
-                <div id="section-home" class="content-section active"></div>
-                <div id="section-virtual" class="content-section hidden"></div>
-                <div id="section-amministrazione" class="content-section hidden"></div>
-                <div id="section-registro" class="content-section hidden"></div>
-                <div id="section-prezzi" class="content-section hidden"></div>
-                <div id="section-anagrafica" class="content-section hidden"></div>
-                <div id="section-spese" class="content-section hidden"></div>
-                <div id="section-info" class="content-section hidden"></div>
-
-            </div>
-        </main>
-
+                </div>
+            </main>
+        </div>
         <div id="notification" class="notification hidden">
             <div class="notification-content">
                 <i data-lucide="bell"></i>
@@ -224,6 +223,7 @@
     </div>
 
     <script src="../js/app.js"></script>
+    <script src="../js/sidebar.js"></script>
     <script src="../js/home.js"></script>
     <script src="../js/virtual.js"></script>
     <script src="../js/amministrazione.js"></script>

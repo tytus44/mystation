@@ -29,6 +29,8 @@ body {
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
+    /* Nasconde le frecce se 'display: none' non funziona */
+    background-color: transparent; 
 }
 
 ::-webkit-scrollbar-track {
@@ -421,104 +423,150 @@ html[data-theme="night"] .filters-bar {
     outline: none;
 }
 
-/* === HEADER MOBILE === */
-.mobile-header {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--mobile-header-height);
-    background-color: var(--bg-primary);
-    border-bottom: 1px solid var(--border-primary);
-    z-index: 40;
-}
+/* === INIZIO NUOVA SEZIONE SIDEBAR E NAVIGAZIONE === */
 
-.mobile-header-content {
+.container {
     display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-md);
-    height: 100%;
 }
 
-.mobile-menu-btn {
-    background: none;
-    border: none;
-    padding: var(--spacing-sm);
-    color: var(--text-primary);
-    cursor: pointer;
-    border-radius: var(--radius-md);
-}
-
-.mobile-menu-btn:hover {
-    background-color: var(--bg-tertiary);
-}
-
-.mobile-title {
-    font-size: var(--font-size-medium);
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-left: var(--spacing-md);
-}
-
-/* === SIDEBAR === */
 .sidebar {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
     width: var(--sidebar-width);
     height: 100vh;
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
-    box-shadow: var(--shadow-md);
     border-right: 1px solid var(--border-primary);
-    transition: transform 0.3s ease, width 0.3s ease;
+    box-shadow: var(--shadow-md);
+    transition: width 0.4s ease;
     z-index: 30;
+}
+
+.sidebar.collapsed {
+    width: 5.625rem; /* 90px */
+}
+
+.sidebar .sidebar-header {
+    padding: 1.25rem 1.125rem; /* 20px 18px */
     display: flex;
-    flex-direction: column;
+    position: relative;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-primary);
+    /* Altezza minima per allineamento corretto quando il bottone è rimosso */
+    min-height: 81px; 
+    transition: padding 0.4s ease; /* Aggiunta transizione */
 }
 
-.sidebar-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: var(--spacing-md);
-}
-
-.sidebar-header {
-    margin-bottom: var(--spacing-lg);
-}
-
-.sidebar-logo {
+.sidebar-header .sidebar-logo {
     display: flex;
     align-items: center;
     text-decoration: none;
     color: var(--text-primary);
     font-size: var(--font-size-large);
     font-weight: 700;
-    padding: var(--spacing-sm) 0;
+    /* Rimuossa transizione opacity */
+    white-space: nowrap;
 }
 
-.sidebar-logo span {
-    color: var(--color-primary);
-}
-
-.sidebar-logo svg {
+.sidebar-header .sidebar-logo svg {
     width: 2.5rem !important;
     height: 2.5rem !important;
     color: var(--color-primary);
     margin-right: var(--spacing-md);
+    flex-shrink: 0;
+    transition: margin-right 0.4s ease; /* Aggiunta transizione */
 }
 
-.sidebar-divider {
-    height: 1px;
-    background-color: var(--border-primary);
-    margin: var(--spacing-md) 0;
+.sidebar-header .sidebar-logo span {
+     color: var(--text-primary);
+     transition: opacity 0.3s ease, width 0.3s ease; /* Aggiunta transizione */
+}
+
+.sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar.collapsed .sidebar-header .sidebar-logo span {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-header .sidebar-logo svg {
+    margin-right: 0;
+}
+
+.sidebar-header .sidebar-logo span {
+     color: var(--text-primary);
+}
+
+.site-nav .sidebar-toggle-btn,
+.sidebar-header .sidebar-toggle-btn {
+    height: 40px;
+    width: 40px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    position: absolute;
+    right: 18px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    transition: 0.4s ease;
+}
+
+/* Nascondi il bottone nell'header (Richiesta 3) */
+.sidebar-header .sidebar-toggle-btn {
+    display: none;
+}
+
+.site-nav .sidebar-toggle-btn:hover,
+.sidebar-header .sidebar-toggle-btn:hover {
+    background: var(--bg-secondary);
+}
+
+.sidebar.collapsed .sidebar-header .sidebar-toggle-btn {
+    transform: translateX(-2px);
+    height: 48px;
+    width: 50px;
+}
+
+.sidebar-header .sidebar-toggle-btn svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    transition: transform 0.4s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+.sidebar .sidebar-content {
+    flex: 1;
+    padding: 1.25rem 1.125rem; /* 20px 18px */
+    overflow: hidden auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-tertiary) transparent;
+}
+
+.sidebar.collapsed .sidebar-content {
+    scrollbar-width: none;
 }
 
 .sidebar-menu {
-    list-style: none;
-    flex-grow: 1;
+    display: flex;
+    gap: 4px;
+    list-style: none; /* Applicato a tutti i .sidebar-menu */
+    flex-direction: column;
 }
 
 .sidebar-menu li {
@@ -527,12 +575,14 @@ html[data-theme="night"] .filters-bar {
 
 .sidebar-link {
     display: flex;
+    gap: 12px; /* Ripristinato */
+    white-space: nowrap;
+    border-radius: var(--radius-md);
+    padding: 12px 15px;
     align-items: center;
-    padding: var(--spacing-sm) var(--spacing-md);
     text-decoration: none;
     color: var(--text-primary);
-    border-radius: var(--radius-md);
-    transition: background-color 0.2s ease;
+    transition: 0.3s ease;
     font-weight: 500;
     font-size: var(--font-size-normal);
 }
@@ -547,12 +597,27 @@ button.sidebar-link {
     font-size: inherit;
 }
 
-.sidebar-link:hover {
-    background-color: var(--bg-tertiary);
+.sidebar-link span {
+    transition: opacity 0.3s ease;
 }
 
-.sidebar-link.active {
-    color: var(--color-primary);
+/* INIZIO MODIFICA STATO COLLASSATO */
+.sidebar.collapsed .sidebar-link {
+    justify-content: center;
+    gap: 0; /* Aggiunto per rimuovere lo spazio */
+}
+
+.sidebar.collapsed .sidebar-link span {
+    opacity: 0;
+    pointer-events: none;
+    width: 0; /* Aggiunto per collassare lo span */
+    overflow: hidden; /* Aggiunto per sicurezza */
+}
+/* FINE MODIFICA STATO COLLASSATO */
+
+.sidebar-link:is(:hover, .active) {
+    color: var(--text-inverse);
+    background: var(--color-primary);
 }
 
 .sidebar-link svg {
@@ -560,17 +625,96 @@ button.sidebar-link {
     height: 1.5rem;
     margin-right: var(--spacing-md);
     flex-shrink: 0;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
-.sidebar-footer {
+.sidebar.collapsed .sidebar-link svg {
+    margin-right: 0;
+}
+
+.sidebar-link:is(:hover, .active) svg {
+    color: var(--text-inverse);
+}
+
+.sidebar .sidebar-footer {
+    padding: 1.25rem 1.125rem; /* 20px 18px */
+    white-space: nowrap;
+    border-top: 1px solid var(--border-primary);
     margin-top: auto;
 }
 
+.sidebar-divider {
+    height: 1px;
+    background-color: var(--border-primary);
+    margin: var(--spacing-md) 0;
+}
+
+.sidebar.collapsed .sidebar-divider {
+    visibility: hidden;
+}
+
+.site-nav {
+    top: 0;
+    display: none;
+    padding: 15px 20px;
+    position: sticky;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-primary);
+    z-index: 40;
+}
+
+.site-nav .sidebar-toggle-btn {
+    position: unset;
+    display: flex; /* Assicura che sia visibile */
+}
+
+.site-nav .mobile-title {
+    font-size: var(--font-size-medium);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-left: var(--spacing-md);
+}
+
+/* Mapping dark theme */
+.theme-dark .site-nav .sidebar-toggle-btn,
+.theme-dark .sidebar-header .sidebar-toggle-btn {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+.theme-dark .site-nav .sidebar-toggle-btn:hover,
+.theme-dark .sidebar-header .sidebar-toggle-btn:hover {
+    background: var(--bg-secondary);
+}
+
+.theme-dark .sidebar-link {
+    color: var(--text-primary);
+}
+
+.theme-dark .sidebar-link svg {
+     color: var(--text-primary);
+}
+
+.theme-dark .sidebar-link:is(:hover, .active) {
+    color: var(--text-inverse);
+    background: var(--color-primary);
+}
+
+.theme-dark .sidebar-link:is(:hover, .active) svg {
+    color: var(--text-inverse);
+}
+
+
+/* === FINE NUOVA SEZIONE SIDEBAR E NAVIGAZIONE === */
+
+
 /* === MAIN CONTENT === */
 .main-content {
-    margin-left: var(--sidebar-width);
+    flex: 1; /* Modificato per il layout flex */
     min-height: 100vh;
-    transition: margin-left 0.3s ease;
+    transition: none; /* Rimossa transizione margin-left */
 }
 
 .content-wrapper {
@@ -2681,37 +2825,6 @@ select.form-control {
     text-decoration: none;
 }
 
-/* === SIDEBAR COLLASSATA === */
-body.sidebar-collapsed .sidebar {
-    width: 5rem;
-}
-
-body.sidebar-collapsed .main-content {
-    margin-left: 5rem;
-}
-
-body.sidebar-collapsed .sidebar-link span,
-body.sidebar-collapsed .sidebar-logo span {
-    display: none;
-}
-
-body.sidebar-collapsed .sidebar-link {
-    justify-content: center;
-}
-
-body.sidebar-collapsed .sidebar-link svg,
-body.sidebar-collapsed .sidebar-logo svg {
-    margin-right: 0;
-}
-
-body.sidebar-collapsed .sidebar-logo {
-    justify-content: center;
-}
-
-body.sidebar-collapsed .sidebar-divider {
-    visibility: hidden;
-}
-
 /* =============================================
    NUOVI STILI PER HOME (CALENDARIO + EVENTI)
    ============================================= */
@@ -3053,7 +3166,7 @@ body.sidebar-collapsed .sidebar-divider {
 .collapse-toggle svg {
     width: 1.25rem;
     height: 1.25rem;
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
 }
 
 .collapsible-header:hover .collapse-toggle {
@@ -3070,4 +3183,15 @@ body.sidebar-collapsed .sidebar-divider {
 .collapsed .collapse-toggle {
     transform: rotate(180deg);
 }
+
+/* INIZIO MODIFICHE RICHIESTE */
+    
+/* Stile per la rotazione dell'icona "Collassa Sidebar" nel footer (Richiesta 2) */
+#collapse-sidebar-btn svg {
+    transition: transform 0.4s ease;
 }
+
+.sidebar.collapsed #collapse-sidebar-btn svg {
+    transform: rotate(180deg);
+}
+/* FINE MODIFICHE RICHIESTE */

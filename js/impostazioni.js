@@ -44,7 +44,7 @@ function initImpostazioni() {
     updateTheme(); // Applica il tema salvato (o default)
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
-        updateFullscreenToggle();
+        // Non aggiorniamo più il toggle, è stato rimosso
     });
     console.log('✅ Modulo Impostazioni inizializzato');
 }
@@ -65,9 +65,11 @@ function showImpostazioniModal(app) {
 
 // Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML(app) {
-    // Se il tema 'default' è attivo, lo stato dello switch è controllato da isDarkMode
-    // Se un tema alternativo è attivo, lo switch è 'chiaro' (false)
-    const isSwitchChecked = (impostazioniState.theme === 'default') ? app.state.isDarkMode : false;
+    
+    // Determina stato attivo per i bottoni Chiaro/Scuro
+    const isDefaultTheme = impostazioniState.theme === 'default';
+    const isLightActive = isDefaultTheme && !app.state.isDarkMode;
+    const isDarkActive = isDefaultTheme && app.state.isDarkMode;
 
     return `
         <div class="modal-header">
@@ -78,62 +80,63 @@ function getImpostazioniModalHTML(app) {
         </div>
         <div class="modal-body">
             <div class="impostazioni-layout">
-                <div class="impostazioni-section" style="gap: 1.5rem;">
+                <div class="impostazioni-section">
                     <h3 class="impostazioni-section-title">Personalizzazione</h3>
-                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between w-full">
-                                <span class="font-medium text-primary">Tema Chiaro/Scuro</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="dark-mode-toggle" ${isSwitchChecked ? 'checked' : ''}>
-                                    <span class="switch-slider"></span>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between w-full">
-                                <span class="font-medium text-primary">Schermo intero</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="fullscreen-toggle" ${impostazioniState.isFullscreen ? 'checked' : ''}>
-                                    <span class="switch-slider"></span>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between w-full">
-                                <span class="font-medium text-primary">Collassa menu laterale</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="sidebar-collapse-toggle" ${app.state.isSidebarCollapsed ? 'checked' : ''}>
-                                    <span class="switch-slider"></span>
-                                </label>
+                    
+                    <div class="space-y-4">
+
+                        <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                            <label class="font-medium text-primary mb-4" style="display: block;">Arrotondamento elementi</label>
+                            <div class="flex gap-4">
+                                <button type="button" data-radius="none" class="btn ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}">Nessuno</button>
+                                <button type="button" data-radius="medium" class="btn ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}">Medio</button>
+                                <button type="button" data-radius="high" class="btn ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}">Alto</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
-                        <label class="font-medium text-primary mb-4" style="display: block;">Arrotondamento elementi</label>
-                        <div class="flex gap-4">
-                            <button type="button" data-radius="none" class="btn ${impostazioniState.borderRadius === 'none' ? 'btn-primary active' : 'btn-secondary'}">Nessuno</button>
-                            <button type="button" data-radius="medium" class="btn ${impostazioniState.borderRadius === 'medium' ? 'btn-primary active' : 'btn-secondary'}">Medio</button>
-                            <button type="button" data-radius="high" class="btn ${impostazioniState.borderRadius === 'high' ? 'btn-primary active' : 'btn-secondary'}">Alto</button>
+
+                        <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 1.25rem;">
+                            <div>
+                                <label class="font-medium text-primary mb-4" style="display: block;">Temi di default</label>
+                                <div class="btn-group w-full">
+                                    <button type="button" data-theme-default="light" class="btn ${isLightActive ? 'btn-primary active' : 'btn-secondary'}">
+                                        <i data-lucide="sun" class="mr-2"></i> Chiaro
+                                    </button>
+                                    <button type="button" data-theme-default="dark" class="btn ${isDarkActive ? 'btn-primary active' : 'btn-secondary'}">
+                                        <i data-lucide="moon" class="mr-2"></i> Scuro
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="font-medium text-primary mb-4" style="display: block;">Temi colore extra</label>
+                                <div class="flex flex-wrap" style="gap: var(--spacing-sm);" id="theme-color-picker">
+                                    ${THEME_COLORS.map(theme => {
+                                        const isThemeActive = impostazioniState.theme === theme.id;
+                                        const borderColor = isThemeActive ? 'var(--color-primary)' : (theme.id === 'night' ? '#424242' : 'var(--bg-primary)');
+                                        const boxShadow = isThemeActive ? `0 0 0 3px var(--color-primary)` : `0 0 0 1px ${theme.id === 'night' ? '#616161' : 'var(--border-secondary)'}`;
+                                        
+                                        return `
+                                        <button type="button" 
+                                                class="theme-color-swatch" 
+                                                data-theme="${theme.id}" 
+                                                title="${theme.name}" 
+                                                style="background-color: ${theme.value}; 
+                                                       width: 2.25rem; 
+                                                       height: 2.25rem; 
+                                                       border-radius: 50%; 
+                                                       cursor: pointer; 
+                                                       border: 3px solid ${borderColor}; 
+                                                       box-shadow: ${boxShadow};
+                                                       transition: all 0.2s ease;">
+                                        </button>
+                                    `}).join('')}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
-                        <label class="font-medium text-primary mb-4" style="display: block;">Temi di colore</label>
-                        <div class="flex flex-wrap" style="gap: var(--spacing-sm);" id="theme-color-picker">
-                            ${THEME_COLORS.map(theme => `
-                                <button type="button" 
-                                        class="theme-color-swatch" 
-                                        data-theme="${theme.id}" 
-                                        title="${theme.name}" 
-                                        style="background-color: ${theme.value}; 
-                                               width: 2.25rem; 
-                                               height: 2.25rem; 
-                                               border-radius: 50%; 
-                                               cursor: pointer; 
-                                               border: 3px solid ${impostazioniState.theme === theme.id ? 'var(--color-primary)' : (theme.id === 'night' ? '#424242' : 'var(--bg-primary)')}; 
-                                               box-shadow: 0 0 0 1px ${impostazioniState.theme === theme.id ? 'var(--color-primary)' : (theme.id === 'night' ? '#616161' : 'var(--border-secondary)')};
-                                               transition: all 0.2s ease;">
-                                </button>
-                            `).join('')}
+                        <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md);">
+                             <label class="font-medium text-primary mb-4" style="display: block;">Account</label>
+                             <button type="button" data-section="esci" class="btn btn-danger w-full"><i data-lucide="log-out"></i><span>Esci</span></button>
                         </div>
-                    </div>
-                </div>
+                        </div> </div>
                 <div class="impostazioni-section">
                     <h3 class="impostazioni-section-title">Gestione Dati</h3>
                     <div class="space-y-4">
@@ -186,14 +189,22 @@ function handleImpostazioniClick(event) {
     const target = event.target;
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
+
+    // Gestione bottoni standard
     if (target.closest('#import-btn')) modalContent.querySelector('#import-file')?.click();
     if (target.closest('#export-btn')) exportData.call(app);
     if (target.closest('#reset-data-btn')) confirmReset.call(app);
-
     if (target.closest('#close-impostazioni-btn') || target.closest('#close-impostazioni-icon-btn')) {
         app.hideFormModal();
     }
+    
+    // Gestione bottone Esci (Aggiunto)
+    if (target.closest('[data-section="esci"]')) {
+        app.hideFormModal();
+        app.switchSection('esci');
+    }
 
+    // Gestione Arrotondamento
     const radiusBtn = target.closest('[data-radius]');
     if (radiusBtn) {
         const newRadius = radiusBtn.dataset.radius;
@@ -208,6 +219,7 @@ function handleImpostazioniClick(event) {
         });
     }
 
+    // Gestione Swatch Temi Extra
     const themeBtn = target.closest('[data-theme]');
     if (themeBtn) {
         const newTheme = themeBtn.dataset.theme;
@@ -219,8 +231,13 @@ function handleImpostazioniClick(event) {
         if (app.state.isDarkMode) {
             app.toggleTheme(); // Forza isDarkMode = false e rimuove .theme-dark
         }
-        document.getElementById('dark-mode-toggle').checked = false;
 
+        // Deseleziona bottoni default
+        modalContent.querySelectorAll('[data-theme-default]').forEach(btn => {
+            btn.classList.remove('btn-primary', 'active');
+            btn.classList.add('btn-secondary');
+        });
+        
         // Aggiorna UI swatches
         modalContent.querySelectorAll('[data-theme]').forEach(btn => {
             const isSelected = btn.dataset.theme === newTheme;
@@ -231,6 +248,39 @@ function handleImpostazioniClick(event) {
             btn.style.borderColor = isSelected ? 'var(--color-primary)' : nonSelectedBorder;
             btn.style.boxShadow = isSelected ? `0 0 0 3px var(--color-primary)` : nonSelectedShadow;
         });
+    }
+
+    // Gestione Bottoni Temi Default (Chiaro/Scuro)
+    const themeDefaultBtn = target.closest('[data-theme-default]');
+    if(themeDefaultBtn) {
+        const newThemeMode = themeDefaultBtn.dataset.themeDefault;
+
+        // 1. Resetta il tema a 'default'
+        impostazioniState.theme = 'default';
+        app.saveToStorage('theme', 'default');
+        updateTheme(); // Rimuove data-theme
+
+        // 2. Aggiorna UI bottoni default
+        modalContent.querySelectorAll('[data-theme-default]').forEach(btn => {
+            const isActive = btn.dataset.themeDefault === newThemeMode;
+            btn.classList.toggle('btn-primary', isActive);
+            btn.classList.toggle('active', isActive);
+            btn.classList.toggle('btn-secondary', !isActive);
+        });
+
+        // 3. Deseleziona tutti gli swatch
+        modalContent.querySelectorAll('[data-theme]').forEach(btn => {
+            const themeId = btn.dataset.theme;
+            btn.style.borderColor = (themeId === 'night') ? '#424242' : 'var(--bg-primary)';
+            btn.style.boxShadow = `0 0 0 1px ${themeId === 'night' ? '#616161' : 'var(--border-secondary)'}`;
+        });
+
+        // 4. Attiva/Disattiva .theme-dark
+        if (newThemeMode === 'dark' && !app.state.isDarkMode) {
+            app.toggleTheme(); // Attiva dark mode
+        } else if (newThemeMode === 'light' && app.state.isDarkMode) {
+            app.toggleTheme(); // Disattiva dark mode
+        }
     }
 }
 // Fine funzione handleImpostazioniClick
@@ -243,28 +293,13 @@ function handleImpostazioniChange(event) {
         return;
     }
     const target = event.target;
-    const modalContent = document.getElementById('form-modal-content');
-    if (!modalContent) return;
 
-    if (target.matches('#dark-mode-toggle')) {
-        // 1. Resetta il tema di colore a 'default'
-        impostazioniState.theme = 'default';
-        app.saveToStorage('theme', 'default');
-        updateTheme(); // <-- Chiama la NUOVA updateTheme(), che rimuove data-theme
+    // Rimuovi i listener per i toggle che non esistono più
+    // if (target.matches('#dark-mode-toggle')) { ... }
+    // if (target.matches('#fullscreen-toggle')) toggleFullscreen();
+    // if (target.matches('#sidebar-collapse-toggle')) app.toggleSidebarCollapse();
 
-        // 2. Deseleziona tutti gli swatch
-        modalContent.querySelectorAll('[data-theme]').forEach(btn => {
-            const themeId = btn.dataset.theme;
-            btn.style.borderColor = (themeId === 'night') ? '#424242' : 'var(--bg-primary)';
-            btn.style.boxShadow = `0 0 0 1px ${themeId === 'night' ? '#616161' : 'var(--border-secondary)'}`;
-        });
-
-        // 3. Esegui il toggle del tema light/dark di default
-        app.toggleTheme(); // <-- Aggiunge/rimuove .theme-dark
-    }
-
-    if (target.matches('#fullscreen-toggle')) toggleFullscreen();
-    if (target.matches('#sidebar-collapse-toggle')) app.toggleSidebarCollapse();
+    // Mantieni solo il listener per l'import
     if (target.matches('#import-file')) importData.call(app, event);
 }
 // Fine funzione handleImpostazioniChange
@@ -302,17 +337,17 @@ function updateTheme() {
 }
 // Fine funzione updateTheme
 
-// Inizio funzione toggleFullscreen
+// Inizio funzione toggleFullscreen (Non più collegato a un toggle, ma lasciato per lo script della sidebar)
 function toggleFullscreen() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => alert(`Errore schermo intero: ${err.message}`));
     else if (document.exitFullscreen) document.exitFullscreen();
 }
 // Fine funzione toggleFullscreen
 
-// Inizio funzione updateFullscreenToggle
+// Inizio funzione updateFullscreenToggle (Non più necessaria, ma non dannosa)
 function updateFullscreenToggle() {
-    const toggle = document.getElementById('fullscreen-toggle');
-    if (toggle) toggle.checked = impostazioniState.isFullscreen;
+    // const toggle = document.getElementById('fullscreen-toggle');
+    // if (toggle) toggle.checked = impostazioniState.isFullscreen;
 }
 // Fine funzione updateFullscreenToggle
 
