@@ -33,6 +33,8 @@ class MyStationApp {
                 accounts: [],
                 spese: [],
                 speseEtichette: [],
+                todos: [], // Aggiunto per nuova home
+                appuntamenti: [], // Aggiunto per nuova home
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
@@ -72,6 +74,13 @@ class MyStationApp {
         }
         if (!this.state.data.speseEtichette) {
             this.state.data.speseEtichette = [];
+        }
+        // Supporto per nuova home
+        if (!this.state.data.todos) {
+            this.state.data.todos = [];
+        }
+        if (!this.state.data.appuntamenti) {
+            this.state.data.appuntamenti = [];
         }
         
         this.updateTheme();
@@ -372,7 +381,6 @@ class MyStationApp {
         }
     }
     
-    // --- INIZIO MODIFICA ---
     loadFromStorage(key, defaultValue = null) {
         if (!this.isLocalStorageAvailable()) {
             return defaultValue;
@@ -385,17 +393,13 @@ class MyStationApp {
         }
         
         try {
-            // Tenta di parsare il JSON
             return JSON.parse(item);
         } catch (error) {
-            // Se fallisce (es. dati vecchi come "light" o "medium")
             console.warn(`Impossibile parsare ${key} dal localStorage ("${item}"). Ritorno al valore predefinito.`, error);
-            // Ritorna il valore predefinito e rimuove la chiave errata
             localStorage.removeItem(`mystation_${key}`);
             return defaultValue;
         }
     }
-    // --- FINE MODIFICA ---
     
     saveAllState() {
         const keysToSave = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'data'];
@@ -440,6 +444,18 @@ class MyStationApp {
         const date = new Date(isoDate);
         return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
     }
+
+    // --- INIZIO MODIFICA ---
+    // Funzione mancante per convertire Data -> YYYY-MM-DD
+    formatDateToISO(date) {
+        if (!date) return null;
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    // --- FINE MODIFICA ---
     
     getTodayFormatted() {
         return this.formatToItalianDate(new Date());

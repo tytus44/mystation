@@ -1,7 +1,7 @@
 // =============================================
 // FILE: home.js (Vanilla JavaScript Version)
 // DESCRIZIONE: Modulo per la gestione della
-// sezione Home / Dashboard con layout ottimizzato.
+// sezione Home / Dashboard (Calendario, Eventi, Calcolatrici).
 // =============================================
 
 // === STATO LOCALE DEL MODULO HOME ===
@@ -39,7 +39,16 @@ let homeState = {
         operator: null
     },
     todos: [],
-    editingTodo: null
+    appuntamenti: [], // NUOVO: Array per gli appuntamenti
+    editingEvent: null, // NUOVO: Per modifiche (sia todo che appuntamenti)
+    eventModal: { // NUOVO: Stato per il modale unificato
+        type: 'appuntamento', // 'appuntamento' o 'todo'
+        date: '',
+        oraInizio: '09:00',
+        durata: '30',
+        descrizione: '',
+        priorita: 'standard'
+    }
 };
 
 // === INIZIALIZZAZIONE MODULO HOME ===
@@ -53,12 +62,12 @@ function initHome() {
         dieselPlus: 0,
         hvolution: 0
     });
-    homeState.todos = app.loadFromStorage('homeTodos', []);
+    // Carica entrambi dallo stato 'data'
+    homeState.todos = app.state.data.todos || [];
+    homeState.appuntamenti = app.state.data.appuntamenti || [];
+
     const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    homeState.calendar.selectedDate = `${year}-${month}-${day}`;
+    homeState.calendar.selectedDate = app.formatDateToISO(today);
     initCalendar.call(app);
     console.log('✅ Modulo Home inizializzato');
 }
@@ -78,9 +87,11 @@ function renderHomeSection(container) {
         adblue: '#6b7280'
     };
 
+    // --- INIZIO CORREZIONE ---
+    // Definizioni mancanti reinserite
     const initialLordo = homeState.ivaCalculator.importoLordo !== null ? homeState.ivaCalculator.importoLordo.toFixed(2) : '';
     const initialImponibile = homeState.ivaCalculator.importoImponibile !== null ? homeState.ivaCalculator.importoImponibile.toFixed(2) : '';
-
+    // --- FINE CORREZIONE ---
 
     container.innerHTML = `
         <div class="space-y-6">
@@ -123,34 +134,42 @@ function renderHomeSection(container) {
                 </div>
             </div>
 
-
-            <div class="grid grid-cols-2 gap-6">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="flex items-center justify-between w-full">
-                            <h3 class="card-title">Calendario</h3>
-                            <div class="flex items-center space-x-2">
-                                <button id="calendar-prev" class="calendar-nav-btn"><i data-lucide="chevron-left"></i></button>
-                                <span id="calendar-month-year" class="calendar-title"></span>
-                                <button id="calendar-next" class="calendar-nav-btn"><i data-lucide="chevron-right"></i></button>
-                                <button id="calendar-today-btn" class="btn btn-primary ml-4"><i data-lucide="calendar"></i>Oggi</button>
+            <div class="card">
+                <div class="grid grid-cols-12 gap-6">
+                    <div class="col-span-6">
+                        <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                            <div class="flex items-center justify-between w-full">
+                                <span id="calendar-month-year" class="calendar-title" style="font-size: 1.1rem; font-weight: 600;"></span>
+                                <div class="flex items-center space-x-2">
+                                    <button id="calendar-prev" class="calendar-nav-btn"><i data-lucide="chevron-left"></i></button>
+                                    <button id="calendar-next" class="calendar-nav-btn"><i data-lucide="chevron-right"></i></button>
+                                    <button id="calendar-today-btn" class="btn btn-secondary btn-sm"><i data-lucide="calendar-check"></i> Oggi</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding-top: 0.5rem;">
+                            <div id="calendar-container" class="calendar-grid">
+                                <div class="calendar-day-header">Lun</div><div class="calendar-day-header">Mar</div><div class="calendar-day-header">Mer</div>
+                                <div class="calendar-day-header">Gio</div><div class="calendar-day-header">Ven</div><div class="calendar-day-header">Sab</div>
+                                <div class="calendar-day-header sunday">Dom</div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div id="calendar-container" class="calendar-grid">
-                            <div class="calendar-day-header">Lun</div><div class="calendar-day-header">Mar</div><div class="calendar-day-header">Mer</div>
-                            <div class="calendar-day-header">Gio</div><div class="calendar-day-header">Ven</div><div class="calendar-day-header">Sab</div>
-                            <div class="calendar-day-header sunday">Dom</div>
+                    
+                    <div class="col-span-6" style="border-left: 1px solid var(--border-primary);">
+                        <div class="card-header" style="border-bottom: none;">
+                            <div class="flex items-center justify-between w-full">
+                                <h3 id="event-list-title" class="card-title" style="font-size: 1.1rem;">Eventi</h3>
+                                <button id="add-event-btn" class="btn btn-primary btn-sm"><i data-lucide="plus"></i> Aggiungi</button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding-top: 0.5rem; max-height: 400px; overflow-y: auto;">
+                            <div id="event-list-container" class="space-y-3">
+                                </div>
                         </div>
                     </div>
                 </div>
-                <div class="card" id="todos-card">
-                    <div class="card-header"><h3 class="card-title">To-Do List</h3></div>
-                    <div class="card-body"><div id="todo-list" class="todo-list"></div></div>
-                </div>
             </div>
-
 
             <div class="grid grid-cols-2 gap-6">
 
@@ -247,7 +266,7 @@ function renderHomeSection(container) {
 
     setupHomeEventListeners.call(app);
     renderCalendar.call(app);
-    renderTodos.call(app);
+    renderEventiDelGiorno.call(app, homeState.calendar.selectedDate);
     renderOrdineCarburante.call(app);
     renderBanconoteInputs.call(app);
     app.refreshIcons();
@@ -267,37 +286,43 @@ function setupHomeEventListeners() {
     document.getElementById('calendar-next')?.addEventListener('click', () => changeMonth.call(app, 1));
     document.getElementById('calendar-today-btn')?.addEventListener('click', () => {
         homeState.calendar.currentDate = new Date();
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        homeState.calendar.selectedDate = `${year}-${month}-${day}`;
+        homeState.calendar.selectedDate = app.formatDateToISO(new Date());
         renderCalendar.call(app);
+        renderEventiDelGiorno.call(app, homeState.calendar.selectedDate);
     });
     document.getElementById('calendar-container')?.addEventListener('click', (e) => {
         const dayEl = e.target.closest('.calendar-day:not(.empty)');
         if (dayEl) {
             homeState.calendar.selectedDate = dayEl.dataset.date;
             renderCalendarDays();
-            showAddTodoModal.call(app, dayEl.dataset.date);
+            renderEventiDelGiorno.call(app, dayEl.dataset.date);
         }
+    });
+
+    document.getElementById('add-event-btn')?.addEventListener('click', () => {
+        showEventFormModal.call(app, homeState.calendar.selectedDate);
     });
 
     document.getElementById('calc-buttons')?.addEventListener('click', (e) => {
         if (e.target.matches('button')) handleCalculatorInput.call(app, e.target.dataset.value);
     });
 
-    document.getElementById('todo-list')?.addEventListener('click', (e) => {
-        const todoItem = e.target.closest('.todo-item');
-        if (!todoItem) return;
-        const deleteBtn = e.target.closest('.delete-btn');
-        if (deleteBtn) {
-            deleteTodo.call(app, deleteBtn.dataset.todoId);
-            return;
+    document.getElementById('event-list-container')?.addEventListener('click', (e) => {
+        const eventEl = e.target.closest('[data-event-id]');
+        if (!eventEl) return;
+        
+        const eventId = eventEl.dataset.eventId;
+        const eventType = eventEl.dataset.eventType;
+        
+        if (e.target.closest('.delete-event-btn')) {
+            if (eventType === 'todo') {
+                deleteTodo.call(app, eventId);
+            } else {
+                deleteAppuntamento.call(app, eventId);
+            }
+        } else {
+            showEditEventModal.call(app, eventId, eventType);
         }
-        const todoId = todoItem.dataset.todoId;
-        const todoToEdit = homeState.todos.find(t => t.id === todoId);
-        if (todoToEdit) showEditTodoModal.call(app, todoToEdit);
     });
 }
 // Fine funzione setupHomeEventListeners
@@ -488,6 +513,7 @@ function initCalendar() {
 
 // Inizio funzione renderCalendar
 function renderCalendar() {
+    const app = this;
     const date = homeState.calendar.currentDate;
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -504,29 +530,28 @@ function renderCalendar() {
         isToday: false,
         isHoliday: false,
         isSunday: false,
-        todos: [],
+        events: [],
         date: null
     });
-    const oggi = new Date();
-    const oggiYear = oggi.getFullYear();
-    const oggiMonth = String(oggi.getMonth() + 1).padStart(2, '0');
-    const oggiDay = String(oggi.getDate()).padStart(2, '0');
-    const oggiString = `${oggiYear}-${oggiMonth}-${oggiDay}`;
+
+    const oggiString = app.formatDateToISO(new Date());
+
     for (let i = 1; i <= lastDateOfMonth; i++) {
-        const monthString = String(month + 1).padStart(2, '0');
-        const dayString = String(i).padStart(2, '0');
-        const dateString = `${year}-${monthString}-${dayString}`;
         const dataCorrente = new Date(year, month, i);
+        const dateString = app.formatDateToISO(dataCorrente);
         const isToday = dateString === oggiString;
         const isSunday = isDomenica(dataCorrente);
         const isHoliday = isFestivaItaliana.call(this, dataCorrente);
+        
         const todosForDay = homeState.todos.filter(todo => todo.dueDate === dateString);
+        const appuntamentiForDay = homeState.appuntamenti.filter(app => app.date === dateString);
+        
         daysArray.push({
             value: i,
             isToday,
             isHoliday,
             isSunday,
-            todos: todosForDay,
+            events: [...todosForDay, ...appuntamentiForDay],
             date: dateString
         });
     }
@@ -552,26 +577,23 @@ function renderCalendarDays() {
         if (day.isSunday) dayEl.classList.add('sunday');
         if (day.date === homeState.calendar.selectedDate) dayEl.classList.add('selected');
         if (!day.value) dayEl.classList.add('empty');
-        if (day.todos && day.todos.length > 0) {
+        if (day.events && day.events.length > 0) {
             dayEl.classList.add('has-todo');
             const dotsContainer = document.createElement('div');
             dotsContainer.className = 'todo-dots-container';
-            const importanceOrder = {
-                'urgent': 1,
-                'priority': 2,
-                'standard': 3
-            };
-            const sortedTodos = [...day.todos].sort((a, b) => (importanceOrder[a.color] || 3) - (importanceOrder[b.color] || 3));
-            const colorToDotClass = {
-                'urgent': 'dot-1',
-                'priority': 'dot-2',
-                'standard': 'dot-3'
-            };
-            sortedTodos.slice(0, 3).forEach(todo => {
+            
+            const importanceOrder = { 'appuntamento': 1, 'urgent': 2, 'priority': 3, 'standard': 4 };
+            const sortedEvents = [...day.events].sort((a, b) => 
+                (importanceOrder[a.type || a.priorita] || 4) - (importanceOrder[b.type || b.priorita] || 4)
+            );
+            
+            const colorToDotClass = { 'appuntamento': 'dot-1', 'urgent': 'dot-1', 'priority': 'dot-2', 'standard': 'dot-3' };
+            
+            sortedEvents.slice(0, 3).forEach(event => {
                 const dot = document.createElement('span');
-                const dotClass = colorToDotClass[todo.color] || 'dot-3';
+                const dotClass = colorToDotClass[event.type || event.priorita] || 'dot-3';
                 dot.className = `todo-dot ${dotClass}`;
-                if (todo.completed) dot.classList.add('completed');
+                if (event.completed) dot.classList.add('completed');
                 dotsContainer.appendChild(dot);
             });
             dayEl.appendChild(dotsContainer);
@@ -1003,218 +1025,306 @@ function updateCalculatorDisplay() {
 }
 // Fine funzione updateCalculatorDisplay
 
-// === FUNZIONI TO-DO ===
-// Inizio funzione renderTodos
-function renderTodos() {
+// === FUNZIONI EVENTI (TO-DO E APPUNTAMENTI) ===
+
+// Inizio funzione renderEventiDelGiorno
+function renderEventiDelGiorno(dateString) {
     const app = this;
-    const todoList = document.getElementById('todo-list');
-    if (todoList) {
-        const sortedTodos = [...homeState.todos].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-        todoList.innerHTML = `
-            ${sortedTodos.map(todo => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''} color-${todo.color || 'standard'}" data-todo-id="${todo.id}">
-                    <div class="flex-grow">
-                        <span>${todo.text}</span>
-                        ${todo.dueDate ? `<div class="text-sm text-secondary">Scadenza: ${app.formatDate(todo.dueDate)}</div>` : ''}
+    const container = document.getElementById('event-list-container');
+    const titleEl = document.getElementById('event-list-title');
+    if (!container || !titleEl) return;
+
+    const formattedDate = app.formatToItalianDate(dateString);
+    titleEl.textContent = `Eventi del ${formattedDate}`;
+
+    const todos = homeState.todos.filter(t => t.dueDate === dateString);
+    const appuntamenti = homeState.appuntamenti.filter(a => a.date === dateString);
+    
+    const eventi = [
+        ...appuntamenti.map(a => ({...a, type: 'appuntamento'})),
+        ...todos.map(t => ({...t, type: 'todo'}))
+    ];
+
+    eventi.sort((a, b) => {
+        if (a.type === 'appuntamento' && b.type === 'todo') return -1;
+        if (a.type === 'todo' && b.type === 'appuntamento') return 1;
+        if (a.type === 'appuntamento') return a.oraInizio.localeCompare(b.oraInizio);
+        
+        const priorityOrder = { 'urgent': 1, 'priority': 2, 'standard': 3 };
+        return (priorityOrder[a.priorita] || 3) - (priorityOrder[b.priorita] || 3);
+    });
+
+    if (eventi.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="padding: 2rem 0;">
+            <i data-lucide="calendar-check"></i>
+            <div class="empty-state-title" style="font-size: 1rem;">Nessun evento</div>
+            <div class="empty-state-description" style="font-size: 0.875rem;">Aggiungi un appuntamento o un to-do per questo giorno.</div>
+        </div>`;
+    } else {
+        container.innerHTML = eventi.map(evento => {
+            if (evento.type === 'appuntamento') {
+                return `
+                    <div class="evento-card appuntamento" data-event-id="${evento.id}" data-event-type="appuntamento">
+                        <div class="evento-orario">
+                            <i data-lucide="clock"></i>
+                            <span>${evento.oraInizio}</span>
+                            <span class="evento-durata">(${evento.durata} min)</span>
+                        </div>
+                        <div class="evento-descrizione">${evento.descrizione}</div>
+                        <button class="delete-event-btn" data-event-id="${evento.id}"><i data-lucide="x"></i></button>
                     </div>
-                    <button class="delete-btn ml-auto" data-todo-id="${todo.id}"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            `).join('')}
-            ${homeState.todos.length === 0 ? '<p class="text-secondary">Nessuna attività. Clicca un giorno sul calendario per aggiungerne una!</p>' : ''}
-        `;
+                `;
+            } else { // type === 'todo'
+                const prioritaTesto = {urgent: 'Urgente', priority: 'Priorità', standard: 'Standard'};
+                return `
+                    <div class="evento-card todo ${evento.priorita || 'standard'}" data-event-id="${evento.id}" data-event-type="todo">
+                        <div class="evento-orario">
+                            <i data-lucide="check-circle"></i>
+                            <span>To-do</span>
+                            <span class="evento-durata">(${prioritaTesto[evento.priorita] || 'Standard'})</span>
+                        </div>
+                        <div class="evento-descrizione">${evento.text}</div>
+                        <button class="delete-event-btn" data-event-id="${evento.id}"><i data-lucide="x"></i></button>
+                    </div>
+                `;
+            }
+        }).join('');
     }
     app.refreshIcons();
 }
-// Fine funzione renderTodos
+// Fine funzione renderEventiDelGiorno
 
-// Inizio funzione showAddTodoModal
-function showAddTodoModal(dateString) {
+// Inizio funzione showEventFormModal
+function showEventFormModal(dateString, eventId = null, eventType = null) {
     const app = getApp();
+    homeState.editingEvent = null;
+
+    if (eventId && eventType) {
+        // Modal in modalità Modifica
+        homeState.editingEvent = { id: eventId, type: eventType };
+        const store = eventType === 'todo' ? homeState.todos : homeState.appuntamenti;
+        const evento = store.find(e => e.id === eventId);
+        
+        homeState.eventModal = {
+            type: eventType,
+            date: eventType === 'todo' ? evento.dueDate : evento.date,
+            oraInizio: evento.oraInizio || '09:00',
+            durata: evento.durata || '30',
+            descrizione: evento.descrizione || evento.text,
+            priorita: evento.priorita || 'standard'
+        };
+    } else {
+        // Modal in modalità Nuovo
+        homeState.eventModal = {
+            type: 'appuntamento',
+            date: dateString,
+            oraInizio: '09:00',
+            durata: '30',
+            descrizione: '',
+            priorita: 'standard'
+        };
+    }
+
     const modalContentEl = document.getElementById('form-modal-content');
-    modalContentEl.innerHTML = `
+    modalContentEl.innerHTML = getEventFormModalHTML(app);
+    modalContentEl.classList.add('modal-todo'); // Usa lo stile stretto
+    
+    updateEventFormVisibility(); // Mostra/nascondi campi specifici
+    setupEventFormEventListeners.call(app);
+    
+    app.refreshIcons();
+    app.showFormModal();
+}
+// Fine funzione showEventFormModal
+
+// Inizio funzione getEventFormModalHTML
+function getEventFormModalHTML(app) {
+    const { type, date, oraInizio, durata, descrizione, priorita } = homeState.eventModal;
+    const isEdit = !!homeState.editingEvent;
+    const title = isEdit ? 'Modifica Evento' : 'Nuovo Evento';
+
+    return `
         <div class="modal-header">
-            <h2 class="card-title">Nuova Attività</h2>
-            <button type="button" id="close-todo-icon-btn" class="modal-close-btn">
+            <h2 class="card-title">${title}</h2>
+            <button type="button" id="close-event-icon-btn" class="modal-close-btn">
                 <i data-lucide="x"></i>
             </button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Descrizione attività</label>
-                <input type="text" id="todo-text" class="form-control" style="max-width: 100%;" autocomplete="off">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-4">
+                <div class="btn-group w-full">
+                    <button id="event-type-appuntamento" class="btn ${type === 'appuntamento' ? 'btn-primary' : 'btn-secondary'}">
+                        <i data-lucide="clock"></i> Appuntamento
+                    </button>
+                    <button id="event-type-todo" class="btn ${type === 'todo' ? 'btn-primary' : 'btn-secondary'}">
+                        <i data-lucide="check-circle"></i> To-do
+                    </button>
+                </div>
+
                 <div class="form-group">
-                    <label class="form-label">Scadenza</label>
-                    <input type="text" class="form-control" style="max-width: 120px;" value="${app.formatToItalianDate(dateString)}" readonly>
-                    <input type="hidden" id="todo-due-date-iso" value="${dateString}">
+                    <label class="form-label">Data</label>
+                    <input type="text" id="event-date" class="form-control" style="max-width: 150px;" value="${app.formatToItalianDate(date)}" readonly>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Importanza</label>
+                    <label class="form-label">Descrizione</label>
+                    <input type="text" id="event-descrizione" class="form-control" style="max-width: none;" value="${descrizione}" autocomplete="off">
+                </div>
+
+                <div id="appuntamento-fields" class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="form-label">Ora Inizio</label>
+                        <input type="time" id="event-ora-inizio" class="form-control" style="max-width: 150px;" value="${oraInizio}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Durata (minuti)</label>
+                        <select id="event-durata" class="form-control" style="max-width: 150px;">
+                            <option value="15" ${durata == '15' ? 'selected' : ''}>15 min</option>
+                            <option value="30" ${durata == '30' ? 'selected' : ''}>30 min</option>
+                            <option value="45" ${durata == '45' ? 'selected' : ''}>45 min</option>
+                            <option value="60" ${durata == '60' ? 'selected' : ''}>1 ora</option>
+                            <option value="90" ${durata == '90' ? 'selected' : ''}>1.5 ore</option>
+                            <option value="120" ${durata == '120' ? 'selected' : ''}>2 ore</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="todo-fields" class="form-group">
+                    <label class="form-label">Priorità</label>
                     <div class="color-picker-group" style="flex-direction: row; gap: 1rem;">
                         <div class="flex items-center">
-                            <label class="color-radio standard" title="Standard"><input type="radio" name="todo-color" value="standard" checked><span></span></label>
+                            <label class="color-radio standard" title="Standard"><input type="radio" name="event-priorita" value="standard" ${priorita === 'standard' ? 'checked' : ''}><span></span></label>
                             <span class="text-secondary" style="margin-left: 0.5rem;">Standard</span>
                         </div>
                         <div class="flex items-center">
-                            <label class="color-radio priority" title="Priorità"><input type="radio" name="todo-color" value="priority"><span></span></label>
+                            <label class="color-radio priority" title="Priorità"><input type="radio" name="event-priorita" value="priority" ${priorita === 'priority' ? 'checked' : ''}><span></span></label>
                             <span class="text-secondary" style="margin-left: 0.5rem;">Priorità</span>
                         </div>
                         <div class="flex items-center">
-                            <label class="color-radio urgent" title="Urgente"><input type="radio" name="todo-color" value="urgent"><span></span></label>
+                            <label class="color-radio urgent" title="Urgente"><input type="radio" name="event-priorita" value="urgent" ${priorita === 'urgent' ? 'checked' : ''}><span></span></label>
                             <span class="text-secondary" style="margin-left: 0.5rem;">Urgente</span>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
         <div class="modal-footer">
-            <button id="cancel-todo-btn-bottom" class="btn btn-secondary">Annulla</button>
-            <button id="save-todo-btn" class="btn btn-success">Salva Attività</button>
+            <button id="cancel-event-btn" class="btn btn-secondary">Annulla</button>
+            <button id="save-event-btn" class="btn btn-success">Salva</button>
         </div>
     `;
-    modalContentEl.classList.add('modal-todo');
-    setupTodoModalEventListeners.call(app);
-    app.refreshIcons();
-    app.showFormModal();
 }
-// Fine funzione showAddTodoModal
+// Fine funzione getEventFormModalHTML
 
-// Inizio funzione showEditTodoModal
-function showEditTodoModal(todo) {
-    const app = getApp();
-    homeState.editingTodo = todo;
-    const modalContentEl = document.getElementById('form-modal-content');
-    const currentColor = todo.color || 'standard';
-    modalContentEl.innerHTML = `
-        <div class="modal-header">
-            <h2 class="card-title">Modifica Attività</h2>
-            <button type="button" id="close-todo-icon-btn" class="modal-close-btn">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Descrizione attività</label>
-                <input type="text" id="edit-todo-text" class="form-control" style="max-width: 100%;" value="${todo.text}" autocomplete="off">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="form-group">
-                    <label class="form-label">Scadenza</label>
-                    <input type="text" id="edit-todo-due-date-display" class="form-control" style="max-width: 120px;" value="${app.formatToItalianDate(todo.dueDate)}" placeholder="gg.mm.aaaa" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Importanza</label>
-                    <div class="color-picker-group" style="flex-direction: row; gap: 1rem;">
-                        <div class="flex items-center">
-                            <label class="color-radio standard" title="Standard"><input type="radio" name="todo-color" value="standard" ${currentColor === 'standard' ? 'checked' : ''}><span></span></label>
-                            <span class="text-secondary" style="margin-left: 0.5rem;">Standard</span>
-                        </div>
-                        <div class="flex items-center">
-                            <label class="color-radio priority" title="Priorità"><input type="radio" name="todo-color" value="priority" ${currentColor === 'priority' ? 'checked' : ''}><span></span></label>
-                            <span class="text-secondary" style="margin-left: 0.5rem;">Priorità</span>
-                        </div>
-                        <div class="flex items-center">
-                            <label class="color-radio urgent" title="Urgente"><input type="radio" name="todo-color" value="urgent" ${currentColor === 'urgent' ? 'checked' : ''}><span></span></label>
-                            <span class="text-secondary" style="margin-left: 0.5rem;">Urgente</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button id="cancel-edit-todo-btn-bottom" class="btn btn-secondary">Annulla</button>
-            <button id="update-todo-btn" class="btn btn-success">Aggiorna Attività</button>
-        </div>
-    `;
-    modalContentEl.classList.add('modal-todo');
-    setupEditTodoModalEventListeners.call(app);
-    app.refreshIcons();
-    app.showFormModal();
-}
-// Fine funzione showEditTodoModal
-
-// Inizio funzione setupTodoModalEventListeners
-function setupTodoModalEventListeners() {
+// Inizio funzione setupEventFormEventListeners
+function setupEventFormEventListeners() {
     const app = this;
-    document.getElementById('save-todo-btn')?.addEventListener('click', () => saveTodo.call(app));
     const close = () => app.hideFormModal();
-    document.getElementById('cancel-todo-btn-bottom')?.addEventListener('click', close);
-    document.getElementById('close-todo-icon-btn')?.addEventListener('click', close);
-}
-// Fine funzione setupTodoModalEventListeners
+    document.getElementById('cancel-event-btn')?.addEventListener('click', close);
+    document.getElementById('close-event-icon-btn')?.addEventListener('click', close);
+    document.getElementById('save-event-btn')?.addEventListener('click', () => saveEvent.call(app));
 
-// Inizio funzione setupEditTodoModalEventListeners
-function setupEditTodoModalEventListeners() {
-    const app = this;
-    document.getElementById('update-todo-btn')?.addEventListener('click', () => updateTodo.call(app));
-    const close = () => {
-        homeState.editingTodo = null;
-        app.hideFormModal();
-    };
-    document.getElementById('cancel-edit-todo-btn-bottom')?.addEventListener('click', close);
-    document.getElementById('close-todo-icon-btn')?.addEventListener('click', close);
+    document.getElementById('event-type-appuntamento')?.addEventListener('click', () => switchEventModalType('appuntamento'));
+    document.getElementById('event-type-todo')?.addEventListener('click', () => switchEventModalType('todo'));
 }
-// Fine funzione setupEditTodoModalEventListeners
+// Fine funzione setupEventFormEventListeners
 
-// Inizio funzione saveTodo
-function saveTodo() {
+// Inizio funzione switchEventModalType
+function switchEventModalType(type) {
+    homeState.eventModal.type = type;
+    document.getElementById('event-type-appuntamento').classList.toggle('btn-primary', type === 'appuntamento');
+    document.getElementById('event-type-appuntamento').classList.toggle('btn-secondary', type !== 'appuntamento');
+    document.getElementById('event-type-todo').classList.toggle('btn-primary', type === 'todo');
+    document.getElementById('event-type-todo').classList.toggle('btn-secondary', type !== 'todo');
+    updateEventFormVisibility();
+}
+// Fine funzione switchEventModalType
+
+// Inizio funzione updateEventFormVisibility
+function updateEventFormVisibility() {
+    const type = homeState.eventModal.type;
+    document.getElementById('appuntamento-fields').style.display = type === 'appuntamento' ? 'grid' : 'none';
+    document.getElementById('todo-fields').style.display = type === 'todo' ? 'block' : 'none';
+}
+// Fine funzione updateEventFormVisibility
+
+// Inizio funzione showEditEventModal
+function showEditEventModal(eventId, eventType) {
     const app = this;
-    const text = document.getElementById('todo-text').value.trim();
-    const dueDate = document.getElementById('todo-due-date-iso').value;
-    const color = document.querySelector('input[name="todo-color"]:checked').value;
-    if (!text || !dueDate) {
-        app.showNotification('Descrizione e data sono obbligatorie.');
-        return;
-    }
-    if (homeState.todos.length >= 5) {
-        app.showNotification('Puoi aggiungere un massimo di 5 attività.');
-        app.hideFormModal();
-        return;
-    }
-    const newTodo = {
-        id: app.generateUniqueId('todo'),
-        text,
-        dueDate,
-        completed: false,
-        color: color
+    homeState.editingEvent = { id: eventId, type: eventType };
+    
+    const store = eventType === 'todo' ? homeState.todos : homeState.appuntamenti;
+    const evento = store.find(e => e.id === eventId);
+    if (!evento) return;
+
+    homeState.eventModal = {
+        type: eventType,
+        date: eventType === 'todo' ? evento.dueDate : evento.date,
+        oraInizio: evento.oraInizio || '09:00',
+        durata: evento.durata || '30',
+        descrizione: evento.descrizione || evento.text,
+        priorita: evento.priorita || 'standard'
     };
-    homeState.todos.push(newTodo);
-    app.saveToStorage('homeTodos', homeState.todos);
+    
+    showEventFormModal.call(app, null, eventId, eventType);
+}
+// Fine funzione showEditEventModal
+
+// Inizio funzione saveEvent
+function saveEvent() {
+    const app = this;
+    const type = homeState.eventModal.type;
+    const date = homeState.eventModal.date; // ISO date
+    const descrizione = document.getElementById('event-descrizione').value.trim();
+
+    if (!descrizione) {
+        return app.showNotification('La descrizione è obbligatoria', 'error');
+    }
+    
+    if (type === 'appuntamento') {
+        const appuntamento = {
+            id: homeState.editingEvent?.id || app.generateUniqueId('app'),
+            date: date,
+            descrizione: descrizione,
+            oraInizio: document.getElementById('event-ora-inizio').value,
+            durata: document.getElementById('event-durata').value,
+            type: 'appuntamento'
+        };
+        
+        if (homeState.editingEvent) {
+            homeState.appuntamenti = homeState.appuntamenti.map(a => a.id === appuntamento.id ? appuntamento : a);
+        } else {
+            homeState.appuntamenti.push(appuntamento);
+        }
+        app.state.data.appuntamenti = homeState.appuntamenti;
+        app.showNotification('Appuntamento salvato');
+
+    } else { // type === 'todo'
+        const todo = {
+            id: homeState.editingEvent?.id || app.generateUniqueId('todo'),
+            text: descrizione,
+            dueDate: date,
+            completed: homeState.editingEvent ? homeState.todos.find(t=>t.id === homeState.editingEvent.id).completed : false,
+            priorita: document.querySelector('input[name="event-priorita"]:checked').value,
+            type: 'todo'
+        };
+        
+        if (homeState.editingEvent) {
+            homeState.todos = homeState.todos.map(t => t.id === todo.id ? todo : t);
+        } else {
+            homeState.todos.push(todo);
+        }
+        app.state.data.todos = homeState.todos;
+        app.showNotification('To-do salvato');
+    }
+
+    app.saveToStorage('data', app.state.data);
     app.hideFormModal();
     renderCalendar.call(app);
-    renderTodos.call(app);
+    renderEventiDelGiorno.call(app, date);
+    homeState.editingEvent = null;
 }
-// Fine funzione saveTodo
-
-// Inizio funzione updateTodo
-function updateTodo() {
-    const app = this;
-    const text = document.getElementById('edit-todo-text').value.trim();
-    const dateString = document.getElementById('edit-todo-due-date-display').value;
-    const color = document.querySelector('input[name="todo-color"]:checked').value;
-    if (!text || !dateString) {
-        app.showNotification('Descrizione e data sono obbligatorie.');
-        return;
-    }
-    if (!app.validateItalianDate(dateString)) {
-        app.showNotification('Formato data non valido. Usa gg.mm.aaaa');
-        return;
-    }
-    const dueDate = app.parseItalianDate(dateString).toISOString().split('T')[0];
-    const todoId = homeState.editingTodo.id;
-    homeState.todos = homeState.todos.map(todo => todo.id === todoId ? { ...todo,
-        text,
-        dueDate,
-        color
-    } : todo);
-    app.saveToStorage('homeTodos', homeState.todos);
-    app.hideFormModal();
-    homeState.editingTodo = null;
-    renderCalendar.call(app);
-    renderTodos.call(app);
-}
-// Fine funzione updateTodo
+// Fine funzione saveEvent
 
 // Inizio funzione deleteTodo
 function deleteTodo(todoId) {
@@ -1223,25 +1333,30 @@ function deleteTodo(todoId) {
     if (!todo) return;
     app.showConfirm(`Sei sicuro di voler eliminare l'attività?<br>"${todo.text}"?`, () => {
         homeState.todos = homeState.todos.filter(t => t.id !== todoId);
-        app.saveToStorage('homeTodos', homeState.todos);
+        app.state.data.todos = homeState.todos;
+        app.saveToStorage('data', app.state.data);
         renderCalendar.call(app);
-        renderTodos.call(app);
+        renderEventiDelGiorno.call(app, homeState.calendar.selectedDate);
         app.showNotification("Attività eliminata.");
     });
 }
 // Fine funzione deleteTodo
 
-// Inizio funzione toggleTodo
-function toggleTodo(todoId) {
+// Inizio funzione deleteAppuntamento
+function deleteAppuntamento(appuntamentoId) {
     const app = this;
-    homeState.todos = homeState.todos.map(todo => todo.id === todoId ? { ...todo,
-        completed: !todo.completed
-    } : todo);
-    app.saveToStorage('homeTodos', homeState.todos);
-    renderCalendar.call(app);
-    renderTodos.call(app);
+    const appuntamento = homeState.appuntamenti.find(a => a.id === appuntamentoId);
+    if (!appuntamento) return;
+    app.showConfirm(`Sei sicuro di voler eliminare l'appuntamento?<br>"${appuntamento.descrizione}"?`, () => {
+        homeState.appuntamenti = homeState.appuntamenti.filter(a => a.id !== appuntamentoId);
+        app.state.data.appuntamenti = homeState.appuntamenti;
+        app.saveToStorage('data', app.state.data);
+        renderCalendar.call(app);
+        renderEventiDelGiorno.call(app, homeState.calendar.selectedDate);
+        app.showNotification("Appuntamento eliminato.");
+    });
 }
-// Fine funzione toggleTodo
+// Fine funzione deleteAppuntamento
 
 // === EXPORT FUNCTIONS FOR GLOBAL ACCESS ===
 if (typeof window !== 'undefined') {

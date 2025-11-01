@@ -1331,6 +1331,18 @@ select.form-control {
     grid-column: span 4;
 }
 
+.col-span-5 {
+    grid-column: span 5;
+}
+
+.col-span-6 {
+    grid-column: span 6;
+}
+
+.col-span-7 {
+    grid-column: span 7;
+}
+
 .col-span-9 {
     grid-column: span 9;
 }
@@ -1712,15 +1724,18 @@ select.form-control {
 
 .calendar-day {
     padding: var(--spacing-sm);
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-normal);
+    font-weight: 500;
     cursor: pointer;
     border-radius: var(--radius-lg);
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     transition: all 0.2s ease;
-    border: 1px solid var(--border-primary);
+    border: 2px solid transparent;
+    position: relative;
 }
 
 .calendar-day:hover:not(.empty):not(.today):not(.selected) {
@@ -2697,6 +2712,197 @@ body.sidebar-collapsed .sidebar-divider {
     visibility: hidden;
 }
 
+/* =============================================
+   NUOVI STILI PER HOME (CALENDARIO + EVENTI)
+   ============================================= */
+
+/* Layout per il nuovo calendario affiancato */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    text-align: center;
+}
+
+.calendar-day-header {
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: var(--spacing-sm);
+}
+
+.calendar-day-header.sunday {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+/* INIZIO MODIFICA CALENDARIO */
+.calendar-day {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-normal);
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    height: 4.5rem; /* Altezza controllata */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    position: relative;
+}
+/* FINE MODIFICA CALENDARIO */
+
+.calendar-day:hover:not(.empty) {
+    background-color: var(--bg-secondary);
+}
+
+.calendar-day.today {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.calendar-day.selected {
+    border-color: var(--color-primary);
+    background-color: var(--bg-secondary);
+}
+
+.calendar-day.holiday,
+.calendar-day.sunday {
+    color: var(--color-danger);
+}
+
+.calendar-day.empty {
+    cursor: default;
+    pointer-events: none;
+}
+
+.calendar-day .todo-dots-container {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    height: 7px;
+}
+
+.calendar-day .todo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.todo-dot.dot-1 {
+    background-color: var(--color-danger);
+}
+.todo-dot.dot-2 {
+    background-color: var(--color-warning);
+}
+.todo-dot.dot-3 {
+    background-color: var(--color-info);
+}
+.todo-dot.completed {
+    background-color: var(--color-success);
+    opacity: 0.6;
+}
+
+/* Stili per la lista eventi (colonna destra) */
+.evento-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.evento-card:hover {
+    background-color: var(--bg-secondary);
+}
+
+.evento-card .evento-orario {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    width: 80px;
+}
+
+.evento-card .evento-orario i {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.evento-card .evento-durata {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.evento-card .evento-descrizione {
+    flex-grow: 1;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.evento-card .delete-event-btn {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.evento-card:hover .delete-event-btn {
+    opacity: 1;
+}
+
+.evento-card .delete-event-btn:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--color-danger);
+}
+
+/* Colori specifici eventi */
+.evento-card.appuntamento {
+    border-left-color: var(--color-primary);
+}
+.evento-card.appuntamento .evento-orario {
+    color: var(--color-primary);
+}
+
+.evento-card.todo.standard {
+    border-left-color: var(--color-info);
+}
+.evento-card.todo.standard .evento-orario {
+    color: var(--color-info);
+}
+
+.evento-card.todo.priority {
+    border-left-color: var(--color-warning);
+}
+.evento-card.todo.priority .evento-orario {
+    color: var(--color-warning);
+}
+
+.evento-card.todo.urgent {
+    border-left-color: var(--color-danger);
+}
+.evento-card.todo.urgent .evento-orario {
+    color: var(--color-danger);
+}
+
 /* === CSS DI STAMPA === */
 @media print {
     #app {
@@ -2863,4 +3069,5 @@ body.sidebar-collapsed .sidebar-divider {
 
 .collapsed .collapse-toggle {
     transform: rotate(180deg);
+}
 }
