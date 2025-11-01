@@ -587,11 +587,12 @@ function renderCalendarDays() {
                 (importanceOrder[a.type || a.priorita] || 4) - (importanceOrder[b.type || b.priorita] || 4)
             );
             
-            const colorToDotClass = { 'appuntamento': 'dot-1', 'urgent': 'dot-1', 'priority': 'dot-2', 'standard': 'dot-3' };
+            const colorToDotClass = { 'appuntamento': 'dot-4', 'urgent': 'dot-1', 'priority': 'dot-2', 'standard': 'dot-3' };
             
             sortedEvents.slice(0, 3).forEach(event => {
                 const dot = document.createElement('span');
-                const dotClass = colorToDotClass[event.type || event.priorita] || 'dot-3';
+                const eventKey = event.type === 'appuntamento' ? 'appuntamento' : event.priorita;
+                const dotClass = colorToDotClass[eventKey] || 'dot-3';
                 dot.className = `todo-dot ${dotClass}`;
                 if (event.completed) dot.classList.add('completed');
                 dotsContainer.appendChild(dot);
@@ -1075,7 +1076,7 @@ function renderEventiDelGiorno(dateString) {
                     </div>
                 `;
             } else { // type === 'todo'
-                const prioritaTesto = {urgent: 'Urgente', priority: 'Priorità', standard: 'Standard'};
+                const prioritaTesto = {urgent: 'Urgente', priority: 'Priorità', standard: 'Normale'};
                 return `
                     <div class="evento-card todo ${evento.priorita || 'standard'}" data-event-id="${evento.id}" data-event-type="todo">
                         <div class="evento-orario">
@@ -1142,6 +1143,13 @@ function getEventFormModalHTML(app) {
     const { type, date, oraInizio, durata, descrizione, priorita } = homeState.eventModal;
     const isEdit = !!homeState.editingEvent;
     const title = isEdit ? 'Modifica Evento' : 'Nuovo Evento';
+    
+    // Logica per gestire la compatibilità dei valori vecchi e nuovi della durata
+    const is30min = durata == '30' || durata == '30 min';
+    const is1ora = durata == '60' || durata == '1 ora';
+    const is2ore = durata == '120' || durata == '2 ore';
+    const is3ore = durata == '180' || durata == '3 ore';
+    const isGiorno = durata == 'Giorno';
 
     return `
         <div class="modal-header">
@@ -1172,18 +1180,17 @@ function getEventFormModalHTML(app) {
 
                 <div id="appuntamento-fields" class="grid grid-cols-2 gap-4">
                     <div class="form-group">
-                        <label class="form-label">Ora Inizio</label>
-                        <input type="time" id="event-ora-inizio" class="form-control" style="max-width: 150px;" value="${oraInizio}">
+                        <label class="form-label">Orario</label>
+                        <input type="text" id="event-ora-inizio" class="form-control" style="max-width: 150px;" value="${oraInizio}" placeholder="Es. 09:00">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Durata (minuti)</label>
+                        <label class="form-label">Durata</label>
                         <select id="event-durata" class="form-control" style="max-width: 150px;">
-                            <option value="15" ${durata == '15' ? 'selected' : ''}>15 min</option>
-                            <option value="30" ${durata == '30' ? 'selected' : ''}>30 min</option>
-                            <option value="45" ${durata == '45' ? 'selected' : ''}>45 min</option>
-                            <option value="60" ${durata == '60' ? 'selected' : ''}>1 ora</option>
-                            <option value="90" ${durata == '90' ? 'selected' : ''}>1.5 ore</option>
-                            <option value="120" ${durata == '120' ? 'selected' : ''}>2 ore</option>
+                            <option value="30 min" ${is30min ? 'selected' : ''}>30 minuti</option>
+                            <option value="1 ora" ${is1ora ? 'selected' : ''}>1 ora</option>
+                            <option value="2 ore" ${is2ore ? 'selected' : ''}>2 ore</option>
+                            <option value="3 ore" ${is3ore ? 'selected' : ''}>3 ore</option>
+                            <option value="Giorno" ${isGiorno ? 'selected' : ''}>Tutto il giorno</option>
                         </select>
                     </div>
                 </div>

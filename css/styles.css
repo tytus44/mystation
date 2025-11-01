@@ -279,7 +279,7 @@ html[data-theme="ocean"] {
 }
 
 html[data-theme="purple"] {
-    --color-primary: #673ab7;
+    --color-primary: #8b5cf6;
     --color-primary-hover: #5e35b1;
     --color-secondary: #607d8b;
     --color-success: #4CAF50;
@@ -298,7 +298,7 @@ html[data-theme="purple"] {
     --border-secondary: #b39ddb;
     --calc-display-bg: rgba(103, 58, 183, 0.08);
     --calc-display-border: rgba(103, 58, 183, 0.25);
-    --calc-operator-bg: #673ab7;
+    --calc-operator-bg: #8b5cf6;
     --calc-function-text: #5e35b1;
 }
 
@@ -1868,15 +1868,16 @@ select.form-control {
 
 .calendar-day {
     padding: var(--spacing-sm);
+    padding-bottom: 1.25rem; /* Aggiunto padding in basso per fare spazio ai puntini */
     font-size: var(--font-size-normal);
     font-weight: 500;
     cursor: pointer;
     border-radius: var(--radius-lg);
-    aspect-ratio: 1;
+    height: 4.5rem; /* Altezza controllata */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center; /* Modificato da 'flex-start' a 'center' */
     transition: all 0.2s ease;
     border: 2px solid transparent;
     position: relative;
@@ -1921,15 +1922,6 @@ select.form-control {
     border-color: rgba(255, 32, 78, 0.3);
 }
 
-.calendar-day.has-todo {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 12px;
-}
-
 .todo-dots-container {
     position: absolute;
     bottom: 4px;
@@ -1958,6 +1950,14 @@ select.form-control {
 
 .todo-dot.dot-3 {
     background-color: var(--color-info);
+}
+
+.todo-dot.dot-4 {
+    background-color: #8b5cf6;
+}
+
+.todo-dots-container .dot-4 {
+    background-color: #8b5cf6;
 }
 
 .todo-dot.completed {
@@ -2989,10 +2989,10 @@ select.form-control {
 
 /* Colori specifici eventi */
 .evento-card.appuntamento {
-    border-left-color: var(--color-primary);
+    border-left-color: #8b5cf6;
 }
 .evento-card.appuntamento .evento-orario {
-    color: var(--color-primary);
+    color: #8b5cf6;
 }
 
 .evento-card.todo.standard {
