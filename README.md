@@ -18,9 +18,9 @@ MyStation centralizza tutte le operazioni di una stazione di servizio in una pia
 
 **Spese** - Registrazione spese con etichette, filtri mensili, riepilogo per categoria e metodo pagamento
 
-**Info** - Elenco stazioni ENI, gestione account personali, link utili (VirtualStation, Audes, banche, autorità)
+**Info** - Elenco stazioni ENI, link utili (VirtualStation, Audes, banche, autorità)
 
-**Impostazioni** - Backup/ripristino dati JSON, tema scuro, collasso sidebar, arrotondamento elementi, reset completo
+**Impostazioni** - Backup/ripristino dati JSON, tema chiaro/scuro, temi extra, arrotondamento elementi, reset completo, uscita account
 
 ## Tecnologie
 
@@ -48,6 +48,7 @@ MyStation centralizza tutte le operazioni di una stazione di servizio in una pia
 - `spese.js` - Gestione spese e etichette
 - `info.js` - Info sezione con account e stazioni
 - `impostazioni.js` - Configurazioni e backup
+- `sidebar.js` - Comportamento della sidebar
 - `styles.css` - Sistema CSS completo (3000+ righe)
 
 ## Installazione
