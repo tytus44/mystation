@@ -31,10 +31,8 @@ class MyStationApp {
                 etichette: [],
                 stazioni: [],
                 accounts: [],
-                // --- INIZIO MODIFICA ---
                 spese: [],
                 speseEtichette: [],
-                // --- FINE MODIFICA ---
                 previousYearStock: { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 }
             }),
             
@@ -69,14 +67,12 @@ class MyStationApp {
             this.state.data.previousYearStock = { benzina: 0, gasolio: 0, dieselPlus: 0, hvolution: 0 };
         }
         
-        // --- INIZIO MODIFICA ---
         if (!this.state.data.spese) {
             this.state.data.spese = [];
         }
         if (!this.state.data.speseEtichette) {
             this.state.data.speseEtichette = [];
         }
-        // --- FINE MODIFICA ---
         
         this.updateTheme();
         this.updateSidebarLayout();
@@ -106,7 +102,6 @@ class MyStationApp {
                     if (typeof showImpostazioniModal === 'function') {
                         showImpostazioniModal(this);
                     }
-                // --- INIZIO MODIFICA ---
                 } else if (section === 'esci') {
                     this.showConfirm('Sei sicuro di voler uscire?', () => {
                         if (typeof window.logout === 'function') {
@@ -115,7 +110,6 @@ class MyStationApp {
                             console.error('Funzione logout() non trovata.');
                         }
                     });
-                // --- FINE MODIFICA ---
                 } else if (section) {
                     this.switchSection(section);
                 }
@@ -150,9 +144,7 @@ class MyStationApp {
         if (typeof initHome === 'function') initHome.call(this);
         if (typeof initVirtualStation === 'function') initVirtualStation.call(this);
         if (typeof initAmministrazione === 'function') initAmministrazione.call(this);
-        // --- INIZIO MODIFICA ---
         if (typeof initSpese === 'function') initSpese.call(this);
-        // --- FINE MODIFICA ---
         if (typeof initAnagrafica === 'function') initAnagrafica.call(this);
         if (typeof initRegistroDiCarico === 'function') initRegistroDiCarico.call(this);
         if (typeof initGestionePrezzi === 'function') initGestionePrezzi.call(this);
@@ -223,9 +215,7 @@ class MyStationApp {
                 case 'home': if (typeof renderHomeSection === 'function') renderHomeSection.call(this, sectionEl); break;
                 case 'virtual': if (typeof renderVirtualSection === 'function') renderVirtualSection.call(this, sectionEl); break;
                 case 'amministrazione': if (typeof renderAmministrazioneSection === 'function') renderAmministrazioneSection.call(this, sectionEl); break;
-                // --- INIZIO MODIFICA ---
                 case 'spese': if (typeof renderSpeseSection === 'function') renderSpeseSection.call(this, sectionEl); break;
-                // --- FINE MODIFICA ---
                 case 'anagrafica': if (typeof renderAnagraficaSection === 'function') renderAnagraficaSection.call(this, sectionEl); break;
                 case 'registro': if (typeof renderRegistroSection === 'function') renderRegistroSection.call(this, sectionEl); break;
                 case 'prezzi': if (typeof renderPrezziSection === 'function') renderPrezziSection.call(this, sectionEl); break;
@@ -332,16 +322,12 @@ class MyStationApp {
         const modalEl = document.getElementById('form-modal');
         if (!modalEl) return;
 
-        // Annulla qualsiasi animazione di chiusura in corso e la sua pulizia.
         if (this.hideModalTimeout) {
             clearTimeout(this.hideModalTimeout);
             this.hideModalTimeout = null;
         }
 
-        // Resetta lo stato del modale per una visualizzazione pulita.
         modalEl.classList.remove('is-closing', 'hidden');
-
-        // Mostra il modale.
         modalEl.classList.add('show');
     }
     
@@ -352,7 +338,6 @@ class MyStationApp {
         if (modalEl) {
             modalEl.classList.add('is-closing');
 
-            // Cancella eventuali timeout precedenti per evitare accavallamenti
             if (this.hideModalTimeout) {
                 clearTimeout(this.hideModalTimeout);
             }
@@ -362,16 +347,10 @@ class MyStationApp {
                 modalEl.classList.add('hidden');
                 if (contentEl) {
                     contentEl.innerHTML = ''; 
-                    // Resetta completamente le classi, lasciando solo quella di base
                     contentEl.className = 'modal-content'; 
-                    
-                    // --- INIZIO MODIFICA (Risolve il bug del doppio click) ---
-                    // Rimuoviamo l'attributo "guardia" per permettere 
-                    // ai listener di essere ri-aggiunti la prossima volta.
                     contentEl.removeAttribute('data-listeners-attached');
-                    // --- FINE MODIFICA ---
                 }
-                this.hideModalTimeout = null; // Resetta il timeout ID
+                this.hideModalTimeout = null;
             }, 500);
         }
     }
@@ -393,11 +372,30 @@ class MyStationApp {
         }
     }
     
+    // --- INIZIO MODIFICA ---
     loadFromStorage(key, defaultValue = null) {
-        if (!this.isLocalStorageAvailable()) return defaultValue;
+        if (!this.isLocalStorageAvailable()) {
+            return defaultValue;
+        }
+        
         const item = localStorage.getItem(`mystation_${key}`);
-        return item ? JSON.parse(item) : defaultValue;
+        
+        if (item === null) {
+            return defaultValue;
+        }
+        
+        try {
+            // Tenta di parsare il JSON
+            return JSON.parse(item);
+        } catch (error) {
+            // Se fallisce (es. dati vecchi come "light" o "medium")
+            console.warn(`Impossibile parsare ${key} dal localStorage ("${item}"). Ritorno al valore predefinito.`, error);
+            // Ritorna il valore predefinito e rimuove la chiave errata
+            localStorage.removeItem(`mystation_${key}`);
+            return defaultValue;
+        }
     }
+    // --- FINE MODIFICA ---
     
     saveAllState() {
         const keysToSave = ['isDarkMode', 'isSidebarCollapsed', 'currentSection', 'data'];
