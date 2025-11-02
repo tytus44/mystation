@@ -291,19 +291,18 @@ html[data-theme-radius="high"] {
 }
 
 .sidebar.collapsed {
-    width: 5.625rem; /* 90px */
+    width: 5.625rem; 
 }
 
 .sidebar .sidebar-header {
-    padding: 1.25rem 1.125rem; /* 20px 18px */
+    padding: 1.25rem 1.125rem; 
     display: flex;
     position: relative;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border-primary);
-    /* Altezza minima per allineamento corretto quando il bottone è rimosso */
     min-height: 81px; 
-    transition: padding 0.4s ease; /* Aggiunta transizione */
+    transition: padding 0.4s ease;
 }
 
 .sidebar-header .sidebar-logo {
@@ -313,7 +312,6 @@ html[data-theme-radius="high"] {
     color: var(--text-primary);
     font-size: var(--font-size-large);
     font-weight: 700;
-    /* Rimuossa transizione opacity */
     white-space: nowrap;
 }
 
@@ -323,18 +321,18 @@ html[data-theme-radius="high"] {
     color: var(--color-primary);
     margin-right: var(--spacing-md);
     flex-shrink: 0;
-    transition: margin-right 0.4s ease; /* Aggiunta transizione */
+    transition: margin-right 0.4s ease; 
 }
 
 .sidebar-header .sidebar-logo span {
      color: var(--text-primary);
-     transition: opacity 0.3s ease, width 0.3s ease; /* Aggiunta transizione */
+     transition: opacity 0.3s ease, width 0.3s ease; 
 }
 
 .sidebar.collapsed .sidebar-header {
     justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 1.5rem; 
+    padding-right: 0.5rem;
 }
 
 .sidebar.collapsed .sidebar-header .sidebar-logo span {
@@ -2025,7 +2023,7 @@ select.form-control {
 /* === INPUT NUMERO === */
 .number-input-group {
     display: flex;
-    border: 1px solid var(--border-secondary);
+
     border-radius: var(--radius-md);
     overflow: hidden;
     width: 100%;

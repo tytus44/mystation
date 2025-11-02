@@ -109,7 +109,7 @@ function renderPrezziListView(container) {
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Prezzi Concorrenza</h3>
-                        <button id="update-concorrenza-btn" class="btn btn-secondary btn-sm">Aggiorna</button>
+                        <button id="update-concorrenza-btn" class="btn btn-primary btn-sm">Aggiorna</button>
                     </div>
                     <div class="card-body" id="concorrenza-card-content"></div>
                 </div>
