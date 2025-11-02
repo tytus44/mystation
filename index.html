@@ -17,7 +17,6 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
    
     <style>
-        /* Modifica: Aumento l'altezza della variabile input/button */
         :root {
             --input-height: 3.2rem; 
         }
@@ -34,11 +33,6 @@
             font-family: 'Poppins', sans-serif;
         }
         
-        /* Regola per il tema scuro ripristinata per evitare interferenze */
-        .theme-dark body {
-             background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%) !important;
-        }
-
         .animated-background {
             position: fixed;
             top: 0;
@@ -95,7 +89,6 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            /* Tornato a dimensione originale */
             max-width: 420px; 
             animation: slideUp 0.5s ease-out;
         }
@@ -148,19 +141,16 @@
             font-family: 'Poppins', sans-serif;
         }
         
-        /* Ritorno al background solido della card */
         .login-card {
-            background-color: var(--bg-primary); /* Sfondo Solido */
+            background-color: var(--bg-primary); 
             border: 1px solid var(--border-primary); 
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         
-        /* Modifica: Aumento il padding interno della card per centrare meglio */
         .card-body {
             padding: 2.5rem 2rem !important;
         }
 
-        /* Centratura dei form groups */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -188,7 +178,6 @@
             border-radius: var(--radius-md);
             color: var(--text-primary);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            /* Modifica: Altezza fissa come pulsante */
             height: var(--input-height);
             font-family: 'Poppins', sans-serif;
         }
@@ -240,7 +229,6 @@
             margin-top: var(--spacing-xl);
             padding-top: var(--spacing-lg);
             border-top: 1px solid var(--border-primary);
-            /* Modifica: Rimosso font-size e color dal contenitore principale */
             display: flex;
             flex-direction: column; 
             align-items: center;
@@ -250,7 +238,6 @@
         }
         
         .login-footer > div {
-            /* Modifica: Colore del testo in nero (quasi nero, in base alle variabili) */
             color: #1f2937; 
             font-size: 13px;
             display: flex;
@@ -259,15 +246,14 @@
             gap: 4px;
         }
 
-        /* Modifica: Stili per il link di attribuzione */
         .login-footer small {
-            font-size: 11px; /* Font più piccolo */
+            font-size: 11px; 
             margin-top: 4px;
         }
 
         .login-footer small a {
-            color: #6b7280; /* Grigio scuro */
-            text-decoration: none; /* Rimuove la sottolineatura */
+            color: #6b7280; 
+            text-decoration: none; 
         }
         
         .heart {
@@ -478,7 +464,7 @@
     <div class="login-wrapper">
         <div class="login-header">
             <div class="login-logo">
-                <img src="logo.png" alt="MyStation Logo" style="width: 72px; height: 72px;">
+                <img src="logo.png" alt="MyStation Logo" style="width: 86px; height: 86px;">
             </div>
             <h1 class="login-title">MyStation</h1>
             <p class="login-subtitle">Accedi alla tua dashboard</p>
