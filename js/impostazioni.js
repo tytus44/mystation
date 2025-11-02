@@ -4,28 +4,8 @@
 // sezione Impostazioni (tema, import/export, reset).
 // =============================================
 
-// === COSTANTI ===
-const THEME_COLORS = [{
-    id: 'ocean',
-    name: 'Ocean',
-    value: '#00bcd4'
-}, {
-    id: 'purple',
-    name: 'Purple',
-    value: '#673ab7'
-}, {
-    id: 'lady',
-    name: 'Lady',
-    value: '#e91e63'
-}, {
-    id: 'sugar',
-    name: 'Sugar',
-    value: '#607d8b'
-}, {
-    id: 'night',
-    name: 'Night',
-    value: '#212121'
-}, ];
+// === COSTANTI (Temi Colore Extra Rimosse) ===
+const THEME_COLORS = []; // Array vuoto per coerenza con il codice dipendente
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
 let impostazioniState = {
@@ -96,7 +76,7 @@ function getImpostazioniModalHTML(app) {
 
                         <div class="p-4" style="border: 1px solid var(--border-primary); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 1.25rem;">
                             <div>
-                                <label class="font-medium text-primary mb-4" style="display: block;">Temi di default</label>
+                                <label class="font-medium text-primary mb-4" style="display: block;">Tema</label>
                                 <div class="btn-group w-full">
                                     <button type="button" data-theme-default="light" class="btn ${isLightActive ? 'btn-primary active' : 'btn-secondary'}">
                                         <i data-lucide="sun" class="mr-2"></i> Chiaro
@@ -104,31 +84,6 @@ function getImpostazioniModalHTML(app) {
                                     <button type="button" data-theme-default="dark" class="btn ${isDarkActive ? 'btn-primary active' : 'btn-secondary'}">
                                         <i data-lucide="moon" class="mr-2"></i> Scuro
                                     </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="font-medium text-primary mb-4" style="display: block;">Temi colore extra</label>
-                                <div class="flex flex-wrap" style="gap: var(--spacing-sm);" id="theme-color-picker">
-                                    ${THEME_COLORS.map(theme => {
-                                        const isThemeActive = impostazioniState.theme === theme.id;
-                                        const borderColor = isThemeActive ? 'var(--color-primary)' : (theme.id === 'night' ? '#424242' : 'var(--bg-primary)');
-                                        const boxShadow = isThemeActive ? `0 0 0 3px var(--color-primary)` : `0 0 0 1px ${theme.id === 'night' ? '#616161' : 'var(--border-secondary)'}`;
-                                        
-                                        return `
-                                        <button type="button" 
-                                                class="theme-color-swatch" 
-                                                data-theme="${theme.id}" 
-                                                title="${theme.name}" 
-                                                style="background-color: ${theme.value}; 
-                                                       width: 2.25rem; 
-                                                       height: 2.25rem; 
-                                                       border-radius: 50%; 
-                                                       cursor: pointer; 
-                                                       border: 3px solid ${borderColor}; 
-                                                       box-shadow: ${boxShadow};
-                                                       transition: all 0.2s ease;">
-                                        </button>
-                                    `}).join('')}
                                 </div>
                             </div>
                         </div>
@@ -231,43 +186,17 @@ function handleImpostazioniClick(event) {
         });
     }
 
-    // Gestione Swatch Temi Extra
-    const themeBtn = target.closest('[data-theme]');
-    if (themeBtn) {
-        const newTheme = themeBtn.dataset.theme;
-        impostazioniState.theme = newTheme;
-        app.saveToStorage('theme', newTheme);
-        updateTheme(); // Applica data-theme (es. "ocean")
-
-        // Se si sceglie un tema alternativo, si disattiva il dark mode di default
-        if (app.state.isDarkMode) {
-            app.toggleTheme(); // Forza isDarkMode = false e rimuove .theme-dark
-        }
-
-        // Deseleziona bottoni default
-        modalContent.querySelectorAll('[data-theme-default]').forEach(btn => {
-            btn.classList.remove('btn-primary', 'active');
-            btn.classList.add('btn-secondary');
-        });
-        
-        // Aggiorna UI swatches
-        modalContent.querySelectorAll('[data-theme]').forEach(btn => {
-            const isSelected = btn.dataset.theme === newTheme;
-            const themeId = btn.dataset.theme;
-            let nonSelectedBorder = (themeId === 'night') ? '#424242' : 'var(--bg-primary)';
-            let nonSelectedShadow = `0 0 0 1px ${themeId === 'night' ? '#616161' : 'var(--border-secondary)'}`;
-
-            btn.style.borderColor = isSelected ? 'var(--color-primary)' : nonSelectedBorder;
-            btn.style.boxShadow = isSelected ? `0 0 0 3px var(--color-primary)` : nonSelectedShadow;
-        });
-    }
+    /* INIZIO LOGICA TEMI COLORE EXTRA RIMOSSA */
+    // Logica Swatch Temi Extra e gestione deselezione bottoni default rimossa.
+    // L'unica logica di tema rimasta è per i temi di default.
+    /* FINE LOGICA TEMI COLORE EXTRA RIMOSSA */
 
     // Gestione Bottoni Temi Default (Chiaro/Scuro)
     const themeDefaultBtn = target.closest('[data-theme-default]');
     if(themeDefaultBtn) {
         const newThemeMode = themeDefaultBtn.dataset.themeDefault;
 
-        // 1. Resetta il tema a 'default'
+        // 1. Resetta il tema a 'default' (Questo è l'unico tema supportato ora)
         impostazioniState.theme = 'default';
         app.saveToStorage('theme', 'default');
         updateTheme(); // Rimuove data-theme
@@ -280,14 +209,7 @@ function handleImpostazioniClick(event) {
             btn.classList.toggle('btn-secondary', !isActive);
         });
 
-        // 3. Deseleziona tutti gli swatch
-        modalContent.querySelectorAll('[data-theme]').forEach(btn => {
-            const themeId = btn.dataset.theme;
-            btn.style.borderColor = (themeId === 'night') ? '#424242' : 'var(--bg-primary)';
-            btn.style.boxShadow = `0 0 0 1px ${themeId === 'night' ? '#616161' : 'var(--border-secondary)'}`;
-        });
-
-        // 4. Attiva/Disattiva .theme-dark
+        // 3. Logica per applicare il tema chiaro/scuro
         if (newThemeMode === 'dark' && !app.state.isDarkMode) {
             app.toggleTheme(); // Attiva dark mode
         } else if (newThemeMode === 'light' && app.state.isDarkMode) {
@@ -305,11 +227,6 @@ function handleImpostazioniChange(event) {
         return;
     }
     const target = event.target;
-
-    // Rimuovi i listener per i toggle che non esistono più
-    // if (target.matches('#dark-mode-toggle')) { ... }
-    // if (target.matches('#fullscreen-toggle')) toggleFullscreen();
-    // if (target.matches('#sidebar-collapse-toggle')) app.toggleSidebarCollapse();
 
     // Mantieni solo il listener per l'import
     if (target.matches('#import-file')) importData.call(app, event);
@@ -343,8 +260,9 @@ function updateTheme() {
         // Rimuovi l'attributo per usare :root e .theme-dark
         document.documentElement.removeAttribute('data-theme');
     } else {
-        // Applica il tema alternativo
-        document.documentElement.setAttribute('data-theme', theme);
+        // Poiché i temi alternativi sono stati rimossi, forziamo il default in caso di tema non valido salvato
+        document.documentElement.removeAttribute('data-theme');
+        impostazioniState.theme = 'default';
     }
 }
 // Fine funzione updateTheme

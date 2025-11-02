@@ -202,20 +202,17 @@ html[data-theme-radius="high"] {
         border-color: rgba(255, 255, 255, 0.1);
     }
 
+    /* Rimuovi gli stili generici hardcoded che causavano l'interferenza */
     .contatto-card {
-        background-color: rgba(37, 99, 235, 0.15);
-        border-color: rgba(37, 99, 235, 0.35);
+        background-color: initial;
+        border-color: initial;
     }
 
     .contatto-card:hover {
-        border-color: var(--color-primary);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        border-color: initial;
+        box-shadow: none;
     }
-
-    .contatto-card.selected {
-        background-color: rgba(37, 99, 235, 0.2);
-    }
-
+    
     .btn-icon {
         background-color: var(--bg-tertiary);
         border-color: rgba(255, 255, 255, 0.1);
@@ -252,161 +249,9 @@ html[data-theme-radius="high"] {
     }
 }
 
-/* === INIZIO TEMI AGGIUNTIVI === */
-
-html[data-theme="ocean"] {
-    --color-primary: #00bcd4;
-    --color-primary-hover: #00a5bb;
-    --color-secondary: #607d8b;
-    --color-success: #4CAF50;
-    --color-success-hover: #43a047;
-    --color-danger: #f44336;
-    --color-danger-hover: #e53935;
-    --color-warning: #ff9800;
-    --bg-body: #e0f7fa;
-    --bg-primary: #ffffff;
-    --bg-primary-op: rgba(255, 255, 255, 0.3);
-    --bg-secondary: #b2ebf2;
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-inverse: #ffffff;
-    --border-primary: #b2ebf2;
-    --border-secondary: #80deea;
-    --calc-display-bg: rgba(0, 188, 212, 0.08);
-    --calc-display-border: rgba(0, 188, 212, 0.25);
-    --calc-operator-bg: #00bcd4;
-    --calc-function-text: #00a5bb;
-}
-
-html[data-theme="purple"] {
-    --color-primary: #8b5cf6;
-    --color-primary-hover: #5e35b1;
-    --color-secondary: #607d8b;
-    --color-success: #4CAF50;
-    --color-success-hover: #43a047;
-    --color-danger: #f44336;
-    --color-danger-hover: #e53935;
-    --color-warning: #ff9800;
-    --bg-body: #ede7f6;
-    --bg-primary: #ffffff;
-    --bg-primary-op: rgba(255, 255, 255, 0.3);
-    --bg-secondary: #d1c4e9;
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-inverse: #ffffff;
-    --border-primary: #d1c4e9;
-    --border-secondary: #b39ddb;
-    --calc-display-bg: rgba(103, 58, 183, 0.08);
-    --calc-display-border: rgba(103, 58, 183, 0.25);
-    --calc-operator-bg: #8b5cf6;
-    --calc-function-text: #5e35b1;
-}
-
-html[data-theme="lady"] {
-    --color-primary: #e91e63;
-    --color-primary-hover: #d81b60;
-    --color-secondary: #607d8b;
-    --color-success: #4CAF50;
-    --color-success-hover: #43a047;
-    --color-danger: #f44336;
-    --color-danger-hover: #e53935;
-    --color-warning: #ff9800;
-    --bg-body: #fce4ec;
-    --bg-primary: #ffffff;
-    --bg-primary-op: rgba(255, 255, 255, 0.3);
-    --bg-secondary: #f8bbd0;
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-inverse: #ffffff;
-    --border-primary: #f8bbd0;
-    --border-secondary: #f48fb1;
-    --calc-display-bg: rgba(233, 30, 99, 0.08);
-    --calc-display-border: rgba(233, 30, 99, 0.25);
-    --calc-operator-bg: #e91e63;
-    --calc-function-text: #d81b60;
-}
-
-html[data-theme="sugar"] {
-    --color-primary: #607d8b;
-    --color-primary-hover: #546e7a;
-    --color-secondary: #607d8b;
-    --color-success: #4CAF50;
-    --color-success-hover: #43a047;
-    --color-danger: #f44336;
-    --color-danger-hover: #e53935;
-    --color-warning: #ff9800;
-    --bg-body: #eceff1;
-    --bg-primary: #ffffff;
-    --bg-primary-op: rgba(255, 255, 255, 0.3);
-    --bg-secondary: #cfd8dc;
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-inverse: #ffffff;
-    --border-primary: #cfd8dc;
-    --border-secondary: #b0bec5;
-    --calc-display-bg: rgba(96, 125, 139, 0.08);
-    --calc-display-border: rgba(96, 125, 139, 0.25);
-    --calc-operator-bg: #607d8b;
-    --calc-function-text: #546e7a;
-}
-
-html[data-theme="night"] {
-    --color-primary: #9e9e9e;
-    --color-primary-hover: #bdbdbd;
-    --color-secondary: #757575;
-    --color-success: #4CAF50;
-    --color-success-hover: #43a047;
-    --color-danger: #f44336;
-    --color-danger-hover: #e53935;
-    --color-warning: #ff9800;
-    --bg-body: #121212;
-    --bg-primary: #212121;
-    --bg-primary-op: rgba(33, 33, 33, 0.3);
-    --bg-secondary: #303030;
-    --bg-tertiary: #424242;
-    --text-primary: #f5f5f5;
-    --text-secondary: #eeeeee;
-    --text-tertiary: #9e9e9e;
-    --text-inverse: #000000;
-    --border-primary: #424242;
-    --border-secondary: #616161;
-    --calc-display-bg: rgba(158, 158, 158, 0.08);
-    --calc-display-border: rgba(158, 158, 158, 0.25);
-    --calc-operator-bg: #9e9e9e;
-    --calc-function-text: #bdbdbd;
-}
-
-/* Override per sfondi 30% opacità per i NUOVI TEMI */
-html[data-theme="ocean"] .sidebar,
-html[data-theme="ocean"] .card,
-html[data-theme="ocean"] .stat-card,
-html[data-theme="ocean"] .modal-content,
-html[data-theme="ocean"] .filters-bar,
-html[data-theme="purple"] .sidebar,
-html[data-theme="purple"] .card,
-html[data-theme="purple"] .stat-card,
-html[data-theme="purple"] .modal-content,
-html[data-theme="purple"] .filters-bar,
-html[data-theme="lady"] .sidebar,
-html[data-theme="lady"] .card,
-html[data-theme="lady"] .stat-card,
-html[data-theme="lady"] .modal-content,
-html[data-theme="lady"] .filters-bar,
-html[data-theme="sugar"] .sidebar,
-html[data-theme="sugar"] .card,
-html[data-theme="sugar"] .stat-card,
-html[data-theme="sugar"] .modal-content,
-html[data-theme="sugar"] .filters-bar,
-html[data-theme="night"] .sidebar,
-html[data-theme="night"] .card,
-html[data-theme="night"] .stat-card,
-html[data-theme="night"] .modal-content,
-html[data-theme="night"] .filters-bar {
-    background: var(--bg-primary-op);
-    backdrop-filter: none;
-}
-
-/* === FINE TEMI AGGIUNTIVI === */
+/* === INIZIO TEMI AGGIUNTIVI (RIMOSSI) === */
+/* Tutto il codice dei temi alternativi è stato rimosso qui */
+/* === FINE TEMI AGGIUNTIVI (RIMOSSI) === */
 
 *:focus-visible {
     outline: none;
@@ -2143,7 +1988,7 @@ select.form-control {
 
 .calc-btn.number {
     font-weight: 600;
-    color: var(--color-primary);
+    color: var(--calc-function-text);
     font-size: var(--font-size-medium);
 }
 
@@ -2404,6 +2249,126 @@ select.form-control {
     grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-lg);
 }
+/* INIZIO NUOVE CLASSI PER COLORI CARD CONTATTI */
+
+/* --- Colori Primari (Light Theme Fallback) --- */
+.contatto-card.color-blue {
+    --card-color-bg: rgba(37, 99, 235, 0.08); /* Uso opacità bassa per lo sfondo */
+    --card-color-border: rgba(37, 99, 235, 0.25);
+    --card-color-icon: #2563eb;
+    --card-color-icon-op: rgba(37, 99, 235, 0.3);
+}
+
+.contatto-card.color-green {
+    --card-color-bg: rgba(16, 185, 129, 0.08);
+    --card-color-border: rgba(16, 185, 129, 0.25);
+    --card-color-icon: #10b981;
+    --card-color-icon-op: rgba(16, 185, 129, 0.3);
+}
+
+.contatto-card.color-red {
+    --card-color-bg: rgba(255, 32, 78, 0.08);
+    --card-color-border: rgba(255, 32, 78, 0.25);
+    --card-color-icon: #ff204e;
+    --card-color-icon-op: rgba(255, 32, 78, 0.3);
+}
+
+.contatto-card.color-yellow {
+    --card-color-bg: rgba(245, 158, 11, 0.08);
+    --card-color-border: rgba(245, 158, 11, 0.25);
+    --card-color-icon: #ffb100;
+    --card-color-icon-op: rgba(245, 158, 11, 0.3);
+}
+
+.contatto-card.color-purple {
+    --card-color-bg: rgba(139, 92, 246, 0.08);
+    --card-color-border: rgba(139, 92, 246, 0.25);
+    --card-color-icon: #8b5cf6;
+    --card-color-icon-op: rgba(139, 92, 246, 0.3);
+}
+
+.contatto-card.color-cyan {
+    --card-color-bg: rgba(8, 145, 178, 0.08);
+    --card-color-border: rgba(8, 145, 178, 0.25);
+    --card-color-icon: #6fe6fc;
+    --card-color-icon-op: rgba(8, 145, 178, 0.3);
+}
+
+.contatto-card.color-gray {
+    --card-color-bg: rgba(107, 114, 128, 0.08);
+    --card-color-border: rgba(107, 114, 128, 0.25);
+    --card-color-icon: #6b7280;
+    --card-color-icon-op: rgba(107, 114, 128, 0.3);
+}
+
+/* Applica le variabili alle card (per tutti i temi) */
+.contatto-card[class*="color-"] {
+    background-color: var(--card-color-bg) !important; /* Sovrascrive lo stile inline JS */
+    border-color: var(--card-color-border) !important;
+}
+
+.contatto-card[class*="color-"]:hover {
+    box-shadow: 0 4px 12px var(--card-color-border);
+    border-color: var(--card-color-icon) !important;
+}
+
+.contatto-card[class*="color-"] .contatto-user-icon {
+    color: var(--card-color-icon-op) !important;
+    opacity: 1 !important; /* L'opacità è gestita dal valore RGBA della variabile */
+}
+
+
+/* --- Override per Tema Scuro --- */
+.theme-dark .contatto-card.color-blue {
+    --card-color-bg: rgba(59, 130, 246, 0.15);
+    --card-color-border: rgba(59, 130, 246, 0.45);
+    --card-color-icon: #3b82f6;
+    --card-color-icon-op: rgba(59, 130, 246, 0.5);
+}
+
+.theme-dark .contatto-card.color-green {
+    --card-color-bg: rgba(16, 185, 129, 0.15);
+    --card-color-border: rgba(16, 185, 129, 0.45);
+    --card-color-icon: #10b981;
+    --card-color-icon-op: rgba(16, 185, 129, 0.5);
+}
+
+.theme-dark .contatto-card.color-red {
+    --card-color-bg: rgba(255, 32, 78, 0.15);
+    --card-color-border: rgba(255, 32, 78, 0.45);
+    --card-color-icon: #ff204e;
+    --card-color-icon-op: rgba(255, 32, 78, 0.5);
+}
+
+.theme-dark .contatto-card.color-yellow {
+    --card-color-bg: rgba(245, 158, 11, 0.15);
+    --card-color-border: rgba(245, 158, 11, 0.45);
+    --card-color-icon: #ffb100;
+    --card-color-icon-op: rgba(245, 158, 11, 0.5);
+}
+
+.theme-dark .contatto-card.color-purple {
+    --card-color-bg: rgba(139, 92, 246, 0.15);
+    --card-color-border: rgba(139, 92, 246, 0.45);
+    --card-color-icon: #8b5cf6;
+    --card-color-icon-op: rgba(139, 92, 246, 0.5);
+}
+
+.theme-dark .contatto-card.color-cyan {
+    --card-color-bg: rgba(8, 145, 178, 0.15);
+    --card-color-border: rgba(8, 145, 178, 0.45);
+    --card-color-icon: #6fe6fc;
+    --card-color-icon-op: rgba(8, 145, 178, 0.5);
+}
+
+.theme-dark .contatto-card.color-gray {
+    --card-color-bg: rgba(107, 114, 128, 0.15);
+    --card-color-border: rgba(107, 114, 128, 0.45);
+    --card-color-icon: #6b7280;
+    --card-color-icon-op: rgba(107, 114, 128, 0.5);
+}
+/* FINE NUOVE CLASSI PER COLORI CARD CONTATTI */
+
 
 .contatto-card {
     background-color: rgba(37, 99, 235, 0.08);
@@ -2789,8 +2754,8 @@ select.form-control {
 }
 
 .info-link:hover {
-    background-color: var(--bg-tertiary);
-    color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--text-inverse);
 }
 
 .info-link .link-text {
@@ -2803,7 +2768,7 @@ select.form-control {
 }
 
 .info-link:hover .lucide-external-link {
-    color: var(--color-primary);
+    color: var(--text-inverse);
 }
 
 .info-item {
@@ -3189,9 +3154,7 @@ select.form-control {
 .collapsed .collapse-toggle {
     transform: rotate(180deg);
 }
-
-/* INIZIO MODIFICHE RICHIESTE */
-    
+  
 /* Stile per la rotazione dell'icona "Collassa Sidebar" nel footer (Richiesta 2) */
 #collapse-sidebar-btn svg {
     transition: transform 0.4s ease;
@@ -3200,4 +3163,4 @@ select.form-control {
 .sidebar.collapsed #collapse-sidebar-btn svg {
     transform: rotate(180deg);
 }
-/* FINE MODIFICHE RICHIESTE */
+}
