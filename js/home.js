@@ -143,7 +143,7 @@ function renderHomeSection(container) {
                                 <div class="flex items-center space-x-2">
                                     <button id="calendar-prev" class="calendar-nav-btn"><i data-lucide="chevron-left"></i></button>
                                     <button id="calendar-next" class="calendar-nav-btn"><i data-lucide="chevron-right"></i></button>
-                                    <button id="calendar-today-btn" class="btn btn-secondary btn-sm"><i data-lucide="calendar-check"></i> Oggi</button>
+                                    <button id="calendar-today-btn" class="btn btn-primary btn-sm"><i data-lucide="calendar-check"></i> Oggi</button>
                                 </div>
                             </div>
                         </div>
