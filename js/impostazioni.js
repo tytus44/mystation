@@ -5,7 +5,7 @@
 // =============================================
 
 // === COSTANTI (Temi Colore Extra Rimosse) ===
-const THEME_COLORS = []; // Array vuoto per coerenza con il codice dipendente
+const THEME_COLORS = [];
 
 // === STATO LOCALE DEL MODULO IMPOSTAZIONI ===
 let impostazioniState = {
@@ -21,10 +21,9 @@ function initImpostazioni() {
     impostazioniState.borderRadius = this.loadFromStorage('borderRadius', 'medium');
     impostazioniState.theme = this.loadFromStorage('theme', 'default');
     updateBorderRadius();
-    updateTheme(); // Applica il tema salvato (o default)
+    updateTheme();
     document.addEventListener('fullscreenchange', () => {
         impostazioniState.isFullscreen = !!document.fullscreenElement;
-        // Non aggiorniamo più il toggle, è stato rimosso
     });
     console.log('✅ Modulo Impostazioni inizializzato');
 }
@@ -45,8 +44,6 @@ function showImpostazioniModal(app) {
 
 // Inizio funzione getImpostazioniModalHTML
 function getImpostazioniModalHTML(app) {
-    
-    // Determina stato attivo per i bottoni Chiaro/Scuro
     const isDefaultTheme = impostazioniState.theme === 'default';
     const isLightActive = isDefaultTheme && !app.state.isDarkMode;
     const isDarkActive = isDefaultTheme && app.state.isDarkMode;
@@ -146,7 +143,6 @@ function handleImpostazioniClick(event) {
     const modalContent = document.getElementById('form-modal-content');
     if (!modalContent) return;
 
-    // Gestione bottoni standard
     if (target.closest('#import-btn')) modalContent.querySelector('#import-file')?.click();
     if (target.closest('#export-btn')) exportData.call(app);
     if (target.closest('#reset-data-btn')) confirmReset.call(app);
@@ -154,24 +150,20 @@ function handleImpostazioniClick(event) {
         app.hideFormModal();
     }
     
-    // Gestione bottone Esci (Aggiunto)
     const esciBtn = target.closest('[data-section="esci"]');
     if (esciBtn) {
         app.hideFormModal();
-        // Chiama la funzione di logout per gestire la disconnessione e il reindirizzamento
         app.showConfirm('Sei sicuro di voler uscire e tornare al Login?', () => {
             if (typeof window.logout === 'function') {
                 window.logout();
             } else {
-                // Se logout() non è definita, esegue il reindirizzamento diretto al login (index.html)
                 console.warn('Funzione window.logout() non trovata, reindirizzamento forzato.');
-                window.location.href = '../index.html'; // Percorso da /html a /index.html
+                window.location.href = '../index.html';
             }
         });
         return;
     }
 
-    // Gestione Arrotondamento
     const radiusBtn = target.closest('[data-radius]');
     if (radiusBtn) {
         const newRadius = radiusBtn.dataset.radius;
@@ -186,22 +178,14 @@ function handleImpostazioniClick(event) {
         });
     }
 
-    /* INIZIO LOGICA TEMI COLORE EXTRA RIMOSSA */
-    // Logica Swatch Temi Extra e gestione deselezione bottoni default rimossa.
-    // L'unica logica di tema rimasta è per i temi di default.
-    /* FINE LOGICA TEMI COLORE EXTRA RIMOSSA */
-
-    // Gestione Bottoni Temi Default (Chiaro/Scuro)
     const themeDefaultBtn = target.closest('[data-theme-default]');
     if(themeDefaultBtn) {
         const newThemeMode = themeDefaultBtn.dataset.themeDefault;
 
-        // 1. Resetta il tema a 'default' (Questo è l'unico tema supportato ora)
         impostazioniState.theme = 'default';
         app.saveToStorage('theme', 'default');
-        updateTheme(); // Rimuove data-theme
+        updateTheme();
 
-        // 2. Aggiorna UI bottoni default
         modalContent.querySelectorAll('[data-theme-default]').forEach(btn => {
             const isActive = btn.dataset.themeDefault === newThemeMode;
             btn.classList.toggle('btn-primary', isActive);
@@ -209,11 +193,10 @@ function handleImpostazioniClick(event) {
             btn.classList.toggle('btn-secondary', !isActive);
         });
 
-        // 3. Logica per applicare il tema chiaro/scuro
         if (newThemeMode === 'dark' && !app.state.isDarkMode) {
-            app.toggleTheme(); // Attiva dark mode
+            app.toggleTheme();
         } else if (newThemeMode === 'light' && app.state.isDarkMode) {
-            app.toggleTheme(); // Disattiva dark mode
+            app.toggleTheme();
         }
     }
 }
@@ -228,7 +211,6 @@ function handleImpostazioniChange(event) {
     }
     const target = event.target;
 
-    // Mantieni solo il listener per l'import
     if (target.matches('#import-file')) importData.call(app, event);
 }
 // Fine funzione handleImpostazioniChange
@@ -257,27 +239,23 @@ function updateBorderRadius() {
 function updateTheme() {
     const theme = impostazioniState.theme || 'default';
     if (theme === 'default') {
-        // Rimuovi l'attributo per usare :root e .theme-dark
         document.documentElement.removeAttribute('data-theme');
     } else {
-        // Poiché i temi alternativi sono stati rimossi, forziamo il default in caso di tema non valido salvato
         document.documentElement.removeAttribute('data-theme');
         impostazioniState.theme = 'default';
     }
 }
 // Fine funzione updateTheme
 
-// Inizio funzione toggleFullscreen (Non più collegato a un toggle, ma lasciato per lo script della sidebar)
+// Inizio funzione toggleFullscreen
 function toggleFullscreen() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => alert(`Errore schermo intero: ${err.message}`));
     else if (document.exitFullscreen) document.exitFullscreen();
 }
 // Fine funzione toggleFullscreen
 
-// Inizio funzione updateFullscreenToggle (Non più necessaria, ma non dannosa)
+// Inizio funzione updateFullscreenToggle
 function updateFullscreenToggle() {
-    // const toggle = document.getElementById('fullscreen-toggle');
-    // if (toggle) toggle.checked = impostazioniState.isFullscreen;
 }
 // Fine funzione updateFullscreenToggle
 
@@ -300,10 +278,10 @@ function exportData() {
         contatti: app.state.data.contatti || [],
         etichette: app.state.data.etichette || [],
         stazioni: app.state.data.stazioni || [],
-        accounts: app.state.data.accounts || [],
         spese: app.state.data.spese || [],
         speseEtichette: app.state.data.speseEtichette || [],
-        homeTodos: app.loadFromStorage('homeTodos', [])
+        todos: app.state.data.todos || [],
+        appuntamenti: app.state.data.appuntamenti || []
     };
     const dataStr = JSON.stringify(dataToExport, null, 2);
     const dataBlob = new Blob([dataStr], {
@@ -342,13 +320,11 @@ function importData(event) {
             if (importedData.contatti) app.state.data.contatti = importedData.contatti || [];
             if (importedData.etichette) app.state.data.etichette = importedData.etichette || [];
             if (importedData.stazioni) app.state.data.stazioni = importedData.stazioni || [];
-            if (importedData.accounts) app.state.data.accounts = importedData.accounts || [];
             if (importedData.spese) app.state.data.spese = importedData.spese || [];
             if (importedData.speseEtichette) app.state.data.speseEtichette = importedData.speseEtichette || [];
-            if (importedData.homeTodos) {
-                app.saveToStorage('homeTodos', importedData.homeTodos);
-                if (window.homeState) window.homeState.todos = importedData.homeTodos;
-            }
+            if (importedData.todos) app.state.data.todos = importedData.todos || [];
+            if (importedData.appuntamenti) app.state.data.appuntamenti = importedData.appuntamenti || [];
+            
             app.saveToStorage('data', app.state.data);
             app.showNotification('Dati importati con successo!');
             app.hideFormModal();
