@@ -367,7 +367,7 @@ html[data-theme-radius="high"] {
     transition: 0.4s ease;
 }
 
-/* Nascondi il bottone nell'header (Richiesta 3) */
+/* Nascondi il bottone nell'header */
 .sidebar-header .sidebar-toggle-btn {
     display: none;
 }
@@ -395,7 +395,7 @@ html[data-theme-radius="high"] {
 
 .sidebar .sidebar-content {
     flex: 1;
-    padding: 1.25rem 1.125rem; /* 20px 18px */
+    padding: 0.75rem 1.125rem; /* RIDOTTO: era 1.25rem */
     overflow: hidden auto;
     scrollbar-width: thin;
     scrollbar-color: var(--text-tertiary) transparent;
@@ -408,7 +408,7 @@ html[data-theme-radius="high"] {
 .sidebar-menu {
     display: flex;
     gap: 4px;
-    list-style: none; /* Applicato a tutti i .sidebar-menu */
+    list-style: none;
     flex-direction: column;
 }
 
@@ -418,7 +418,7 @@ html[data-theme-radius="high"] {
 
 .sidebar-link {
     display: flex;
-    gap: 12px; /* Ripristinato */
+    gap: 12px;
     white-space: nowrap;
     border-radius: var(--radius-md);
     padding: 12px 15px;
@@ -444,19 +444,17 @@ button.sidebar-link {
     transition: opacity 0.3s ease;
 }
 
-/* INIZIO MODIFICA STATO COLLASSATO */
 .sidebar.collapsed .sidebar-link {
     justify-content: center;
-    gap: 0; /* Aggiunto per rimuovere lo spazio */
+    gap: 0;
 }
 
 .sidebar.collapsed .sidebar-link span {
     opacity: 0;
     pointer-events: none;
-    width: 0; /* Aggiunto per collassare lo span */
-    overflow: hidden; /* Aggiunto per sicurezza */
+    width: 0;
+    overflow: hidden;
 }
-/* FINE MODIFICA STATO COLLASSATO */
 
 .sidebar-link:is(:hover, .active) {
     color: var(--text-inverse);
@@ -480,12 +478,84 @@ button.sidebar-link {
     color: var(--text-inverse);
 }
 
+/* INIZIO FOOTER MODIFICATO (ICONE + TESTO CONDIZIONALE) */
 .sidebar .sidebar-footer {
-    padding: 1.25rem 1.125rem; /* 20px 18px */
+    padding: 0.75rem var(--spacing-md); /* RIDOTTO: era var(--spacing-md) */
     white-space: nowrap;
     border-top: 1px solid var(--border-primary);
     margin-top: auto;
+    display: flex;
+    justify-content: space-around; /* MODIFICATO: era center */
+    align-items: center;
+    gap: var(--spacing-sm); /* AGGIUNTO */
 }
+
+/* Stili per i bottoni nel footer */
+.sidebar .sidebar-footer button {
+    background: none;
+    border: none;
+    padding: 0;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm); /* AGGIUNTO: spazio tra icona e testo */
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+/* Quando la sidebar NON è collassata, mostra anche il testo */
+.sidebar:not(.collapsed) .sidebar-footer button {
+    padding: 0 var(--spacing-sm); 
+    justify-content: flex-start; 
+}
+
+.sidebar .sidebar-footer button svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.sidebar .sidebar-footer button span {
+    font-size: var(--font-size-normal);
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+/* Quando la sidebar è collassata, nascondi il testo */
+.sidebar.collapsed .sidebar-footer button {
+    width: 2.5rem;
+}
+
+.sidebar.collapsed .sidebar-footer button span {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sidebar .sidebar-footer button:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.sidebar .sidebar-footer button:hover svg,
+.sidebar .sidebar-footer button:hover span {
+    color: var(--color-primary);
+}
+
+/* Rimuove i margini/padding in stato collassato */
+.sidebar.collapsed .sidebar-footer {
+    justify-content: center;
+    padding: 0.75rem 0; /* RIDOTTO: era var(--spacing-md) 0 */
+}
+/* FINE FOOTER MODIFICATO (ICONE + TESTO CONDIZIONALE) */
 
 .sidebar-divider {
     height: 1px;
@@ -510,7 +580,7 @@ button.sidebar-link {
 
 .site-nav .sidebar-toggle-btn {
     position: unset;
-    display: flex; /* Assicura che sia visibile */
+    display: flex;
 }
 
 .site-nav .mobile-title {
@@ -549,9 +619,16 @@ button.sidebar-link {
     color: var(--text-inverse);
 }
 
+/* Stile per la rotazione dell'icona "Collassa Sidebar" nel footer */
+#collapse-sidebar-btn svg {
+    transition: transform 0.4s ease;
+}
+
+.sidebar.collapsed #collapse-sidebar-btn svg {
+    transform: rotate(180deg);
+}
 
 /* === FINE NUOVA SEZIONE SIDEBAR E NAVIGAZIONE === */
-
 
 /* === MAIN CONTENT === */
 .main-content {
