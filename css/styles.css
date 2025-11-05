@@ -53,7 +53,9 @@ body {
     --font-size-medium: 18px;
     --font-size-large: 22px;
 
-    --color-primary: #2563eb;
+    /* --color-primary: #2563eb; Blu */
+    /* --color-primary: #905EFF; Viola */
+    --color-primary: #00A9E8; /* Azzurro */
     --color-primary-hover: #1d4ed8;
     --color-secondary: #6b7280;
     --color-success: #10b981;
@@ -245,9 +247,6 @@ html[data-theme-radius="high"] {
         background-color: var(--bg-secondary);
     }
 }
-
-/* === INIZIO TEMI AGGIUNTIVI (RIMOSSI) === */
-/* === FINE TEMI AGGIUNTIVI (RIMOSSI) === */
 
 *:focus-visible {
     outline: none;
