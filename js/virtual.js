@@ -173,10 +173,11 @@ function renderVirtualListView(container) {
                         </div>
                     </div>
                     <div class="card-body">
-                        <div style="display: grid; grid-template-columns: 1fr 280px; align-items: center; gap: 1.5rem;">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 240px; align-items: center; gap: 1.5rem;">
                             <div id="products-chart-legend"></div>
-                            <div style="position: relative; width: 280px; height: 280px;">
-                                <canvas id="productsChart"></canvas>
+                            <div style="position: relative; width: 240px; height: 240px;">
+                        <canvas id="productsChart"></canvas>
                             </div>
                         </div>
                     </div>

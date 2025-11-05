@@ -326,9 +326,22 @@ function importData(event) {
             if (importedData.appuntamenti) app.state.data.appuntamenti = importedData.appuntamenti || [];
             
             app.saveToStorage('data', app.state.data);
+
+            // --- INIZIO MODIFICA ---
+            // Esegui la normalizzazione dei dati turni importati (se la funzione esiste)
+            if (typeof diagnosticaERiparaTurni === 'function' && (importedData.turni || importedData.iperself)) {
+                console.log('Esecuzione diagnostica/normalizzazione sui dati turni importati...');
+                diagnosticaERiparaTurni(); // Questa funzione legge e salva da/su app.state.data
+            }
+
             app.showNotification('Dati importati con successo!');
             app.hideFormModal();
-            app.switchSection(app.state.currentSection);
+            
+            // Sostituisci switchSection con refreshCurrentSection per forzare l'aggiornamento
+            // app.switchSection(app.state.currentSection); // <-- Vecchia riga rimossa
+            app.refreshCurrentSection(); // <-- Nuova riga
+            // --- FINE MODIFICA ---
+
         } catch (error) {
             console.error("Errore importazione:", error);
             alert('Errore importazione: file non valido.');

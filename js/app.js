@@ -52,6 +52,9 @@ class MyStationApp {
         this.showConfirm = this.showConfirm.bind(this);
         this.saveToStorage = this.saveToStorage.bind(this);
         this.loadFromStorage = this.loadFromStorage.bind(this);
+        // --- INIZIO MODIFICA ---
+        this.refreshCurrentSection = this.refreshCurrentSection.bind(this);
+        // --- FINE MODIFICA ---
         
         // Inizializzazione
         this.init();
@@ -234,6 +237,29 @@ class MyStationApp {
             console.error(`❌ Errore nel render della sezione ${section}:`, error);
         }
     }
+
+    // --- INIZIO NUOVA FUNZIONE ---
+    // === AGGIORNAMENTO FORZATO SEZIONE CORRENTE ===
+    refreshCurrentSection() {
+        console.log(`🔄 Aggiornamento forzato sezione: ${this.state.currentSection}`);
+        const section = this.state.currentSection;
+        
+        // 1. Rimuovi eventuali listener da modali aperti (precauzione)
+        const modalContent = document.getElementById('form-modal-content');
+        if (modalContent) {
+            modalContent.removeAttribute('data-listeners-attached');
+        }
+
+        // 2. Chiama le stesse funzioni di rendering e post-rendering di switchSection
+        this.renderSection(section);
+        this.onSectionChange(section);
+        
+        // 3. Ricarica le icone
+        setTimeout(() => this.refreshIcons(), 100);
+        
+        console.log('✅ Sezione aggiornata.');
+    }
+    // --- FINE NUOVA FUNZIONE ---
     
     // === AGGIORNA STATO ATTIVO SIDEBAR ===
     updateSidebarActiveState(section) {
