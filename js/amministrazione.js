@@ -17,6 +17,7 @@ let amministrazioneState = {
         amount: null
     },
     clientiCollapsed: false,
+    currentView: 'list'
 };
 
 // === INIZIALIZZAZIONE MODULO AMMINISTRAZIONE ===
@@ -28,6 +29,7 @@ function initAmministrazione() {
         search: ''
     });
     amministrazioneState.clientiCollapsed = app.loadFromStorage('clientiCollapsed', false);
+    amministrazioneState.currentView = app.loadFromStorage('adminViewMode', 'list');
     console.log('✅ Modulo Amministrazione inizializzato');
 }
 // Fine funzione initAmministrazione
@@ -36,10 +38,9 @@ function initAmministrazione() {
 // Inizio funzione renderAmministrazioneSection
 function renderAmministrazioneSection(container) {
     console.log('🎨 Rendering sezione Amministrazione...');
-    const app = this;
-    renderAmministrazioneListView.call(app, container);
-    setupAmministrazioneEventListeners.call(app);
-    app.refreshIcons();
+    renderAmministrazioneListView.call(this, container);
+    setupAmministrazioneEventListeners.call(this);
+    this.refreshIcons();
 }
 // Fine funzione renderAmministrazioneSection
 
@@ -47,6 +48,39 @@ function renderAmministrazioneSection(container) {
 // Inizio funzione renderAmministrazioneListView
 function renderAmministrazioneListView(container) {
     const app = this;
+
+    let contentHTML = '';
+    if (amministrazioneState.currentView === 'list') {
+        contentHTML = `
+            <div class="card collapsible-section ${amministrazioneState.clientiCollapsed ? 'collapsed' : ''}">
+                <div class="card-header collapsible-header" data-section-name="clienti">
+                    <h2 class="card-title">Elenco Clienti</h2>
+                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
+                </div>
+                <div class="card-body collapsible-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><button data-sort="name">Nome <i data-lucide="${amministrazioneState.adminSort.column === 'name' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i></button></th>
+                                    <th><button data-sort="balance">Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i></button></th>
+                                    <th style="min-width: 150px;"><button data-sort="lastTransactionDate">Ultima Operazione <i data-lucide="${amministrazioneState.adminSort.column === 'lastTransactionDate' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i></button></th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        contentHTML = `
+            <div id="clients-grid-container" class="clients-grid-container contatti-grid">
+            </div>
+        `;
+    }
+
     container.innerHTML = `
         <div class="space-y-6">
             <div class="stats-grid">
@@ -83,36 +117,118 @@ function renderAmministrazioneListView(container) {
                 <div class="flex items-center space-x-2">
                     <button id="new-client-btn" class="btn btn-primary"><i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Cliente</button>
                     <button id="print-clients-btn" class="btn btn-secondary"><i data-lucide="printer" class="w-4 h-4 mr-2"></i> Stampa Lista</button>
-                </div>
-            </div>
-
-            <div class="card collapsible-section ${amministrazioneState.clientiCollapsed ? 'collapsed' : ''}">
-                <div class="card-header collapsible-header" data-section-name="clienti">
-                    <h2 class="card-title">Elenco Clienti</h2>
-                    <button class="collapse-toggle"><i data-lucide="chevron-up"></i></button>
-                </div>
-                <div class="card-body collapsible-content">
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th><button data-sort="name">Nome <i data-lucide="${amministrazioneState.adminSort.column === 'name' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i></button></th>
-                                    <th><button data-sort="balance">Saldo <i data-lucide="${amministrazioneState.adminSort.column === 'balance' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i></button></th>
-                                    <th style="min-width: 150px;"><button data-sort="lastTransactionDate">Ultima Operazione <i data-lucide="${amministrazioneState.adminSort.column === 'lastTransactionDate' ? (amministrazioneState.adminSort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}"></i></button></th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clients-tbody"></tbody>
-                        </table>
+                    
+                    <div class="btn-group" style="margin-left: 0.5rem;">
+                        <button class="btn ${amministrazioneState.currentView === 'grid' ? 'btn-primary active' : 'btn-secondary'}" data-view-mode="grid" title="Vista Griglia">
+                            <i data-lucide="layout-grid" style="margin-right: 0;"></i>
+                        </button>
+                        <button class="btn ${amministrazioneState.currentView === 'list' ? 'btn-primary active' : 'btn-secondary'}" data-view-mode="list" title="Vista Lista">
+                            <i data-lucide="list" style="margin-right: 0;"></i>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            ${contentHTML} 
         </div>
     `;
-    renderClientsTable.call(app);
+
+    if (amministrazioneState.currentView === 'list') {
+        renderClientsTable.call(app);
+    } else {
+        renderClientsGrid.call(app);
+    }
+    
     app.refreshIcons();
 }
 // Fine funzione renderAmministrazioneListView
+
+// Inizio funzione getStatCardColorByIndex
+function getStatCardColorByIndex(index) {
+    const colorIndex = index % STAT_CARD_COLORS.length;
+    return STAT_CARD_COLORS[colorIndex];
+}
+// Fine funzione getStatCardColorByIndex
+
+// Inizio funzione getClientsGridHTML
+function getClientsGridHTML(app, clients) {
+    if (clients.length === 0) {
+        return `
+            <div class="empty-state p-12">
+                <i data-lucide="users"></i>
+                <div class="empty-state-title">Nessun cliente trovato</div>
+                <div class="empty-state-description">Aggiungi un nuovo cliente o modifica i filtri di ricerca.</div>
+            </div>`;
+    }
+    return clients.map((client, index) => {
+        const contactColors = getStatCardColorByIndex(index);
+        const cardStyle = `background-color: ${contactColors.background}; border-color: ${contactColors.border};`;
+        const balanceClass = app.getBalanceClass(client.balance);
+        const lastTxDate = app.formatDate(client.lastTransactionDate);
+
+        return `
+            <div class="contatto-card client-card-clickable" data-client-id="${client.id}" style="${cardStyle}">
+                <div class="contatto-card-header" style="padding-bottom: 0.5rem;">
+                    <div class="contatto-main-info">
+                        <h3 class="contatto-name text-md">${client.name}</h3>
+                        <p class="contatto-company font-bold ${balanceClass}" style="font-size: 1.1rem; opacity: 1;">
+                            ${app.formatCurrency(client.balance)}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="contatto-card-body" style="padding-top: 0.5rem;">
+                    <div class="contatti-info">
+                        <div class="contatto-info-item">
+                            <i data-lucide="calendar" class="w-4 h-4"></i> Ult. op: ${lastTxDate}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contatto-card-footer">
+                    <div class="flex justify-between items-center w-full">
+                        <button class="btn btn-danger btn-sm client-card-delete-btn" data-client-id="${client.id}" title="Elimina cliente">
+                            <i data-lucide="trash-2" style="margin-right: 0;"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm" data-client-id="${client.id}" title="Gestisci Cliente">
+                            <i data-lucide="user-cog" class="mr-2"></i>Gestisci
+                        </button>
+                    </div>
+                </div>
+                
+            </div>`;
+    }).join('');
+}
+// Fine funzione getClientsGridHTML
+
+// Inizio funzione renderClientsGrid
+function renderClientsGrid() {
+    const app = this;
+    const container = document.getElementById('clients-grid-container');
+    if (!container) return;
+    
+    const clients = sortedClients.call(this);
+    container.innerHTML = getClientsGridHTML(this, clients);
+
+    container.querySelectorAll('.client-card-clickable').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.client-card-delete-btn')) {
+                return;
+            }
+            showClientModalById(card.dataset.clientId);
+        });
+    });
+
+    container.querySelectorAll('.client-card-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteClientById(btn.dataset.clientId);
+        });
+    });
+
+    this.refreshIcons();
+}
+// Fine funzione renderClientsGrid
 
 // Inizio funzione getAmministrazioneFormHTML
 function getAmministrazioneFormHTML() {
@@ -253,6 +369,18 @@ function setupAmministrazioneFormEventListeners() {
 function handleAdminClick(event) {
     const app = getApp();
     const target = event.target;
+
+    const viewModeBtn = target.closest('[data-view-mode]');
+    if (viewModeBtn) {
+        const newView = viewModeBtn.dataset.viewMode;
+        if (newView !== amministrazioneState.currentView) {
+            amministrazioneState.currentView = newView;
+            app.saveToStorage('adminViewMode', newView);
+            renderAmministrazioneSection.call(app, document.getElementById('section-amministrazione'));
+        }
+        return;
+    }
+
     const collapsibleHeader = target.closest('.collapsible-header[data-section-name="clienti"]');
     if (collapsibleHeader) {
         const sectionEl = collapsibleHeader.closest('.collapsible-section');
@@ -275,13 +403,19 @@ function handleAdminInput(event) {
         const query = event.target.value;
         amministrazioneState.adminFilters.search = query;
         app.saveToStorage('adminFilters', amministrazioneState.adminFilters);
+        
         const clientSection = document.querySelector('.card.collapsible-section');
         if (query.trim() !== '' && clientSection && clientSection.classList.contains('collapsed')) {
             clientSection.classList.remove('collapsed');
             amministrazioneState.clientiCollapsed = false;
             app.saveToStorage('clientiCollapsed', false);
         }
-        renderClientsTable.call(app);
+        
+        if (amministrazioneState.currentView === 'list') {
+            renderClientsTable.call(app);
+        } else {
+            renderClientsGrid.call(app);
+        }
     }
 }
 // Fine funzione handleAdminInput
@@ -337,7 +471,11 @@ function sortAdmin(column) {
         amministrazioneState.adminSort.column = column;
         amministrazioneState.adminSort.direction = 'asc';
     }
-    renderClientsTable.call(this);
+    if (amministrazioneState.currentView === 'list') {
+        renderClientsTable.call(this);
+    } else {
+        renderClientsGrid.call(this);
+    }
 }
 // Fine funzione sortAdmin
 
@@ -451,7 +589,11 @@ function addTransactionInline(clientId, type) {
         amount: null
     };
     showClientModal.call(app, clientId);
-    renderClientsTable.call(app);
+    if (amministrazioneState.currentView === 'list') {
+        renderClientsTable.call(app);
+    } else {
+        renderClientsGrid.call(app);
+    }
 }
 // Fine funzione addTransactionInline
 
@@ -470,7 +612,11 @@ function settleAccountInline(clientId) {
         });
         app.saveToStorage('data', app.state.data);
         showClientModal.call(app, clientId);
-        renderClientsTable.call(app);
+        if (amministrazioneState.currentView === 'list') {
+            renderClientsTable.call(app);
+        } else {
+            renderClientsGrid.call(app);
+        }
         app.showNotification(`Conto di ${client.name} saldato con successo.`);
     });
 }
@@ -493,7 +639,11 @@ function deleteTransactionInline(clientId, transactionId) {
     });
     app.saveToStorage('data', app.state.data);
     showClientModal.call(app, clientId);
-    renderClientsTable.call(app);
+    if (amministrazioneState.currentView === 'list') {
+        renderClientsTable.call(app);
+    } else {
+        renderClientsGrid.call(app);
+    }
 }
 // Fine funzione deleteTransactionInline
 
@@ -602,7 +752,11 @@ function saveEditTransaction(clientId, transactionId) {
     app.saveToStorage('data', app.state.data);
     app.showNotification('Transazione aggiornata con successo!');
     showClientModal.call(app, clientId);
-    renderClientsTable.call(app);
+    if (amministrazioneState.currentView === 'list') {
+        renderClientsTable.call(app);
+    } else {
+        renderClientsGrid.call(app);
+    }
 }
 // Fine funzione saveEditTransaction
 
