@@ -2100,7 +2100,7 @@ select.form-control {
 /* === INPUT NUMERO === */
 .number-input-group {
     display: flex;
-
+    border: 1px solid var(--border-secondary);
     border-radius: var(--radius-md);
     overflow: hidden;
     width: 100%;
