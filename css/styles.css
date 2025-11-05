@@ -1788,11 +1788,11 @@ select.form-control {
 
 .calendar-day {
     padding: var(--spacing-sm);
-    padding-bottom: 1.25rem; /* Aggiunto padding in basso per fare spazio ai puntini */
+    padding-bottom: 1.25rem; 
     font-size: var(--font-size-normal);
     font-weight: 500;
     cursor: pointer;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     height: 4.5rem; /* Altezza controllata */
     display: flex;
     flex-direction: column;
@@ -1805,6 +1805,7 @@ select.form-control {
 
 .calendar-day:hover:not(.empty):not(.today):not(.selected) {
     border-color: var(--color-primary);
+    border-radius: 0;
     transform: scale(1.05);
 }
 
@@ -1819,6 +1820,7 @@ select.form-control {
     background-color: var(--color-primary) !important;
     color: white !important;
     font-weight: 700;
+    border-radius: 0;
     border-color: var(--color-primary) !important;
     transform: scale(1.1);
 }
@@ -2895,14 +2897,14 @@ select.form-control {
     font-size: var(--font-size-normal);
     font-weight: 500;
     cursor: pointer;
-    border-radius: var(--radius-lg);
-    height: 4.5rem; /* Altezza controllata */
+    border-radius: 0;
+    border: 1px solid var(--border-primary);
+    height: 4.5rem; 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     transition: all 0.2s ease;
-    border: 2px solid transparent;
     position: relative;
 }
 /* FINE MODIFICA CALENDARIO */
