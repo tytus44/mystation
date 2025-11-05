@@ -104,21 +104,21 @@ function renderSpeseListView(container) {
     container.innerHTML = `
         <div class="space-y-6">
             <div class="stats-grid">
-                <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
+                <div class="stat-card" style="background-color: #FF204E;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Spese (Filtrato)</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(stats.total)}</div>
                     </div>
                     <div class="stat-icon red"><i data-lucide="trending-down"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #f59e0b; border-color: #d97706;">
+                <div class="stat-card" style="background-color: #F97316;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Numero Transazioni</div>
                         <div class="stat-value" style="color: #ffffff;">${stats.count}</div>
                     </div>
                     <div class="stat-icon yellow"><i data-lucide="list"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
+                <div class="stat-card" style="background-color: #8b5cf6;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Media Transazione</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(stats.average)}</div>
@@ -139,7 +139,7 @@ function renderSpeseListView(container) {
                     <select id="spese-year-filter" class="form-control" style="width: 120px;">${getYearOptions(app, speseState.filters.year)}</select>
                     <select id="spese-label-filter" class="form-control" style="width: 200px;">${getLabelOptions(app, speseState.filters.labelId)}</select>
                 </div>
-                <button id="new-spesa-btn" class="btn btn-primary"><i data-lucide="plus"></i> Nuova Spesa</button>
+                <button id="new-spesa-btn" class="btn btn-primary"><i data-lucide="badge-euro"></i> Nuova Spesa</button>
             </div>
 
             <div class="card collapsible-section ${speseState.speseCollapsed ? 'collapsed' : ''}">

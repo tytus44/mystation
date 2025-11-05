@@ -97,9 +97,9 @@ function renderHomeSection(container) {
         <div class="space-y-6">
 
             <div class="grid grid-cols-3 gap-6">
-                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
+                <div class="stat-card" style="background-color: #6B7280;">
                     <div class="stat-content">
-                        <div class="stat-label" style="color: #ffffff;">Litri venduti oggi</div>
+                        <div class="stat-label" style="color: #ffffff;">Riepilogo litri venduti</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatInteger(stats.totalLitersToday)}</div>
                         <div class="text-sm mt-1 flex space-x-2 items-center flex-wrap" style="color: rgba(255, 255, 255, 0.9);">
                             <div style="width:8px; height:8px; border-radius:50%; background-color:${colors.benzina};"></div><span>${app.formatInteger(stats.productLiters.benzina)}</span>
@@ -111,7 +111,7 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
+                <div class="stat-card" style="background-color: #8b5cf6;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">% Servito Oggi</div>
                         <div class="stat-value" style="color: #ffffff;">${stats.overallServitoPercentage}%</div>
@@ -124,7 +124,7 @@ function renderHomeSection(container) {
                     </div>
                     <div class="stat-icon purple"><i data-lucide="user-check"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
+                <div class="stat-card" style="background-color: #22C55E;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Fatturato giornaliero</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(stats.totalRevenueToday)}</div>
@@ -143,7 +143,7 @@ function renderHomeSection(container) {
                                 <div class="flex items-center space-x-2">
                                     <button id="calendar-prev" class="calendar-nav-btn"><i data-lucide="chevron-left"></i></button>
                                     <button id="calendar-next" class="calendar-nav-btn"><i data-lucide="chevron-right"></i></button>
-                                    <button id="calendar-today-btn" class="btn btn-primary btn-sm"><i data-lucide="calendar-check"></i> Oggi</button>
+                                    <button id="calendar-today-btn" class="btn btn-primary"><i data-lucide="calendar-check"></i> Oggi</button>
                                 </div>
                             </div>
                         </div>
@@ -160,7 +160,7 @@ function renderHomeSection(container) {
                         <div class="card-header" style="border-bottom: none;">
                             <div class="flex items-center justify-between w-full">
                                 <h3 id="event-list-title" class="card-title" style="font-size: 1.1rem;">Eventi</h3>
-                                <button id="add-event-btn" class="btn btn-primary btn-sm"><i data-lucide="plus"></i> Aggiungi</button>
+                                <button id="add-event-btn" class="btn btn-primary"><i data-lucide="plus"></i> Aggiungi</button>
                             </div>
                         </div>
                         <div class="card-body" style="padding-top: 0.5rem; max-height: 400px; overflow-y: auto;">

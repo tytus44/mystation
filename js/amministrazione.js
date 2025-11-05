@@ -84,21 +84,21 @@ function renderAmministrazioneListView(container) {
     container.innerHTML = `
         <div class="space-y-6">
             <div class="stats-grid">
-                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
+                <div class="stat-card" style="background-color: #2563eb;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Clienti Attivi</div>
                         <div class="stat-value" style="color: #ffffff;">${app.state.data.clients.length}</div>
                     </div>
                     <div class="stat-icon blue"><i data-lucide="users"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
+                <div class="stat-card" style="background-color: #22C55E;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Credito</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(totalCredit.call(app))}</div>
                     </div>
                     <div class="stat-icon green"><i data-lucide="trending-up"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
+                <div class="stat-card" style="background-color: #FF204E;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Totale Debito</div>
                         <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(totalDebit.call(app))}</div>
@@ -115,7 +115,7 @@ function renderAmministrazioneListView(container) {
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button id="new-client-btn" class="btn btn-primary"><i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Nuovo Cliente</button>
+                    <button id="new-client-btn" class="btn btn-primary"><i data-lucide="handshake" class="w-4 h-4 mr-2"></i> Nuovo Cliente</button>
                     <button id="print-clients-btn" class="btn btn-secondary"><i data-lucide="printer" class="w-4 h-4 mr-2"></i> Stampa Lista</button>
                     
                     <div class="btn-group" style="margin-left: 0.5rem;">

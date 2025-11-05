@@ -129,21 +129,21 @@ function renderVirtualListView(container) {
     container.innerHTML = `
         <div class="space-y-6">
             <div class="stats-grid">
-                <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
+                <div class="stat-card" style="background-color: #06b6d4;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Litri Venduti</div>
                         <div id="stat-litri" class="stat-value" style="color: #ffffff;">${app.formatInteger(stats.totalLiters)}</div>
                     </div>
                     <div class="stat-icon blue"><i data-lucide="fuel"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
+                <div class="stat-card" style="background-color: #22C55E;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">Fatturato Stimato</div>
                         <div id="stat-fatturato" class="stat-value" style="color: #ffffff;">${app.formatCurrency(stats.revenue)}</div>
                     </div>
                     <div class="stat-icon green"><i data-lucide="euro"></i></div>
                 </div>
-                <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
+                <div class="stat-card" style="background-color: #8b5cf6;">
                     <div class="stat-content">
                         <div class="stat-label" style="color: #ffffff;">% Servito</div>
                         <div id="stat-servito" class="stat-value" style="color: #ffffff;">${stats.servitoPercentage}%</div>

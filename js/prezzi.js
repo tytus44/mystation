@@ -73,7 +73,7 @@ function renderPrezziListView(container) {
         <div class="space-y-6">
             <div class="grid grid-cols-2 gap-6">
                 <div class="grid grid-cols-2 gap-6">
-                    <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
+                    <div class="stat-card" style="background-color: #22C55E;">
                         <div class="stat-content">
                             <div class="stat-label" style="color: #ffffff;">Benzina</div>
                             <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.benzina, true)}</div>
@@ -81,7 +81,7 @@ function renderPrezziListView(container) {
                         </div>
                         <div class="stat-icon green"><i data-lucide="droplets"></i></div>
                     </div>
-                    <div class="stat-card" style="background-color: #f59e0b; border-color: #d97706;">
+                    <div class="stat-card" style="background-color: #F97316;">
                         <div class="stat-content">
                             <div class="stat-label" style="color: #ffffff;">Gasolio</div>
                             <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.gasolio, true)}</div>
@@ -89,7 +89,7 @@ function renderPrezziListView(container) {
                         </div>
                         <div class="stat-icon yellow"><i data-lucide="droplets"></i></div>
                     </div>
-                    <div class="stat-card" style="background-color: #FF204E; border-color: #DC1C44;">
+                    <div class="stat-card" style="background-color: #FF204E;">
                         <div class="stat-content">
                             <div class="stat-label" style="color: #ffffff;">Diesel+</div>
                             <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.dieselPlus, true)}</div>
@@ -97,7 +97,7 @@ function renderPrezziListView(container) {
                         </div>
                         <div class="stat-icon red"><i data-lucide="droplets"></i></div>
                     </div>
-                    <div class="stat-card" style="background-color: #06b6d4; border-color: #0891b2;">
+                    <div class="stat-card" style="background-color: #06b6d4;">
                         <div class="stat-content">
                             <div class="stat-label" style="color: #ffffff;">Hvolution</div>
                             <div class="stat-value" style="color: #ffffff;">${app.formatCurrency(latestPrices.hvolution, true)}</div>
@@ -109,7 +109,7 @@ function renderPrezziListView(container) {
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Prezzi Concorrenza</h3>
-                        <button id="update-concorrenza-btn" class="btn btn-primary btn-sm">Aggiorna</button>
+                        <button id="update-concorrenza-btn" class="btn btn-primary"><i data-lucide="refresh-ccw-dot"></i>Aggiorna</button>
                     </div>
                     <div class="card-body" id="concorrenza-card-content"></div>
                 </div>

@@ -53,19 +53,17 @@ body {
     --font-size-medium: 18px;
     --font-size-large: 22px;
 
-    /* --color-primary: #2563eb; Blu */
-    /* --color-primary: #905EFF; Viola */
-    --color-primary: #00A9E8; /* Azzurro */
+    --color-primary: #2563eb; /* Blu */
     --color-primary-hover: #1d4ed8;
     --color-secondary: #6b7280;
     --color-success: #10b981;
     --color-success-hover: #059669;
-    --color-warning: #FFB100;
-    --color-warning-hover: #d97706;
+    --color-warning: #F97316;
+    --color-warning-hover: #c2410c;
     --color-danger: #FF204E;
     --color-danger-hover: #DC1C44;
-    --color-info: #6FE6FC;
-    --color-accent-calc: #29c7b9;
+    --color-info: #06b6d4;
+    --color-accent-calc: #0891b2;
 
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;

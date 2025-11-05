@@ -615,21 +615,21 @@ function renderRegistryStats() {
     const container = document.getElementById('registry-stats-container');
     if (container) {
         container.innerHTML = `
-            <div class="stat-card" style="background-color: #3b82f6; border-color: #2563eb;">
+            <div class="stat-card" style="background-color: #8b5cf6;">
                 <div class="stat-content">
                     <div class="stat-label" style="color: #ffffff;">Totale Litri Caricati</div>
                     <div class="stat-value" style="color: #ffffff;">${app.formatInteger(stats.totalLiters)}</div>
                 </div>
                 <div class="stat-icon blue"><i data-lucide="droplets"></i></div>
             </div>
-            <div class="stat-card" style="background-color: #10b981; border-color: #059669;">
+            <div class="stat-card" style="background-color: #22C55E;">
                 <div class="stat-content">
                     <div class="stat-label" style="color: #ffffff;">Prodotto Top</div>
                     <div class="stat-value" style="color: #ffffff;">${stats.topProduct}</div>
                 </div>
                 <div class="stat-icon green"><i data-lucide="droplet"></i></div>
             </div>
-            <div class="stat-card" style="background-color: #8b5cf6; border-color: #7c3aed;">
+            <div class="stat-card" style="background-color: #FF204E;">
                 <div class="stat-content">
                     <div class="stat-label" style="color: #ffffff;">Autista Top</div>
                     <div class="stat-value" style="color: #ffffff;">${stats.topDriver}</div>
