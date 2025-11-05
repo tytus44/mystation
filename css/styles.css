@@ -29,7 +29,6 @@ body {
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
-    /* Nasconde le frecce se 'display: none' non funziona */
     background-color: transparent; 
 }
 
@@ -51,7 +50,6 @@ body {
 :root {
     --font-size-small: 12px;
     --font-size-normal: 14px;
-    /* Default */
     --font-size-medium: 18px;
     --font-size-large: 22px;
 
@@ -202,7 +200,6 @@ html[data-theme-radius="high"] {
         border-color: rgba(255, 255, 255, 0.1);
     }
 
-    /* Rimuovi gli stili generici hardcoded che causavano l'interferenza */
     .contatto-card {
         background-color: initial;
         border-color: initial;
@@ -250,7 +247,6 @@ html[data-theme-radius="high"] {
 }
 
 /* === INIZIO TEMI AGGIUNTIVI (RIMOSSI) === */
-/* Tutto il codice dei temi alternativi è stato rimosso qui */
 /* === FINE TEMI AGGIUNTIVI (RIMOSSI) === */
 
 *:focus-visible {
@@ -367,7 +363,6 @@ html[data-theme-radius="high"] {
     transition: 0.4s ease;
 }
 
-/* Nascondi il bottone nell'header */
 .sidebar-header .sidebar-toggle-btn {
     display: none;
 }
@@ -395,7 +390,7 @@ html[data-theme-radius="high"] {
 
 .sidebar .sidebar-content {
     flex: 1;
-    padding: 0.75rem 1.125rem; /* RIDOTTO: era 1.25rem */
+    padding: 0.75rem 1.125rem;
     overflow: hidden auto;
     scrollbar-width: thin;
     scrollbar-color: var(--text-tertiary) transparent;
@@ -480,17 +475,16 @@ button.sidebar-link {
 
 /* INIZIO FOOTER MODIFICATO (ICONE + TESTO CONDIZIONALE) */
 .sidebar .sidebar-footer {
-    padding: 0.75rem var(--spacing-md); /* RIDOTTO: era var(--spacing-md) */
+    padding: 0.75rem var(--spacing-md);
     white-space: nowrap;
     border-top: 1px solid var(--border-primary);
     margin-top: auto;
     display: flex;
-    justify-content: space-around; /* MODIFICATO: era center */
+    justify-content: space-around;
     align-items: center;
-    gap: var(--spacing-sm); /* AGGIUNTO */
+    gap: var(--spacing-sm);
 }
 
-/* Stili per i bottoni nel footer */
 .sidebar .sidebar-footer button {
     background: none;
     border: none;
@@ -499,7 +493,7 @@ button.sidebar-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-sm); /* AGGIUNTO: spazio tra icona e testo */
+    gap: var(--spacing-sm);
     border-radius: var(--radius-md);
     color: var(--text-primary);
     cursor: pointer;
@@ -507,7 +501,6 @@ button.sidebar-link {
     white-space: nowrap;
 }
 
-/* Quando la sidebar NON è collassata, mostra anche il testo */
 .sidebar:not(.collapsed) .sidebar-footer button {
     padding: 0 var(--spacing-sm); 
     justify-content: flex-start; 
@@ -529,7 +522,6 @@ button.sidebar-link {
     transition: opacity 0.3s ease, width 0.3s ease;
 }
 
-/* Quando la sidebar è collassata, nascondi il testo */
 .sidebar.collapsed .sidebar-footer button {
     width: 2.5rem;
 }
@@ -550,10 +542,9 @@ button.sidebar-link {
     color: var(--color-primary);
 }
 
-/* Rimuove i margini/padding in stato collassato */
 .sidebar.collapsed .sidebar-footer {
     justify-content: center;
-    padding: 0.75rem 0; /* RIDOTTO: era var(--spacing-md) 0 */
+    padding: 0.75rem 0;
 }
 /* FINE FOOTER MODIFICATO (ICONE + TESTO CONDIZIONALE) */
 
@@ -632,9 +623,9 @@ button.sidebar-link {
 
 /* === MAIN CONTENT === */
 .main-content {
-    flex: 1; /* Modificato per il layout flex */
+    flex: 1;
     min-height: 100vh;
-    transition: none; /* Rimossa transizione margin-left */
+    transition: none;
 }
 
 .content-wrapper {
@@ -778,7 +769,6 @@ button.sidebar-link {
     font-size: var(--font-size-small);
     height: 1.5rem;
 }
-
 /* Form Controls */
 .form-group {
     margin-bottom: var(--spacing-md);
@@ -1058,20 +1048,14 @@ select.form-control {
 }
 
 .filter-group {
-    /* Flex-basis corretto per il raggruppamento e l'allineamento */
     display: flex; 
     gap: var(--spacing-md);
     align-items: end;
 }
 
-/* Regola specifica per il gruppo di filtri espandibile (Mese, Anno, Etichetta) */
 .filters-bar .filter-group.flex-grow.flex.items-end.gap-4 {
     flex-grow: 1; 
-    /* [MODIFICA FONDAMENTALE] Usa un min-width o una larghezza fissa (se possibile) sui dropdown 
-       e applica il margine al contenitore flessibile finale per evitare il collasso. */
     margin-right: var(--spacing-lg); 
-    
-    /* Aggiunto per prevenire lo scrollbar laterale su schermi molto stretti, forzando la rottura. */
     min-width: 0; 
 }
 
@@ -1806,11 +1790,11 @@ select.form-control {
     font-weight: 500;
     cursor: pointer;
     border-radius: 0;
-    height: 4.5rem; /* Altezza controllata */
+    height: 4.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Modificato da 'flex-start' a 'center' */
+    justify-content: center;
     transition: all 0.2s ease;
     border: 2px solid transparent;
     position: relative;
@@ -1899,7 +1883,6 @@ select.form-control {
     background-color: var(--color-success);
     opacity: 0.6;
 }
-
 /* === TO-DO === */
 .todo-list {
     display: grid;
@@ -2343,7 +2326,7 @@ select.form-control {
 
 /* --- Colori Primari (Light Theme Fallback) --- */
 .contatto-card.color-blue {
-    --card-color-bg: rgba(37, 99, 235, 0.08); /* Uso opacità bassa per lo sfondo */
+    --card-color-bg: rgba(37, 99, 235, 0.08);
     --card-color-border: rgba(37, 99, 235, 0.25);
     --card-color-icon: #2563eb;
     --card-color-icon-op: rgba(37, 99, 235, 0.3);
@@ -2393,7 +2376,7 @@ select.form-control {
 
 /* Applica le variabili alle card (per tutti i temi) */
 .contatto-card[class*="color-"] {
-    background-color: var(--card-color-bg) !important; /* Sovrascrive lo stile inline JS */
+    background-color: var(--card-color-bg) !important;
     border-color: var(--card-color-border) !important;
 }
 
@@ -2404,7 +2387,7 @@ select.form-control {
 
 .contatto-card[class*="color-"] .contatto-user-icon {
     color: var(--card-color-icon-op) !important;
-    opacity: 1 !important; /* L'opacità è gestita dal valore RGBA della variabile */
+    opacity: 1 !important;
 }
 
 
@@ -2884,7 +2867,6 @@ select.form-control {
    NUOVI STILI PER HOME (CALENDARIO + EVENTI)
    ============================================= */
 
-/* Layout per il nuovo calendario affiancato */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -3035,8 +3017,8 @@ select.form-control {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;  /* Larghezza fissa per centrare */
-    height: 2rem; /* Altezza fissa per centrare */
+    width: 2rem;
+    height: 2rem;
 }
 
 .evento-card:hover .delete-event-btn {
@@ -3243,14 +3225,4 @@ select.form-control {
 
 .collapsed .collapse-toggle {
     transform: rotate(180deg);
-}
-  
-/* Stile per la rotazione dell'icona "Collassa Sidebar" nel footer (Richiesta 2) */
-#collapse-sidebar-btn svg {
-    transition: transform 0.4s ease;
-}
-
-.sidebar.collapsed #collapse-sidebar-btn svg {
-    transform: rotate(180deg);
-}
 }
