@@ -978,8 +978,8 @@ function initServiceChart() {
     const ctx = document.getElementById('serviceChart')?.getContext('2d');
     if (!ctx) return;
     const chartData = getServiceChartData.call(app);
-    chartData.datasets[0].backgroundColor = '#FF204E';
-    chartData.datasets[1].backgroundColor = '#2563eb';
+    chartData.datasets[0].backgroundColor = '#8b5cf6';
+    chartData.datasets[1].backgroundColor = '#07b6d5';
     chartData.datasets[0].borderRadius = 0;
     chartData.datasets[1].borderRadius = {
         topLeft: 6,
@@ -1078,7 +1078,7 @@ function getProductsChartData() {
     if (virtualState.chartDrilldown.active && virtualState.chartDrilldown.product) {
         const productKey = virtualState.chartDrilldown.product.toLowerCase().replace('+', 'plus');
         const breakdown = getProductBreakdown.call(app, productKey);
-        const drilldownColors = ['#EB2A5D', '#2563eb'];
+        const drilldownColors = ['#07b6d5', '#8b5cf6'];
         return {
             labels: [`Prepay`, `Servito`],
             datasets: [{
@@ -1214,9 +1214,9 @@ function safeUpdateCharts() {
         if (virtualState.serviceChartInstance) {
             const chart = virtualState.serviceChartInstance;
             const chartData = getServiceChartData.call(app);
-            chartData.datasets[0].backgroundColor = '#FF204E';
+            chartData.datasets[0].backgroundColor = '#8b5cf6'; // Colore Prepay/FaiDaTe
             chartData.datasets[0].borderRadius = 0;
-            chartData.datasets[1].backgroundColor = '#2563eb';
+            chartData.datasets[1].backgroundColor = '#07b6d5'; // Colore Servito
             chartData.datasets[1].borderRadius = {
                 topLeft: 6,
                 topRight: 6,
