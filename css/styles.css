@@ -1058,8 +1058,21 @@ select.form-control {
 }
 
 .filter-group {
-    flex: 1;
-    min-width: 200px;
+    /* Flex-basis corretto per il raggruppamento e l'allineamento */
+    display: flex; 
+    gap: var(--spacing-md);
+    align-items: end;
+}
+
+/* Regola specifica per il gruppo di filtri espandibile (Mese, Anno, Etichetta) */
+.filters-bar .filter-group.flex-grow.flex.items-end.gap-4 {
+    flex-grow: 1; 
+    /* [MODIFICA FONDAMENTALE] Usa un min-width o una larghezza fissa (se possibile) sui dropdown 
+       e applica il margine al contenitore flessibile finale per evitare il collasso. */
+    margin-right: var(--spacing-lg); 
+    
+    /* Aggiunto per prevenire lo scrollbar laterale su schermi molto stretti, forzando la rottura. */
+    min-width: 0; 
 }
 
 /* Button Group */
