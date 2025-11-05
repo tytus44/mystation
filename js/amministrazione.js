@@ -185,14 +185,12 @@ function getClientsGridHTML(app, clients) {
                     </div>
                 </div>
                 
-                <div class="contatto-card-footer">
-                    <div class="flex justify-between items-center w-full">
+                <div class="contatto-card-footer" style="border-top-color: ${contactColors.border};">
+                <div class="flex justify-between items-center w-full">
                         <button class="btn btn-danger btn-sm client-card-delete-btn" data-client-id="${client.id}" title="Elimina cliente">
                             <i data-lucide="trash-2" style="margin-right: 0;"></i>
                         </button>
-                        <button class="btn btn-primary btn-sm" data-client-id="${client.id}" title="Gestisci Cliente">
-                            <i data-lucide="user-cog" class="mr-2"></i>Gestisci
-                        </button>
+                        
                     </div>
                 </div>
                 
