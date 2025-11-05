@@ -2239,7 +2239,7 @@ select.form-control {
 
 .etichetta-badge {
     padding: 0.25rem 0.625rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     font-size: var(--font-size-small);
     font-weight: 500;
     white-space: nowrap;
