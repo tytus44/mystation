@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Layout 50/50 Row 1
+   MODULO: Applicazioni (js/applicazioni.js) - Correct 50/50 Row 1 Layout
    ========================================================================== */
 (function() {
     'use strict';
@@ -11,8 +11,7 @@
             iva: { lordo: null, netto: null },
             banconote: { 500:0, 200:0, 100:0, 50:0, 20:0, 10:0, 5:0 },
             fuelOrder: { date: App.toLocalISOString(new Date()), benzina:0, gasolio:0, dieselplus:0, hvolution:0 },
-            editingEventId: null,
-            eventModal: { type: 'app', date: '', time: '09:00', desc: '', duration: '30 min', priority: 'standard' }
+            editingEventId: null
         },
 
         init() {
@@ -38,7 +37,7 @@
             this.updateBanconoteTotal();
         },
 
-        getLayoutHTML() {
+getLayoutHTML() {
             return `
                 <div id="apps-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -65,7 +64,7 @@
                         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col">
                             <div class="flex items-center justify-between mb-6">
                                 ${this.renderHeader('Eventi', 'list-todo', 'bg-purple-600')}
-                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center"><i data-lucide="plus" class="size-4 mr-1"></i> Aggiungi</button>
+                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center"><i data-lucide="plus" class="size-4 mr-1"></i> Nuovo</button>
                             </div>
                             <h4 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-3" id="event-list-title">Seleziona una data</h4>
                             <div id="event-list" class="space-y-3 flex-1 overflow-y-auto pr-2 max-h-[400px]"></div>
@@ -84,9 +83,13 @@
                                     <div class="flex items-center justify-between gap-4">
                                         <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p}</label>
                                         <div class="flex items-center">
-                                            <button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 btn-fuel-dec" data-p="${p.toLowerCase()}"><i data-lucide="minus" class="size-4"></i></button>
-                                            <input type="text" readonly class="w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.toLowerCase()}" value="0">
-                                            <button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 btn-fuel-inc" data-p="${p.toLowerCase()}"><i data-lucide="plus" class="size-4"></i></button>
+                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.toLowerCase()}">
+                                                <i data-lucide="minus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                            </button>
+                                            <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.toLowerCase()}" value="0">
+                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.toLowerCase()}">
+                                                <i data-lucide="plus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                            </button>
                                         </div>
                                     </div>`).join('')}
                             </div>
@@ -116,13 +119,17 @@
                             <div class="space-y-3 mb-6" id="banconote-list">
                                 ${[500,200,100,50,20,10,5].map(t => `
                                     <div class="flex items-center justify-between gap-2">
-                                        <span class="text-sm font-medium w-12">€ ${t}</span>
+                                        <span class="text-sm font-medium w-12 text-gray-900 dark:text-white">€ ${t}</span>
                                         <div class="flex items-center">
-                                            <button class="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 btn-money-dec" data-t="${t}"><i data-lucide="minus" class="size-3"></i></button>
-                                            <input type="text" readonly class="w-14 text-center h-8 bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-xs" id="money-q-${t}" value="0">
-                                            <button class="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 btn-money-inc" data-t="${t}"><i data-lucide="plus" class="size-3"></i></button>
+                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}">
+                                                <i data-lucide="minus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                            </button>
+                                            <input type="text" readonly class="w-16 h-10 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white" id="money-q-${t}" value="0">
+                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}">
+                                                <i data-lucide="plus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                            </button>
                                         </div>
-                                        <span class="text-sm font-bold w-20 text-right" id="money-tot-${t}">€ 0</span>
+                                        <span class="text-sm font-bold w-20 text-right text-gray-900 dark:text-white" id="money-tot-${t}">€ 0</span>
                                     </div>`).join('')}
                             </div>
                             <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -139,7 +146,6 @@
                     </div>
                 </div>`;
         },
-
         renderHeader(title, icon, bgClass) {
             return `
                 <div class="flex items-center mb-4">
@@ -150,7 +156,7 @@
                 </div>`;
         },
 
-        // --- CALENDAR & EVENTS (Invariati nella logica, solo riposizionati nel layout sopra) ---
+        // --- CALENDAR & EVENTS ---
         renderCalendar() {
             const grid = document.getElementById('cal-grid'); const title = document.getElementById('cal-month-year'); if (!grid || !title) return;
             const y = this.localState.currentDate.getFullYear(), m = this.localState.currentDate.getMonth();
@@ -184,11 +190,13 @@
                 else if(e.priorita==='urgent') { bc='border-red-200 dark:border-red-800'; bg='bg-red-50 dark:bg-red-900/20'; ic='text-red-600 dark:text-red-400'; lc='text-red-700 dark:text-red-300'; lbl='Urgente'; }
                 else if(e.priorita==='priority') { bc='border-yellow-200 dark:border-yellow-800'; bg='bg-yellow-50 dark:bg-yellow-900/20'; ic='text-yellow-600 dark:text-yellow-400'; lc='text-yellow-700 dark:text-yellow-300'; lbl='Importante'; }
                 else { bc='border-green-200 dark:border-green-800'; bg='bg-green-50 dark:bg-green-900/20'; ic='text-green-600 dark:text-green-400'; lc='text-green-700 dark:text-green-300'; }
-                return `<div class="p-3 border ${bc} ${bg} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-md transition-shadow btn-edit-event" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${ic}"></i><div class="overflow-hidden"><div class="text-xs font-semibold ${lc}">${lbl}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
+                return `<div class="p-3 border ${bc} ${bg} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow btn-edit-event" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${ic}"></i><div class="truncate"><div class="text-xs font-semibold ${lc}">${lbl}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
             }).join('');
             lucide.createIcons();
             list.querySelectorAll('.btn-edit-event').forEach(b => b.onclick = () => this.openEventModal(b.dataset.id, b.dataset.type));
         },
+
+        // --- EVENT MODAL ---
         openEventModal(id=null, type='app') {
             this.localState.editingEventId = id;
             const d = this.localState.selectedDateISO;
@@ -220,7 +228,6 @@
             App.saveToStorage(); App.closeModal(); this.renderCalendar(); this.renderEventsList();
         },
         deleteEvent(id, type) {
-            // MODALE CONFERMA FLOWBITE
             const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare evento?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Questa azione è irreversibile.</p></div>`;
             const footer = `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-evt" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
             App.showModal('', body, footer, 'max-w-md');
@@ -230,7 +237,7 @@
             };
         },
 
-        // --- UTILITIES & LISTENERS ---
+        // --- UTILITIES ---
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         updateIva(source) {
             const l = parseFloat(document.getElementById('iva-lordo').value), n = parseFloat(document.getElementById('iva-netto').value);

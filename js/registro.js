@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Registro di Carico (js/registro.js) - Fix Labels & Listeners
+   MODULO: Registro di Carico (js/registro.js) - Custom Input Widths
    ========================================================================== */
 (function() {
     'use strict';
@@ -44,7 +44,7 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="relative">
                                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
-                                <input type="search" id="reg-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca autista...">
+                                <input type="search" id="reg-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca autista..." value="${this.localState.searchQuery}">
                             </div>
                             <button id="btn-new-carico" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center"><i data-lucide="truck" class="size-4 mr-2"></i> Nuovo Carico</button>
                         </div>
@@ -55,7 +55,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr><th class="px-4 py-3">Prodotto</th><th class="px-4 py-3">Carico</th><th class="px-4 py-3 text-green-600 dark:text-green-500">Diff (+)</th><th class="px-4 py-3 text-red-600 dark:text-red-500">Diff (-)</th><th class="px-4 py-3">Anno Precedente</th><th class="px-4 py-3">Chiusura</th></tr>
+                                    <tr><th class="px-4 py-3">Prodotto</th><th class="px-4 py-3">Carico</th><th class="px-4 py-3 text-green-600 dark:text-green-500">Diff (+)</th><th class="px-4 py-3 text-red-600 dark:text-red-500">Diff (-)</th><th class="px-4 py-3">Anno Prec.</th><th class="px-4 py-3">Chiusura</th></tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="reg-summary-tbody"></tbody>
                                 <tfoot class="font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700/50" id="reg-summary-tfoot"></tfoot>
@@ -142,7 +142,6 @@
                         <td class="px-4 py-3 text-right"><button class="font-medium text-primary-600 dark:text-primary-500 hover:underline btn-edit-reg" data-id="${c.id}">Modifica</button></td>
                     </tr>`).join('');
             }
-            // CRITICO: Riassegna i listener dopo aver renderizzato l'HTML della tabella
             this.attachDynamicListeners();
         },
         renderPaginationControls(totalPages) {
@@ -209,18 +208,39 @@
             const c = id ? App.state.data.registryEntries.find(x=>x.id===id) : null;
             const dISO = c ? c.date.split('T')[0] : new Date().toISOString().split('T')[0];
             const cls = "h-11 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
-            const numInput = (p, f) => `<div class="flex"><button type="button" class="bg-gray-100 border border-gray-300 rounded-s-lg p-2 h-11 hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 btn-dec" data-t="${p}_${f}"><svg class="w-3 h-3 text-gray-900 dark:text-white" fill="none" viewBox="0 0 18 2"><path stroke="currentColor" stroke-width="2" d="M1 1h16"/></svg></button><input type="number" id="${p}_${f}" value="${c?.[p]?.[f]||0}" class="bg-gray-50 border-x-0 border-gray-300 h-11 text-center text-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required><button type="button" class="bg-gray-100 border border-gray-300 rounded-e-lg p-2 h-11 hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 btn-inc" data-t="${p}_${f}"><svg class="w-3 h-3 text-gray-900 dark:text-white" fill="none" viewBox="0 0 18 18"><path stroke="currentColor" stroke-width="2" d="M9 1v16M1 9h16"/></svg></button></div>`;
             
-            // LABELS Aggiornate: Carico e Differenza
+            // INPUT NUMERICI: Larghezza differenziata
+            const numInput = (p, f) => `
+                <div class="flex items-center justify-center">
+                    <button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-dec" data-t="${p}_${f}">
+                        <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
+                    </button>
+                    <input type="number" id="${p}_${f}" value="${c?.[p]?.[f]||0}" class="flex-shrink-0 h-10 ${f==='carico'?'w-16':'w-14'} bg-gray-50 border-y border-x-0 border-gray-300 dark:border-gray-600 text-center text-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500 block dark:bg-gray-800 dark:text-white" required>
+                    <button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-inc" data-t="${p}_${f}">
+                        <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
+                    </button>
+                </div>`;
+
             const form = `<form id="form-carico" class="space-y-6"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Operazione</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Autista</label><input type="text" name="autista" value="${c?.autistaName||''}" class="${cls}" placeholder="Cognome Nome" required></div></div><div class="space-y-4"><div class="grid grid-cols-3 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>Carico</div><div>Differenza</div></div>${['Benzina','Gasolio','DieselPlus','Hvolution'].map(p => { const k = p==='DieselPlus'?'dieselPlus':p.toLowerCase(); return `<div class="grid grid-cols-3 gap-4 items-center"><div class="text-gray-900 dark:text-white font-medium">${p}</div><div>${numInput(k,'carico')}</div><div>${numInput(k,'differenza')}</div></div>`; }).join('')}</div></form>`;
-            
+
             const deleteBtn = id ? `<button id="btn-delete-carico" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
             App.showModal(id?'Modifica Carico':'Nuovo Carico', form, `${deleteBtn}<button id="btn-save-carico" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva Carico</button>`, 'max-w-lg');
 
             document.getElementById('btn-save-carico').onclick = () => this.saveCarico();
             if(id) document.getElementById('btn-delete-carico').onclick = () => this.deleteCarico(id);
-            document.querySelectorAll('.btn-dec').forEach(b => b.onclick = () => { const i = document.getElementById(b.dataset.t); i.value = Math.max(0, parseInt(i.value||0) - (b.dataset.t.includes('differenza')?1:1000)); });
-            document.querySelectorAll('.btn-inc').forEach(b => b.onclick = () => { const i = document.getElementById(b.dataset.t); i.value = parseInt(i.value||0) + (b.dataset.t.includes('differenza')?1:1000); });
+            
+            lucide.createIcons();
+            document.querySelectorAll('.btn-dec').forEach(b => b.onclick = () => { 
+                const i = document.getElementById(b.dataset.t); 
+                const isDiff = b.dataset.t.includes('differenza');
+                let val = parseInt(i.value||0) - (isDiff ? 1 : 1000);
+                if (!isDiff) val = Math.max(0, val);
+                i.value = val;
+            });
+            document.querySelectorAll('.btn-inc').forEach(b => b.onclick = () => { 
+                const i = document.getElementById(b.dataset.t); 
+                i.value = parseInt(i.value||0) + (b.dataset.t.includes('differenza') ? 1 : 1000); 
+            });
         },
         saveCarico() {
             const fd = new FormData(document.getElementById('form-carico'));
@@ -237,7 +257,6 @@
             App.saveToStorage(); App.closeModal(); this.render();
         },
         deleteCarico(id) {
-            // MODALE CONFERMA ELIMINAZIONE FLOWBITE
             const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare carico?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Questa azione è irreversibile.</p></div>`;
             const footer = `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-car" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
             App.showModal('', body, footer, 'max-w-md');
@@ -251,7 +270,6 @@
             document.getElementById('reg-search').oninput = (e) => { this.localState.searchQuery = e.target.value; this.localState.currentPage = 1; this.render(); };
             document.getElementById('btn-new-carico').onclick = () => this.openCaricoModal();
         },
-        // FUNZIONE PER RI-AGGANCIARE LISTENER AI PULSANTI DINAMICI DELLA TABELLA
         attachDynamicListeners() {
             document.querySelectorAll('.btn-edit-reg').forEach(b => b.onclick = () => this.openCaricoModal(b.dataset.id));
         }
