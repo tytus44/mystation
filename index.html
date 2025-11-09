@@ -1,544 +1,143 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyStation - Login</title>
-    
-    <meta name="robots" content="noindex, nofollow">
+    <title>MyStation</title>
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    
-    <link rel="stylesheet" href="css/styles.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: { primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a","950":"#172554"} }
+                }
+            }
+        }
+    </script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-   
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --input-height: 3.2rem; 
-        }
-        
-        body {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        .animated-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
+        /* FIX CRITICO DATEPICKER */
+        .datepicker { z-index: 99999 !important; }
+        /* FIX INPUT NUMERICI */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
+        input[type="number"] { -moz-appearance: textfield !important; appearance: textfield !important; }
+        .hidden-section { display: none !important; }
+        /* Dark mode icona datepicker nativo */
+        .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
-        .wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 200%;
-            height: 100%;
-            will-change: transform;
-        }
-
-        .wave-1 {
-            animation: wave 15s linear infinite;
-            fill: rgba(59, 130, 246, 0.6);
-            transform: translateZ(0);
-        }
-
-        .wave-2 {
-            animation: wave 12s linear infinite;
-            animation-delay: -5s;
-            fill: rgba(37, 99, 235, 0.4);
-            transform: translateZ(0);
-        }
-
-        .wave-3 {
-            animation: wave 18s linear infinite;
-            animation-delay: -2s;
-            fill: rgba(30, 64, 175, 0.3);
-            transform: translateZ(0);
-        }
-
-        @keyframes wave {
-            0% {
-                transform: translateX(0) translateY(0) translateZ(0);
-            }
-            50% {
-                transform: translateX(-25%) translateY(-10px) translateZ(0);
-            }
-            100% {
-                transform: translateX(-50%) translateY(0) translateZ(0);
-            }
-        }
-
-        .login-wrapper {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 420px; 
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .login-logo {
-            width: 110px; 
-            height: 110px;
-            background: white;
-            border-radius: var(--radius-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--spacing-lg);
-            color: var(--color-primary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .login-logo img {
-            width: 66px; 
-            height: 66px;
-        }
-
-        .login-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: white;
-            margin-bottom: var(--spacing-xs);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .login-subtitle {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        .login-card {
-            background-color: var(--bg-primary); 
-            border: 1px solid var(--border-primary); 
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        .card-body {
-            padding: 2.5rem 2rem !important;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: var(--spacing-sm);
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            text-align: center;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .form-control {
-            width: 100%;
-            max-width: 320px;
-            padding: 0.625rem 0.75rem;
-            font-size: 0.875rem;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-secondary);
-            border-radius: var(--radius-md);
-            color: var(--text-primary);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            height: var(--input-height);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-control::placeholder {
-            color: var(--text-tertiary);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .error-message {
-            background: #fff5f5;
-            border: 1px solid #fc8181;
-            color: #c53030;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            margin-bottom: var(--spacing-lg);
-            display: none;
-            align-items: center;
-            gap: var(--spacing-sm);
-            animation: shake 0.4s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .error-message.show {
-            display: flex;
-        }
-
-        .error-message svg {
-            width: 16px !important;
-            height: 16px !important;
-            flex-shrink: 0;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .login-footer {
-            text-align: center;
-            margin-top: var(--spacing-xl);
-            padding-top: var(--spacing-lg);
-            border-top: 1px solid var(--border-primary);
-            display: flex;
-            flex-direction: column; 
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        .login-footer > div {
-            color: #1f2937; 
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .login-footer small {
-            font-size: 11px; 
-            margin-top: 4px;
-        }
-
-        .login-footer small a {
-            color: #6b7280; 
-            text-decoration: none; 
-        }
-        
-        .heart {
-            color: #ef4444;
-            font-size: 14px;
-            animation: heartbeat 1.5s ease-in-out infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            10%, 30% { transform: scale(1.1); }
-            20%, 40% { transform: scale(1); }
-        }
-
-        .form-control.error {
-            border-color: #fc8181 !important;
-            animation: shake 0.4s ease-in-out;
-        }
-
-        /* ===== MODALE DI STATO LOGIN ===== */
-        
-        .login-status-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 9999;
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .login-status-backdrop.show {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .login-status-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            z-index: 10000;
-            min-width: 320px;
-            text-align: center;
-            display: none;
-            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .login-status-modal.show {
-            display: block;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.7);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
-
-        .login-status-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .login-status-modal.loading .login-status-icon {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 0 20px rgba(37, 99, 235, 0);
-            }
-        }
-
-        .login-status-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .login-status-modal.success .login-status-icon {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            animation: successBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        @keyframes successBounce {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .login-status-modal.success .login-status-icon svg {
-            width: 48px !important;
-            height: 48px !important;
-            color: white;
-        }
-
-        .login-status-text {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 8px;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .login-status-subtext {
-            font-size: 14px;
-            color: #6b7280;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .login-status-modal.loading .login-status-text::after {
-            content: '';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: ''; }
-            40% { content: '.'; }
-            60% { content: '..'; }
-            80%, 100% { content: '...'; }
-        }
-
-        @media (max-width: 480px) {
-            .login-title {
-                font-size: 24px;
-            }
-            
-            .login-wrapper {
-                padding: 0 16px;
-            }
-
-            .login-status-modal {
-                min-width: 280px;
-                padding: 32px 24px;
-            }
-
-            .login-status-icon {
-                width: 70px;
-                height: 70px;
-            }
-        }
+        /* CALENDAR DOTS */
+        .calendar-dots { position: absolute; bottom: 4px; left: 0; right: 0; display: flex; justify-content: center; gap: 3px; }
+        .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-app { background-color: #3b82f6; } /* Blu - Appuntamento */
+        .dot-urgent { background-color: #ef4444; } /* Rosso - Urgente */
+        .dot-priority { background-color: #eab308; } /* Giallo - Importante */
+        .dot-standard { background-color: #22c55e; } /* Verde - Standard */
     </style>
 </head>
-<body class="theme-light">
-    <div class="animated-background">
-        <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path class="wave-1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-        <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path class="wave-2" d="M0,192L48,176C96,160,192,128,288,133.3C384,139,480,181,576,192C672,203,768,181,864,154.7C960,128,1056,96,1152,101.3C1248,107,1344,149,1392,170.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-        <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path class="wave-3" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,208C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-    </div>
+<body class="bg-gray-50 dark:bg-gray-900 antialiased text-sm">
 
-    <div class="login-status-backdrop" id="login-status-backdrop"></div>
-    <div class="login-status-modal" id="login-status-modal">
-        <div class="login-status-icon" id="login-status-icon">
-            <div class="login-status-spinner" id="login-status-spinner"></div>
-        </div>
-        <div class="login-status-text" id="login-status-text">Accesso in corso</div>
-        <div class="login-status-subtext" id="login-status-subtext">Verifica credenziali...</div>
-    </div>
-
-    <div class="login-wrapper">
-        <div class="login-header">
-            <div class="login-logo">
-                <img src="logo.png" alt="MyStation Logo" style="width: 86px; height: 86px;">
+    <div class="sticky top-0 inset-x-0 z-40 bg-white border-b border-gray-200 px-4 py-3 lg:hidden dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <button id="btn-sidebar-mobile" type="button" class="mr-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300">
+                    <span class="sr-only">Open sidebar</span>
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <a href="#" class="flex items-center text-xl font-semibold dark:text-white">
+                    <img src="img/logo.svg" alt="Logo" class="h-8 mr-3">
+                    MyStation
+                </a>
             </div>
-            <h1 class="login-title">MyStation</h1>
-            <p class="login-subtitle">Gestione Stazioni di servizio</p>
         </div>
+    </div>
 
-        <div 
-            class="card login-card" 
-            style="background-color: var(--bg-primary); border: 1px solid var(--border-primary); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);"
-        >
-            <div class="card-body">
-                <div id="error-message" class="error-message">
-                    <i data-lucide="alert-circle"></i>
-                    <span id="error-text"></span>
-                </div>
+    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-64 h-screen transition-all duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+        <div class="flex-none h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700" id="sidebar-header">
+            <a class="flex-none text-xl font-semibold dark:text-white flex items-center gap-2 truncate" href="#">
+                <img src="img/logo.svg" alt="Logo" class="h-8 flex-shrink-0 mr-3">
+                <span class="sidebar-text transition-opacity duration-300">MyStation</span>
+            </a>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4 px-3">
+            <ul class="space-y-1.5" id="sidebar-nav">
+                <li><a href="#home" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="home" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Dashboard</span></a></li>
+                <li><a href="#virtualstation" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="monitor" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Virtualstation</span></a></li>
+                <li><a href="#amministrazione" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="briefcase" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Amministrazione</span></a></li>
+                <li><a href="#registro" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="clipboard-list" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Registro di Carico</span></a></li>
+                <li><a href="#prezzi" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="tag" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Prezzi</span></a></li>
+                <li><a href="#anagrafica" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="users" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Anagrafica</span></a></li>
+                <li><a href="#spese" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="receipt" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Spese</span></a></li>
+                <li><a href="#applicazioni" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="grid" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Applicazioni</span></a></li>
+                <li><a href="#informazioni" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="info" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Informazioni</span></a></li>
+            </ul>
+        </div>
+        <div class="flex-none p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-2" id="sidebar-footer">
+            <a href="#impostazioni" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" id="link-impostazioni">
+                <i data-lucide="settings" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i>
+                <span class="ml-3 sidebar-text truncate">Impostazioni</span>
+            </a>
+            <ul class="space-y-2 pt-2">
+                <li><button id="theme-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-shrink-0"><i data-lucide="moon" id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i><i data-lucide="sun" id="theme-toggle-light-icon" class="hidden w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i></span><span class="ml-3 sidebar-text truncate">Cambia tema</span></button></li>
+                <li><button id="fullscreen-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
+                <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
+            </ul>
+        </div>
+    </aside>
 
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="username" class="form-label">Nome utente</label>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            class="form-control" 
-                            placeholder="Inserisci il tuo nome utente"
-                            autocomplete="off" required
-                        >
-                    </div>
+    <main class="p-4 lg:ml-64 lg:pt-6 mt-14 lg:mt-0 h-auto min-h-screen">
+        <section id="home" class="hidden-section"><div id="home-container"></div></section>
+        <section id="virtualstation" class="hidden-section"><div id="virtual-container"></div></section>
+        <section id="amministrazione" class="hidden-section"><div id="amministrazione-container"></div></section>
+        <section id="registro" class="hidden-section"><div id="registro-container"></div></section>
+        <section id="prezzi" class="hidden-section"><div id="prezzi-container"></div></section>
+        <section id="anagrafica" class="hidden-section"><div id="anagrafica-container"></div></section>
+        <section id="spese" class="hidden-section"><div id="spese-container"></div></section>
+        <section id="applicazioni" class="hidden-section"><div id="applicazioni-container"></div></section>
+        <section id="informazioni" class="hidden-section"><div id="informazioni-container"></div></section>
+        <section id="impostazioni" class="hidden-section"><div id="impostazioni-container"></div></section>
+    </main>
 
-                    <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            class="form-control" 
-                            placeholder="Inserisci la tua password"
-                            autocomplete="off" required
-                        >
-                        </div>
-
-                    <button type="submit" class="btn btn-primary" id="login-btn" style="max-width: 320px; width: 100%; margin-left: auto; margin-right: auto; display: flex;">
-                        Accedi
+    <div id="generic-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-[60] justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="generic-modal-title"></h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onclick="App.closeModal()">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+                        <span class="sr-only">Close modal</span>
                     </button>
-                </form>
-
-                <div class="login-footer">
-                    <div>
-                        <span>Programmato con</span>
-                        <span class="heart">❤</span>
-                        <span>da NeRO</span>
-                    </div>
                 </div>
+                <div class="p-4 md:p-5 space-y-4" id="generic-modal-body"></div>
+                <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600" id="generic-modal-footer"></div>
             </div>
         </div>
     </div>
 
-    <script src="js/credentials.js"></script>
-    <script src="js/auth.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
+    <input type="file" id="import-file-input" accept=".json" class="hidden">
+    <input type="file" id="import-anagrafica-input" accept=".csv" class="hidden">
+    <input type="file" id="import-stazioni-input" accept=".csv" class="hidden">
 
-        document.getElementById('login-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            if (typeof login === 'function') {
-                 window.login(username, password);
-            } else {
-                 console.error('Funzione login non trovata.');
-            }
-           
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/virtualstation.js"></script>
+    <script src="js/amministrazione.js"></script>
+    <script src="js/registro.js"></script>
+    <script src="js/prezzi.js"></script>
+    <script src="js/anagrafica.js"></script>
+    <script src="js/spese.js"></script>
+    <script src="js/applicazioni.js"></script>
+    <script src="js/informazioni.js"></script>
+    <script src="js/impostazioni.js"></script>
 </body>
 </html>
