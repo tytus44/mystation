@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MyStation Admin - CORE (js/app.js) - Added toLocalISOString
+   MyStation Admin - CORE (js/app.js) - Added toLocalISOString & Toast Support
    ========================================================================== */
 'use strict';
 
@@ -69,7 +69,6 @@ const App = {
     formatInt(val) { return this.formatNumber(val, 0, 0); },
     formatDate(isoString) { if (!isoString) return '-'; return new Date(isoString).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }); },
     
-    // NUOVA FUNZIONE PER DATE LOCALI CORRETTE
     toLocalISOString(date) {
         const offset = date.getTimezoneOffset();
         const localDate = new Date(date.getTime() - (offset * 60 * 1000));
@@ -137,6 +136,39 @@ const App = {
         document.getElementById('import-file-input')?.addEventListener('change', (e) => this.importData(e));
     },
     exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state.data, null, 2)], { type: 'application/json' })); a.download = `mystation_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); },
-    importData(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => { try { const d = JSON.parse(ev.target.result); if (d) { this.state.data = d; this.saveToStorage(); alert('Backup importato!'); window.location.reload(); } else alert('File non valido.'); } catch (err) { alert('Errore lettura file.'); } }; r.readAsText(f); }
+    importData(e) { 
+        const f = e.target.files[0]; 
+        if (!f) return; 
+        const r = new FileReader(); 
+        r.onload = (ev) => { 
+            try { 
+                const d = JSON.parse(ev.target.result); 
+                if (d) { 
+                    this.state.data = d; 
+                    this.saveToStorage(); 
+                    if (this.modules.impostazioni && typeof this.modules.impostazioni.showToast === 'function') {
+                        this.modules.impostazioni.showToast('success', 'Backup importato con successo!');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        alert('Backup importato!'); 
+                        window.location.reload();
+                    }
+                } else {
+                    if (this.modules.impostazioni && typeof this.modules.impostazioni.showToast === 'function') {
+                        this.modules.impostazioni.showToast('error', 'File non valido');
+                    } else {
+                        alert('File non valido.');
+                    }
+                }
+            } catch (err) { 
+                if (this.modules.impostazioni && typeof this.modules.impostazioni.showToast === 'function') {
+                    this.modules.impostazioni.showToast('error', 'Errore durante la lettura del file');
+                } else {
+                    alert('Errore lettura file.');
+                }
+            } 
+        }; 
+        r.readAsText(f); 
+    }
 };
 document.addEventListener('DOMContentLoaded', () => App.init());

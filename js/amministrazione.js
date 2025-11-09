@@ -95,7 +95,7 @@
                                 ${clients.map(c => {
                                     const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
                                     const lastTx = this.getLastTransaction(c);
-                                    return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${c.name}</td><td class="px-4 py-3 font-bold ${balClass}">${App.formatCurrency(c.balance)}</td><td class="px-4 py-3">${lastTx ? App.formatDate(lastTx.date) : '-'}</td><td class="px-4 py-3 text-right"><button class="font-medium text-primary-600 dark:text-primary-500 hover:underline mr-3 btn-manage-client" data-id="${c.id}">Gestisci</button><button class="font-medium text-red-600 dark:text-red-500 hover:underline btn-del-client" data-id="${c.id}">Elimina</button></td></tr>`;
+                                    return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${c.name}</td><td class="px-4 py-3 font-bold ${balClass}">${App.formatCurrency(c.balance)}</td><td class="px-4 py-3">${lastTx ? App.formatDate(lastTx.date) : '-'}</td><td class="px-4 py-3 text-right"><button class="font-medium text-primary-600 dark:text-primary-500 hover:underline btn-manage-client" data-id="${c.id}">Gestisci</button></td></tr>`;
                                 }).join('')}
                             </tbody>
                         </table>
@@ -126,7 +126,6 @@
         },
         getLastTransaction(c) { if (!c.transactions?.length) return null; return [...c.transactions].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; },
 
-        // --- CLIENT MODAL & ACTIONS ---
         openClientModal(id=null) {
             if(!id) {
                 const form = `<form id="form-client"><div class="mb-4"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome Cliente</label><input type="text" name="name" id="client-name-input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required></div></form>`;
@@ -207,7 +206,6 @@
             document.getElementById('btn-delete-client-modal').onclick = () => this.deleteClient(c.id);
         },
 
-        // --- DELETE ACTIONS WITH MODAL ---
         showDeleteModal(title, message, onConfirm) {
             const body = `
                 <div class="text-center p-6 flex flex-col items-center">
@@ -221,13 +219,9 @@
                     <button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button>
                 </div>`;
             
-            // Use a secondary modal or temporarily replace content. 
-            // For simplicity and to avoid conflicts, we might close current and show new, 
-            // or use a dedicated small confirm modal if App supported it. 
-            // Assuming standard App.showModal replaces content:
             App.showModal('', body, footer, 'max-w-md');
             document.getElementById('btn-cancel-delete').onclick = () => {
-                 if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId); // Go back to client modal if we were there
+                 if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId);
                  else App.closeModal();
             };
             document.getElementById('btn-confirm-delete').onclick = onConfirm;
@@ -268,8 +262,7 @@
             document.getElementById('btn-new-client').onclick = () => this.openClientModal();
         },
         attachDynamicListeners() {
-            document.querySelectorAll('.btn-manage-client').forEach(b => b.onclick = (e) => { if(!e.target.closest('.btn-del-client')) this.openClientModal(b.dataset.id); });
-            document.querySelectorAll('.btn-del-client').forEach(b => b.onclick = (e) => { e.stopPropagation(); this.deleteClient(b.dataset.id); });
+            document.querySelectorAll('.btn-manage-client').forEach(b => b.onclick = () => this.openClientModal(b.dataset.id));
         }
     };
 
