@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Correct 50/50 Row 1 Layout
+   MODULO: Applicazioni (js/applicazioni.js) - Syntax Fixed
    ========================================================================== */
 (function() {
     'use strict';
@@ -11,7 +11,8 @@
             iva: { lordo: null, netto: null },
             banconote: { 500:0, 200:0, 100:0, 50:0, 20:0, 10:0, 5:0 },
             fuelOrder: { date: App.toLocalISOString(new Date()), benzina:0, gasolio:0, dieselplus:0, hvolution:0 },
-            editingEventId: null
+            editingEventId: null,
+            eventModal: { type: 'app', date: '', time: '09:00', desc: '', duration: '30 min', priority: 'standard' }
         },
 
         init() {
@@ -21,7 +22,9 @@
         },
 
         render() {
-            const container = document.getElementById('applicazioni-container'); if (!container) return;
+            const container = document.getElementById('applicazioni-container');
+            if (!container) return;
+            
             if (!document.getElementById('apps-layout')) {
                 container.innerHTML = this.getLayoutHTML();
                 lucide.createIcons();
@@ -37,7 +40,18 @@
             this.updateBanconoteTotal();
         },
 
-getLayoutHTML() {
+        // Funzione helper per l'header delle card (spostata prima per sicurezza)
+        renderHeader(title, icon, bgClass) {
+            return `
+                <div class="flex items-center mb-4">
+                    <div class="inline-flex items-center justify-center w-10 h-10 ${bgClass} text-white rounded-lg flex-shrink-0 mr-3">
+                        <i data-lucide="${icon}" class="size-5"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${title}</h3>
+                </div>`;
+        },
+
+        getLayoutHTML() {
             return `
                 <div id="apps-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -84,11 +98,11 @@ getLayoutHTML() {
                                         <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p}</label>
                                         <div class="flex items-center">
                                             <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.toLowerCase()}">
-                                                <i data-lucide="minus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                                <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
                                             </button>
                                             <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.toLowerCase()}" value="0">
                                             <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.toLowerCase()}">
-                                                <i data-lucide="plus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                                <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
                                             </button>
                                         </div>
                                     </div>`).join('')}
@@ -122,11 +136,11 @@ getLayoutHTML() {
                                         <span class="text-sm font-medium w-12 text-gray-900 dark:text-white">€ ${t}</span>
                                         <div class="flex items-center">
                                             <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}">
-                                                <i data-lucide="minus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                                <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
                                             </button>
                                             <input type="text" readonly class="w-16 h-10 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white" id="money-q-${t}" value="0">
                                             <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}">
-                                                <i data-lucide="plus" class="size-5 text-gray-500 dark:text-gray-400"></i>
+                                                <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
                                             </button>
                                         </div>
                                         <span class="text-sm font-bold w-20 text-right text-gray-900 dark:text-white" id="money-tot-${t}">€ 0</span>
@@ -146,52 +160,79 @@ getLayoutHTML() {
                     </div>
                 </div>`;
         },
-        renderHeader(title, icon, bgClass) {
-            return `
-                <div class="flex items-center mb-4">
-                    <div class="inline-flex items-center justify-center w-10 h-10 ${bgClass} text-white rounded-lg flex-shrink-0 mr-3">
-                        <i data-lucide="${icon}" class="size-5"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${title}</h3>
-                </div>`;
-        },
 
         // --- CALENDAR & EVENTS ---
         renderCalendar() {
-            const grid = document.getElementById('cal-grid'); const title = document.getElementById('cal-month-year'); if (!grid || !title) return;
+            const grid = document.getElementById('cal-grid');
+            const title = document.getElementById('cal-month-year');
+            if (!grid || !title) return;
             const y = this.localState.currentDate.getFullYear(), m = this.localState.currentDate.getMonth();
             title.textContent = this.capitalize(new Date(y, m).toLocaleString('it-IT', { month: 'long', year: 'numeric' }));
-            const firstDay = (new Date(y, m, 1).getDay() + 6) % 7; const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const firstDay = (new Date(y, m, 1).getDay() + 6) % 7;
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
             const todayISO = App.toLocalISOString(new Date());
-            let html = ''; for (let i = 0; i < firstDay; i++) html += '<div class="h-10"></div>';
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++) html += '<div class="h-10"></div>';
             for (let i = 1; i <= daysInMonth; i++) {
                 const dStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const isSel = dStr === this.localState.selectedDateISO;
                 const isToday = dStr === todayISO;
-                const apps = App.state.data.appuntamenti.filter(a=>a.date===dStr).map(()=>'app');
-                const todos = App.state.data.todos.filter(t=>t.dueDate===dStr).map(t=>t.priorita);
-                const dots = [...apps, ...todos].sort((a,b)=>{ const o={'urgent':0,'priority':1,'app':2,'standard':3}; return (o[a]??3)-(o[b]??3); }).slice(0,3);
-                html += `<button class="h-10 rounded-lg flex flex-col items-center justify-center relative border ${isSel ? 'border-primary-600 bg-primary-600 text-white font-bold' : (isToday ? 'border-primary-600 text-primary-600 font-bold' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white')}" data-date="${dStr}"><span>${i}</span><div class="calendar-dots">${dots.map(t=>`<span class="cal-dot dot-${t}"></span>`).join('')}</div></button>`;
+                
+                const apps = App.state.data.appuntamenti.filter(a => a.date === dStr).map(() => 'app');
+                const todos = App.state.data.todos.filter(t => t.dueDate === dStr).map(t => t.priorita);
+                const dots = [...apps, ...todos].sort((a, b) => {
+                    const o = { 'urgent': 0, 'priority': 1, 'app': 2, 'standard': 3 };
+                    return (o[a] ?? 3) - (o[b] ?? 3);
+                }).slice(0, 3);
+
+                html += `
+                    <button class="h-10 rounded-lg flex flex-col items-center justify-center relative border ${isSel ? 'border-primary-600 bg-primary-600 text-white font-bold' : (isToday ? 'border-primary-600 text-primary-600 font-bold' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white')}" data-date="${dStr}">
+                        <span>${i}</span>
+                        <div class="calendar-dots">${dots.map(t => `<span class="cal-dot dot-${t}"></span>`).join('')}</div>
+                    </button>`;
             }
             grid.innerHTML = html;
-            grid.querySelectorAll('button[data-date]').forEach(b => b.onclick = () => { this.localState.selectedDateISO = b.dataset.date; this.renderCalendar(); this.renderEventsList(); });
+            grid.querySelectorAll('button[data-date]').forEach(b => b.onclick = () => {
+                this.localState.selectedDateISO = b.dataset.date;
+                this.renderCalendar();
+                this.renderEventsList();
+            });
         },
+
         renderEventsList() {
-            const list = document.getElementById('event-list'); const title = document.getElementById('event-list-title'); if (!list || !title) return;
+            const list = document.getElementById('event-list');
+            const title = document.getElementById('event-list-title');
+            if (!list || !title) return;
             const selDate = this.localState.selectedDateISO;
             title.textContent = `Eventi del ${App.formatDate(selDate)}`;
-            const apps = App.state.data.appuntamenti.filter(a => a.date === selDate).map(a => ({...a, type:'app'}));
-            const todos = App.state.data.todos.filter(t => t.dueDate === selDate).map(t => ({...t, type:'todo'}));
-            const events = [...apps, ...todos].sort((a,b) => (a.oraInizio||'').localeCompare(b.oraInizio||''));
-            if (!events.length) list.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400 flex flex-col items-center"><i data-lucide="calendar-x" class="size-8 mb-2 opacity-50"></i><p>Nessun evento.</p></div>';
-            else list.innerHTML = events.map(e => {
-                let bc='border-gray-200 dark:border-gray-700', bg='bg-white dark:bg-gray-700', ic='text-gray-500 dark:text-gray-400', lc='text-gray-700 dark:text-gray-300', lbl='Standard';
-                if(e.type==='app') { bc='border-blue-200 dark:border-blue-800'; bg='bg-blue-50 dark:bg-blue-900/20'; ic='text-blue-600 dark:text-blue-400'; lc='text-blue-700 dark:text-blue-300'; lbl=e.oraInizio; }
-                else if(e.priorita==='urgent') { bc='border-red-200 dark:border-red-800'; bg='bg-red-50 dark:bg-red-900/20'; ic='text-red-600 dark:text-red-400'; lc='text-red-700 dark:text-red-300'; lbl='Urgente'; }
-                else if(e.priorita==='priority') { bc='border-yellow-200 dark:border-yellow-800'; bg='bg-yellow-50 dark:bg-yellow-900/20'; ic='text-yellow-600 dark:text-yellow-400'; lc='text-yellow-700 dark:text-yellow-300'; lbl='Importante'; }
-                else { bc='border-green-200 dark:border-green-800'; bg='bg-green-50 dark:bg-green-900/20'; ic='text-green-600 dark:text-green-400'; lc='text-green-700 dark:text-green-300'; }
-                return `<div class="p-3 border ${bc} ${bg} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow btn-edit-event" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${ic}"></i><div class="truncate"><div class="text-xs font-semibold ${lc}">${lbl}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
-            }).join('');
+            
+            const apps = App.state.data.appuntamenti.filter(a => a.date === selDate).map(a => ({ ...a, type: 'app' }));
+            const todos = App.state.data.todos.filter(t => t.dueDate === selDate).map(t => ({ ...t, type: 'todo' }));
+            const events = [...apps, ...todos].sort((a, b) => (a.oraInizio || '').localeCompare(b.oraInizio || ''));
+
+            if (!events.length) {
+                list.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400 flex flex-col items-center"><i data-lucide="calendar-x" class="size-8 mb-2 opacity-50"></i><p>Nessun evento.</p></div>';
+            } else {
+                list.innerHTML = events.map(e => {
+                    let bc = 'border-gray-200 dark:border-gray-700', bg = 'bg-white dark:bg-gray-700', ic = 'text-gray-500 dark:text-gray-400', lc = 'text-gray-700 dark:text-gray-300', lbl = 'Standard';
+                    if (e.type === 'app') { bc = 'border-blue-200 dark:border-blue-800'; bg = 'bg-blue-50 dark:bg-blue-900/20'; ic = 'text-blue-600 dark:text-blue-400'; lc = 'text-blue-700 dark:text-blue-300'; lbl = e.oraInizio; }
+                    else if (e.priorita === 'urgent') { bc = 'border-red-200 dark:border-red-800'; bg = 'bg-red-50 dark:bg-red-900/20'; ic = 'text-red-600 dark:text-red-400'; lc = 'text-red-700 dark:text-red-300'; lbl = 'Urgente'; }
+                    else if (e.priorita === 'priority') { bc = 'border-yellow-200 dark:border-yellow-800'; bg = 'bg-yellow-50 dark:bg-yellow-900/20'; ic = 'text-yellow-600 dark:text-yellow-400'; lc = 'text-yellow-700 dark:text-yellow-300'; lbl = 'Importante'; }
+                    else { bc = 'border-green-200 dark:border-green-800'; bg = 'bg-green-50 dark:bg-green-900/20'; ic = 'text-green-600 dark:text-green-400'; lc = 'text-green-700 dark:text-green-300'; }
+                    
+                    return `
+                    <div class="p-3 border ${bc} ${bg} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow btn-edit-event" data-id="${e.id}" data-type="${e.type}">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <i data-lucide="${e.type === 'app' ? 'clock' : 'check-circle'}" class="size-5 flex-shrink-0 ${ic}"></i>
+                            <div class="overflow-hidden">
+                                <div class="text-xs font-semibold ${lc}">${lbl}</div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type === 'app' ? e.descrizione : e.text}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
             lucide.createIcons();
             list.querySelectorAll('.btn-edit-event').forEach(b => b.onclick = () => this.openEventModal(b.dataset.id, b.dataset.type));
         },

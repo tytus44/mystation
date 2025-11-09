@@ -34,11 +34,23 @@
         /* Dark mode icona datepicker nativo */
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
-        /* CALENDAR DOTS */
-        .calendar-dots { position: absolute; bottom: 4px; left: 0; right: 0; display: flex; justify-content: center; gap: 3px; }
-        .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .dot-app { background-color: #3b82f6; } /* Blu - Appuntamento */
-        .dot-urgent { background-color: #ef4444; } /* Rosso - Urgente */
+        /* --- CALENDAR DOTS (RIPRISTINATI E VERIFICATI) --- */
+        .calendar-dots {
+            position: absolute;
+            bottom: 3px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+        }
+        .cal-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+        .dot-app { background-color: #3b82f6; }      /* Blu - Appuntamento */
+        .dot-urgent { background-color: #ef4444; }   /* Rosso - Urgente */
         .dot-priority { background-color: #eab308; } /* Giallo - Importante */
         .dot-standard { background-color: #22c55e; } /* Verde - Standard */
     </style>
