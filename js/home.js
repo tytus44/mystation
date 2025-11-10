@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Drag and Drop Persistence
+   MODULO: Home Dashboard (js/home.js) - Increased Fuel Card Gap
    ========================================================================== */
 (function() {
     'use strict';
@@ -10,7 +10,7 @@
             const container = document.getElementById('home-container'); if (!container) return;
             if (!document.getElementById('home-layout')) { container.innerHTML = this.getLayoutHTML(); lucide.createIcons(); }
             this.updateView();
-            // Prima ripristiniamo il layout salvato, poi inizializziamo il drag & drop
+            // Ripristina il layout salvato prima di inizializzare il drag & drop
             this.restoreLayout();
             this.initDragAndDrop();
             if (!this.localState.timeInterval) this.localState.timeInterval = setInterval(() => this.updateClock(), 1000);
@@ -19,14 +19,17 @@
         
         initDragAndDrop() {
             const save = () => this.saveLayout();
-            // Statistiche orizzontali
+            
             const statsContainer = document.getElementById('home-stats-container');
-            if (statsContainer) new Sortable(statsContainer, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
+            if (statsContainer) {
+                new Sortable(statsContainer, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
+            }
 
-            // 3 Colonne principali (condividono lo stesso gruppo per spostamenti tra colonne)
             ['home-col-1', 'home-col-2', 'home-col-3'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) new Sortable(el, { group: 'shared-home', animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
+                if (el) {
+                    new Sortable(el, { group: 'shared-home', animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
+                }
             });
         },
 
@@ -34,31 +37,29 @@
             const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
             const layout = {
                 stats: getIds('home-stats-container'),
-                c1: getIds('home-col-1'),
-                c2: getIds('home-col-2'),
-                c3: getIds('home-col-3')
+                col1: getIds('home-col-1'),
+                col2: getIds('home-col-2'),
+                col3: getIds('home-col-3')
             };
-            localStorage.setItem('mystation_home_layout', JSON.stringify(layout));
+            localStorage.setItem('mystation_home_layout_v11', JSON.stringify(layout));
         },
 
         restoreLayout() {
-            const saved = localStorage.getItem('mystation_home_layout');
+            const saved = localStorage.getItem('mystation_home_layout_v11');
             if (!saved) return;
+
             try {
                 const layout = JSON.parse(saved);
-                const moveCards = (containerId, cardIds) => {
+                const restoreContainer = (containerId, itemIds) => {
                     const container = document.getElementById(containerId);
-                    if (!container || !cardIds) return;
-                    cardIds.forEach(id => {
-                        const card = document.getElementById(id);
-                        if (card) container.appendChild(card); // Sposta l'elemento esistente
-                    });
+                    if (!container || !Array.isArray(itemIds)) return;
+                    itemIds.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
                 };
-                moveCards('home-stats-container', layout.stats);
-                moveCards('home-col-1', layout.c1);
-                moveCards('home-col-2', layout.c2);
-                moveCards('home-col-3', layout.c3);
-            } catch (e) { console.error("Errore ripristino layout home:", e); }
+                restoreContainer('home-stats-container', layout.stats);
+                restoreContainer('home-col-1', layout.col1);
+                restoreContainer('home-col-2', layout.col2);
+                restoreContainer('home-col-3', layout.col3);
+            } catch (e) { console.warn("Errore nel ripristino del layout:", e); }
         },
 
         updateClock() {
@@ -66,6 +67,7 @@
             document.getElementById('live-time').textContent = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('live-date').textContent = this.capitalize(now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }));
         },
+
         getLayoutHTML() {
             return `
                 <div id="home-layout" class="flex flex-col gap-6 animate-fade-in">
@@ -74,17 +76,16 @@
                         <div class="mt-4 md:mt-0 text-right"><div id="live-time" class="text-3xl font-bold text-primary-600 dark:text-primary-500">--:--</div><div id="live-date" class="text-sm font-medium text-gray-500 dark:text-gray-400">---</div></div>
                     </div>
                     
-                    <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
-                         </div>
+                    <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start min-h-[100px]"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        <div id="home-col-1" class="flex flex-col gap-6 h-full">
+                        <div id="home-col-1" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-erogato" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center justify-between mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3><span class="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900 dark:text-blue-300"><i data-lucide="fuel" class="w-5 h-5"></i></span></div>
                                 <div id="home-liters-breakdown" class="space-y-4"></div>
                             </div>
                         </div>
-                        <div id="home-col-2" class="flex flex-col gap-6 h-full">
+                        <div id="home-col-2" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-turni" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center justify-between mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Turni di oggi</h3><span class="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900 dark:text-green-300"><i data-lucide="list-checks" class="w-5 h-5"></i></span></div>
                                 <div id="todays-shifts-info"></div>
@@ -94,7 +95,7 @@
                                 <div id="home-fuel-orders"></div>
                             </div>
                         </div>
-                        <div id="home-col-3" class="flex flex-col gap-6 h-full">
+                        <div id="home-col-3" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-attivita" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 h-full min-h-[300px] flex flex-col draggable-card">
                                 <div class="flex items-center justify-between mb-4 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Attività di Oggi</h3>
@@ -109,30 +110,23 @@
         renderStats() {
             const s = this.getTodayStats();
             const c1 = document.getElementById('home-stats-container');
-            // Nota: se c1 ha già figli (perché ripristinati dal layout), non sovrascriviamo brutalmente, 
-            // ma aggiorniamo i valori se esistono, altrimenti li creiamo la prima volta.
-            // Per semplicità qui rigeneriamo e poi restoreLayout() li rimetterà a posto se chiamato dopo, 
-            // ma per efficienza meglio generare una volta sola.
-            // Dato che render() chiama restoreLayout() DOPO getLayoutHTML(), la prima volta è ok.
-            // Se renderStats viene richiamato, deve aggiornare i valori esistenti.
             
-            if(c1 && c1.children.length === 0) {
+            if (c1 && c1.children.length === 0) {
                 const taxable = s.revenue / 1.22; const vat = s.revenue - taxable;
                 c1.innerHTML = `
                     <div id="stat-revenue" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Fatturato Oggi</h3><span class="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900 dark:text-green-300"><i data-lucide="euro" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="val-revenue">${App.formatCurrency(s.revenue)}</div><div class="flex justify-between text-xs text-gray-500 dark:text-gray-400"><span id="val-taxable">Imp: ${App.formatCurrency(taxable)}</span><span id="val-vat">IVA: ${App.formatCurrency(vat)}</span></div></div>
                     <div id="stat-margin" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Margine Stimato</h3><span class="p-2 bg-yellow-100 text-yellow-600 rounded-lg dark:bg-yellow-900 dark:text-yellow-300"><i data-lucide="trending-up" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-margin">${App.formatCurrency(s.margin)}</div><p class="text-xs text-gray-500 mt-1">Stima predefinita</p></div>
                     <div id="stat-liters" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Litri</h3><span class="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900 dark:text-blue-300"><i data-lucide="droplet" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-liters">${App.formatNumber(s.totalLiters)}</div><p class="text-xs text-gray-500 mt-1">Erogati oggi</p></div>
                     <div id="stat-served" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">% Servito</h3><span class="p-2 bg-purple-100 text-purple-600 rounded-lg dark:bg-purple-900 dark:text-purple-300"><i data-lucide="user-check" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-served">${s.servitoPerc}%</div><div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700"><div id="bar-served" class="bg-purple-600 h-1.5 rounded-full" style="width: ${s.servitoPerc}%"></div></div></div>`;
-            } else {
-                // Aggiorna solo i valori se le card esistono già (per non rompere il drag & drop durante l'update)
+            } else if (document.getElementById('stat-revenue')) {
                 const taxable = s.revenue / 1.22; const vat = s.revenue - taxable;
-                if(document.getElementById('val-revenue')) document.getElementById('val-revenue').textContent = App.formatCurrency(s.revenue);
-                if(document.getElementById('val-taxable')) document.getElementById('val-taxable').textContent = `Imp: ${App.formatCurrency(taxable)}`;
-                if(document.getElementById('val-vat')) document.getElementById('val-vat').textContent = `IVA: ${App.formatCurrency(vat)}`;
-                if(document.getElementById('val-margin')) document.getElementById('val-margin').textContent = App.formatCurrency(s.margin);
-                if(document.getElementById('val-liters')) document.getElementById('val-liters').textContent = App.formatNumber(s.totalLiters);
-                if(document.getElementById('val-served')) document.getElementById('val-served').textContent = `${s.servitoPerc}%`;
-                if(document.getElementById('bar-served')) document.getElementById('bar-served').style.width = `${s.servitoPerc}%`;
+                document.getElementById('val-revenue').textContent = App.formatCurrency(s.revenue);
+                document.getElementById('val-taxable').textContent = `Imp: ${App.formatCurrency(taxable)}`;
+                document.getElementById('val-vat').textContent = `IVA: ${App.formatCurrency(vat)}`;
+                document.getElementById('val-margin').textContent = App.formatCurrency(s.margin);
+                document.getElementById('val-liters').textContent = App.formatNumber(s.totalLiters);
+                document.getElementById('val-served').textContent = `${s.servitoPerc}%`;
+                document.getElementById('bar-served').style.width = `${s.servitoPerc}%`;
             }
             
             const c2 = document.getElementById('home-liters-breakdown');
@@ -163,11 +157,28 @@
             const ordList = document.getElementById('home-fuel-orders');
             if(ordList) {
                 if(!orders.length) ordList.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun ordine in arrivo.</p>';
-                else ordList.innerHTML = '<div class="space-y-2 max-h-[250px] overflow-y-auto pr-1">' + orders.map(o => {
+                else ordList.innerHTML = '<div class="space-y-3 max-h-[250px] overflow-y-auto pr-1">' + orders.map(o => {
                     const totalL = Object.values(o.products).reduce((a,b)=>a+b,0);
                     const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
                     const details = Object.entries(o.products).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
-                    return `<div class="p-3 border border-cyan-100 bg-cyan-50 dark:bg-cyan-900/20 dark:border-cyan-800 rounded-lg"><div class="flex justify-between items-start mb-2"><div><div class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">${App.formatDate(o.date)}</div><div class="text-sm font-bold text-gray-900 dark:text-white">${App.formatNumber(totalL)} Litri Totali</div></div><div class="flex gap-2">${o.status === 'pending' ? `<button class="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md btn-delete-order" data-id="${o.id}" title="Cancella ordine"><i data-lucide="trash-2" class="size-4"></i></button>` : ''}<button class="px-2 py-1 text-xs font-medium rounded-full ${o.status==='pending'?'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 cursor-pointer btn-toggle-order':'bg-green-100 text-green-800'}" data-id="${o.id}">${o.status==='pending'?'In attesa':'Consegnato'}</button></div></div><div class="text-xs text-gray-600 dark:text-gray-400 pt-2 border-t border-cyan-200 dark:border-cyan-800/50">${details || 'Nessun dettaglio'}</div></div>`;
+                    
+                    // MODIFICA: Card con spaziatura aumentata e font più grandi
+                    return `
+                        <div class="p-4 border border-cyan-100 bg-cyan-50 dark:bg-cyan-900/20 dark:border-cyan-800 rounded-lg">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <div class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">${App.formatDate(o.date)}</div>
+                                    <div class="text-base font-bold text-gray-900 dark:text-white">${App.formatNumber(totalL)} Litri Totali</div>
+                                </div>
+                                <div class="flex gap-2">
+                                    ${o.status === 'pending' ? `<button class="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md btn-delete-order" data-id="${o.id}" title="Cancella ordine"><i data-lucide="trash-2" class="size-4"></i></button>` : ''}
+                                    <button class="px-2 py-1 text-xs font-medium rounded-full ${o.status==='pending'?'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 cursor-pointer btn-toggle-order':'bg-green-100 text-green-800'}" data-id="${o.id}">${o.status==='pending'?'In attesa':'Consegnato'}</button>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 pt-3 border-t border-cyan-200 dark:border-cyan-800/50">
+                                ${details || 'Nessun dettaglio'}
+                            </div>
+                        </div>`;
                 }).join('') + '</div>';
             }
             lucide.createIcons();
