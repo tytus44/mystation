@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Toast Notifications
+   MODULO: Impostazioni (js/impostazioni.js) - Standardized Toasts & Updated Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -47,10 +47,10 @@
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Stampa i fogli per la gestione manuale dei turni.</p>
                                 <div class="flex flex-wrap gap-4">
                                     <a href="pdf/inizio.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline">
-                                        <i data-lucide="sun" class="w-4 h-4 mr-2"></i> Foglio Inizio Giornata
+                                        <i data-lucide="sun" class="w-4 h-4 mr-2"></i> Inizio Giornata
                                     </a>
                                     <a href="pdf/fine.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline">
-                                        <i data-lucide="moon" class="w-4 h-4 mr-2"></i> Foglio Fine Giornata
+                                        <i data-lucide="moon" class="w-4 h-4 mr-2"></i> Fine Giornata
                                     </a>
                                 </div>
                             </div>
@@ -71,53 +71,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div id="toast-success" class="hidden fixed top-5 right-5 z-[100] flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-                    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-                        <i data-lucide="check" class="w-5 h-5"></i>
-                    </div>
-                    <div class="ms-3 text-sm font-normal" id="toast-success-message">Backup importato con successo!</div>
-                    <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-success" aria-label="Close">
-                        <span class="sr-only">Close</span>
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <div id="toast-error" class="hidden fixed top-5 right-5 z-[100] flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-                    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </div>
-                    <div class="ms-3 text-sm font-normal" id="toast-error-message">Errore durante l'importazione</div>
-                    <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-error" aria-label="Close">
-                        <span class="sr-only">Close</span>
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                        </svg>
-                    </button>
                 </div>`;
             
             lucide.createIcons();
             this.attachListeners();
-        },
-
-        showToast(type, message) {
-            const toastId = type === 'success' ? 'toast-success' : 'toast-error';
-            const messageId = type === 'success' ? 'toast-success-message' : 'toast-error-message';
-            const toast = document.getElementById(toastId);
-            const messageEl = document.getElementById(messageId);
-            
-            if (toast && messageEl) {
-                messageEl.textContent = message;
-                toast.classList.remove('hidden');
-                lucide.createIcons();
-                
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 5000);
-            }
         },
 
         confirmClearData() {
@@ -143,7 +100,7 @@
         attachListeners() {
             document.getElementById('btn-settings-export').onclick = () => {
                 App.exportData();
-                this.showToast('success', 'Backup esportato con successo!');
+                App.showToast('Backup esportato con successo!', 'success');
             };
             
             document.getElementById('btn-settings-import').onclick = () => document.getElementById('import-file-input').click();

@@ -78,13 +78,11 @@
             if(actList) {
                 if(!acts.length) actList.innerHTML = '<div class="flex flex-col items-center justify-center h-full pb-4 text-gray-400 dark:text-gray-500"><i data-lucide="clipboard-list" class="w-10 h-10 mb-2 opacity-50"></i><p class="text-sm">Nessuna attività oggi</p></div>';
                 else actList.innerHTML = acts.map(e => {
-                    // Colori aggiornati per le priorità
                     let borderClass = 'border-gray-200 dark:border-gray-700', bgClass = 'bg-white dark:bg-gray-700/50', iconColor = 'text-gray-500', labelColor = 'text-gray-700 dark:text-gray-300', labelText = 'Standard';
                     if (e.type === 'app') { borderClass = 'border-blue-200 dark:border-blue-800'; bgClass = 'bg-blue-50 dark:bg-blue-900/20'; iconColor = 'text-blue-600 dark:text-blue-400'; labelColor = 'text-blue-700 dark:text-blue-300'; labelText = e.oraInizio; }
                     else if (e.priorita === 'urgent') { borderClass = 'border-red-200 dark:border-red-800'; bgClass = 'bg-red-50 dark:bg-red-900/20'; iconColor = 'text-red-600 dark:text-red-400'; labelColor = 'text-red-700 dark:text-red-300'; labelText = 'Urgente'; }
                     else if (e.priorita === 'priority') { borderClass = 'border-yellow-200 dark:border-yellow-800'; bgClass = 'bg-yellow-50 dark:bg-yellow-900/20'; iconColor = 'text-yellow-600 dark:text-yellow-400'; labelColor = 'text-yellow-700 dark:text-yellow-300'; labelText = 'Importante'; }
                     else { borderClass = 'border-green-200 dark:border-green-800'; bgClass = 'bg-green-50 dark:bg-green-900/20'; iconColor = 'text-green-600 dark:text-green-400'; labelColor = 'text-green-700 dark:text-green-300'; labelText = 'Standard'; }
-
                     return `<div class="p-3 border ${borderClass} ${bgClass} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow home-event-item" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${iconColor}"></i><div class="truncate"><div class="text-xs font-semibold ${labelColor}">${labelText}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
                 }).join('');
             }
@@ -98,18 +96,47 @@
                 }).join('') + '</div>';
             }
             lucide.createIcons();
-            // Click sull'evento apre il modale (necessita di accedere al modulo Applicazioni)
             document.querySelectorAll('.home-event-item').forEach(b => b.onclick = () => {
-                // Trova il modulo applicazioni e apri il modale
                 if(window.App.modules.applicazioni && typeof window.App.modules.applicazioni.openEventModal === 'function') {
                      window.App.modules.applicazioni.openEventModal(b.dataset.id, b.dataset.type);
                 }
             });
             document.getElementById('btn-go-apps').onclick = () => window.location.hash = '#applicazioni';
-            document.querySelectorAll('.btn-toggle-order').forEach(b => b.onclick = () => {
-                const o = App.state.data.fuelOrders.find(x=>x.id===b.dataset.id);
-                if(o && o.status==='pending' && confirm('Confermare avvenuta consegna?')) { o.status='delivered'; App.saveToStorage(); this.renderActivitiesAndOrders(); }
-            });
+            document.querySelectorAll('.btn-toggle-order').forEach(b => b.onclick = () => this.confirmOrderDelivery(b.dataset.id));
+        },
+        confirmOrderDelivery(id) {
+            const o = App.state.data.fuelOrders.find(x => x.id === id);
+            if (!o || o.status !== 'pending') return;
+
+            const body = `
+                <div class="text-center p-6 flex flex-col items-center">
+                    <i data-lucide="truck" class="w-16 h-16 text-cyan-600 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Conferma Consegna</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">
+                        Confermi che l'ordine del <b>${App.formatDate(o.date)}</b> è stato consegnato?
+                    </p>
+                </div>`;
+            const footer = `
+                <div class="flex justify-center gap-4 w-full">
+                    <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
+                    <button id="btn-confirm-delivery" class="py-2.5 px-5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800">Conferma</button>
+                </div>`;
+
+            App.showModal('', body, footer, 'max-w-md');
+
+            // Usa setTimeout per assicurarsi che il modale sia renderizzato prima di attaccare il listener
+            setTimeout(() => {
+                const confirmBtn = document.getElementById('btn-confirm-delivery');
+                if (confirmBtn) {
+                    confirmBtn.onclick = () => {
+                        o.status = 'delivered';
+                        App.saveToStorage();
+                        App.closeModal();
+                        this.renderActivitiesAndOrders();
+                        App.showToast('Ordine segnato come consegnato!', 'success');
+                    };
+                }
+            }, 50);
         },
         getTodayStats() {
             const today=new Date(); today.setHours(0,0,0,0); const tmr=new Date(today); tmr.setDate(tmr.getDate()+1);

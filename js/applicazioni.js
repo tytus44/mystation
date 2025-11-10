@@ -52,6 +52,14 @@
         },
 
         getLayoutHTML() {
+            // MODIFICA: Mappatura prodotti per etichette personalizzate
+            const fuelProducts = [
+                { key: 'benzina', label: 'Benzina' },
+                { key: 'gasolio', label: 'Gasolio' },
+                { key: 'dieselplus', label: 'Diesel+' }, // Etichetta modificata
+                { key: 'hvolution', label: 'Hvo' }       // Etichetta modificata
+            ];
+
             return `
                 <div id="apps-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -93,15 +101,15 @@
                                 <input type="date" id="fuel-order-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="${this.localState.fuelOrder.date}">
                             </div>
                             <div class="space-y-4" id="fuel-order-form">
-                                ${['Benzina','Gasolio','DieselPlus','Hvolution'].map(p => `
+                                ${fuelProducts.map(p => `
                                     <div class="flex items-center justify-between gap-4">
-                                        <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p}</label>
+                                        <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p.label}</label>
                                         <div class="flex items-center">
-                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.toLowerCase()}">
+                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.key}">
                                                 <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
                                             </button>
-                                            <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.toLowerCase()}" value="0">
-                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.toLowerCase()}">
+                                            <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.key}" value="0">
+                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.key}">
                                                 <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
                                             </button>
                                         </div>
@@ -304,7 +312,7 @@
         saveFuelOrder() {
             const d = document.getElementById('fuel-order-date').value; if (!d) return alert('Seleziona data');
             const p = {...this.localState.fuelOrder}; delete p.date; if(Object.values(p).every(v => v === 0)) return alert('Inserire quantità.');
-            App.state.data.fuelOrders.push({ id: App.generateId('ord'), date: d, products: p, status: 'pending' }); App.saveToStorage(); alert('Ordine salvato!');
+            App.state.data.fuelOrders.push({ id: App.generateId('ord'), date: d, products: p, status: 'pending' }); App.saveToStorage(); App.showToast('Ordine salvato con successo!', 'success');
             this.localState.fuelOrder = { date: new Date().toISOString().split('T')[0], benzina:0, gasolio:0, dieselplus:0, hvolution:0 }; this.render();
         },
         attachListeners() {

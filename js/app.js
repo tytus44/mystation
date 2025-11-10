@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MyStation Admin - CORE (js/app.js) - Added toLocalISOString & Toast Support
+   MyStation Admin - CORE (js/app.js) - Added global showToast
    ========================================================================== */
 'use strict';
 
@@ -7,6 +7,7 @@ const App = {
     state: { data: { priceHistory: [], competitorPrices: [], registryEntries: [], previousYearStock: {}, clients: [], stazioni: [], turni: [], spese: [], speseEtichette: [], todos: [], appuntamenti: [], fuelOrders: [] } },
     modules: {},
     modal: null,
+    toastTimeout: null,
 
     init() {
         this.initTheme();
@@ -92,6 +93,32 @@ const App = {
     },
     closeModal() { this.modal.hide(); },
 
+    showToast(message, type = 'success') {
+        const toast = document.getElementById('global-toast');
+        const iconContainer = document.getElementById('toast-icon-container');
+        const icon = document.getElementById('toast-icon');
+        const msgEl = document.getElementById('toast-message');
+
+        if (!toast || !iconContainer || !icon || !msgEl) return;
+
+        clearTimeout(this.toastTimeout);
+        msgEl.textContent = message;
+        toast.classList.remove('hidden');
+
+        if (type === 'success') {
+            iconContainer.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200';
+            icon.setAttribute('data-lucide', 'check');
+        } else if (type === 'error') {
+            iconContainer.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200';
+            icon.setAttribute('data-lucide', 'x');
+        } else {
+            iconContainer.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg dark:bg-blue-800 dark:text-blue-200';
+            icon.setAttribute('data-lucide', 'info');
+        }
+        lucide.createIcons();
+        this.toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
+    },
+
     setSidebarCompact(isCompact) {
         const sidebar = document.getElementById('application-sidebar');
         const main = document.querySelector('main');
@@ -146,26 +173,13 @@ const App = {
                 if (d) { 
                     this.state.data = d; 
                     this.saveToStorage(); 
-                    if (this.modules.impostazioni && typeof this.modules.impostazioni.showToast === 'function') {
-                        this.modules.impostazioni.showToast('success', 'Backup importato con successo!');
-                        setTimeout(() => window.location.reload(), 2000);
-                    } else {
-                        alert('Backup importato!'); 
-                        window.location.reload();
-                    }
+                    this.showToast('Backup importato con successo!', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    if (this.modules.impostazioni && typeof this.modules.impostazioni.showToast === 'function') {
-                        this.modules.impostazioni.showToast('error', 'File non valido');
-                    } else {
-                        alert('File non valido.');
-                    }
+                    this.showToast('File di backup non valido.', 'error');
                 }
             } catch (err) { 
-                if (this.modules.impostazioni && typeof this.modules.impostazioni.showToast === 'function') {
-                    this.modules.impostazioni.showToast('error', 'Errore durante la lettura del file');
-                } else {
-                    alert('Errore lettura file.');
-                }
+                this.showToast('Errore durante la lettura del file.', 'error');
             } 
         }; 
         r.readAsText(f); 
