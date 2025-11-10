@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - Standardized Headers & Independent Height
+   MODULO: Anagrafica (js/anagrafica.js) - Search includes Notes
    ========================================================================== */
 (function() {
     'use strict';
@@ -135,7 +135,9 @@
         getFilteredContatti() {
             let c = [...App.state.data.contatti];
             const q = this.localState.searchQuery.toLowerCase();
-            if(q) c = c.filter(x => (x.nome||'').toLowerCase().includes(q) || (x.cognome||'').toLowerCase().includes(q) || (x.azienda||'').toLowerCase().includes(q));
+            // MODIFICA: Aggiunto controllo anche sul campo 'note'
+            if(q) c = c.filter(x => (x.nome||'').toLowerCase().includes(q) || (x.cognome||'').toLowerCase().includes(q) || (x.azienda||'').toLowerCase().includes(q) || (x.note||'').toLowerCase().includes(q));
+            
             if (q || !localStorage.getItem('mystation_anagrafica_layout')) {
                  return c.sort((a,b) => (a.cognome||'').localeCompare(b.cognome||''));
             }
