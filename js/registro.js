@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Registro di Carico (js/registro.js) - Total Drag & Drop
+   MODULO: Registro di Carico (js/registro.js) - Standardized Card Headers
    ========================================================================== */
 (function() {
     'use strict';
@@ -28,7 +28,6 @@
                 this.attachListeners();
             }
             this.updateView();
-            // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
             this.initDragAndDrop();
         },
@@ -42,25 +41,15 @@
         initDragAndDrop() {
             const save = () => this.saveLayout();
 
-            // 1. Statistiche (orizzontale)
+            // 1. Statistiche
             const stats = document.getElementById('reg-stats-container');
             if (stats) {
-                new Sortable(stats, {
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
-                    onSort: save
-                });
+                new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
             }
-
-            // 2. Sezioni Principali (verticale)
+            // 2. Sezioni Principali
             const mainGrid = document.getElementById('reg-main-grid');
             if (mainGrid) {
-                new Sortable(mainGrid, {
-                    animation: 150,
-                    handle: '.card-header', // Trascina dall'intestazione
-                    ghostClass: 'sortable-ghost',
-                    onSort: save
-                });
+                new Sortable(mainGrid, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
             }
         },
 
@@ -71,21 +60,19 @@
                     stats: getIds('reg-stats-container'),
                     main: getIds('reg-main-grid')
                 };
-                localStorage.setItem('mystation_registro_layout_v1', JSON.stringify(layout));
+                localStorage.setItem('mystation_registro_layout_v2', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout registro bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_registro_layout_v1');
+                const saved = localStorage.getItem('mystation_registro_layout_v2');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
                     const container = document.getElementById(cid);
                     if (!container || !ids) return;
-                    // Assicura che gli elementi esistano (per le stats che vengono generate dinamicamente)
                     if (cid === 'reg-stats-container' && container.children.length === 0) this.renderStats(true);
-                    
                     ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
                 };
                 restore('reg-stats-container', layout.stats);
@@ -110,15 +97,15 @@
                         </div>
                     </div>
 
-                    <div id="reg-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
+                    <div id="reg-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start"></div>
 
                     <div id="reg-main-grid" class="flex flex-col gap-6">
                         
-                        <div id="reg-card-summary" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                            <div class="mb-4 card-header cursor-move flex items-center">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex-1">Riepilogo ${new Date().getFullYear()}</h3>
+                        <div id="reg-card-summary" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Riepilogo ${new Date().getFullYear()}</h3>
                             </div>
-                            <div class="overflow-x-auto">
+                            <div class="p-6 overflow-x-auto">
                                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                         <tr><th class="px-4 py-3">Prodotto</th><th class="px-4 py-3">Carico</th><th class="px-4 py-3 text-green-600 dark:text-green-500">Diff (+)</th><th class="px-4 py-3 text-red-600 dark:text-red-500">Diff (-)</th><th class="px-4 py-3">Anno Prec.</th><th class="px-4 py-3">Chiusura</th></tr>
@@ -129,18 +116,19 @@
                             </div>
                         </div>
 
-                        <div id="reg-card-list" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                            <div class="mb-4 card-header cursor-move flex items-center">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex-1">Elenco Carichi</h3>
+                        <div id="reg-card-list" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Elenco Carichi</h3>
                             </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" id="reg-table-head">
-                                        </thead>
-                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="registry-tbody"></tbody>
-                                </table>
+                            <div class="p-6">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" id="reg-table-head"></thead>
+                                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="registry-tbody"></tbody>
+                                    </table>
+                                </div>
+                                <div id="reg-pagination"></div>
                             </div>
-                            <div id="reg-pagination"></div>
                         </div>
 
                     </div>
@@ -152,21 +140,35 @@
             const container = document.getElementById('reg-stats-container');
             if (!container) return;
 
-            if (!forceRender && document.getElementById('stat-total-liters')) {
+            if (!forceRender && document.getElementById('val-total-liters')) {
                 document.getElementById('val-total-liters').textContent = App.formatInt(stats.totalLiters);
                 document.getElementById('val-top-prod').textContent = stats.topProduct;
                 document.getElementById('val-top-driver').textContent = stats.topDriver;
             } else {
+                // MODIFICA: Utilizzo del nuovo stile renderStatCard con icone circolari
                 container.innerHTML = `
-                    ${this.renderStatCard('stat-total-liters', 'Totale Litri', 'val-total-liters', App.formatInt(stats.totalLiters), 'bg-purple-500', 'droplets')}
-                    ${this.renderStatCard('stat-top-prod', 'Top Prodotto', 'val-top-prod', stats.topProduct, 'bg-green-500', 'tag')}
-                    ${this.renderStatCard('stat-top-driver', 'Top Autista', 'val-top-driver', stats.topDriver, 'bg-rose-500', 'user')}
+                    ${this.renderStatCard('stat-total-liters', 'Totale Litri', 'val-total-liters', App.formatInt(stats.totalLiters), 'bg-purple-600', 'droplets')}
+                    ${this.renderStatCard('stat-top-prod', 'Top Prodotto', 'val-top-prod', stats.topProduct, 'bg-green-600', 'tag')}
+                    ${this.renderStatCard('stat-top-driver', 'Top Autista', 'val-top-driver', stats.topDriver, 'bg-rose-600', 'user')}
                 `;
                 lucide.createIcons();
             }
         },
-        renderStatCard(cardId, title, valId, val, bg, icon) {
-            return `<div id="${cardId}" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 draggable-card cursor-move"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${title}</p><h3 id="${valId}" class="text-xl font-bold text-gray-900 dark:text-white truncate">${val}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${icon}" class="w-5 h-5"></i></div></div>`;
+
+        // MODIFICA: Stile card statistica standardizzato
+        renderStatCard(id, title, valId, value, iconBg, iconName) {
+            return `
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
+                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
+                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white" id="${valId}">${value}</div>
+                    </div>
+                </div>`;
         },
 
         renderSummary() {
@@ -221,10 +223,8 @@
             const totalPages = Math.ceil(allEntries.length / this.localState.itemsPerPage);
             if (this.localState.currentPage > totalPages && totalPages > 0) this.localState.currentPage = totalPages;
             if (this.localState.currentPage < 1) this.localState.currentPage = 1;
-
             const start = (this.localState.currentPage - 1) * this.localState.itemsPerPage;
             const pageEntries = allEntries.slice(start, start + this.localState.itemsPerPage);
-
             this.renderPaginationControls(totalPages);
 
             if (!pageEntries.length) {
@@ -253,8 +253,8 @@
                 <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">Pagina <span class="font-semibold text-gray-900 dark:text-white">${curr}</span> di <span class="font-semibold text-gray-900 dark:text-white">${totalPages}</span></span>
                     <div class="inline-flex rounded-md shadow-sm">
-                        <button id="reg-prev-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===1?'disabled':''}><i data-lucide="chevron-left" class="w-4 h-4 mr-2"></i> Prec</button>
-                        <button id="reg-next-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===totalPages?'disabled':''}>Succ <i data-lucide="chevron-right" class="w-4 h-4 ml-2"></i></button>
+                        <button id="reg-prev-page" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===1?'disabled':''}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button id="reg-next-page" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===totalPages?'disabled':''}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
                 </div>`;
             document.getElementById('reg-prev-page')?.addEventListener('click', () => { this.localState.currentPage--; this.renderTable(); });
@@ -273,7 +273,6 @@
             let entries = [...App.state.data.registryEntries];
             const q = this.localState.searchQuery.toLowerCase();
             if(q) entries = entries.filter(e => (e.autistaName||'').toLowerCase().includes(q));
-            
             const { column, direction } = this.localState.sort;
             const dir = direction === 'asc' ? 1 : -1;
             return entries.sort((a,b) => {
@@ -320,27 +319,12 @@
             const c = id ? App.state.data.registryEntries.find(x=>x.id===id) : null;
             const dISO = c ? c.date.split('T')[0] : new Date().toISOString().split('T')[0];
             const cls = "h-11 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
-            
-            // INPUT NUMERICI: Larghezza differenziata
-            const numInput = (p, f) => `
-                <div class="flex items-center justify-center">
-                    <button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-dec" data-t="${p}_${f}">
-                        <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
-                    </button>
-                    <input type="number" id="${p}_${f}" value="${c?.[p]?.[f]||0}" class="flex-shrink-0 h-10 ${f==='carico'?'w-16':'w-14'} bg-gray-50 border-y border-x-0 border-gray-300 dark:border-gray-600 text-center text-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500 block dark:bg-gray-800 dark:text-white" required>
-                    <button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-inc" data-t="${p}_${f}">
-                        <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
-                    </button>
-                </div>`;
-
+            const numInput = (p, f) => `<div class="flex items-center justify-center"><button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-dec" data-t="${p}_${f}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button><input type="number" id="${p}_${f}" value="${c?.[p]?.[f]||0}" class="flex-shrink-0 h-10 ${f==='carico'?'w-16':'w-14'} bg-gray-50 border-y border-x-0 border-gray-300 dark:border-gray-600 text-center text-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500 block dark:bg-gray-800 dark:text-white" required><button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-inc" data-t="${p}_${f}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button></div>`;
             const form = `<form id="form-carico" class="space-y-6"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Operazione</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Autista</label><input type="text" name="autista" value="${c?.autistaName||''}" class="${cls}" placeholder="Cognome Nome" required></div></div><div class="space-y-4"><div class="grid grid-cols-3 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>Carico</div><div>Differenza</div></div>${['Benzina','Gasolio','DieselPlus','Hvolution'].map(p => { const k = p==='DieselPlus'?'dieselPlus':p.toLowerCase(); return `<div class="grid grid-cols-3 gap-4 items-center"><div class="text-gray-900 dark:text-white font-medium">${p}</div><div>${numInput(k,'carico')}</div><div>${numInput(k,'differenza')}</div></div>`; }).join('')}</div></form>`;
-
             const deleteBtn = id ? `<button id="btn-delete-carico" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
             App.showModal(id?'Modifica Carico':'Nuovo Carico', form, `${deleteBtn}<button id="btn-save-carico" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva Carico</button>`, 'max-w-lg');
-
             document.getElementById('btn-save-carico').onclick = () => this.saveCarico();
             if(id) document.getElementById('btn-delete-carico').onclick = () => this.deleteCarico(id);
-            
             lucide.createIcons();
             document.querySelectorAll('.btn-dec').forEach(b => b.onclick = () => { const i = document.getElementById(b.dataset.t); const isDiff = b.dataset.t.includes('differenza'); let val = parseInt(i.value||0) - (isDiff ? 1 : 1000); if (!isDiff) val = Math.max(0, val); i.value = val; });
             document.querySelectorAll('.btn-inc').forEach(b => b.onclick = () => { const i = document.getElementById(b.dataset.t); i.value = parseInt(i.value||0) + (b.dataset.t.includes('differenza') ? 1 : 1000); });

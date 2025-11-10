@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - Total Drag & Drop
+   MODULO: Anagrafica (js/anagrafica.js) - Standardized Headers & Independent Height
    ========================================================================== */
 (function() {
     'use strict';
@@ -39,7 +39,7 @@
                 new Sortable(grid, {
                     animation: 150,
                     ghostClass: 'sortable-ghost',
-                    handle: '.draggable-card', // Tutta la card è trascinabile
+                    handle: '.card-header', // Trascina dall'intestazione standardizzata
                     onSort: () => this.saveLayout()
                 });
             }
@@ -48,15 +48,12 @@
         saveLayout() {
             const grid = document.getElementById('anag-cards-grid');
             if (!grid) return;
-            // Salva l'ordine basato sugli ID dei contatti
             const order = Array.from(grid.children).map(el => el.dataset.id).filter(id => id);
             localStorage.setItem('mystation_anagrafica_layout', JSON.stringify(order));
         },
 
         restoreLayout() {
-            // Nota: Per l'anagrafica, il ripristino è leggermente diverso perché 
-            // le card vengono rigenerate spesso in base alla ricerca.
-            // L'ordinamento salvato dovrebbe avere la priorità nel renderGrid se non c'è ricerca attiva.
+            // Il ripristino avviene direttamente in renderGrid per l'anagrafica
         },
 
         getLayoutHTML() {
@@ -95,7 +92,6 @@
                 return; 
             }
 
-            // Se non c'è una ricerca attiva, applica l'ordinamento salvato
             if (!this.localState.searchQuery) {
                 const savedOrder = JSON.parse(localStorage.getItem('mystation_anagrafica_layout') || '[]');
                 if (savedOrder.length > 0) {
@@ -110,30 +106,28 @@
                 }
             }
             
-            // Added id="anag-cards-grid" and items-start
             content.innerHTML = `<div id="anag-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">${contatti.map(c => `
-                <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move hover:shadow-md transition-shadow h-full relative group draggable-card" data-id="${c.id}">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
-                            <div>
-                                <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight line-clamp-1" title="${c.cognome} ${c.nome}">${c.cognome} ${c.nome}</h3>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move hover:shadow-md transition-shadow relative group draggable-card overflow-hidden" data-id="${c.id}">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg flex-shrink-0">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
+                            <div class="truncate">
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight truncate" title="${c.cognome} ${c.nome}">${c.cognome} ${c.nome}</h3>
                                 ${c.azienda ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate" title="${c.azienda}">${c.azienda}</p>` : ''}
                             </div>
                         </div>
-                        <button class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-500 btn-edit-contatto p-1" data-id="${c.id}" title="Modifica">
+                        <button class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-500 btn-edit-contatto p-1 ml-2 flex-shrink-0" data-id="${c.id}" title="Modifica">
                             <i data-lucide="pencil" class="size-4"></i>
                         </button>
                     </div>
-                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300 flex-1">
-                        ${c.telefono1 ? `<div class="flex items-center gap-2"><i data-lucide="phone" class="size-4 text-gray-400"></i> <span>${c.telefono1}</span></div>` : ''}
-                        ${c.email ? `<div class="flex items-center gap-2"><i data-lucide="mail" class="size-4 text-gray-400"></i> <span class="truncate" title="${c.email}">${c.email}</span></div>` : ''}
+                    <div class="p-6 space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                        ${c.telefono1 ? `<div class="flex items-center gap-3"><i data-lucide="phone" class="size-4 text-gray-400 flex-shrink-0"></i> <span class="truncate">${c.telefono1}</span></div>` : ''}
+                        ${c.email ? `<div class="flex items-center gap-3"><i data-lucide="mail" class="size-4 text-gray-400 flex-shrink-0"></i> <span class="truncate" title="${c.email}">${c.email}</span></div>` : ''}
+                        ${c.note ? `<div class="pt-3 mt-3 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 line-clamp-3 italic" title="${c.note}">${c.note}</div>` : ''}
                     </div>
-                    ${c.note ? `<div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 line-clamp-2" title="${c.note}">${c.note}</div>` : ''}
                 </div>`).join('')}</div>`;
             
             lucide.createIcons();
-            // Re-inizializza sortable ogni volta che la griglia viene renderizzata (es. dopo ricerca)
             this.initDragAndDrop();
             document.querySelectorAll('.btn-edit-contatto').forEach(b => b.onclick = (e) => { e.stopPropagation(); this.openContattoModal(b.dataset.id); });
         },
@@ -142,7 +136,6 @@
             let c = [...App.state.data.contatti];
             const q = this.localState.searchQuery.toLowerCase();
             if(q) c = c.filter(x => (x.nome||'').toLowerCase().includes(q) || (x.cognome||'').toLowerCase().includes(q) || (x.azienda||'').toLowerCase().includes(q));
-            // Ordinamento alfabetico di default solo se non c'è un ordine salvato o se c'è una ricerca
             if (q || !localStorage.getItem('mystation_anagrafica_layout')) {
                  return c.sort((a,b) => (a.cognome||'').localeCompare(b.cognome||''));
             }

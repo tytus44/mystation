@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Spese (js/spese.js) - Total Drag & Drop
+   MODULO: Gestione Spese (js/spese.js) - Standardized Headers & Stats
    ========================================================================== */
 (function() {
     'use strict';
@@ -112,15 +112,15 @@
                     <div id="spese-sections" class="flex flex-col gap-6">
                         
                         <div id="sec-spese-stats" class="group">
-                            <div id="spese-stats-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
+                            <div id="spese-stats-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start"></div>
                         </div>
 
                         <div id="sec-spese-table" class="group">
-                            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="mb-4 flex items-center card-header cursor-move section-handle hover:text-primary-600 transition-colors">
+                            <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move section-handle hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" title="Sposta sezione">
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Elenco Movimenti</h3>
                                 </div>
-                                <div id="spese-table-container" class="overflow-x-auto">
+                                <div class="p-6" id="spese-table-container">
                                     </div>
                             </div>
                         </div>
@@ -157,35 +157,52 @@
                 document.getElementById('val-count').textContent = spese.length;
                 document.getElementById('val-max').textContent = App.formatCurrency(max);
             } else {
+                // MODIFICA: Utilizzo del nuovo stile renderStatCard
                 container.innerHTML = `
-                    ${this.renderStatCard('stat-total', 'Totale (Filtrato)', 'val-total', App.formatCurrency(total), 'bg-red-500', 'trending-down')}
+                    ${this.renderStatCard('stat-total', 'Totale (Filtrato)', 'val-total', App.formatCurrency(total), 'bg-red-600', 'trending-down')}
                     ${this.renderStatCard('stat-count', 'Numero Transazioni', 'val-count', spese.length, 'bg-orange-500', 'list')}
-                    ${this.renderStatCard('stat-max', 'Spesa più alta', 'val-max', App.formatCurrency(max), 'bg-purple-500', 'trending-up')}
+                    ${this.renderStatCard('stat-max', 'Spesa più alta', 'val-max', App.formatCurrency(max), 'bg-purple-600', 'trending-up')}
                 `;
                 lucide.createIcons();
             }
         },
-        renderStatCard(id, t, valId, v, bg, i) { return `<div id="${id}" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 draggable-card cursor-move"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 id="${valId}" class="text-xl font-bold text-gray-900 dark:text-white truncate">${v}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${i}" class="w-5 h-5"></i></div></div>`; },
+        // MODIFICA: Stile card statistica standardizzato
+        renderStatCard(id, title, valId, value, iconBg, iconName) {
+            return `
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
+                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
+                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white" id="${valId}">${value}</div>
+                    </div>
+                </div>`;
+        },
 
         renderTable() {
             const spese = this.getFilteredSpese();
             const content = document.getElementById('spese-table-container');
             if (!content) return;
 
-            if (!spese.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">Nessuna spesa trovata.</div>'; return; }
+            if (!spese.length) { content.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">Nessuna spesa trovata.</div>'; return; }
             const labels = App.state.data.speseEtichette.reduce((acc, l) => { acc[l.id] = l; return acc; }, {});
             
             content.innerHTML = `
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Fornitore</th><th class="px-4 py-3">Etichetta</th><th class="px-4 py-3">Importo</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        ${spese.map(s => { 
-                            const l = labels[s.labelId] || labels['default'] || { name: 'Non trovata', color: '#9ca3af' }; 
-                            const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; 
-                            return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; 
-                        }).join('')}
-                    </tbody>
-                </table>`;
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Fornitore</th><th class="px-4 py-3">Etichetta</th><th class="px-4 py-3">Importo</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            ${spese.map(s => { 
+                                const l = labels[s.labelId] || labels['default'] || { name: 'Non trovata', color: '#9ca3af' }; 
+                                const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; 
+                                return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; 
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
             this.attachDynamicListeners();
         },
         getFilteredSpese() {

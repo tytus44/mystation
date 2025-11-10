@@ -51,7 +51,7 @@
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Concorrenza</h3>
                                 <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Aggiorna Concorrenza">
                                     <i data-lucide="refresh-cw" class="size-4 sm:mr-2"></i>
-                                    <span class="hidden sm:inline">Aggiorna</span>
+
                                 </button>
                             </div>
                             <div class="p-6">${this.renderConcorrenzaBody(p)}</div>

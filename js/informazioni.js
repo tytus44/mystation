@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Informazioni (js/informazioni.js) - Icon-only Buttons for Table
+   MODULO: Informazioni (js/informazioni.js) - Standardized Headers
    ========================================================================== */
 (function() {
     'use strict';
@@ -35,20 +35,37 @@
 
         initDragAndDrop() {
             const save = () => this.saveLayout();
+
+            // 1. Macro-Sezioni (Verticale)
             const sections = document.getElementById('info-sections');
             if (sections) {
-                new Sortable(sections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
+                new Sortable(sections, {
+                    animation: 150,
+                    handle: '.section-handle', // Trascina dai titoli delle macro-sezioni
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
             }
+
+            // 2. Card Collegamenti (Griglia)
             const links = document.getElementById('info-links-grid');
             if (links) {
-                new Sortable(links, { animation: 150, handle: '.card-handle', ghostClass: 'sortable-ghost', onSort: save });
+                new Sortable(links, {
+                    animation: 150,
+                    handle: '.card-header', // Trascina dalle intestazioni delle card
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
             }
         },
 
         saveLayout() {
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-                const layout = { sections: getIds('info-sections'), links: getIds('info-links-grid') };
+                const layout = {
+                    sections: getIds('info-sections'),
+                    links: getIds('info-links-grid')
+                };
                 localStorage.setItem('mystation_info_layout_v1', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout info bloccato:', e); }
         },
@@ -82,58 +99,73 @@
                                 <i data-lucide="link-2" class="w-5 h-5 mr-2"></i> Collegamenti Rapidi
                             </h3>
                             <div id="info-links-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                                <div id="card-gestione" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                    <div class="flex items-center mb-4 card-handle cursor-move">
-                                        <div class="p-2 bg-blue-100 rounded-lg dark:bg-blue-900 mr-3"><i data-lucide="briefcase" class="w-6 h-6 text-blue-600 dark:text-blue-300"></i></div>
-                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Gestione e Servizi</h3>
+                                
+                                <div id="card-gestione" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Gestione e Servizi</h3>
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full">
+                                            <i data-lucide="briefcase" class="w-5 h-5"></i>
+                                        </div>
                                     </div>
-                                    <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                                        <li><a href="https://enivirtualstation.4ts.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Virtualstation</a></li>
-                                        <li><a href="https://myenistation.eni.com/content/myenistation/it/ordini.html" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Ordini Carburanti</a></li>
-                                        <li><a href="https://myenistation.eni.com/content/myenistation/it/contabilita.html" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Contabilità</a></li>
-                                        <li><a href="https://diviseeni.audes.com/it/customer/account/login" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Audes</a></li>
-                                        <li><a href="https://cardsmanager.it/Accounting/Login" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Fattura 1click</a></li>
-                                        <li><a href="https://fatturazioneelettronica.aruba.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Fattura (Aruba)</a></li>
-                                    </ul>
+                                    <div class="p-6">
+                                        <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                                            <li><a href="https://enivirtualstation.4ts.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Virtualstation</a></li>
+                                            <li><a href="https://myenistation.eni.com/content/myenistation/it/ordini.html" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Ordini Carburanti</a></li>
+                                            <li><a href="https://myenistation.eni.com/content/myenistation/it/contabilita.html" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Contabilità</a></li>
+                                            <li><a href="https://diviseeni.audes.com/it/customer/account/login" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Audes</a></li>
+                                            <li><a href="https://cardsmanager.it/Accounting/Login" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Fattura 1click</a></li>
+                                            <li><a href="https://fatturazioneelettronica.aruba.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Fattura (Aruba)</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div id="card-collegamenti" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                    <div class="flex items-center mb-4 card-handle cursor-move">
-                                        <div class="p-2 bg-green-100 rounded-lg dark:bg-green-900 mr-3"><i data-lucide="link" class="w-6 h-6 text-green-600 dark:text-green-300"></i></div>
-                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Collegamenti Utili</h3>
+
+                                <div id="card-collegamenti" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Collegamenti Utili</h3>
+                                        <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full">
+                                            <i data-lucide="link" class="w-5 h-5"></i>
+                                        </div>
                                     </div>
-                                    <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                                        <li><a href="https://www.unicredit.it/it/privati.html" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Unicredit</a></li>
-                                        <li><a href="https://www.bccroma.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> BCC Roma</a></li>
-                                        <li><a href="https://business.nexi.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Nexi Business</a></li>
-                                        <li><a href="https://iampe.adm.gov.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Agenzia Dogane</a></li>
-                                        <li><a href="http://gestori.cipreg.org/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Cipreg (Gestori)</a></li>
-                                    </ul>
+                                    <div class="p-6">
+                                        <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                                            <li><a href="https://www.unicredit.it/it/privati.html" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Unicredit</a></li>
+                                            <li><a href="https://www.bccroma.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> BCC Roma</a></li>
+                                            <li><a href="https://business.nexi.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Nexi Business</a></li>
+                                            <li><a href="https://iampe.adm.gov.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Agenzia Dogane</a></li>
+                                            <li><a href="http://gestori.cipreg.org/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Cipreg (Gestori)</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div id="card-assistenza" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                    <div class="flex items-center mb-4 card-handle cursor-move">
-                                        <div class="p-2 bg-red-100 rounded-lg dark:bg-red-900 mr-3"><i data-lucide="phone-call" class="w-6 h-6 text-red-600 dark:text-red-300"></i></div>
-                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Assistenza</h3>
+
+                                <div id="card-assistenza" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Assistenza</h3>
+                                        <div class="flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-full">
+                                            <i data-lucide="phone-call" class="w-5 h-5"></i>
+                                        </div>
                                     </div>
-                                    <ul class="space-y-3 text-sm">
-                                        <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Enilive Assistenza</span><a href="tel:800797979" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 79 79 79</a></li>
-                                        <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Portale Gestori</span><a href="tel:800960970" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 960 970</a></li>
-                                        <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">POS Unicredit</span><a href="tel:800900280" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 900 280</a></li>
-                                        <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">POS Enilive</span><a href="tel:800999720" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 999 720</a></li>
-                                        <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Deposito ENI</span><a href="tel:0691820084" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">06 9182 0084</a></li>
-                                        <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Fortech</span><a href="tel:800216756" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 216 756</a></li>
-                                    </ul>
+                                    <div class="p-6">
+                                        <ul class="space-y-3 text-sm">
+                                            <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Enilive Assistenza</span><a href="tel:800797979" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 79 79 79</a></li>
+                                            <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Portale Gestori</span><a href="tel:800960970" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 960 970</a></li>
+                                            <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">POS Unicredit</span><a href="tel:800900280" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 900 280</a></li>
+                                            <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">POS Enilive</span><a href="tel:800999720" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 999 720</a></li>
+                                            <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Deposito ENI</span><a href="tel:0691820084" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">06 9182 0084</a></li>
+                                            <li class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Fortech</span><a href="tel:800216756" class="font-medium text-primary-600 dark:text-primary-500 hover:underline">800 216 756</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div id="sec-table" class="group">
-                            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4 section-handle cursor-move">
-                                    <div class="flex items-center hover:text-primary-600 transition-colors" title="Sposta intera sezione">
-                                        <i data-lucide="map-pin" class="w-5 h-5 mr-2"></i>
-                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Impianti ENILIVE Roma</h3>
-                                    </div>
-                                    <div class="flex flex-wrap items-center gap-3 no-drag" onmousedown="event.stopPropagation()">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta intera sezione">
+                                <i data-lucide="map-pin" class="w-5 h-5 mr-2"></i> Impianti ENILIVE Roma
+                            </h3>
+                            <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+                                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Elenco Impianti</h3>
+                                    <div class="flex flex-wrap items-center gap-3">
                                         <div class="relative">
                                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
                                             <input type="search" id="stazioni-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca impianto..." value="${this.localState.searchQuery}">
@@ -146,15 +178,17 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                            <tr><th class="px-4 py-3">PV</th><th class="px-4 py-3">Ragione Sociale</th><th class="px-4 py-3">Indirizzo</th><th class="px-4 py-3">Telefono</th></tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="stazioni-tbody"></tbody>
-                                    </table>
+                                <div class="p-6">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                                <tr><th class="px-4 py-3">PV</th><th class="px-4 py-3">Ragione Sociale</th><th class="px-4 py-3">Indirizzo</th><th class="px-4 py-3">Telefono</th></tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="stazioni-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                    <div id="stazioni-pagination"></div>
                                 </div>
-                                <div id="stazioni-pagination"></div>
                             </div>
                         </div>
 
@@ -196,7 +230,6 @@
             if (totalPages <= 1) { container.innerHTML = ''; return; }
             
             const curr = this.localState.currentPage;
-            // MODIFICA: Pulsanti paginazione solo icona
             container.innerHTML = `
                 <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">Pagina <span class="font-semibold text-gray-900 dark:text-white">${curr}</span> di <span class="font-semibold text-gray-900 dark:text-white">${totalPages}</span></span>

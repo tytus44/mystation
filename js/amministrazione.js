@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - Drag & Drop Stats
+   MODULO: Amministrazione (js/amministrazione.js) - Standardized Headers & Stats
    ========================================================================== */
 (function() {
     'use strict';
@@ -27,7 +27,6 @@
                 this.attachListeners();
             }
             this.updateView();
-            // Ripristina e inizializza Drag & Drop per le statistiche
             this.restoreLayout();
             this.initDragAndDrop();
         },
@@ -35,6 +34,7 @@
         updateView() {
             this.renderStats();
             this.updateViewButtons();
+            // Renderizza la vista corrente all'interno del contenitore standardizzato
             if (this.localState.currentView === 'list') this.renderTable();
             else this.renderGrid();
         },
@@ -45,7 +45,7 @@
                 new Sortable(stats, {
                     animation: 150,
                     ghostClass: 'sortable-ghost',
-                    handle: '.draggable-card',
+                    handle: '.draggable-card', // Tutta la card è trascinabile
                     onSort: () => this.saveLayout()
                 });
             }
@@ -65,9 +65,7 @@
                 const order = JSON.parse(saved);
                 const container = document.getElementById('admin-stats');
                 if (!container) return;
-                // Assicurati che le card siano già state renderizzate almeno una volta
-                if (container.children.length === 0) this.renderStats();
-                
+                if (container.children.length === 0) this.renderStats(true); // Force render if empty
                 order.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) container.appendChild(el);
@@ -100,32 +98,54 @@
                         </div>
                     </div>
                     <div id="admin-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
-                    <div id="admin-content-area"></div>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="admin-view-title">Gestione Clienti</h3>
+                        </div>
+                        <div class="p-6" id="admin-content-area">
+                            </div>
+                    </div>
                 </div>`;
         },
 
-        renderStats() {
+        renderStats(forceRender = false) {
             const clients = App.state.data.clients;
             const totalCredit = clients.reduce((sum, c) => sum + Math.max(0, c.balance || 0), 0);
             const totalDebit = clients.reduce((sum, c) => sum + Math.min(0, c.balance || 0), 0);
+            const container = document.getElementById('admin-stats');
             
-            // Helper per aggiornare o creare le card
-            const updateOrCreateCard = (id, title, value, bg, icon) => {
-                let card = document.getElementById(id);
-                if (!card) {
-                    card = document.createElement('div');
-                    card.id = id;
-                    card.className = `flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 draggable-card cursor-move`;
-                    document.getElementById('admin-stats').appendChild(card);
-                }
-                card.innerHTML = `<div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${title}</p><h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">${value}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${icon}" class="w-5 h-5"></i></div>`;
-            };
+            if (!container) return;
 
-            updateOrCreateCard('stat-clients', 'Clienti Attivi', clients.length, 'bg-blue-500', 'users');
-            updateOrCreateCard('stat-credit', 'Totale Credito', App.formatCurrency(totalCredit).replace('€',''), 'bg-green-500', 'trending-up');
-            updateOrCreateCard('stat-debit', 'Totale Debito', App.formatCurrency(Math.abs(totalDebit)).replace('€',''), 'bg-red-500', 'trending-down');
-            
-            lucide.createIcons();
+            // Se le card esistono già e non è richiesto forceRender, aggiorna solo i valori
+            if (!forceRender && document.getElementById('val-stat-clients')) {
+                 document.getElementById('val-stat-clients').textContent = clients.length;
+                 document.getElementById('val-stat-credit').textContent = App.formatCurrency(totalCredit).replace('€','');
+                 document.getElementById('val-stat-debit').textContent = App.formatCurrency(Math.abs(totalDebit)).replace('€','');
+            } else {
+                container.innerHTML = `
+                    ${this.renderStatCard('stat-clients', 'Clienti Attivi', 'val-stat-clients', clients.length, 'bg-blue-600', 'users')}
+                    ${this.renderStatCard('stat-credit', 'Totale Credito', 'val-stat-credit', App.formatCurrency(totalCredit).replace('€',''), 'bg-green-600', 'trending-up')}
+                    ${this.renderStatCard('stat-debit', 'Totale Debito', 'val-stat-debit', App.formatCurrency(Math.abs(totalDebit)).replace('€',''), 'bg-red-600', 'trending-down')}
+                `;
+                lucide.createIcons();
+            }
+        },
+
+        // MODIFICA: renderStatCard uniformato allo stile Home (Header con icona, Body con valore)
+        renderStatCard(id, title, valId, value, iconBg, iconName) {
+            return `
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
+                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
+                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white" id="${valId}">${value}</div>
+                    </div>
+                </div>`;
         },
 
         updateViewButtons() {
@@ -133,29 +153,31 @@
                 const isActive = btn.dataset.view === this.localState.currentView;
                 btn.className = `px-4 py-2 text-sm font-medium border ${btn.dataset.view === 'list' ? 'rounded-s-lg' : 'border-l-0 rounded-e-lg'} ${isActive ? 'z-10 text-primary-600 bg-gray-100 dark:bg-gray-700 dark:text-white' : 'text-gray-900 bg-white hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'} border-gray-200 dark:border-gray-700 view-btn`;
             });
+            const titleEl = document.getElementById('admin-view-title');
+            if(titleEl) titleEl.textContent = this.localState.currentView === 'list' ? 'Elenco Clienti' : 'Griglia Clienti';
         },
 
         renderTable() {
             const clients = this.getFilteredClients();
             const content = document.getElementById('admin-content-area');
-            if (!clients.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun cliente trovato.</div>'; return; }
+            if (!content) return;
+            if (!clients.length) { content.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">Nessun cliente trovato.</div>'; return; }
             
+            // Tabella senza il contenitore card esterno (ora è nel layout principale)
             content.innerHTML = `
-                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                <tr><th class="px-4 py-3">Nome Cliente</th><th class="px-4 py-3">Saldo Attuale</th><th class="px-4 py-3">Ultima Operazione</th><th class="px-4 py-3 text-right">Azioni</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                ${clients.map(c => {
-                                    const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
-                                    const lastTx = this.getLastTransaction(c);
-                                    return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${c.name}</td><td class="px-4 py-3 font-bold ${balClass}">${App.formatCurrency(c.balance)}</td><td class="px-4 py-3">${lastTx ? App.formatDate(lastTx.date) : '-'}</td><td class="px-4 py-3 text-right"><button class="font-medium text-primary-600 dark:text-primary-500 hover:underline btn-manage-client" data-id="${c.id}">Gestisci</button></td></tr>`;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr><th class="px-4 py-3">Nome Cliente</th><th class="px-4 py-3">Saldo Attuale</th><th class="px-4 py-3">Ultima Operazione</th><th class="px-4 py-3 text-right">Azioni</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            ${clients.map(c => {
+                                const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
+                                const lastTx = this.getLastTransaction(c);
+                                return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${c.name}</td><td class="px-4 py-3 font-bold ${balClass}">${App.formatCurrency(c.balance)}</td><td class="px-4 py-3">${lastTx ? App.formatDate(lastTx.date) : '-'}</td><td class="px-4 py-3 text-right"><button class="font-medium text-primary-600 dark:text-primary-500 hover:underline btn-manage-client" data-id="${c.id}">Gestisci</button></td></tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
                 </div>`;
             this.attachDynamicListeners();
         },
@@ -163,12 +185,24 @@
         renderGrid() {
             const clients = this.getFilteredClients();
             const content = document.getElementById('admin-content-area');
-            if (!clients.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun cliente trovato.</div>'; return; }
+            if (!content) return;
+            if (!clients.length) { content.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">Nessun cliente trovato.</div>'; return; }
             
-            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">${clients.map(c => {
+            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">${clients.map(c => {
                 const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
                 const lastTx = this.getLastTransaction(c);
-                return `<div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-manage-client h-full" data-id="${c.id}"><div class="flex-1"><h3 class="text-lg font-bold text-gray-900 dark:text-white truncate mb-2">${c.name}</h3><p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1"></i> ${lastTx ? 'Ult. op: ' + App.formatDate(lastTx.date) : 'Nessuna operazione'}</p></div><div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center"><span class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo:</span><span class="text-xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span></div></div>`;
+                // Card cliente in griglia leggermente aggiornata per coerenza
+                return `
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-manage-client h-full overflow-hidden" data-id="${c.id}">
+                    <div class="px-5 py-4 flex-1">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white truncate mb-2">${c.name}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1"></i> ${lastTx ? 'Ult. op: ' + App.formatDate(lastTx.date) : 'Nessuna operazione'}</p>
+                    </div>
+                    <div class="px-5 py-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo:</span>
+                        <span class="text-xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span>
+                    </div>
+                </div>`;
             }).join('')}</div>`;
             lucide.createIcons();
             this.attachDynamicListeners();
@@ -263,26 +297,12 @@
         },
 
         showDeleteModal(title, message, onConfirm) {
-            const body = `
-                <div class="text-center p-6 flex flex-col items-center">
-                    <i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${title}</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p>
-                </div>`;
-            const footer = `
-                <div class="flex justify-center gap-4 w-full">
-                    <button id="btn-cancel-delete" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button>
-                    <button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button>
-                </div>`;
-            
+            const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${title}</h3><p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p></div>`;
+            const footer = `<div class="flex justify-center gap-4 w-full"><button id="btn-cancel-delete" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
             App.showModal('', body, footer, 'max-w-md');
-            document.getElementById('btn-cancel-delete').onclick = () => {
-                 if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId);
-                 else App.closeModal();
-            };
+            document.getElementById('btn-cancel-delete').onclick = () => { if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId); else App.closeModal(); };
             document.getElementById('btn-confirm-delete').onclick = onConfirm;
         },
-
         deleteClient(id) {
             const c = App.state.data.clients.find(x=>x.id===id);
             this.showDeleteModal('Eliminare cliente?', `Stai per eliminare <b>${c.name}</b>. L'azione è irreversibile.`, () => {
@@ -305,13 +325,11 @@
                  App.saveToStorage(); this.renderClientModal(client.id); this.updateView();
              });
         },
-
         printStatement(client) {
             const w = window.open('', '_blank');
             w.document.write(`<html><head><title>Estratto Conto - ${client.name}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2}.text-right{text-align:right}.text-red{color:#dc2626}.text-green{color:#16a34a}</style></head><body><h2>Estratto Conto: ${client.name}</h2><p>Data: ${new Date().toLocaleDateString('it-IT')}</p><table><thead><tr><th>Data</th><th>Descrizione</th><th class="text-right">Importo</th></tr></thead><tbody>${client.transactions.map(t => `<tr><td>${new Date(t.date).toLocaleDateString('it-IT')}</td><td>${t.description}</td><td class="text-right ${t.amount<0?'text-red':'text-green'}">${new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(t.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2" class="text-right">Saldo Finale:</th><th class="text-right">${new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(client.balance)}</th></tr></tfoot></table></body></html>`);
             w.document.close(); w.print();
         },
-
         attachListeners() {
             document.getElementById('admin-search').oninput = (e) => { this.localState.searchQuery = e.target.value; this.updateView(); };
             document.querySelectorAll('.view-btn').forEach(b => b.onclick = () => { this.localState.currentView = b.dataset.view; localStorage.setItem('admin_view_mode', b.dataset.view); this.updateView(); });
@@ -321,7 +339,6 @@
             document.querySelectorAll('.btn-manage-client').forEach(b => b.onclick = () => this.openClientModal(b.dataset.id));
         }
     };
-
     if(window.App) App.registerModule('amministrazione', AdminModule); 
     else document.addEventListener('app:ready', () => App.registerModule('amministrazione', AdminModule));
 })();

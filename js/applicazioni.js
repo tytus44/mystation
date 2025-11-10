@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Drag & Drop
+   MODULO: Applicazioni (js/applicazioni.js) - Standardized Headers
    ========================================================================== */
 (function() {
     'use strict';
@@ -31,7 +31,6 @@
                 this.attachListeners();
             }
             this.updateView();
-            // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
             this.initDragAndDrop();
         },
@@ -45,65 +44,48 @@
 
         initDragAndDrop() {
             const save = () => this.saveLayout();
-            // Rende ordinabili le due griglie principali
             ['apps-top-grid', 'apps-bottom-grid'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    new Sortable(el, {
-                        animation: 150,
-                        ghostClass: 'sortable-ghost',
-                        handle: '.card-header', // Trascina dall'intestazione
-                        onSort: save
-                    });
+                    new Sortable(el, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
                 }
             });
         },
 
         saveLayout() {
             const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-            const layout = {
-                top: getIds('apps-top-grid'),
-                bottom: getIds('apps-bottom-grid')
-            };
-            localStorage.setItem('mystation_apps_layout', JSON.stringify(layout));
+            const layout = { top: getIds('apps-top-grid'), bottom: getIds('apps-bottom-grid') };
+            localStorage.setItem('mystation_apps_layout_v1', JSON.stringify(layout));
         },
 
         restoreLayout() {
-            const saved = localStorage.getItem('mystation_apps_layout');
+            const saved = localStorage.getItem('mystation_apps_layout_v1');
             if (!saved) return;
             try {
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
                     const container = document.getElementById(cid);
                     if (!container || !ids) return;
-                    ids.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) container.appendChild(el);
-                    });
+                    ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
                 };
                 restore('apps-top-grid', layout.top);
                 restore('apps-bottom-grid', layout.bottom);
             } catch (e) { console.error("Errore ripristino layout app:", e); }
         },
 
-        // Aggiunta classe 'card-header' e 'cursor-move' per il drag handle
-        renderHeader(title, icon, bgClass) {
-            return `
-                <div class="flex items-center mb-4 card-header cursor-move">
-                    <div class="inline-flex items-center justify-center w-10 h-10 ${bgClass} text-white rounded-lg flex-shrink-0 mr-3">
-                        <i data-lucide="${icon}" class="size-5"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${title}</h3>
-                </div>`;
-        },
-
         getLayoutHTML() {
-            const fuelProducts = [
-                { key: 'benzina', label: 'Benzina' },
-                { key: 'gasolio', label: 'Gasolio' },
-                { key: 'dieselplus', label: 'Diesel+' },
-                { key: 'hvolution', label: 'Hvo' }
-            ];
+            const fuelProducts = [ { key: 'benzina', label: 'Benzina' }, { key: 'gasolio', label: 'Gasolio' }, { key: 'dieselplus', label: 'Diesel+' }, { key: 'hvolution', label: 'Hvo' } ];
+
+            // Helper per standardizzare l'inizio delle card (solo per quelle semplici senza controlli extra nell'header)
+            const simpleCardStart = (id, title, icon, iconBg) => `
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                    <div class="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full mr-3">
+                            <i data-lucide="${icon}" class="size-4"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">${title}</h3>
+                    </div>
+                    <div class="p-6">`;
 
             return `
                 <div id="apps-layout" class="flex flex-col gap-6 animate-fade-in">
@@ -112,44 +94,46 @@
                     </div>
 
                     <div id="apps-top-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                        <div id="app-card-calendar" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                            <div class="flex items-center justify-between mb-6 card-header cursor-move">
+                        <div id="app-card-calendar" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <div class="flex items-center">
-                                    <div class="inline-flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-lg flex-shrink-0 mr-3"><i data-lucide="calendar" class="size-5"></i></div>
+                                    <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3"><i data-lucide="calendar" class="size-4"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Calendario</h3>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button id="cal-prev" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-left" class="size-5"></i></button>
-                                    <button id="cal-today" class="px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 dark:bg-gray-700 dark:text-primary-400">Oggi</button>
-                                    <button id="cal-next" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-right" class="size-5"></i></button>
+                                    <button id="cal-prev" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-left" class="size-5"></i></button>
+                                    <button id="cal-today" class="px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 dark:bg-gray-700 dark:text-primary-400">Oggi</button>
+                                    <button id="cal-next" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-right" class="size-5"></i></button>
                                 </div>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-4" id="cal-month-year"></h3>
-                            <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-                                <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+                            <div class="p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center mb-4" id="cal-month-year"></h3>
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                                    <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+                                </div>
+                                <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
                             </div>
-                            <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
                         </div>
 
-                        <div id="app-card-events" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col draggable-card">
-                            <div class="flex items-center justify-between mb-6 card-header cursor-move">
+                        <div id="app-card-events" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col draggable-card overflow-hidden">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <div class="flex items-center">
-                                    <div class="inline-flex items-center justify-center w-10 h-10 bg-purple-600 text-white rounded-lg flex-shrink-0 mr-3"><i data-lucide="list-todo" class="size-5"></i></div>
+                                    <div class="flex items-center justify-center w-8 h-8 bg-purple-600 text-white rounded-full mr-3"><i data-lucide="list-todo" class="size-4"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Eventi</h3>
                                 </div>
-                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center transition-colors" title="Nuovo Evento">
-                                    <i data-lucide="plus" class="size-4 sm:mr-2"></i>
-                                    <span class="hidden sm:inline">Nuovo</span>
+                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-3 py-2 flex items-center transition-colors" title="Nuovo Evento">
+                                    <i data-lucide="plus" class="size-4 sm:mr-1.5"></i><span class="hidden sm:inline">Nuovo</span>
                                 </button>
                             </div>
-                            <h4 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-3" id="event-list-title">Seleziona una data</h4>
-                            <div id="event-list" class="space-y-3 flex-1 overflow-y-auto pr-2 max-h-[400px]"></div>
+                            <div class="p-6 flex-1 flex flex-col">
+                                <h4 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-3" id="event-list-title">Seleziona una data</h4>
+                                <div id="event-list" class="space-y-3 flex-1 overflow-y-auto pr-2 max-h-[400px]"></div>
+                            </div>
                         </div>
                     </div>
 
                     <div id="apps-bottom-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                        <div id="app-card-fuel" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                            ${this.renderHeader('Ordine Carburante', 'truck', 'bg-cyan-600')}
+                        ${simpleCardStart('app-card-fuel', 'Ordine Carburante', 'truck', 'bg-cyan-600')}
                             <div class="mb-5">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Consegna</label>
                                 <input type="date" id="fuel-order-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="${this.localState.fuelOrder.date}">
@@ -175,14 +159,14 @@
                                     <span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span>
                                 </div>
                                 <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine">
-                                    <i data-lucide="save" class="size-4 sm:mr-2"></i>
+                                    <i data-lucide="save" class="size-4 mr-2"></i>
                                     <span class="hidden sm:inline">Salva Ordine</span>
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                        <div id="app-card-iva" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                            ${this.renderHeader('Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
+                    ${simpleCardStart('app-card-iva', 'Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
                             <div class="space-y-4 mb-6">
                                 <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label><input type="number" id="iva-lordo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
                                 <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Imponibile (Netto)</label><input type="number" id="iva-netto" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
@@ -192,9 +176,9 @@
                                 <span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span>
                             </div>
                         </div>
+                    </div>
 
-                        <div id="app-card-money" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                            ${this.renderHeader('Conta Banconote', 'banknote', 'bg-green-600')}
+                    ${simpleCardStart('app-card-money', 'Conta Banconote', 'banknote', 'bg-green-600')}
                             <div class="space-y-3 mb-6" id="banconote-list">
                                 ${[500,200,100,50,20,10,5].map(t => `
                                     <div class="flex items-center justify-between gap-2">
@@ -223,10 +207,11 @@
                             </div>
                         </div>
                     </div>
-                </div>`;
+                </div>
+            </div>`;
         },
 
-        // --- CALENDAR & EVENTS ---
+        // ... (resto delle funzioni: renderCalendar, renderEventsList, openEventModal, saveEvent, deleteEvent, updateIva, updateBanconote, updateBanconoteTotal, updateFuelOrder, updateFuelTotal, getLatestPrices, saveFuelOrder, attachListeners, capitalize) - INVARIATE
         renderCalendar() {
             const grid = document.getElementById('cal-grid');
             const title = document.getElementById('cal-month-year');
@@ -302,7 +287,6 @@
             list.querySelectorAll('.btn-edit-event').forEach(b => b.onclick = () => this.openEventModal(b.dataset.id, b.dataset.type));
         },
 
-        // --- EVENT MODAL ---
         openEventModal(id=null, type='app') {
             this.localState.editingEventId = id;
             const d = this.localState.selectedDateISO;
@@ -342,8 +326,6 @@
                 App.saveToStorage(); App.closeModal(); this.renderCalendar(); this.renderEventsList();
             };
         },
-
-        // --- UTILITIES ---
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         updateIva(source) {
             const l = parseFloat(document.getElementById('iva-lordo').value), n = parseFloat(document.getElementById('iva-netto').value);
