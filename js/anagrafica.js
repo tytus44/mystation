@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - Flowbite Version
+   MODULO: Anagrafica (js/anagrafica.js) - Max 3 Columns
    ========================================================================== */
 (function() {
     'use strict';
@@ -58,7 +58,8 @@
             const content = document.getElementById('anagrafica-grid-area');
             if (!contatti.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun contatto trovato.</div>'; return; }
             
-            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">${contatti.map(c => `
+            // MODIFICA: Rimossa xl:grid-cols-4 per limitare a massimo 3 colonne
+            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">${contatti.map(c => `
                 <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-edit-contatto h-full relative group" data-id="${c.id}">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex items-center gap-3">
