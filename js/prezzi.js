@@ -14,6 +14,9 @@
             const totalPages = Math.ceil(all.length / this.localState.itemsPerPage);
             if (this.localState.currentPage > totalPages && totalPages > 0) this.localState.currentPage = totalPages;
             if (this.localState.currentPage < 1) this.localState.currentPage = 1;
+            
+            // MODIFICA: Cambiato xl:grid-cols-3 in lg:grid-cols-3 per affiancare le card su schermi più piccoli
+            // MODIFICA: Cambiato xl:col-span-2 in lg:col-span-2 per la prima card
             container.innerHTML = `
                 <div class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-800 dark:text-white">Gestione Prezzi Carburante</h2></div>
@@ -24,8 +27,8 @@
                         ${this.renderStatCard('Hvolution', p.hvolution, 'bg-cyan-500', 'droplets')}
                         ${this.renderStatCard('AdBlue', p.adblue, 'bg-blue-500', 'droplets')}
                     </div>
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <div class="xl:col-span-2 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Storico Listini Base</h3>
                                 <button id="btn-new-listino" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700"><i data-lucide="plus" class="size-4 mr-1"></i> Nuovo</button>
