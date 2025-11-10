@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Informazioni (js/informazioni.js) - Total Drag & Drop
+   MODULO: Informazioni (js/informazioni.js) - Icon-only Buttons for Table
    ========================================================================== */
 (function() {
     'use strict';
@@ -25,7 +25,6 @@
                 this.attachListeners();
             }
             this.updateView();
-            // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
             this.initDragAndDrop();
         },
@@ -36,37 +35,20 @@
 
         initDragAndDrop() {
             const save = () => this.saveLayout();
-
-            // 1. Macro-Sezioni (Verticale)
             const sections = document.getElementById('info-sections');
             if (sections) {
-                new Sortable(sections, {
-                    animation: 150,
-                    handle: '.section-handle', // Trascina dai titoli delle macro-sezioni
-                    ghostClass: 'sortable-ghost',
-                    onSort: save
-                });
+                new Sortable(sections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
             }
-
-            // 2. Card Collegamenti (Griglia)
             const links = document.getElementById('info-links-grid');
             if (links) {
-                new Sortable(links, {
-                    animation: 150,
-                    handle: '.card-handle', // Trascina dalle intestazioni delle card
-                    ghostClass: 'sortable-ghost',
-                    onSort: save
-                });
+                new Sortable(links, { animation: 150, handle: '.card-handle', ghostClass: 'sortable-ghost', onSort: save });
             }
         },
 
         saveLayout() {
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-                const layout = {
-                    sections: getIds('info-sections'),
-                    links: getIds('info-links-grid')
-                };
+                const layout = { sections: getIds('info-sections'), links: getIds('info-links-grid') };
                 localStorage.setItem('mystation_info_layout_v1', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout info bloccato:', e); }
         },
@@ -100,7 +82,6 @@
                                 <i data-lucide="link-2" class="w-5 h-5 mr-2"></i> Collegamenti Rapidi
                             </h3>
                             <div id="info-links-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                                
                                 <div id="card-gestione" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                     <div class="flex items-center mb-4 card-handle cursor-move">
                                         <div class="p-2 bg-blue-100 rounded-lg dark:bg-blue-900 mr-3"><i data-lucide="briefcase" class="w-6 h-6 text-blue-600 dark:text-blue-300"></i></div>
@@ -115,7 +96,6 @@
                                         <li><a href="https://fatturazioneelettronica.aruba.it/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Fattura (Aruba)</a></li>
                                     </ul>
                                 </div>
-
                                 <div id="card-collegamenti" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                     <div class="flex items-center mb-4 card-handle cursor-move">
                                         <div class="p-2 bg-green-100 rounded-lg dark:bg-green-900 mr-3"><i data-lucide="link" class="w-6 h-6 text-green-600 dark:text-green-300"></i></div>
@@ -129,7 +109,6 @@
                                         <li><a href="http://gestori.cipreg.org/" target="_blank" class="flex items-center hover:text-primary-600 dark:hover:text-primary-500"><i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Cipreg (Gestori)</a></li>
                                     </ul>
                                 </div>
-
                                 <div id="card-assistenza" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                     <div class="flex items-center mb-4 card-handle cursor-move">
                                         <div class="p-2 bg-red-100 rounded-lg dark:bg-red-900 mr-3"><i data-lucide="phone-call" class="w-6 h-6 text-red-600 dark:text-red-300"></i></div>
@@ -160,18 +139,10 @@
                                             <input type="search" id="stazioni-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca impianto..." value="${this.localState.searchQuery}">
                                         </div>
                                         <div class="flex gap-2">
-                                            <button id="btn-import-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV">
-                                                <i data-lucide="upload" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Importa</span>
-                                            </button>
-                                            <button id="btn-export-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV">
-                                                <i data-lucide="download" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Esporta</span>
-                                            </button>
-                                            <button id="btn-print-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa">
-                                                <i data-lucide="printer" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Stampa</span>
-                                            </button>
-                                            <button id="btn-del-all-stazioni" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto">
-                                                <i data-lucide="trash-2" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Elimina</span>
-                                            </button>
+                                            <button id="btn-import-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
+                                            <button id="btn-export-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
+                                            <button id="btn-print-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
+                                            <button id="btn-del-all-stazioni" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -225,12 +196,13 @@
             if (totalPages <= 1) { container.innerHTML = ''; return; }
             
             const curr = this.localState.currentPage;
+            // MODIFICA: Pulsanti paginazione solo icona
             container.innerHTML = `
                 <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">Pagina <span class="font-semibold text-gray-900 dark:text-white">${curr}</span> di <span class="font-semibold text-gray-900 dark:text-white">${totalPages}</span></span>
                     <div class="inline-flex rounded-md shadow-sm">
-                        <button id="staz-prev-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===1?'disabled':''}><i data-lucide="chevron-left" class="w-4 h-4 mr-2"></i> Prec</button>
-                        <button id="staz-next-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===totalPages?'disabled':''}>Succ <i data-lucide="chevron-right" class="w-4 h-4 ml-2"></i></button>
+                        <button id="staz-prev-page" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===1?'disabled':''} title="Pagina precedente"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button id="staz-next-page" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===totalPages?'disabled':''} title="Pagina successiva"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
                 </div>`;
             
