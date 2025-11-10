@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Responsive Buttons
+   MODULO: Impostazioni (js/impostazioni.js) - Drag & Drop
    ========================================================================== */
 (function() {
     'use strict';
@@ -11,16 +11,70 @@
             const container = document.getElementById('impostazioni-container');
             if (!container) return;
 
-            container.innerHTML = `
-                <div class="flex flex-col gap-6 animate-fade-in">
+            if (!document.getElementById('impostazioni-layout')) {
+                container.innerHTML = this.getLayoutHTML();
+                lucide.createIcons();
+                this.attachListeners();
+            }
+            // Ripristina e inizializza Drag & Drop
+            this.restoreLayout();
+            this.initDragAndDrop();
+        },
+
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+            ['settings-col-1', 'settings-col-2'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    new Sortable(el, {
+                        group: 'shared-settings', // Permette lo scambio tra colonne
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        handle: '.card-header', // Trascina dall'intestazione
+                        onSort: save
+                    });
+                }
+            });
+        },
+
+        saveLayout() {
+            const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+            const layout = {
+                col1: getIds('settings-col-1'),
+                col2: getIds('settings-col-2')
+            };
+            localStorage.setItem('mystation_settings_layout', JSON.stringify(layout));
+        },
+
+        restoreLayout() {
+            const saved = localStorage.getItem('mystation_settings_layout');
+            if (!saved) return;
+            try {
+                const layout = JSON.parse(saved);
+                const restore = (cid, ids) => {
+                    const container = document.getElementById(cid);
+                    if (!container || !ids) return;
+                    ids.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) container.appendChild(el);
+                    });
+                };
+                restore('settings-col-1', layout.col1);
+                restore('settings-col-2', layout.col2);
+            } catch (e) { console.error("Errore ripristino layout impostazioni:", e); }
+        },
+
+        getLayoutHTML() {
+            return `
+                <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Impostazioni</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="space-y-6">
-                            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <div class="flex items-center mb-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                        <div id="settings-col-1" class="flex flex-col gap-6 h-full">
+                            <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-primary-100 rounded-lg dark:bg-primary-900/30 mr-3">
                                         <i data-lucide="database" class="w-6 h-6 text-primary-600 dark:text-primary-500"></i>
                                     </div>
@@ -39,8 +93,8 @@
                                 </div>
                             </div>
 
-                            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <div class="flex items-center mb-4">
+                            <div id="card-forms" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-green-100 rounded-lg dark:bg-green-900/30 mr-3">
                                         <i data-lucide="file-text" class="w-6 h-6 text-green-600 dark:text-green-500"></i>
                                     </div>
@@ -60,9 +114,9 @@
                             </div>
                         </div>
 
-                        <div>
-                            <div class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 h-full">
-                                <div class="flex items-center mb-4">
+                        <div id="settings-col-2" class="flex flex-col gap-6 h-full">
+                            <div id="card-danger" class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 draggable-card">
+                                <div class="flex items-center mb-4 card-header cursor-move">
                                     <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600 dark:text-red-500 mr-3"></i>
                                     <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
                                 </div>

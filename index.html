@@ -23,6 +23,7 @@
     </script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         /* FIX CRITICO DATEPICKER */
         .datepicker { z-index: 99999 !important; }
@@ -53,6 +54,12 @@
         .dot-urgent { background-color: #ef4444; }   /* Rosso - Urgente */
         .dot-priority { background-color: #eab308; } /* Giallo - Importante */
         .dot-standard { background-color: #22c55e; } /* Verde - Standard */
+
+        /* Stile per l'elemento mentre viene trascinato */
+        .sortable-ghost { opacity: 0.4; border: 2px dashed #3b82f6 !important; }
+        /* Stile per il cursore di trascinamento sulle card */
+        .draggable-card { cursor: move; /* fallback if grab cursor is unsupported */ cursor: grab; }
+        .draggable-card:active { cursor: grabbing; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 antialiased text-sm">

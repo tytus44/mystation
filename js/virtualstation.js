@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Responsive Buttons
+   MODULO: VirtualStation (js/virtualstation.js) - FIXED & COMPLETE
    ========================================================================== */
 (function() {
     'use strict';
@@ -15,7 +15,9 @@
         },
 
         init() {
-            this.localState.filterMode = localStorage.getItem('virtual_filter_mode') || 'today';
+            try {
+                this.localState.filterMode = localStorage.getItem('virtual_filter_mode') || 'today';
+            } catch (e) { console.warn('Storage blocked:', e); }
             if (!App.state.data.turni) App.state.data.turni = [];
         },
 
@@ -26,11 +28,13 @@
             if (!document.getElementById('virtual-layout')) {
                 container.innerHTML = this.getLayoutHTML();
                 lucide.createIcons();
-                initFlowbite();
+                if (typeof initFlowbite === 'function') initFlowbite();
                 this.attachListeners();
                 setTimeout(() => this.initCharts(), 50);
             }
             this.updateView();
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
 
         updateView() {
@@ -38,6 +42,61 @@
             this.updateFilterLabel();
             this.renderTable();
             this.updateCharts();
+        },
+
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+
+            // 1. Macro-Sezioni (verticali)
+            const mainSections = document.getElementById('virtual-sections-container');
+            if (mainSections) {
+                new Sortable(mainSections, {
+                    animation: 150,
+                    handle: '.section-handle',
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
+            }
+
+            // 2. Card Statistiche (orizzontali)
+            const stats = document.getElementById('v-stats-container');
+            if (stats) {
+                new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
+            }
+
+            // 3. Grafici (griglia)
+            const charts = document.getElementById('v-charts-container');
+            if (charts) {
+                new Sortable(charts, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
+            }
+        },
+
+        saveLayout() {
+            try {
+                const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+                const layout = {
+                    sections: getIds('virtual-sections-container'),
+                    stats: getIds('v-stats-container'),
+                    charts: getIds('v-charts-container')
+                };
+                localStorage.setItem('mystation_virtual_layout_v4', JSON.stringify(layout));
+            } catch (e) { console.warn('Salvataggio layout bloccato:', e); }
+        },
+
+        restoreLayout() {
+            try {
+                const saved = localStorage.getItem('mystation_virtual_layout_v4');
+                if (!saved) return;
+                const layout = JSON.parse(saved);
+                const restore = (cid, ids) => {
+                    const container = document.getElementById(cid);
+                    if (!container || !ids) return;
+                    ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
+                };
+                restore('virtual-sections-container', layout.sections);
+                restore('v-stats-container', layout.stats);
+                restore('v-charts-container', layout.charts);
+            } catch (e) { console.warn("Errore ripristino layout virtual:", e); }
         },
 
         getLayoutHTML() {
@@ -64,16 +123,47 @@
                             </button>
                         </div>
                     </div>
-                    <div id="v-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Modalità di Servizio</h3><div class="h-64"><canvas id="v-service-chart"></canvas></div></div>
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vendite per Prodotto</h3><div class="h-64"><canvas id="v-products-chart"></canvas></div></div>
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 lg:col-span-1"><h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Andamento Anno</h3><div class="h-64"><canvas id="v-trend-chart"></canvas></div></div>
-                    </div>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                         <div class="mb-4"><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Storico Turni</h3></div>
-                         <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3">Benzina</th><th class="px-4 py-3">Gasolio</th><th class="px-4 py-3">Diesel+</th><th class="px-4 py-3">Hvol</th><th class="px-4 py-3">Totale</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="v-table-body"></tbody></table></div>
-                         <div id="v-pagination"></div>
+
+                    <div id="virtual-sections-container" class="flex flex-col gap-8">
+                        
+                        <div id="sec-stats" class="group">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta sezione">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-2"></i> Indicatori Chiave
+                            </h3>
+                            <div id="v-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
+                        </div>
+
+                        <div id="sec-charts" class="group">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta sezione">
+                                <i data-lucide="pie-chart" class="w-5 h-5 mr-2"></i> Analisi Grafica
+                            </h3>
+                            <div id="v-charts-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                <div id="v-card-service" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                    <div class="flex items-center mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white flex-1">Modalità di Servizio</h3></div>
+                                    <div class="h-64"><canvas id="v-service-chart"></canvas></div>
+                                </div>
+                                <div id="v-card-products" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                    <div class="flex items-center mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white flex-1">Vendite per Prodotto</h3></div>
+                                    <div class="h-64"><canvas id="v-products-chart"></canvas></div>
+                                </div>
+                                <div id="v-card-trend" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 lg:col-span-1 draggable-card">
+                                    <div class="flex items-center mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white flex-1">Andamento Anno</h3></div>
+                                    <div class="h-64"><canvas id="v-trend-chart"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sec-table" class="group">
+                             <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 section-handle cursor-move">
+                                 <div class="mb-4 flex items-center">
+                                    <i data-lucide="history" class="w-5 h-5 mr-2 text-gray-900 dark:text-white"></i>
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Storico Turni</h3>
+                                 </div>
+                                 <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3">Benzina</th><th class="px-4 py-3">Gasolio</th><th class="px-4 py-3">Diesel+</th><th class="px-4 py-3">Hvol</th><th class="px-4 py-3">Totale</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="v-table-body"></tbody></table></div>
+                                 <div id="v-pagination"></div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>`;
         },
@@ -81,15 +171,23 @@
         updateStats() {
             const stats = this.calculateStats();
             const c = document.getElementById('v-stats-container');
-            if(c) {
+            if(c && c.children.length === 0) {
                 c.innerHTML = `
-                    ${this.renderStatCard('Litri Venduti', App.formatCurrency(stats.liters).replace('€','').trim(), 'bg-cyan-500', 'fuel')}
-                    ${this.renderStatCard('Fatturato Stimato', App.formatCurrency(stats.revenue), 'bg-green-500', 'euro')}
-                    ${this.renderStatCard('% Servito', stats.servitoPerc + '%', 'bg-purple-500', 'user-check')}
+                    ${this.renderStatCard('stat-liters', 'Litri Venduti', App.formatCurrency(stats.liters).replace('€','').trim(), 'bg-cyan-500', 'fuel')}
+                    ${this.renderStatCard('stat-revenue', 'Fatturato Stimato', App.formatCurrency(stats.revenue), 'bg-green-500', 'euro')}
+                    ${this.renderStatCard('stat-served', '% Servito', stats.servitoPerc + '%', 'bg-purple-500', 'user-check')}
                 `;
                 lucide.createIcons();
+            } else if (c) {
+                if(document.getElementById('val-stat-liters')) document.getElementById('val-stat-liters').textContent = App.formatCurrency(stats.liters).replace('€','').trim();
+                if(document.getElementById('val-stat-revenue')) document.getElementById('val-stat-revenue').textContent = App.formatCurrency(stats.revenue);
+                if(document.getElementById('val-stat-served')) document.getElementById('val-stat-served').textContent = stats.servitoPerc + '%';
             }
         },
+        renderStatCard(id, t, v, bg, i) {
+            return `<div id="${id}" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 cursor-move draggable-card"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 id="val-${id}" class="text-2xl font-bold text-gray-900 dark:text-white">${v}</h3></div><div class="inline-flex items-center justify-center w-12 h-12 ${bg} text-white rounded-lg ml-2"><i data-lucide="${i}" class="w-6 h-6"></i></div></div>`;
+        },
+        
         updateFilterLabel() {
             const today = new Date();
             const month = today.toLocaleString('it-IT', { month: 'long' });
@@ -131,7 +229,7 @@
             document.querySelectorAll('.btn-edit-turno').forEach(b => b.onclick = () => this.openTurnoModal(b.dataset.id));
         },
 
-        renderStatCard(t, v, bg, i) { return `<div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 class="text-2xl font-bold text-gray-900 dark:text-white">${v}</h3></div><div class="inline-flex items-center justify-center w-12 h-12 ${bg} text-white rounded-lg"><i data-lucide="${i}" class="w-6 h-6"></i></div></div>`; },
+        // --- HELPER FUNCTIONS RIPRISTINATE ---
         fmtProd(t, p) { const tot = (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); return tot > 0 ? App.formatCurrency(tot).replace('€','').trim() : '-'; },
         getFilteredTurni() {
             const mode = this.localState.filterMode; const now = new Date(); const start = new Date(); start.setHours(0,0,0,0);
@@ -146,21 +244,20 @@
             return { liters, revenue: rev, servitoPerc: liters>0 ? Math.round((serv/liters)*100) : 0 };
         },
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
+        getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
 
         initCharts() {
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
             const ctxS = document.getElementById('v-service-chart')?.getContext('2d');
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
             if (!ctxP || !ctxS || !ctxT) return;
-            if(!this.localState.chartInstances.p) {
-                this.localState.chartInstances.p = new Chart(ctxP, { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 10 } } } } });
-            }
-            if(!this.localState.chartInstances.s) {
-                this.localState.chartInstances.s = new Chart(ctxS, { type: 'bar', data: { labels: ['Totale'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } });
-            }
-            if(!this.localState.chartInstances.t) {
-                this.localState.chartInstances.t = new Chart(ctxT, { type: 'line', data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
-            }
+            if(this.localState.chartInstances.p) this.localState.chartInstances.p.destroy();
+            if(this.localState.chartInstances.s) this.localState.chartInstances.s.destroy();
+            if(this.localState.chartInstances.t) this.localState.chartInstances.t.destroy();
+
+            this.localState.chartInstances.p = new Chart(ctxP, { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 10 } } } } });
+            this.localState.chartInstances.s = new Chart(ctxS, { type: 'bar', data: { labels: ['Totale'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } });
+            this.localState.chartInstances.t = new Chart(ctxT, { type: 'line', data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
             this.updateCharts();
         },
 
@@ -181,7 +278,6 @@
             const chartT = this.localState.chartInstances.t; const gradient = chartT.ctx.createLinearGradient(0, 0, 0, 300); gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
             chartT.data.datasets = [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: gradient }]; chartT.update();
         },
-        getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
 
         openTurnoModal(id=null) {
             this.localState.editingId = id;
@@ -246,7 +342,7 @@
         },
 
         attachListeners() {
-            document.querySelectorAll('.btn-filter-opt').forEach(b => b.onclick = (e) => { e.preventDefault(); this.localState.filterMode = b.dataset.mode; localStorage.setItem('virtual_filter_mode', b.dataset.mode); this.render(); });
+            document.querySelectorAll('.btn-filter-opt').forEach(b => b.onclick = (e) => { e.preventDefault(); this.localState.filterMode = b.dataset.mode; try { localStorage.setItem('virtual_filter_mode', b.dataset.mode); } catch(e){} this.render(); });
             document.getElementById('btn-new-turno').onclick = () => this.openTurnoModal();
             document.querySelectorAll('.btn-edit-turno').forEach(b => b.onclick = () => this.openTurnoModal(b.dataset.id));
         }

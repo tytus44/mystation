@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Spese (js/spese.js) - Shortened Filter Label
+   MODULO: Gestione Spese (js/spese.js) - Total Drag & Drop
    ========================================================================== */
 (function() {
     'use strict';
@@ -17,7 +17,6 @@
 
         init() {
             if (!App.state.data.spese) App.state.data.spese = [];
-            // Assicura che esista almeno l'etichetta default se la lista è vuota o corrotta
             if (!App.state.data.speseEtichette || !Array.isArray(App.state.data.speseEtichette) || App.state.data.speseEtichette.length === 0) {
                 App.state.data.speseEtichette = [
                     { id: 'default', name: 'Generale', color: '#6b7280' },
@@ -34,9 +33,66 @@
             if (!container) return;
             if (!document.getElementById('spese-layout')) { container.innerHTML = this.getLayoutHTML(); lucide.createIcons(); this.attachListeners(); }
             this.updateView();
+            // Ripristina e inizializza Drag & Drop
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
 
         updateView() { this.updateFilterDropdowns(); this.renderStats(); this.renderTable(); },
+
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+
+            // 1. Sezioni Principali (verticale)
+            const sections = document.getElementById('spese-sections');
+            if (sections) {
+                new Sortable(sections, {
+                    animation: 150,
+                    handle: '.section-handle', // Trascina dal titolo della sezione
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
+            }
+
+            // 2. Card Statistiche (orizzontale)
+            const stats = document.getElementById('spese-stats-grid');
+            if (stats) {
+                new Sortable(stats, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    // Tutta la card è trascinabile
+                    onSort: save
+                });
+            }
+        },
+
+        saveLayout() {
+            try {
+                const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+                const layout = {
+                    sections: getIds('spese-sections'),
+                    stats: getIds('spese-stats-grid')
+                };
+                localStorage.setItem('mystation_spese_layout_v1', JSON.stringify(layout));
+            } catch (e) { console.warn('Salvataggio layout spese bloccato:', e); }
+        },
+
+        restoreLayout() {
+            try {
+                const saved = localStorage.getItem('mystation_spese_layout_v1');
+                if (!saved) return;
+                const layout = JSON.parse(saved);
+                const restore = (cid, ids) => {
+                    const container = document.getElementById(cid);
+                    if (!container || !ids) return;
+                    // Assicura che le stats esistano prima di riordinarle
+                    if (cid === 'spese-stats-grid' && container.children.length === 0) this.renderStats(true);
+                    ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
+                };
+                restore('spese-sections', layout.sections);
+                restore('spese-stats-grid', layout.stats);
+            } catch (e) { console.warn("Errore ripristino layout spese:", e); }
+        },
 
         getLayoutHTML() {
             return `
@@ -52,8 +108,24 @@
                             </button>
                         </div>
                     </div>
-                    <div id="spese-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
-                    <div id="spese-content-area"></div>
+
+                    <div id="spese-sections" class="flex flex-col gap-6">
+                        
+                        <div id="sec-spese-stats" class="group">
+                            <div id="spese-stats-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
+                        </div>
+
+                        <div id="sec-spese-table" class="group">
+                            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                <div class="mb-4 flex items-center card-header cursor-move section-handle hover:text-primary-600 transition-colors">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Elenco Movimenti</h3>
+                                </div>
+                                <div id="spese-table-container" class="overflow-x-auto">
+                                    </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>`;
         },
 
@@ -64,7 +136,6 @@
             if (!years.includes(new Date().getFullYear())) years.unshift(new Date().getFullYear());
             this.populateDropdown('filter-month', [{ val: 'all', text: 'Tutti i mesi' }, ...months.map((m,i) => ({ val: (i+1).toString(), text: m }))], this.localState.filters.month);
             this.populateDropdown('filter-year', [{ val: 'all', text: 'Tutti gli anni' }, ...years.map(y => ({ val: y.toString(), text: y.toString() }))], this.localState.filters.year);
-            // MODIFICA: Cambiato "Tutte le etichette" in "Tutte"
             this.populateDropdown('filter-label', [{ val: 'all', text: 'Tutte' }, ...App.state.data.speseEtichette.map(l => ({ val: l.id, text: l.name }))], this.localState.filters.labelId);
         },
         populateDropdown(id, options, currentVal) {
@@ -74,29 +145,47 @@
             list.querySelectorAll(`.${id}-opt`).forEach(opt => { opt.onclick = (e) => { e.preventDefault(); const val = e.target.dataset.val; if (id === 'filter-month') this.localState.filters.month = val; if (id === 'filter-year') this.localState.filters.year = val; if (id === 'filter-label') this.localState.filters.labelId = val; this.updateView(); const d = document.getElementById(`${id}-dropdown`); if(d && typeof Flowbite !== 'undefined') { const di = Flowbite.instances.getInstance('Dropdown', d.id); if(di) di.hide(); else d.classList.add('hidden'); } }; });
         },
 
-        renderStats() {
+        renderStats(forceRender = false) {
             const spese = this.getFilteredSpese();
             const total = spese.reduce((sum, s) => sum + s.amount, 0);
             const max = spese.reduce((max, s) => Math.max(max, s.amount), 0);
-            document.getElementById('spese-stats').innerHTML = `${this.renderStatCard('Totale (Filtrato)', App.formatCurrency(total), 'bg-red-500', 'trending-down')}${this.renderStatCard('Numero Transazioni', spese.length, 'bg-orange-500', 'list')}${this.renderStatCard('Spesa più alta', App.formatCurrency(max), 'bg-purple-500', 'trending-up')}`;
-            lucide.createIcons();
+            const container = document.getElementById('spese-stats-grid');
+            if (!container) return;
+
+            if (!forceRender && document.getElementById('stat-total')) {
+                document.getElementById('val-total').textContent = App.formatCurrency(total);
+                document.getElementById('val-count').textContent = spese.length;
+                document.getElementById('val-max').textContent = App.formatCurrency(max);
+            } else {
+                container.innerHTML = `
+                    ${this.renderStatCard('stat-total', 'Totale (Filtrato)', 'val-total', App.formatCurrency(total), 'bg-red-500', 'trending-down')}
+                    ${this.renderStatCard('stat-count', 'Numero Transazioni', 'val-count', spese.length, 'bg-orange-500', 'list')}
+                    ${this.renderStatCard('stat-max', 'Spesa più alta', 'val-max', App.formatCurrency(max), 'bg-purple-500', 'trending-up')}
+                `;
+                lucide.createIcons();
+            }
         },
-        renderStatCard(t, v, bg, i) { return `<div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">${v}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${i}" class="w-5 h-5"></i></div></div>`; },
+        renderStatCard(id, t, valId, v, bg, i) { return `<div id="${id}" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 draggable-card cursor-move"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 id="${valId}" class="text-xl font-bold text-gray-900 dark:text-white truncate">${v}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${i}" class="w-5 h-5"></i></div></div>`; },
 
         renderTable() {
             const spese = this.getFilteredSpese();
-            const content = document.getElementById('spese-content-area');
-            if (!spese.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessuna spesa trovata.</div>'; return; }
+            const content = document.getElementById('spese-table-container');
+            if (!content) return;
+
+            if (!spese.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">Nessuna spesa trovata.</div>'; return; }
             const labels = App.state.data.speseEtichette.reduce((acc, l) => { acc[l.id] = l; return acc; }, {});
             
             content.innerHTML = `
-                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                    <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Fornitore</th><th class="px-4 py-3">Etichetta</th><th class="px-4 py-3">Importo</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700">${spese.map(s => { 
-                        const l = labels[s.labelId] || labels['default'] || { name: 'Non trovata', color: '#9ca3af' }; 
-                        const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; 
-                        return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; 
-                    }).join('')}</tbody></table></div>
-                </div>`;
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Fornitore</th><th class="px-4 py-3">Etichetta</th><th class="px-4 py-3">Importo</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        ${spese.map(s => { 
+                            const l = labels[s.labelId] || labels['default'] || { name: 'Non trovata', color: '#9ca3af' }; 
+                            const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; 
+                            return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; 
+                        }).join('')}
+                    </tbody>
+                </table>`;
             this.attachDynamicListeners();
         },
         getFilteredSpese() {

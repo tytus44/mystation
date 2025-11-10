@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Responsive Buttons
+   MODULO: Applicazioni (js/applicazioni.js) - Drag & Drop
    ========================================================================== */
 (function() {
     'use strict';
@@ -31,6 +31,9 @@
                 this.attachListeners();
             }
             this.updateView();
+            // Ripristina e inizializza Drag & Drop
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
 
         updateView() {
@@ -40,9 +43,53 @@
             this.updateBanconoteTotal();
         },
 
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+            // Rende ordinabili le due griglie principali
+            ['apps-top-grid', 'apps-bottom-grid'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    new Sortable(el, {
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        handle: '.card-header', // Trascina dall'intestazione
+                        onSort: save
+                    });
+                }
+            });
+        },
+
+        saveLayout() {
+            const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+            const layout = {
+                top: getIds('apps-top-grid'),
+                bottom: getIds('apps-bottom-grid')
+            };
+            localStorage.setItem('mystation_apps_layout', JSON.stringify(layout));
+        },
+
+        restoreLayout() {
+            const saved = localStorage.getItem('mystation_apps_layout');
+            if (!saved) return;
+            try {
+                const layout = JSON.parse(saved);
+                const restore = (cid, ids) => {
+                    const container = document.getElementById(cid);
+                    if (!container || !ids) return;
+                    ids.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) container.appendChild(el);
+                    });
+                };
+                restore('apps-top-grid', layout.top);
+                restore('apps-bottom-grid', layout.bottom);
+            } catch (e) { console.error("Errore ripristino layout app:", e); }
+        },
+
+        // Aggiunta classe 'card-header' e 'cursor-move' per il drag handle
         renderHeader(title, icon, bgClass) {
             return `
-                <div class="flex items-center mb-4">
+                <div class="flex items-center mb-4 card-header cursor-move">
                     <div class="inline-flex items-center justify-center w-10 h-10 ${bgClass} text-white rounded-lg flex-shrink-0 mr-3">
                         <i data-lucide="${icon}" class="size-5"></i>
                     </div>
@@ -64,10 +111,13 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Applicazioni & Utility</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                            <div class="flex items-center justify-between mb-6">
-                                ${this.renderHeader('Calendario', 'calendar', 'bg-blue-600')}
+                    <div id="apps-top-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                        <div id="app-card-calendar" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                            <div class="flex items-center justify-between mb-6 card-header cursor-move">
+                                <div class="flex items-center">
+                                    <div class="inline-flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-lg flex-shrink-0 mr-3"><i data-lucide="calendar" class="size-5"></i></div>
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Calendario</h3>
+                                </div>
                                 <div class="flex gap-2">
                                     <button id="cal-prev" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-left" class="size-5"></i></button>
                                     <button id="cal-today" class="px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 dark:bg-gray-700 dark:text-primary-400">Oggi</button>
@@ -81,9 +131,12 @@
                             <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
                         </div>
 
-                        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col">
-                            <div class="flex items-center justify-between mb-6">
-                                ${this.renderHeader('Eventi', 'list-todo', 'bg-purple-600')}
+                        <div id="app-card-events" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col draggable-card">
+                            <div class="flex items-center justify-between mb-6 card-header cursor-move">
+                                <div class="flex items-center">
+                                    <div class="inline-flex items-center justify-center w-10 h-10 bg-purple-600 text-white rounded-lg flex-shrink-0 mr-3"><i data-lucide="list-todo" class="size-5"></i></div>
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Eventi</h3>
+                                </div>
                                 <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center transition-colors" title="Nuovo Evento">
                                     <i data-lucide="plus" class="size-4 sm:mr-2"></i>
                                     <span class="hidden sm:inline">Nuovo</span>
@@ -94,8 +147,8 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                    <div id="apps-bottom-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                        <div id="app-card-fuel" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                             ${this.renderHeader('Ordine Carburante', 'truck', 'bg-cyan-600')}
                             <div class="mb-5">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Consegna</label>
@@ -128,7 +181,7 @@
                             </div>
                         </div>
 
-                        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                        <div id="app-card-iva" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                             ${this.renderHeader('Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
                             <div class="space-y-4 mb-6">
                                 <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label><input type="number" id="iva-lordo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
@@ -140,7 +193,7 @@
                             </div>
                         </div>
 
-                        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                        <div id="app-card-money" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                             ${this.renderHeader('Conta Banconote', 'banknote', 'bg-green-600')}
                             <div class="space-y-3 mb-6" id="banconote-list">
                                 ${[500,200,100,50,20,10,5].map(t => `

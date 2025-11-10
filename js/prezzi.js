@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Prezzi (js/prezzi.js) - Responsive Buttons
+   MODULO: Gestione Prezzi (js/prezzi.js) - Total Drag & Drop
    ========================================================================== */
 (function() {
     'use strict';
@@ -18,16 +18,19 @@
             container.innerHTML = `
                 <div class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-800 dark:text-white">Gestione Prezzi Carburante</h2></div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                        ${this.renderStatCard('Benzina', p.benzina, 'bg-green-500', 'droplets')}
-                        ${this.renderStatCard('Gasolio', p.gasolio, 'bg-orange-500', 'droplets')}
-                        ${this.renderStatCard('Diesel+', p.dieselPlus, 'bg-rose-600', 'droplets')}
-                        ${this.renderStatCard('Hvolution', p.hvolution, 'bg-cyan-500', 'droplets')}
-                        ${this.renderStatCard('AdBlue', p.adblue, 'bg-blue-500', 'droplets')}
+                    
+                    <div id="prezzi-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-start">
+                        ${this.renderStatCard('stat-benzina', 'Benzina', p.benzina, 'bg-green-500', 'droplets')}
+                        ${this.renderStatCard('stat-gasolio', 'Gasolio', p.gasolio, 'bg-orange-500', 'droplets')}
+                        ${this.renderStatCard('stat-dieselplus', 'Diesel+', p.dieselPlus, 'bg-rose-600', 'droplets')}
+                        ${this.renderStatCard('stat-hvo', 'Hvolution', p.hvolution, 'bg-cyan-500', 'droplets')}
+                        ${this.renderStatCard('stat-adblue', 'AdBlue', p.adblue, 'bg-blue-500', 'droplets')}
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
-                            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+
+                    <div id="prezzi-main-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        
+                        <div id="card-storico" class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Storico Listini Base</h3>
                                 <button id="btn-new-listino" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Nuovo Listino">
                                     <i data-lucide="plus" class="size-4 sm:mr-2"></i>
@@ -42,8 +45,9 @@
                             </div>
                             ${this.renderPagination(totalPages)}
                         </div>
-                        <div class="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
-                            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+
+                        <div id="card-concorrenza" class="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Concorrenza</h3>
                                 <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Aggiorna Concorrenza">
                                     <i data-lucide="refresh-cw" class="size-4 sm:mr-2"></i>
@@ -52,10 +56,68 @@
                             </div>
                             <div class="p-6">${this.renderConcorrenzaBody(p)}</div>
                         </div>
+
                     </div>
                 </div>`;
-            lucide.createIcons(); this.attachListeners();
+            
+            lucide.createIcons();
+            this.attachListeners();
+            // Ripristina e inizializza Drag & Drop
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
+
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+
+            // 1. Statistiche Prezzi
+            const stats = document.getElementById('prezzi-stats-container');
+            if (stats) {
+                new Sortable(stats, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
+            }
+
+            // 2. Griglia Principale
+            const mainGrid = document.getElementById('prezzi-main-grid');
+            if (mainGrid) {
+                new Sortable(mainGrid, {
+                    animation: 150,
+                    handle: '.card-header', // Trascina dall'intestazione
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
+            }
+        },
+
+        saveLayout() {
+            try {
+                const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+                const layout = {
+                    stats: getIds('prezzi-stats-container'),
+                    main: getIds('prezzi-main-grid')
+                };
+                localStorage.setItem('mystation_prezzi_layout_v1', JSON.stringify(layout));
+            } catch (e) { console.warn('Salvataggio layout prezzi bloccato:', e); }
+        },
+
+        restoreLayout() {
+            try {
+                const saved = localStorage.getItem('mystation_prezzi_layout_v1');
+                if (!saved) return;
+                const layout = JSON.parse(saved);
+                const restore = (cid, ids) => {
+                    const container = document.getElementById(cid);
+                    if (!container || !ids) return;
+                    ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
+                };
+                restore('prezzi-stats-container', layout.stats);
+                restore('prezzi-main-grid', layout.main);
+            } catch (e) { console.warn("Errore ripristino layout prezzi:", e); }
+        },
+
         getComputedPrices() {
             const h = App.state.data.priceHistory;
             const l = h.length ? [...h].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
@@ -63,9 +125,9 @@
             const compFlat = (bp) => (!bp ? { listino:0, self:0, served:0 } : { listino:bp, self:bp, served:bp });
             return { date: l?.date||null, benzina: comp(l?.benzina), gasolio: comp(l?.gasolio), dieselPlus: comp(l?.dieselPlus), hvolution: comp(l?.hvolution), adblue: compFlat(l?.adblue) };
         },
-        renderStatCard(t, p, bg, i) {
+        renderStatCard(id, t, p, bg, i) {
             const showServed = p.self > 0 && p.served !== p.self;
-            return `<div class="p-4 ${bg} rounded-xl text-white shadow-sm flex justify-between items-center">
+            return `<div id="${id}" class="p-4 ${bg} rounded-xl text-white shadow-sm flex justify-between items-center draggable-card cursor-move">
                 <div><h4 class="text-sm font-medium opacity-90">${t}</h4><p class="text-2xl font-bold mt-1">${App.formatPrice(p.self)}</p>${showServed?`<p class="text-xs opacity-80 mt-1">Servito: ${App.formatPrice(p.served)}</p>`:''}</div>
                 <div class="p-3 bg-white/20 rounded-full"><i data-lucide="${i}" class="size-6"></i></div>
             </div>`;

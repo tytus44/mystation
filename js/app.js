@@ -7,7 +7,7 @@ const App = {
     state: { data: { priceHistory: [], competitorPrices: [], registryEntries: [], previousYearStock: {}, clients: [], stazioni: [], turni: [], spese: [], speseEtichette: [], todos: [], appuntamenti: [], fuelOrders: [] } },
     modules: {},
     modal: null,
-    toastTimeout: null,
+    toastTimeout: null, // Timer per gestire la chiusura automatica del toast
 
     init() {
         this.initTheme();
@@ -93,6 +93,7 @@ const App = {
     },
     closeModal() { this.modal.hide(); },
 
+    // NUOVA FUNZIONE TOAST GLOBALE
     showToast(message, type = 'success') {
         const toast = document.getElementById('global-toast');
         const iconContainer = document.getElementById('toast-icon-container');
@@ -101,10 +102,13 @@ const App = {
 
         if (!toast || !iconContainer || !icon || !msgEl) return;
 
+        // Resetta eventuali timeout precedenti se l'utente clicca rapidamente
         clearTimeout(this.toastTimeout);
+
         msgEl.textContent = message;
         toast.classList.remove('hidden');
 
+        // Imposta colore e icona in base al tipo
         if (type === 'success') {
             iconContainer.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200';
             icon.setAttribute('data-lucide', 'check');
@@ -116,7 +120,11 @@ const App = {
             icon.setAttribute('data-lucide', 'info');
         }
         lucide.createIcons();
-        this.toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
+
+        // Nascondi automaticamente dopo 3 secondi
+        this.toastTimeout = setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
     },
 
     setSidebarCompact(isCompact) {

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - Responsive Buttons
+   MODULO: Amministrazione (js/amministrazione.js) - Drag & Drop Stats
    ========================================================================== */
 (function() {
     'use strict';
@@ -27,6 +27,9 @@
                 this.attachListeners();
             }
             this.updateView();
+            // Ripristina e inizializza Drag & Drop per le statistiche
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
 
         updateView() {
@@ -34,6 +37,42 @@
             this.updateViewButtons();
             if (this.localState.currentView === 'list') this.renderTable();
             else this.renderGrid();
+        },
+
+        initDragAndDrop() {
+            const stats = document.getElementById('admin-stats');
+            if (stats) {
+                new Sortable(stats, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    handle: '.draggable-card',
+                    onSort: () => this.saveLayout()
+                });
+            }
+        },
+
+        saveLayout() {
+            const stats = document.getElementById('admin-stats');
+            if (!stats) return;
+            const order = Array.from(stats.children).map(el => el.id).filter(id => id);
+            localStorage.setItem('mystation_admin_stats_layout', JSON.stringify(order));
+        },
+
+        restoreLayout() {
+            const saved = localStorage.getItem('mystation_admin_stats_layout');
+            if (!saved) return;
+            try {
+                const order = JSON.parse(saved);
+                const container = document.getElementById('admin-stats');
+                if (!container) return;
+                // Assicurati che le card siano già state renderizzate almeno una volta
+                if (container.children.length === 0) this.renderStats();
+                
+                order.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) container.appendChild(el);
+                });
+            } catch (e) { console.error("Errore ripristino layout admin:", e); }
         },
 
         getLayoutHTML() {
@@ -60,7 +99,7 @@
                             </button>
                         </div>
                     </div>
-                    <div id="admin-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+                    <div id="admin-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
                     <div id="admin-content-area"></div>
                 </div>`;
         },
@@ -69,14 +108,25 @@
             const clients = App.state.data.clients;
             const totalCredit = clients.reduce((sum, c) => sum + Math.max(0, c.balance || 0), 0);
             const totalDebit = clients.reduce((sum, c) => sum + Math.min(0, c.balance || 0), 0);
-            document.getElementById('admin-stats').innerHTML = `
-                ${this.renderStatCard('Clienti Attivi', clients.length, 'bg-blue-500', 'users')}
-                ${this.renderStatCard('Totale Credito', App.formatCurrency(totalCredit).replace('€',''), 'bg-green-500', 'trending-up')}
-                ${this.renderStatCard('Totale Debito', App.formatCurrency(Math.abs(totalDebit)).replace('€',''), 'bg-red-500', 'trending-down')}
-            `;
+            
+            // Helper per aggiornare o creare le card
+            const updateOrCreateCard = (id, title, value, bg, icon) => {
+                let card = document.getElementById(id);
+                if (!card) {
+                    card = document.createElement('div');
+                    card.id = id;
+                    card.className = `flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 draggable-card cursor-move`;
+                    document.getElementById('admin-stats').appendChild(card);
+                }
+                card.innerHTML = `<div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${title}</p><h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">${value}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${icon}" class="w-5 h-5"></i></div>`;
+            };
+
+            updateOrCreateCard('stat-clients', 'Clienti Attivi', clients.length, 'bg-blue-500', 'users');
+            updateOrCreateCard('stat-credit', 'Totale Credito', App.formatCurrency(totalCredit).replace('€',''), 'bg-green-500', 'trending-up');
+            updateOrCreateCard('stat-debit', 'Totale Debito', App.formatCurrency(Math.abs(totalDebit)).replace('€',''), 'bg-red-500', 'trending-down');
+            
             lucide.createIcons();
         },
-        renderStatCard(t, v, bg, i) { return `<div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">${v}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${i}" class="w-5 h-5"></i></div></div>`; },
 
         updateViewButtons() {
             document.querySelectorAll('.view-btn').forEach(btn => {
@@ -115,7 +165,7 @@
             const content = document.getElementById('admin-content-area');
             if (!clients.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun cliente trovato.</div>'; return; }
             
-            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">${clients.map(c => {
+            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">${clients.map(c => {
                 const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
                 const lastTx = this.getLastTransaction(c);
                 return `<div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-manage-client h-full" data-id="${c.id}"><div class="flex-1"><h3 class="text-lg font-bold text-gray-900 dark:text-white truncate mb-2">${c.name}</h3><p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1"></i> ${lastTx ? 'Ult. op: ' + App.formatDate(lastTx.date) : 'Nessuna operazione'}</p></div><div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center"><span class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo:</span><span class="text-xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span></div></div>`;

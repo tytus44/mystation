@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Registro di Carico (js/registro.js) - Responsive Buttons
+   MODULO: Registro di Carico (js/registro.js) - Total Drag & Drop
    ========================================================================== */
 (function() {
     'use strict';
@@ -28,12 +28,69 @@
                 this.attachListeners();
             }
             this.updateView();
+            // Ripristina e inizializza Drag & Drop
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
 
         updateView() {
             this.renderStats();
             this.renderSummary();
             this.renderTable();
+        },
+
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+
+            // 1. Statistiche (orizzontale)
+            const stats = document.getElementById('reg-stats-container');
+            if (stats) {
+                new Sortable(stats, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
+            }
+
+            // 2. Sezioni Principali (verticale)
+            const mainGrid = document.getElementById('reg-main-grid');
+            if (mainGrid) {
+                new Sortable(mainGrid, {
+                    animation: 150,
+                    handle: '.card-header', // Trascina dall'intestazione
+                    ghostClass: 'sortable-ghost',
+                    onSort: save
+                });
+            }
+        },
+
+        saveLayout() {
+            try {
+                const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+                const layout = {
+                    stats: getIds('reg-stats-container'),
+                    main: getIds('reg-main-grid')
+                };
+                localStorage.setItem('mystation_registro_layout_v1', JSON.stringify(layout));
+            } catch (e) { console.warn('Salvataggio layout registro bloccato:', e); }
+        },
+
+        restoreLayout() {
+            try {
+                const saved = localStorage.getItem('mystation_registro_layout_v1');
+                if (!saved) return;
+                const layout = JSON.parse(saved);
+                const restore = (cid, ids) => {
+                    const container = document.getElementById(cid);
+                    if (!container || !ids) return;
+                    // Assicura che gli elementi esistano (per le stats che vengono generate dinamicamente)
+                    if (cid === 'reg-stats-container' && container.children.length === 0) this.renderStats(true);
+                    
+                    ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
+                };
+                restore('reg-stats-container', layout.stats);
+                restore('reg-main-grid', layout.main);
+            } catch (e) { console.warn("Errore ripristino layout registro:", e); }
         },
 
         getLayoutHTML() {
@@ -52,44 +109,65 @@
                             </button>
                         </div>
                     </div>
-                    <div id="reg-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <div class="mb-4"><h3 class="text-xl font-bold text-gray-900 dark:text-white">Riepilogo ${new Date().getFullYear()}</h3></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr><th class="px-4 py-3">Prodotto</th><th class="px-4 py-3">Carico</th><th class="px-4 py-3 text-green-600 dark:text-green-500">Diff (+)</th><th class="px-4 py-3 text-red-600 dark:text-red-500">Diff (-)</th><th class="px-4 py-3">Anno Prec.</th><th class="px-4 py-3">Chiusura</th></tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="reg-summary-tbody"></tbody>
-                                <tfoot class="font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700/50" id="reg-summary-tfoot"></tfoot>
-                            </table>
+
+                    <div id="reg-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
+
+                    <div id="reg-main-grid" class="flex flex-col gap-6">
+                        
+                        <div id="reg-card-summary" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                            <div class="mb-4 card-header cursor-move flex items-center">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex-1">Riepilogo ${new Date().getFullYear()}</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr><th class="px-4 py-3">Prodotto</th><th class="px-4 py-3">Carico</th><th class="px-4 py-3 text-green-600 dark:text-green-500">Diff (+)</th><th class="px-4 py-3 text-red-600 dark:text-red-500">Diff (-)</th><th class="px-4 py-3">Anno Prec.</th><th class="px-4 py-3">Chiusura</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="reg-summary-tbody"></tbody>
+                                    <tfoot class="font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700/50" id="reg-summary-tfoot"></tfoot>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <div class="mb-4"><h3 class="text-xl font-bold text-gray-900 dark:text-white">Elenco Carichi</h3></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Autista</th><th class="px-4 py-3">Benzina</th><th class="px-4 py-3">Gasolio</th><th class="px-4 py-3">Diesel+</th><th class="px-4 py-3">Hvol</th><th class="px-4 py-3 text-right">Azioni</th></tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="registry-tbody"></tbody>
-                            </table>
+
+                        <div id="reg-card-list" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                            <div class="mb-4 card-header cursor-move flex items-center">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex-1">Elenco Carichi</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400" id="reg-table-head">
+                                        </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="registry-tbody"></tbody>
+                                </table>
+                            </div>
+                            <div id="reg-pagination"></div>
                         </div>
-                        <div id="reg-pagination"></div>
+
                     </div>
                 </div>`;
         },
 
-        renderStats() {
+        renderStats(forceRender = false) {
             const stats = this.getStats();
-            document.getElementById('reg-stats-container').innerHTML = `
-                ${this.renderStatCard('Totale Litri', App.formatInt(stats.totalLiters), 'bg-purple-500', 'droplets')}
-                ${this.renderStatCard('Top Prodotto', stats.topProduct, 'bg-green-500', 'tag')}
-                ${this.renderStatCard('Top Autista', stats.topDriver, 'bg-rose-500', 'user')}
-            `;
-            lucide.createIcons();
+            const container = document.getElementById('reg-stats-container');
+            if (!container) return;
+
+            if (!forceRender && document.getElementById('stat-total-liters')) {
+                document.getElementById('val-total-liters').textContent = App.formatInt(stats.totalLiters);
+                document.getElementById('val-top-prod').textContent = stats.topProduct;
+                document.getElementById('val-top-driver').textContent = stats.topDriver;
+            } else {
+                container.innerHTML = `
+                    ${this.renderStatCard('stat-total-liters', 'Totale Litri', 'val-total-liters', App.formatInt(stats.totalLiters), 'bg-purple-500', 'droplets')}
+                    ${this.renderStatCard('stat-top-prod', 'Top Prodotto', 'val-top-prod', stats.topProduct, 'bg-green-500', 'tag')}
+                    ${this.renderStatCard('stat-top-driver', 'Top Autista', 'val-top-driver', stats.topDriver, 'bg-rose-500', 'user')}
+                `;
+                lucide.createIcons();
+            }
         },
-        renderStatCard(t, v, bg, i) { return `<div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${t}</p><h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">${v}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${i}" class="w-5 h-5"></i></div></div>`; },
+        renderStatCard(cardId, title, valId, val, bg, icon) {
+            return `<div id="${cardId}" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 draggable-card cursor-move"><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">${title}</p><h3 id="${valId}" class="text-xl font-bold text-gray-900 dark:text-white truncate">${val}</h3></div><div class="inline-flex items-center justify-center w-10 h-10 ${bg} text-white rounded-lg flex-shrink-0 ml-2"><i data-lucide="${icon}" class="w-5 h-5"></i></div></div>`;
+        },
 
         renderSummary() {
             const s = this.getAnnualSummary();
@@ -118,8 +196,26 @@
         },
 
         renderTable() {
+            const thead = document.getElementById('reg-table-head');
             const tbody = document.getElementById('registry-tbody');
-            if (!tbody) return;
+            if (!tbody || !thead) return;
+
+            const th = (label, col) => {
+                const isActive = this.localState.sort.column === col;
+                const dir = this.localState.sort.direction;
+                const icon = isActive ? (dir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down';
+                const color = isActive ? 'text-gray-900 dark:text-white' : 'text-gray-400';
+                return `<th class="px-4 py-3 cursor-pointer select-none sortable-th hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" data-col="${col}"><div class="flex items-center gap-1">${label}<i data-lucide="${icon}" class="w-4 h-4 ${color}"></i></div></th>`;
+            };
+            thead.innerHTML = `<tr>
+                ${th('Data', 'date')}
+                ${th('Autista', 'autistaName')}
+                ${th('Benzina', 'benzina')}
+                ${th('Gasolio', 'gasolio')}
+                ${th('Diesel+', 'dieselPlus')}
+                ${th('Hvol', 'hvolution')}
+                <th class="px-4 py-3 text-right">Azioni</th>
+            </tr>`;
 
             const allEntries = this.getFilteredEntries();
             const totalPages = Math.ceil(allEntries.length / this.localState.itemsPerPage);
@@ -146,6 +242,7 @@
                     </tr>`).join('');
             }
             this.attachDynamicListeners();
+            lucide.createIcons();
         },
         renderPaginationControls(totalPages) {
             const container = document.getElementById('reg-pagination');
@@ -176,7 +273,19 @@
             let entries = [...App.state.data.registryEntries];
             const q = this.localState.searchQuery.toLowerCase();
             if(q) entries = entries.filter(e => (e.autistaName||'').toLowerCase().includes(q));
-            return entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            const { column, direction } = this.localState.sort;
+            const dir = direction === 'asc' ? 1 : -1;
+            return entries.sort((a,b) => {
+                let va = a[column], vb = b[column];
+                if(['benzina','gasolio','dieselPlus','hvolution'].includes(column)) { va = va?.carico || 0; vb = vb?.carico || 0; }
+                if (column === 'date') return (new Date(va) - new Date(vb)) * dir;
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                if (va < vb) return -1 * dir;
+                if (va > vb) return 1 * dir;
+                return 0;
+            });
         },
         getAnnualSummary() {
             const y = new Date().getFullYear();
@@ -233,17 +342,8 @@
             if(id) document.getElementById('btn-delete-carico').onclick = () => this.deleteCarico(id);
             
             lucide.createIcons();
-            document.querySelectorAll('.btn-dec').forEach(b => b.onclick = () => { 
-                const i = document.getElementById(b.dataset.t); 
-                const isDiff = b.dataset.t.includes('differenza');
-                let val = parseInt(i.value||0) - (isDiff ? 1 : 1000);
-                if (!isDiff) val = Math.max(0, val);
-                i.value = val;
-            });
-            document.querySelectorAll('.btn-inc').forEach(b => b.onclick = () => { 
-                const i = document.getElementById(b.dataset.t); 
-                i.value = parseInt(i.value||0) + (b.dataset.t.includes('differenza') ? 1 : 1000); 
-            });
+            document.querySelectorAll('.btn-dec').forEach(b => b.onclick = () => { const i = document.getElementById(b.dataset.t); const isDiff = b.dataset.t.includes('differenza'); let val = parseInt(i.value||0) - (isDiff ? 1 : 1000); if (!isDiff) val = Math.max(0, val); i.value = val; });
+            document.querySelectorAll('.btn-inc').forEach(b => b.onclick = () => { const i = document.getElementById(b.dataset.t); i.value = parseInt(i.value||0) + (b.dataset.t.includes('differenza') ? 1 : 1000); });
         },
         saveCarico() {
             const fd = new FormData(document.getElementById('form-carico'));
@@ -260,13 +360,8 @@
             App.saveToStorage(); App.closeModal(); this.render();
         },
         deleteCarico(id) {
-            const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare carico?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Questa azione è irreversibile.</p></div>`;
-            const footer = `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-car" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
-            App.showModal('', body, footer, 'max-w-md');
-            document.getElementById('btn-confirm-del-car').onclick = () => {
-                App.state.data.registryEntries = App.state.data.registryEntries.filter(e=>e.id!==id);
-                App.saveToStorage(); App.closeModal(); this.render();
-            };
+            App.showModal('', `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare carico?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Questa azione è irreversibile.</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-car" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`, 'max-w-md');
+            document.getElementById('btn-confirm-del-car').onclick = () => { App.state.data.registryEntries = App.state.data.registryEntries.filter(e=>e.id!==id); App.saveToStorage(); App.closeModal(); this.render(); };
         },
 
         attachListeners() {
@@ -275,6 +370,7 @@
         },
         attachDynamicListeners() {
             document.querySelectorAll('.btn-edit-reg').forEach(b => b.onclick = () => this.openCaricoModal(b.dataset.id));
+            document.querySelectorAll('.sortable-th').forEach(th => { th.onclick = () => { const col = th.dataset.col; if (this.localState.sort.column === col) { this.localState.sort.direction = this.localState.sort.direction === 'asc' ? 'desc' : 'asc'; } else { this.localState.sort.column = col; this.localState.sort.direction = 'desc'; } this.renderTable(); }; });
         }
     };
 

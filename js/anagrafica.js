@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - Responsive Buttons
+   MODULO: Anagrafica (js/anagrafica.js) - Total Drag & Drop
    ========================================================================== */
 (function() {
     'use strict';
@@ -24,10 +24,39 @@
                 this.attachListeners();
             }
             this.updateView();
+            // Ripristina e inizializza Drag & Drop
+            this.restoreLayout();
+            this.initDragAndDrop();
         },
 
         updateView() {
             this.renderGrid();
+        },
+
+        initDragAndDrop() {
+            const grid = document.getElementById('anag-cards-grid');
+            if (grid) {
+                new Sortable(grid, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    handle: '.draggable-card', // Tutta la card è trascinabile
+                    onSort: () => this.saveLayout()
+                });
+            }
+        },
+
+        saveLayout() {
+            const grid = document.getElementById('anag-cards-grid');
+            if (!grid) return;
+            // Salva l'ordine basato sugli ID dei contatti
+            const order = Array.from(grid.children).map(el => el.dataset.id).filter(id => id);
+            localStorage.setItem('mystation_anagrafica_layout', JSON.stringify(order));
+        },
+
+        restoreLayout() {
+            // Nota: Per l'anagrafica, il ripristino è leggermente diverso perché 
+            // le card vengono rigenerate spesso in base alla ricerca.
+            // L'ordinamento salvato dovrebbe avere la priorità nel renderGrid se non c'è ricerca attiva.
         },
 
         getLayoutHTML() {
@@ -57,12 +86,33 @@
         },
 
         renderGrid() {
-            const contatti = this.getFilteredContatti();
+            let contatti = this.getFilteredContatti();
             const content = document.getElementById('anagrafica-grid-area');
-            if (!contatti.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun contatto trovato.</div>'; return; }
+            if (!content) return;
             
-            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">${contatti.map(c => `
-                <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-edit-contatto h-full relative group" data-id="${c.id}">
+            if (!contatti.length) { 
+                content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun contatto trovato.</div>'; 
+                return; 
+            }
+
+            // Se non c'è una ricerca attiva, applica l'ordinamento salvato
+            if (!this.localState.searchQuery) {
+                const savedOrder = JSON.parse(localStorage.getItem('mystation_anagrafica_layout') || '[]');
+                if (savedOrder.length > 0) {
+                    contatti.sort((a, b) => {
+                        const idxA = savedOrder.indexOf(a.id);
+                        const idxB = savedOrder.indexOf(b.id);
+                        if (idxA === -1 && idxB === -1) return 0;
+                        if (idxA === -1) return 1;
+                        if (idxB === -1) return -1;
+                        return idxA - idxB;
+                    });
+                }
+            }
+            
+            // Added id="anag-cards-grid" and items-start
+            content.innerHTML = `<div id="anag-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">${contatti.map(c => `
+                <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move hover:shadow-md transition-shadow h-full relative group draggable-card" data-id="${c.id}">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
@@ -71,6 +121,9 @@
                                 ${c.azienda ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate" title="${c.azienda}">${c.azienda}</p>` : ''}
                             </div>
                         </div>
+                        <button class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-500 btn-edit-contatto p-1" data-id="${c.id}" title="Modifica">
+                            <i data-lucide="pencil" class="size-4"></i>
+                        </button>
                     </div>
                     <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300 flex-1">
                         ${c.telefono1 ? `<div class="flex items-center gap-2"><i data-lucide="phone" class="size-4 text-gray-400"></i> <span>${c.telefono1}</span></div>` : ''}
@@ -78,15 +131,22 @@
                     </div>
                     ${c.note ? `<div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 line-clamp-2" title="${c.note}">${c.note}</div>` : ''}
                 </div>`).join('')}</div>`;
+            
             lucide.createIcons();
-            document.querySelectorAll('.btn-edit-contatto').forEach(b => b.onclick = () => this.openContattoModal(b.dataset.id));
+            // Re-inizializza sortable ogni volta che la griglia viene renderizzata (es. dopo ricerca)
+            this.initDragAndDrop();
+            document.querySelectorAll('.btn-edit-contatto').forEach(b => b.onclick = (e) => { e.stopPropagation(); this.openContattoModal(b.dataset.id); });
         },
 
         getFilteredContatti() {
             let c = [...App.state.data.contatti];
             const q = this.localState.searchQuery.toLowerCase();
             if(q) c = c.filter(x => (x.nome||'').toLowerCase().includes(q) || (x.cognome||'').toLowerCase().includes(q) || (x.azienda||'').toLowerCase().includes(q));
-            return c.sort((a,b) => (a.cognome||'').localeCompare(b.cognome||''));
+            // Ordinamento alfabetico di default solo se non c'è un ordine salvato o se c'è una ricerca
+            if (q || !localStorage.getItem('mystation_anagrafica_layout')) {
+                 return c.sort((a,b) => (a.cognome||'').localeCompare(b.cognome||''));
+            }
+            return c;
         },
 
         // --- MODALS ---
