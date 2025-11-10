@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Increased Fuel Card Gap
+   MODULO: Home Dashboard (js/home.js) - Circular & Vivid Icons
    ========================================================================== */
 (function() {
     'use strict';
@@ -10,7 +10,6 @@
             const container = document.getElementById('home-container'); if (!container) return;
             if (!document.getElementById('home-layout')) { container.innerHTML = this.getLayoutHTML(); lucide.createIcons(); }
             this.updateView();
-            // Ripristina il layout salvato prima di inizializzare il drag & drop
             this.restoreLayout();
             this.initDragAndDrop();
             if (!this.localState.timeInterval) this.localState.timeInterval = setInterval(() => this.updateClock(), 1000);
@@ -19,12 +18,10 @@
         
         initDragAndDrop() {
             const save = () => this.saveLayout();
-            
             const statsContainer = document.getElementById('home-stats-container');
             if (statsContainer) {
                 new Sortable(statsContainer, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
             }
-
             ['home-col-1', 'home-col-2', 'home-col-3'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -35,19 +32,13 @@
 
         saveLayout() {
             const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-            const layout = {
-                stats: getIds('home-stats-container'),
-                col1: getIds('home-col-1'),
-                col2: getIds('home-col-2'),
-                col3: getIds('home-col-3')
-            };
+            const layout = { stats: getIds('home-stats-container'), col1: getIds('home-col-1'), col2: getIds('home-col-2'), col3: getIds('home-col-3') };
             localStorage.setItem('mystation_home_layout_v11', JSON.stringify(layout));
         },
 
         restoreLayout() {
             const saved = localStorage.getItem('mystation_home_layout_v11');
             if (!saved) return;
-
             try {
                 const layout = JSON.parse(saved);
                 const restoreContainer = (containerId, itemIds) => {
@@ -81,17 +72,26 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                         <div id="home-col-1" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-erogato" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center justify-between mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3><span class="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900 dark:text-blue-300"><i data-lucide="fuel" class="w-5 h-5"></i></span></div>
+                                <div class="flex items-center justify-between mb-4 card-header cursor-move">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
+                                </div>
                                 <div id="home-liters-breakdown" class="space-y-4"></div>
                             </div>
                         </div>
                         <div id="home-col-2" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-turni" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center justify-between mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Turni di oggi</h3><span class="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900 dark:text-green-300"><i data-lucide="list-checks" class="w-5 h-5"></i></span></div>
+                                <div class="flex items-center justify-between mb-4 card-header cursor-move">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Turni di oggi</h3>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full"><i data-lucide="list-checks" class="w-5 h-5"></i></div>
+                                </div>
                                 <div id="todays-shifts-info"></div>
                             </div>
                             <div id="card-consegne" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center justify-between mb-4 card-header cursor-move"><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Consegne Carburante</h3><span class="p-2 bg-cyan-100 text-cyan-600 rounded-lg dark:bg-cyan-900 dark:text-cyan-300"><i data-lucide="truck" class="w-5 h-5"></i></span></div>
+                                <div class="flex items-center justify-between mb-4 card-header cursor-move">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Consegne Carburante</h3>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-cyan-600 text-white rounded-full"><i data-lucide="truck" class="w-5 h-5"></i></div>
+                                </div>
                                 <div id="home-fuel-orders"></div>
                             </div>
                         </div>
@@ -114,10 +114,10 @@
             if (c1 && c1.children.length === 0) {
                 const taxable = s.revenue / 1.22; const vat = s.revenue - taxable;
                 c1.innerHTML = `
-                    <div id="stat-revenue" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Fatturato Oggi</h3><span class="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900 dark:text-green-300"><i data-lucide="euro" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="val-revenue">${App.formatCurrency(s.revenue)}</div><div class="flex justify-between text-xs text-gray-500 dark:text-gray-400"><span id="val-taxable">Imp: ${App.formatCurrency(taxable)}</span><span id="val-vat">IVA: ${App.formatCurrency(vat)}</span></div></div>
-                    <div id="stat-margin" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Margine Stimato</h3><span class="p-2 bg-yellow-100 text-yellow-600 rounded-lg dark:bg-yellow-900 dark:text-yellow-300"><i data-lucide="trending-up" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-margin">${App.formatCurrency(s.margin)}</div><p class="text-xs text-gray-500 mt-1">Stima predefinita</p></div>
-                    <div id="stat-liters" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Litri</h3><span class="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900 dark:text-blue-300"><i data-lucide="droplet" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-liters">${App.formatNumber(s.totalLiters)}</div><p class="text-xs text-gray-500 mt-1">Erogati oggi</p></div>
-                    <div id="stat-served" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">% Servito</h3><span class="p-2 bg-purple-100 text-purple-600 rounded-lg dark:bg-purple-900 dark:text-purple-300"><i data-lucide="user-check" class="w-5 h-5"></i></span></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-served">${s.servitoPerc}%</div><div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700"><div id="bar-served" class="bg-purple-600 h-1.5 rounded-full" style="width: ${s.servitoPerc}%"></div></div></div>`;
+                    <div id="stat-revenue" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Fatturato Oggi</h3><div class="flex items-center justify-center w-12 h-12 bg-green-600 text-white rounded-full"><i data-lucide="euro" class="w-6 h-6"></i></div></div><div class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="val-revenue">${App.formatCurrency(s.revenue)}</div><div class="flex justify-between text-xs text-gray-500 dark:text-gray-400"><span id="val-taxable">Imp: ${App.formatCurrency(taxable)}</span><span id="val-vat">IVA: ${App.formatCurrency(vat)}</span></div></div>
+                    <div id="stat-margin" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Margine Stimato</h3><div class="flex items-center justify-center w-12 h-12 bg-yellow-500 text-white rounded-full"><i data-lucide="trending-up" class="w-6 h-6"></i></div></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-margin">${App.formatCurrency(s.margin)}</div><p class="text-xs text-gray-500 mt-1">Stima predefinita</p></div>
+                    <div id="stat-liters" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Litri</h3><div class="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full"><i data-lucide="droplet" class="w-6 h-6"></i></div></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-liters">${App.formatNumber(s.totalLiters)}</div><p class="text-xs text-gray-500 mt-1">Erogati oggi</p></div>
+                    <div id="stat-served" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move"><div class="flex justify-between mb-2"><h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">% Servito</h3><div class="flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full"><i data-lucide="user-check" class="w-6 h-6"></i></div></div><div class="text-2xl font-bold text-gray-900 dark:text-white" id="val-served">${s.servitoPerc}%</div><div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700"><div id="bar-served" class="bg-purple-600 h-1.5 rounded-full" style="width: ${s.servitoPerc}%"></div></div></div>`;
             } else if (document.getElementById('stat-revenue')) {
                 const taxable = s.revenue / 1.22; const vat = s.revenue - taxable;
                 document.getElementById('val-revenue').textContent = App.formatCurrency(s.revenue);
@@ -135,7 +135,7 @@
                 c2.innerHTML = prods.map(p => { const l=s.products[p.k]||0; const perc=s.totalLiters>0?Math.round((l/s.totalLiters)*100):0; return `<div><div class="flex justify-between items-center mb-1"><span class="text-sm font-medium text-gray-700 dark:text-gray-300">${p.l}</span><span class="text-sm font-bold text-gray-900 dark:text-white">${App.formatNumber(l)} L <span class="text-xs font-normal text-gray-500 ml-1">(${perc}%)</span></span></div><div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700"><div class="${p.c} h-2 rounded-full" style="width: ${perc}%"></div></div></div>`; }).join('');
             }
             const c3 = document.getElementById('todays-shifts-info');
-            if(c3) c3.innerHTML = s.todayShifts.length ? `<div class="flex flex-col gap-3"><div><div class="text-base font-bold text-gray-900 dark:text-white mb-1">${s.todayShifts.map(t=>t.turno).join(', ')}</div><div class="text-sm text-gray-500 dark:text-gray-400">Turni chiusi: <span class="font-semibold">${s.todayShifts.length}</span></div></div><div class="mt-2 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center"><span class="text-sm text-gray-600 dark:text-gray-300">Totale Erogato Oggi:</span><span class="font-bold text-primary-600 dark:text-primary-500">${App.formatNumber(s.totalLiters)} L</span></div></div>` : `<p class="text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun turno chiuso oggi.</p>`;
+            if(c3) c3.innerHTML = s.todayShifts.length ? `<div class="flex flex-col gap-3"><div><div class="text-lg font-bold text-gray-900 dark:text-white mb-1">${s.todayShifts.map(t=>t.turno).join(', ')}</div><div class="text-sm text-gray-500 dark:text-gray-400">Turni chiusi: <span class="font-semibold">${s.todayShifts.length}</span></div></div><div class="mt-2 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center"><span class="text-sm text-gray-600 dark:text-gray-300">Totale Erogato Oggi:</span><span class="font-bold text-primary-600 dark:text-primary-500">${App.formatNumber(s.totalLiters)} L</span></div></div>` : `<p class="text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun turno chiuso oggi.</p>`;
             lucide.createIcons();
         },
         renderActivitiesAndOrders() {
@@ -162,7 +162,6 @@
                     const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
                     const details = Object.entries(o.products).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
                     
-                    // MODIFICA: Card con spaziatura aumentata e font più grandi
                     return `
                         <div class="p-4 border border-cyan-100 bg-cyan-50 dark:bg-cyan-900/20 dark:border-cyan-800 rounded-lg">
                             <div class="flex justify-between items-start mb-3">
