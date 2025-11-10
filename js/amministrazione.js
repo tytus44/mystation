@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - Standardized Headers & Stats
+   MODULO: Amministrazione (js/amministrazione.js) - Standardized Client Cards
    ========================================================================== */
 (function() {
     'use strict';
@@ -34,7 +34,6 @@
         updateView() {
             this.renderStats();
             this.updateViewButtons();
-            // Renderizza la vista corrente all'interno del contenitore standardizzato
             if (this.localState.currentView === 'list') this.renderTable();
             else this.renderGrid();
         },
@@ -45,7 +44,7 @@
                 new Sortable(stats, {
                     animation: 150,
                     ghostClass: 'sortable-ghost',
-                    handle: '.draggable-card', // Tutta la card è trascinabile
+                    handle: '.draggable-card',
                     onSort: () => this.saveLayout()
                 });
             }
@@ -65,7 +64,7 @@
                 const order = JSON.parse(saved);
                 const container = document.getElementById('admin-stats');
                 if (!container) return;
-                if (container.children.length === 0) this.renderStats(true); // Force render if empty
+                if (container.children.length === 0) this.renderStats(true);
                 order.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) container.appendChild(el);
@@ -103,8 +102,7 @@
                         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                             <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="admin-view-title">Gestione Clienti</h3>
                         </div>
-                        <div class="p-6" id="admin-content-area">
-                            </div>
+                        <div class="p-6" id="admin-content-area"></div>
                     </div>
                 </div>`;
         },
@@ -114,10 +112,8 @@
             const totalCredit = clients.reduce((sum, c) => sum + Math.max(0, c.balance || 0), 0);
             const totalDebit = clients.reduce((sum, c) => sum + Math.min(0, c.balance || 0), 0);
             const container = document.getElementById('admin-stats');
-            
             if (!container) return;
 
-            // Se le card esistono già e non è richiesto forceRender, aggiorna solo i valori
             if (!forceRender && document.getElementById('val-stat-clients')) {
                  document.getElementById('val-stat-clients').textContent = clients.length;
                  document.getElementById('val-stat-credit').textContent = App.formatCurrency(totalCredit).replace('€','');
@@ -132,7 +128,6 @@
             }
         },
 
-        // MODIFICA: renderStatCard uniformato allo stile Home (Header con icona, Body con valore)
         renderStatCard(id, title, valId, value, iconBg, iconName) {
             return `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
@@ -163,7 +158,6 @@
             if (!content) return;
             if (!clients.length) { content.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">Nessun cliente trovato.</div>'; return; }
             
-            // Tabella senza il contenitore card esterno (ora è nel layout principale)
             content.innerHTML = `
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -188,19 +182,26 @@
             if (!content) return;
             if (!clients.length) { content.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">Nessun cliente trovato.</div>'; return; }
             
-            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">${clients.map(c => {
+            content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">${clients.map(c => {
                 const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
                 const lastTx = this.getLastTransaction(c);
-                // Card cliente in griglia leggermente aggiornata per coerenza
+                
+                // MODIFICA: Card cliente standardizzata con header e divisore
                 return `
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-manage-client h-full overflow-hidden" data-id="${c.id}">
-                    <div class="px-5 py-4 flex-1">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white truncate mb-2">${c.name}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1"></i> ${lastTx ? 'Ult. op: ' + App.formatDate(lastTx.date) : 'Nessuna operazione'}</p>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-manage-client overflow-hidden" data-id="${c.id}">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white truncate" title="${c.name}">${c.name}</h3>
+                        <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
                     </div>
-                    <div class="px-5 py-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo:</span>
-                        <span class="text-xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span>
+                    <div class="p-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                             <span class="text-sm text-gray-500 dark:text-gray-400">Saldo:</span>
+                             <span class="text-xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center">
+                            <i data-lucide="calendar" class="w-4 h-4 mr-2"></i> 
+                            ${lastTx ? 'Ult. op: ' + App.formatDate(lastTx.date) : 'Nessuna operazione'}
+                        </div>
                     </div>
                 </div>`;
             }).join('')}</div>`;
@@ -297,10 +298,23 @@
         },
 
         showDeleteModal(title, message, onConfirm) {
-            const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${title}</h3><p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p></div>`;
-            const footer = `<div class="flex justify-center gap-4 w-full"><button id="btn-cancel-delete" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
+            const body = `
+                <div class="text-center p-6 flex flex-col items-center">
+                    <i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${title}</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p>
+                </div>`;
+            const footer = `
+                <div class="flex justify-center gap-4 w-full">
+                    <button id="btn-cancel-delete" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button>
+                    <button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button>
+                </div>`;
+            
             App.showModal('', body, footer, 'max-w-md');
-            document.getElementById('btn-cancel-delete').onclick = () => { if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId); else App.closeModal(); };
+            document.getElementById('btn-cancel-delete').onclick = () => {
+                 if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId);
+                 else App.closeModal();
+            };
             document.getElementById('btn-confirm-delete').onclick = onConfirm;
         },
         deleteClient(id) {
@@ -339,6 +353,7 @@
             document.querySelectorAll('.btn-manage-client').forEach(b => b.onclick = () => this.openClientModal(b.dataset.id));
         }
     };
+
     if(window.App) App.registerModule('amministrazione', AdminModule); 
     else document.addEventListener('app:ready', () => App.registerModule('amministrazione', AdminModule));
 })();
