@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Syntax Fixed
+   MODULO: Applicazioni (js/applicazioni.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -40,7 +40,6 @@
             this.updateBanconoteTotal();
         },
 
-        // Funzione helper per l'header delle card (spostata prima per sicurezza)
         renderHeader(title, icon, bgClass) {
             return `
                 <div class="flex items-center mb-4">
@@ -52,12 +51,11 @@
         },
 
         getLayoutHTML() {
-            // MODIFICA: Mappatura prodotti per etichette personalizzate
             const fuelProducts = [
                 { key: 'benzina', label: 'Benzina' },
                 { key: 'gasolio', label: 'Gasolio' },
-                { key: 'dieselplus', label: 'Diesel+' }, // Etichetta modificata
-                { key: 'hvolution', label: 'Hvo' }       // Etichetta modificata
+                { key: 'dieselplus', label: 'Diesel+' },
+                { key: 'hvolution', label: 'Hvo' }
             ];
 
             return `
@@ -86,7 +84,10 @@
                         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col">
                             <div class="flex items-center justify-between mb-6">
                                 ${this.renderHeader('Eventi', 'list-todo', 'bg-purple-600')}
-                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center"><i data-lucide="plus" class="size-4 mr-1"></i> Nuovo</button>
+                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center transition-colors" title="Nuovo Evento">
+                                    <i data-lucide="plus" class="size-4 sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Nuovo</span>
+                                </button>
                             </div>
                             <h4 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-3" id="event-list-title">Seleziona una data</h4>
                             <div id="event-list" class="space-y-3 flex-1 overflow-y-auto pr-2 max-h-[400px]"></div>
@@ -120,7 +121,10 @@
                                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Stimato:</span>
                                     <span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span>
                                 </div>
-                                <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center"><i data-lucide="save" class="size-4 mr-2"></i> Salva Ordine</button>
+                                <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine">
+                                    <i data-lucide="save" class="size-4 sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Salva Ordine</span>
+                                </button>
                             </div>
                         </div>
 

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Standardized Toasts & Updated Buttons
+   MODULO: Impostazioni (js/impostazioni.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -28,11 +28,13 @@
                                 </div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Esporta i tuoi dati per sicurezza o importali su un altro dispositivo.</p>
                                 <div class="flex flex-wrap gap-4">
-                                    <button id="btn-settings-export" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                                        <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta Backup
+                                    <button id="btn-settings-export" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" title="Esporta Backup">
+                                        <i data-lucide="download" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Esporta Backup</span>
                                     </button>
-                                    <button id="btn-settings-import" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center">
-                                        <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importa Backup
+                                    <button id="btn-settings-import" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center" title="Importa Backup">
+                                        <i data-lucide="upload" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Importa Backup</span>
                                     </button>
                                 </div>
                             </div>
@@ -46,11 +48,13 @@
                                 </div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Stampa i fogli per la gestione manuale dei turni.</p>
                                 <div class="flex flex-wrap gap-4">
-                                    <a href="pdf/inizio.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline">
-                                        <i data-lucide="sun" class="w-4 h-4 mr-2"></i> Inizio Giornata
+                                    <a href="pdf/inizio.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline" title="Foglio Inizio Giornata">
+                                        <i data-lucide="sun" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Inizio Giornata</span>
                                     </a>
-                                    <a href="pdf/fine.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline">
-                                        <i data-lucide="moon" class="w-4 h-4 mr-2"></i> Fine Giornata
+                                    <a href="pdf/fine.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline" title="Foglio Fine Giornata">
+                                        <i data-lucide="moon" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Fine Giornata</span>
                                     </a>
                                 </div>
                             </div>
@@ -65,8 +69,9 @@
                                 <p class="text-sm text-red-600 dark:text-red-400 mb-6">
                                     Le azioni in questa sezione sono <strong>irreversibili</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere con qualsiasi operazione di cancellazione.
                                 </p>
-                                <button id="btn-clear-data" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center w-full justify-center sm:w-auto">
-                                    <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina TUTTI i dati
+                                <button id="btn-clear-data" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center justify-center sm:w-auto w-full" title="Elimina TUTTI i dati">
+                                    <i data-lucide="trash-2" class="w-4 h-4 sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Elimina TUTTI i dati</span>
                                 </button>
                             </div>
                         </div>

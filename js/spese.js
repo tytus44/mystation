@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Spese (js/spese.js) - Flowbite Delete Modals
+   MODULO: Gestione Spese (js/spese.js) - Shortened Filter Label
    ========================================================================== */
 (function() {
     'use strict';
@@ -17,12 +17,15 @@
 
         init() {
             if (!App.state.data.spese) App.state.data.spese = [];
-            if (!App.state.data.speseEtichette || !App.state.data.speseEtichette.length) {
+            // Assicura che esista almeno l'etichetta default se la lista è vuota o corrotta
+            if (!App.state.data.speseEtichette || !Array.isArray(App.state.data.speseEtichette) || App.state.data.speseEtichette.length === 0) {
                 App.state.data.speseEtichette = [
                     { id: 'default', name: 'Generale', color: '#6b7280' },
                     { id: 'carburante', name: 'Carburante', color: '#ef4444' },
                     { id: 'manutenzione', name: 'Manutenzione', color: '#eab308' }
                 ];
+            } else if (!App.state.data.speseEtichette.find(l => l.id === 'default')) {
+                 App.state.data.speseEtichette.unshift({ id: 'default', name: 'Generale', color: '#6b7280' });
             }
         },
 
@@ -42,8 +45,11 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Gestione Spese</h2>
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="relative"><div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div><input type="search" id="spese-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca spesa..."></div>
-                            <div class="flex gap-2">${this.renderDropdown('filter-month', 'Tutti i mesi')}${this.renderDropdown('filter-year', 'Tutti gli anni')}${this.renderDropdown('filter-label', 'Tutte le etichette')}</div>
-                            <button id="btn-new-spesa" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center"><i data-lucide="plus" class="size-4 mr-2"></i> Nuova Spesa</button>
+                            <div class="flex gap-2">${this.renderDropdown('filter-month', 'Tutti i mesi')}${this.renderDropdown('filter-year', 'Tutti gli anni')}${this.renderDropdown('filter-label', 'Tutte')}</div>
+                            <button id="btn-new-spesa" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuova Spesa">
+                                <i data-lucide="plus" class="size-4 sm:mr-2"></i>
+                                <span class="hidden sm:inline">Nuova Spesa</span>
+                            </button>
                         </div>
                     </div>
                     <div id="spese-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
@@ -58,7 +64,8 @@
             if (!years.includes(new Date().getFullYear())) years.unshift(new Date().getFullYear());
             this.populateDropdown('filter-month', [{ val: 'all', text: 'Tutti i mesi' }, ...months.map((m,i) => ({ val: (i+1).toString(), text: m }))], this.localState.filters.month);
             this.populateDropdown('filter-year', [{ val: 'all', text: 'Tutti gli anni' }, ...years.map(y => ({ val: y.toString(), text: y.toString() }))], this.localState.filters.year);
-            this.populateDropdown('filter-label', [{ val: 'all', text: 'Tutte le etichette' }, ...App.state.data.speseEtichette.map(l => ({ val: l.id, text: l.name }))], this.localState.filters.labelId);
+            // MODIFICA: Cambiato "Tutte le etichette" in "Tutte"
+            this.populateDropdown('filter-label', [{ val: 'all', text: 'Tutte' }, ...App.state.data.speseEtichette.map(l => ({ val: l.id, text: l.name }))], this.localState.filters.labelId);
         },
         populateDropdown(id, options, currentVal) {
             const list = document.getElementById(`${id}-list`); const btnText = document.getElementById(`${id}-text`); if (!list || !btnText) return;
@@ -81,9 +88,14 @@
             const content = document.getElementById('spese-content-area');
             if (!spese.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessuna spesa trovata.</div>'; return; }
             const labels = App.state.data.speseEtichette.reduce((acc, l) => { acc[l.id] = l; return acc; }, {});
+            
             content.innerHTML = `
                 <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                    <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Fornitore</th><th class="px-4 py-3">Etichetta</th><th class="px-4 py-3">Importo</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700">${spese.map(s => { const l = labels[s.labelId] || labels['default']; const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; }).join('')}</tbody></table></div>
+                    <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3">Fornitore</th><th class="px-4 py-3">Etichetta</th><th class="px-4 py-3">Importo</th><th class="px-4 py-3 text-right">Azioni</th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700">${spese.map(s => { 
+                        const l = labels[s.labelId] || labels['default'] || { name: 'Non trovata', color: '#9ca3af' }; 
+                        const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; 
+                        return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; 
+                    }).join('')}</tbody></table></div>
                 </div>`;
             this.attachDynamicListeners();
         },
@@ -103,10 +115,16 @@
             const s = id ? App.state.data.spese.find(x=>x.id===id) : null;
             const dISO = s ? s.date.split('T')[0] : new Date().toISOString().split('T')[0];
             const cls = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
-            const curLabelId = s?.labelId || 'default';
-            const curLabelName = App.state.data.speseEtichette.find(l=>l.id===curLabelId)?.name || 'Generale';
+            
+            let curLabelId = s?.labelId;
+            let labelObj = App.state.data.speseEtichette.find(l => l.id === curLabelId);
+            if (!labelObj) {
+                labelObj = App.state.data.speseEtichette.find(l => l.id === 'default') || App.state.data.speseEtichette[0];
+                curLabelId = labelObj ? labelObj.id : '';
+            }
+            const curLabelName = labelObj ? labelObj.name : 'Seleziona...';
 
-            const form = `<form id="form-spesa" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Importo (€)</label><input type="number" step="0.01" name="amount" value="${s?.amount||''}" class="${cls}" placeholder="0.00" required></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="description" value="${s?.description||''}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fornitore (opzionale)</label><input type="text" name="fornitore" value="${s?.fornitore||''}" class="${cls}"></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Etichetta</label><div class="flex gap-2"><div class="relative flex-1">${this.renderDropdown('spesa-label', curLabelName)}<input type="hidden" name="labelId" id="spesa-label-input" value="${curLabelId}"></div><button type="button" id="btn-manage-labels" class="px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 flex items-center" title="Gestisci Etichette"><i data-lucide="tags" class="w-5 h-5 mr-2"></i> Gestisci etichette</button></div></div></form>`;
+            const form = `<form id="form-spesa" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Importo (€)</label><input type="number" step="0.01" name="amount" value="${s?.amount||''}" class="${cls}" placeholder="0.00" required></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="description" value="${s?.description||''}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fornitore (opzionale)</label><input type="text" name="fornitore" value="${s?.fornitore||''}" class="${cls}"></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Etichetta</label><div class="flex gap-2"><div class="relative flex-1">${this.renderDropdown('spesa-label', curLabelName)}<input type="hidden" name="labelId" id="spesa-label-input" value="${curLabelId}"></div><button type="button" id="btn-manage-labels" class="px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 flex items-center" title="Gestisci Etichette"><i data-lucide="tags" class="w-5 h-5 sm:mr-2"></i><span class="hidden sm:inline">Gestisci etichette</span></button></div></div></form>`;
             const deleteBtn = id ? `<button id="btn-delete-spesa" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
             App.showModal(id?'Modifica Spesa':'Nuova Spesa', form, `${deleteBtn}<button id="btn-save-spesa" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5">Salva</button>`, 'max-w-md');
             
@@ -145,7 +163,7 @@
             this.showDeleteModal('Eliminare etichetta?', msg, () => {
                 App.state.data.spese.forEach(s => { if(s.labelId===id) s.labelId='default'; });
                 App.state.data.speseEtichette = App.state.data.speseEtichette.filter(l=>l.id!==id);
-                App.saveToStorage(); this.openLabelsModal();
+                App.saveToStorage(); this.openLabelsModal(); this.render();
             });
         },
 
@@ -157,7 +175,7 @@
             App.showModal('Gestisci Etichette', body, '<button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600" onclick="App.closeModal()">Chiudi</button>', 'max-w-md');
 
             document.querySelectorAll('.color-swatch').forEach(btn => { btn.onclick = () => { this.localState.newLabelColor = btn.dataset.color; document.querySelectorAll('.color-swatch').forEach(b => b.style.borderColor = 'transparent'); btn.style.borderColor = '#2563eb'; }; });
-            document.getElementById('btn-add-label').onclick = () => { const name = document.getElementById('new-label-name').value.trim(); if(name) { App.state.data.speseEtichette.push({ id: App.generateId('lbl'), name, color: this.localState.newLabelColor }); App.saveToStorage(); this.openLabelsModal(); } };
+            document.getElementById('btn-add-label').onclick = () => { const name = document.getElementById('new-label-name').value.trim(); if(name) { App.state.data.speseEtichette.push({ id: App.generateId('lbl'), name, color: this.localState.newLabelColor }); App.saveToStorage(); this.openLabelsModal(); this.updateView(); } };
             document.querySelectorAll('.btn-del-label').forEach(b => b.onclick = () => this.deleteLabel(b.dataset.id));
         },
 

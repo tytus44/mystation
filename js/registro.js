@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Registro di Carico (js/registro.js) - Custom Input Widths
+   MODULO: Registro di Carico (js/registro.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -46,7 +46,10 @@
                                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
                                 <input type="search" id="reg-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca autista..." value="${this.localState.searchQuery}">
                             </div>
-                            <button id="btn-new-carico" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center"><i data-lucide="truck" class="size-4 mr-2"></i> Nuovo Carico</button>
+                            <button id="btn-new-carico" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Carico">
+                                <i data-lucide="truck" class="size-4 sm:mr-2"></i>
+                                <span class="hidden sm:inline">Nuovo Carico</span>
+                            </button>
                         </div>
                     </div>
                     <div id="reg-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>

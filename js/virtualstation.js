@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Delete Modal & Text Fix
+   MODULO: VirtualStation (js/virtualstation.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -46,7 +46,11 @@
                     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Virtualstation</h2>
                         <div class="flex flex-wrap items-center gap-3">
-                            <button id="dropdownFilterButton" data-dropdown-toggle="dropdownFilter" class="text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700" type="button"><span id="filter-label">Oggi</span> <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button>
+                            <button id="dropdownFilterButton" data-dropdown-toggle="dropdownFilter" class="text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700" type="button">
+                                <i data-lucide="calendar" class="w-4 h-4 sm:mr-2 text-gray-500 dark:text-gray-400"></i>
+                                <span id="filter-label" class="hidden sm:inline">Oggi</span>
+                                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
+                            </button>
                             <div id="dropdownFilter" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
                                 <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownFilterButton">
                                     <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="today">Oggi</a></li>
@@ -54,7 +58,10 @@
                                     <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="year" id="filter-year-opt">Anno</a></li>
                                 </ul>
                             </div>
-                            <button id="btn-new-turno" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center"><i data-lucide="monitor-dot" class="size-4 mr-2"></i> Nuovo Turno</button>
+                            <button id="btn-new-turno" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Turno">
+                                <i data-lucide="monitor-dot" class="size-4 sm:mr-2"></i>
+                                <span class="hidden sm:inline">Nuovo Turno</span>
+                            </button>
                         </div>
                     </div>
                     <div id="v-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
@@ -209,7 +216,6 @@
             App.saveToStorage(); App.closeModal(); this.render();
         },
 
-        // --- NEW DELETE MODAL ---
         deleteTurno(id) {
             const t = App.state.data.turni.find(x=>x.id===id);
             const body = `
@@ -229,7 +235,6 @@
             
             App.showModal('', body, footer, 'max-w-md');
             
-            // Attach listener with a slight delay to ensure DOM readiness
             setTimeout(() => {
                  document.getElementById('btn-confirm-delete').onclick = () => {
                      App.state.data.turni = App.state.data.turni.filter(t => t.id !== id);

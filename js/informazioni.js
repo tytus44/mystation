@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Informazioni (js/informazioni.js) - Added Export Button
+   MODULO: Informazioni (js/informazioni.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -91,10 +91,22 @@
                                     <input type="search" id="stazioni-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca impianto..." value="${this.localState.searchQuery}">
                                 </div>
                                 <div class="flex gap-2">
-                                    <button id="btn-import-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
-                                    <button id="btn-export-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
-                                    <button id="btn-print-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
-                                    <button id="btn-del-all-stazioni" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
+                                    <button id="btn-import-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV">
+                                        <i data-lucide="upload" class="size-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Importa</span>
+                                    </button>
+                                    <button id="btn-export-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV">
+                                        <i data-lucide="download" class="size-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Esporta</span>
+                                    </button>
+                                    <button id="btn-print-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa">
+                                        <i data-lucide="printer" class="size-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Stampa</span>
+                                    </button>
+                                    <button id="btn-del-all-stazioni" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto">
+                                        <i data-lucide="trash-2" class="size-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Elimina</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -197,7 +209,6 @@
             r.readAsText(f); e.target.value = '';
         },
 
-        // NUOVA FUNZIONE EXPORT CSV
         exportCSV() {
             const stazioni = App.state.data.stazioni;
             if (!stazioni || stazioni.length === 0) return alert("Nessun impianto da esportare.");
@@ -220,7 +231,7 @@
         attachListeners() {
             document.getElementById('stazioni-search').oninput = (e) => { this.localState.searchQuery = e.target.value; this.localState.currentPage = 1; this.renderTable(); };
             document.getElementById('btn-import-stazioni').onclick = () => document.getElementById('import-stazioni-input').click();
-            document.getElementById('btn-export-stazioni').onclick = () => this.exportCSV(); // LISTENER EXPORT
+            document.getElementById('btn-export-stazioni').onclick = () => this.exportCSV();
             document.getElementById('btn-print-stazioni').onclick = () => this.printList();
             document.getElementById('btn-del-all-stazioni').onclick = () => this.deleteAll();
             

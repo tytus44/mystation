@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Final Colors & Interaction
+   MODULO: Home Dashboard (js/home.js) - Order Details & Cancellation
    ========================================================================== */
 (function() {
     'use strict';
@@ -90,53 +90,44 @@
             const ordList = document.getElementById('home-fuel-orders');
             if(ordList) {
                 if(!orders.length) ordList.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun ordine in arrivo.</p>';
-                else ordList.innerHTML = '<div class="space-y-2 max-h-[150px] overflow-y-auto pr-1">' + orders.map(o => {
+                else ordList.innerHTML = '<div class="space-y-2 max-h-[250px] overflow-y-auto pr-1">' + orders.map(o => {
                     const totalL = Object.values(o.products).reduce((a,b)=>a+b,0);
-                    return `<div class="p-3 border border-cyan-100 bg-cyan-50 dark:bg-cyan-900/20 dark:border-cyan-800 rounded-lg flex justify-between items-center"><div><div class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">${App.formatDate(o.date)}</div><div class="text-sm font-medium text-gray-900 dark:text-white">${App.formatNumber(totalL)} Litri</div></div><button class="px-2 py-1 text-xs font-medium rounded-full ${o.status==='pending'?'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 cursor-pointer btn-toggle-order':'bg-green-100 text-green-800'}" data-id="${o.id}">${o.status==='pending'?'In attesa':'Consegnato'}</button></div>`;
+                    const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
+                    const details = Object.entries(o.products).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
+                    
+                    return `
+                        <div class="p-3 border border-cyan-100 bg-cyan-50 dark:bg-cyan-900/20 dark:border-cyan-800 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="text-xs font-semibold text-cyan-700 dark:text-cyan-300">${App.formatDate(o.date)}</div>
+                                    <div class="text-sm font-bold text-gray-900 dark:text-white">${App.formatNumber(totalL)} Litri Totali</div>
+                                </div>
+                                <div class="flex gap-2">
+                                    ${o.status === 'pending' ? `<button class="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md btn-delete-order" data-id="${o.id}" title="Cancella ordine"><i data-lucide="trash-2" class="size-4"></i></button>` : ''}
+                                    <button class="px-2 py-1 text-xs font-medium rounded-full ${o.status==='pending'?'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 cursor-pointer btn-toggle-order':'bg-green-100 text-green-800'}" data-id="${o.id}">${o.status==='pending'?'In attesa':'Consegnato'}</button>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400 pt-2 border-t border-cyan-200 dark:border-cyan-800/50">
+                                ${details || 'Nessun dettaglio'}
+                            </div>
+                        </div>`;
                 }).join('') + '</div>';
             }
             lucide.createIcons();
-            document.querySelectorAll('.home-event-item').forEach(b => b.onclick = () => {
-                if(window.App.modules.applicazioni && typeof window.App.modules.applicazioni.openEventModal === 'function') {
-                     window.App.modules.applicazioni.openEventModal(b.dataset.id, b.dataset.type);
-                }
-            });
+            document.querySelectorAll('.home-event-item').forEach(b => b.onclick = () => { if(window.App.modules.applicazioni?.openEventModal) window.App.modules.applicazioni.openEventModal(b.dataset.id, b.dataset.type); });
             document.getElementById('btn-go-apps').onclick = () => window.location.hash = '#applicazioni';
             document.querySelectorAll('.btn-toggle-order').forEach(b => b.onclick = () => this.confirmOrderDelivery(b.dataset.id));
+            document.querySelectorAll('.btn-delete-order').forEach(b => b.onclick = () => this.deleteOrder(b.dataset.id));
         },
         confirmOrderDelivery(id) {
-            const o = App.state.data.fuelOrders.find(x => x.id === id);
-            if (!o || o.status !== 'pending') return;
-
-            const body = `
-                <div class="text-center p-6 flex flex-col items-center">
-                    <i data-lucide="truck" class="w-16 h-16 text-cyan-600 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Conferma Consegna</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mb-6">
-                        Confermi che l'ordine del <b>${App.formatDate(o.date)}</b> è stato consegnato?
-                    </p>
-                </div>`;
-            const footer = `
-                <div class="flex justify-center gap-4 w-full">
-                    <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
-                    <button id="btn-confirm-delivery" class="py-2.5 px-5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800">Conferma</button>
-                </div>`;
-
-            App.showModal('', body, footer, 'max-w-md');
-
-            // Usa setTimeout per assicurarsi che il modale sia renderizzato prima di attaccare il listener
-            setTimeout(() => {
-                const confirmBtn = document.getElementById('btn-confirm-delivery');
-                if (confirmBtn) {
-                    confirmBtn.onclick = () => {
-                        o.status = 'delivered';
-                        App.saveToStorage();
-                        App.closeModal();
-                        this.renderActivitiesAndOrders();
-                        App.showToast('Ordine segnato come consegnato!', 'success');
-                    };
-                }
-            }, 50);
+            const o = App.state.data.fuelOrders.find(x => x.id === id); if (!o || o.status !== 'pending') return;
+            App.showModal('', `<div class="text-center p-6"><i data-lucide="truck" class="w-16 h-16 text-cyan-600 mb-4 mx-auto"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Conferma Consegna</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Confermi che l'ordine del <b>${App.formatDate(o.date)}</b> è stato consegnato?</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-delivery" class="py-2.5 px-5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">Conferma</button></div>`, 'max-w-md');
+            setTimeout(() => { document.getElementById('btn-confirm-delivery').onclick = () => { o.status = 'delivered'; App.saveToStorage(); App.closeModal(); this.renderActivitiesAndOrders(); App.showToast('Ordine consegnato!', 'success'); }; }, 50);
+        },
+        deleteOrder(id) {
+            const o = App.state.data.fuelOrders.find(x => x.id === id); if (!o) return;
+            App.showModal('', `<div class="text-center p-6"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4 mx-auto"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cancellare Ordine?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Eliminare l'ordine del <b>${App.formatDate(o.date)}</b>?</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-ord" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Elimina</button></div>`, 'max-w-md');
+            setTimeout(() => { document.getElementById('btn-confirm-del-ord').onclick = () => { App.state.data.fuelOrders = App.state.data.fuelOrders.filter(x=>x.id!==id); App.saveToStorage(); App.closeModal(); this.renderActivitiesAndOrders(); App.showToast('Ordine cancellato', 'success'); }; }, 50);
         },
         getTodayStats() {
             const today=new Date(); today.setHours(0,0,0,0); const tmr=new Date(today); tmr.setDate(tmr.getDate()+1);

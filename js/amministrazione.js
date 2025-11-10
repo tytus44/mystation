@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - Flowbite Delete Modals
+   MODULO: Amministrazione (js/amministrazione.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -47,11 +47,17 @@
                                 <input type="search" id="admin-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca cliente..." value="${this.localState.searchQuery}">
                             </div>
                             <div class="inline-flex rounded-md shadow-sm" role="group">
-                                <button type="button" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-s-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="list"><i data-lucide="list" class="w-4 h-4"></i></button>
-                                <button type="button" class="px-4 py-2 text-sm font-medium border border-l-0 border-gray-200 rounded-e-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="grid"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-s-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="list" title="Vista Elenco"><i data-lucide="list" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2 text-sm font-medium border border-l-0 border-gray-200 rounded-e-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
                             </div>
-                            <button id="btn-new-client" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center"><i data-lucide="user-plus" class="size-4 mr-2"></i> Nuovo Cliente</button>
-                            <button id="btn-print-list" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"><i data-lucide="printer" class="size-4 mr-2"></i> Stampa Lista</button>
+                            <button id="btn-new-client" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Cliente">
+                                <i data-lucide="user-plus" class="size-4 sm:mr-2"></i>
+                                <span class="hidden sm:inline">Nuovo Cliente</span>
+                            </button>
+                            <button id="btn-print-list" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa Lista">
+                                <i data-lucide="printer" class="size-4 sm:mr-2"></i>
+                                <span class="hidden sm:inline">Stampa Lista</span>
+                            </button>
                         </div>
                     </div>
                     <div id="admin-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>

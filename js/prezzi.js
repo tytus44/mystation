@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Prezzi (js/prezzi.js) - Uses formatPrice (3 decimals)
+   MODULO: Gestione Prezzi (js/prezzi.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -15,8 +15,6 @@
             if (this.localState.currentPage > totalPages && totalPages > 0) this.localState.currentPage = totalPages;
             if (this.localState.currentPage < 1) this.localState.currentPage = 1;
             
-            // MODIFICA: Cambiato xl:grid-cols-3 in lg:grid-cols-3 per affiancare le card su schermi più piccoli
-            // MODIFICA: Cambiato xl:col-span-2 in lg:col-span-2 per la prima card
             container.innerHTML = `
                 <div class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-800 dark:text-white">Gestione Prezzi Carburante</h2></div>
@@ -31,7 +29,10 @@
                         <div class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Storico Listini Base</h3>
-                                <button id="btn-new-listino" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700"><i data-lucide="plus" class="size-4 mr-1"></i> Nuovo</button>
+                                <button id="btn-new-listino" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Nuovo Listino">
+                                    <i data-lucide="plus" class="size-4 sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Nuovo</span>
+                                </button>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -44,7 +45,10 @@
                         <div class="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Concorrenza</h3>
-                                <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700"><i data-lucide="refresh-cw" class="size-4 mr-1"></i> Aggiorna</button>
+                                <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Aggiorna Concorrenza">
+                                    <i data-lucide="refresh-cw" class="size-4 sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Aggiorna</span>
+                                </button>
                             </div>
                             <div class="p-6">${this.renderConcorrenzaBody(p)}</div>
                         </div>

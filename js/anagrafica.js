@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - Max 3 Columns
+   MODULO: Anagrafica (js/anagrafica.js) - Responsive Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -41,7 +41,10 @@
                                 <input type="search" id="anag-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca contatto..." value="${this.localState.searchQuery}">
                             </div>
                             <div class="flex gap-2">
-                                <button id="btn-new-contatto" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center"><i data-lucide="user-plus" class="size-4 mr-2"></i> Nuovo</button>
+                                <button id="btn-new-contatto" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Contatto">
+                                    <i data-lucide="user-plus" class="size-4 sm:mr-2"></i>
+                                    <span class="hidden sm:inline">Nuovo</span>
+                                </button>
                                 <button id="btn-import-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
                                 <button id="btn-export-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
                                 <button id="btn-print-anag" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
@@ -58,7 +61,6 @@
             const content = document.getElementById('anagrafica-grid-area');
             if (!contatti.length) { content.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">Nessun contatto trovato.</div>'; return; }
             
-            // MODIFICA: Rimossa xl:grid-cols-4 per limitare a massimo 3 colonne
             content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">${contatti.map(c => `
                 <div class="p-5 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-edit-contatto h-full relative group" data-id="${c.id}">
                     <div class="flex items-start justify-between mb-3">
