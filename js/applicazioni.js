@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Standardized Headers
+   MODULO: Applicazioni (js/applicazioni.js) - Add Fuel Order to Calendar (as To-Do)
    ========================================================================== */
 (function() {
     'use strict';
@@ -46,22 +46,24 @@
             const save = () => this.saveLayout();
             ['apps-top-grid', 'apps-bottom-grid'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    new Sortable(el, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
+                if (el && !el._sortable) { // Evita ri-registrazioni
+                    el._sortable = new Sortable(el, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
                 }
             });
         },
 
         saveLayout() {
-            const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-            const layout = { top: getIds('apps-top-grid'), bottom: getIds('apps-bottom-grid') };
-            localStorage.setItem('mystation_apps_layout_v1', JSON.stringify(layout));
+            try {
+                const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
+                const layout = { top: getIds('apps-top-grid'), bottom: getIds('apps-bottom-grid') };
+                localStorage.setItem('mystation_apps_layout_v1', JSON.stringify(layout));
+            } catch (e) { console.warn('Salvataggio layout app bloccato:', e); }
         },
 
         restoreLayout() {
-            const saved = localStorage.getItem('mystation_apps_layout_v1');
-            if (!saved) return;
             try {
+                const saved = localStorage.getItem('mystation_apps_layout_v1');
+                if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
                     const container = document.getElementById(cid);
@@ -76,14 +78,13 @@
         getLayoutHTML() {
             const fuelProducts = [ { key: 'benzina', label: 'Benzina' }, { key: 'gasolio', label: 'Gasolio' }, { key: 'dieselplus', label: 'Diesel+' }, { key: 'hvolution', label: 'Hvo' } ];
 
-            // Helper per standardizzare l'inizio delle card (solo per quelle semplici senza controlli extra nell'header)
             const simpleCardStart = (id, title, icon, iconBg) => `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                    <div class="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
-                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full mr-3">
-                            <i data-lucide="${icon}" class="size-4"></i>
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${title}</h3>
+                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full">
+                            <i data-lucide="${icon}" class="size-5"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">${title}</h3>
                     </div>
                     <div class="p-6">`;
 
@@ -97,7 +98,7 @@
                         <div id="app-card-calendar" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <div class="flex items-center">
-                                    <div class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3"><i data-lucide="calendar" class="size-4"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full mr-3"><i data-lucide="calendar" class="size-5"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Calendario</h3>
                                 </div>
                                 <div class="flex gap-2">
@@ -118,7 +119,7 @@
                         <div id="app-card-events" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col draggable-card overflow-hidden">
                             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <div class="flex items-center">
-                                    <div class="flex items-center justify-center w-8 h-8 bg-purple-600 text-white rounded-full mr-3"><i data-lucide="list-todo" class="size-4"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-purple-600 text-white rounded-full mr-3"><i data-lucide="list-todo" class="size-5"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Eventi</h3>
                                 </div>
                                 <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-3 py-2 flex items-center transition-colors" title="Nuovo Evento">
@@ -159,7 +160,7 @@
                                     <span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span>
                                 </div>
                                 <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine">
-                                    <i data-lucide="save" class="size-4 mr-2"></i>
+                                    <i data-lucide="save" class="size-4 sm:mr-2"></i>
                                     <span class="hidden sm:inline">Salva Ordine</span>
                                 </button>
                             </div>
@@ -211,7 +212,7 @@
             </div>`;
         },
 
-        // ... (resto delle funzioni: renderCalendar, renderEventsList, openEventModal, saveEvent, deleteEvent, updateIva, updateBanconote, updateBanconoteTotal, updateFuelOrder, updateFuelTotal, getLatestPrices, saveFuelOrder, attachListeners, capitalize) - INVARIATE
+        // --- CALENDAR & EVENTS ---
         renderCalendar() {
             const grid = document.getElementById('cal-grid');
             const title = document.getElementById('cal-month-year');
@@ -326,6 +327,8 @@
                 App.saveToStorage(); App.closeModal(); this.renderCalendar(); this.renderEventsList();
             };
         },
+
+        // --- UTILITIES ---
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         updateIva(source) {
             const l = parseFloat(document.getElementById('iva-lordo').value), n = parseFloat(document.getElementById('iva-netto').value);
@@ -348,12 +351,37 @@
         updateFuelOrder(p, inc) { this.localState.fuelOrder[p] = Math.max(0, this.localState.fuelOrder[p] + (inc ? 1000 : -1000)); document.getElementById(`fuel-${p}`).value = this.localState.fuelOrder[p]; this.updateFuelTotal(); },
         updateFuelTotal() { const prices = this.getLatestPrices(); let total = 0; ['benzina','gasolio','dieselplus','hvolution'].forEach(p => { total += (this.localState.fuelOrder[p]||0) * (prices[p==='dieselplus'?'dieselPlus':p]||0); }); document.getElementById('fuel-order-total').textContent = App.formatCurrency(total); },
         getLatestPrices() { if(!App.state.data.priceHistory?.length) return {}; return [...App.state.data.priceHistory].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]; },
+        
+        // MODIFICA: Aggiunto To-Do 'urgente' al salvataggio
         saveFuelOrder() {
             const d = document.getElementById('fuel-order-date').value; if (!d) return alert('Seleziona data');
             const p = {...this.localState.fuelOrder}; delete p.date; if(Object.values(p).every(v => v === 0)) return alert('Inserire quantità.');
-            App.state.data.fuelOrders.push({ id: App.generateId('ord'), date: d, products: p, status: 'pending' }); App.saveToStorage(); App.showToast('Ordine salvato con successo!', 'success');
-            this.localState.fuelOrder = { date: new Date().toISOString().split('T')[0], benzina:0, gasolio:0, dieselplus:0, hvolution:0 }; this.render();
+            
+            // 1. Salva l'ordine carburante
+            App.state.data.fuelOrders.push({ id: App.generateId('ord'), date: d, products: p, status: 'pending' }); 
+            
+            // 2. Crea il To-Do 'urgente'
+            const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
+            const details = Object.entries(p).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
+            const totalL = Object.values(p).reduce((a,b)=>a+b,0);
+            const todoText = `Consegna Carburante (${App.formatNumber(totalL)} L): ${details}`;
+            
+            App.state.data.todos.push({
+                id: App.generateId('todo'),
+                dueDate: d,
+                text: todoText,
+                priorita: 'urgent', // Come richiesto
+                completed: false
+            });
+            
+            // 3. Salva tutto e resetta
+            App.saveToStorage(); 
+            App.showToast('Ordine salvato e aggiunto al calendario!', 'success');
+            
+            this.localState.fuelOrder = { date: App.toLocalISOString(new Date()), benzina:0, gasolio:0, dieselplus:0, hvolution:0 }; 
+            this.render();
         },
+
         attachListeners() {
             document.getElementById('cal-prev').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()-1); this.renderCalendar(); };
             document.getElementById('cal-next').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()+1); this.renderCalendar(); };
