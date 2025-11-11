@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Independent Activity Card Height
+   MODULO: Home Dashboard (js/home.js) - Filter Fuel Orders to Today Only
    ========================================================================== */
 (function() {
     'use strict';
@@ -72,7 +72,7 @@
                     <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start min-h-[100px]"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        <div id="home-col-1" class="flex flex-col gap-6 min-h-[200px]">
+                        <div id="home-col-1" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
@@ -81,7 +81,7 @@
                                 <div id="home-liters-breakdown" class="p-6 space-y-4"></div>
                             </div>
                         </div>
-                        <div id="home-col-2" class="flex flex-col gap-6 min-h-[200px]">
+                        <div id="home-col-2" class="flex flex-col gap-6 h-full min-h-[200px]">
                             <div id="card-turni" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Turni di oggi</h3>
@@ -97,8 +97,8 @@
                                 <div id="home-fuel-orders" class="p-6"></div>
                             </div>
                         </div>
-                        <div id="home-col-3" class="flex flex-col gap-6 min-h-[200px]">
-                            <div id="card-attivita" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[300px] flex flex-col draggable-card overflow-hidden">
+                        <div id="home-col-3" class="flex flex-col gap-6 h-full min-h-[200px]">
+                            <div id="card-attivita" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 h-full min-h-[300px] flex flex-col draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Attività di Oggi</h3>
                                     <button id="btn-go-apps" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700 dark:text-gray-400" title="Vai ad Applicazioni"><i data-lucide="external-link" class="w-5 h-5"></i></button>
@@ -113,15 +113,28 @@
             const s = this.getTodayStats();
             const c1 = document.getElementById('home-stats-container');
             
+            const renderStatHTML = (id, title, iconBg, iconName, valueId, value, footerHTML) => `
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
+                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
+                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="${valueId}">${value}</div>
+                        ${footerHTML}
+                    </div>
+                </div>`;
+
             if (c1 && c1.children.length === 0) {
                 const taxable = s.revenue / 1.22; const vat = s.revenue - taxable;
                 c1.innerHTML = `
-                    ${this.renderStatCard('stat-revenue', 'Fatturato Oggi', 'bg-green-600', 'euro', 'val-revenue', App.formatCurrency(s.revenue), `<div class="flex justify-between text-xs text-gray-500 dark:text-gray-400"><span id="val-taxable">Imp: ${App.formatCurrency(taxable)}</span><span id="val-vat">IVA: ${App.formatCurrency(vat)}</span></div>`)}
-                    ${this.renderStatCard('stat-margin', 'Margine Stimato', 'bg-yellow-500', 'trending-up', 'val-margin', App.formatCurrency(s.margin), `<p class="text-xs text-gray-500 mt-1">Stima predefinita</p>`)}
-                    ${this.renderStatCard('stat-liters', 'Totale Litri', 'bg-blue-600', 'droplet', 'val-liters', App.formatNumber(s.totalLiters), `<p class="text-xs text-gray-500 mt-1">Erogati oggi</p>`)}
-                    ${this.renderStatCard('stat-served', '% Servito', 'bg-purple-600', 'user-check', 'val-served', s.servitoPerc + '%', `<div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700"><div id="bar-served" class="bg-purple-600 h-1.5 rounded-full" style="width: ${s.servitoPerc}%"></div></div>`)}
+                    ${renderStatHTML('stat-revenue', 'Fatturato Oggi', 'bg-green-600', 'euro', 'val-revenue', App.formatCurrency(s.revenue), `<div class="flex justify-between text-xs text-gray-500 dark:text-gray-400"><span id="val-taxable">Imp: ${App.formatCurrency(taxable)}</span><span id="val-vat">IVA: ${App.formatCurrency(vat)}</span></div>`)}
+                    ${renderStatHTML('stat-margin', 'Margine Stimato', 'bg-yellow-500', 'trending-up', 'val-margin', App.formatCurrency(s.margin), `<p class="text-xs text-gray-500 mt-1">Stima predefinita</p>`)}
+                    ${renderStatHTML('stat-liters', 'Totale Litri', 'bg-blue-600', 'droplet', 'val-liters', App.formatNumber(s.totalLiters), `<p class="text-xs text-gray-500 mt-1">Erogati oggi</p>`)}
+                    ${renderStatHTML('stat-served', '% Servito', 'bg-purple-600', 'user-check', 'val-served', s.servitoPerc + '%', `<div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700"><div id="bar-served" class="bg-purple-600 h-1.5 rounded-full" style="width: ${s.servitoPerc}%"></div></div>`)}
                 `;
-                lucide.createIcons();
             } else if (document.getElementById('val-revenue')) {
                 const taxable = s.revenue / 1.22; const vat = s.revenue - taxable;
                 document.getElementById('val-revenue').textContent = App.formatCurrency(s.revenue);
@@ -142,21 +155,6 @@
             if(c3) c3.innerHTML = s.todayShifts.length ? `<div class="flex flex-col gap-3"><div><div class="text-lg font-bold text-gray-900 dark:text-white mb-1">${s.todayShifts.map(t=>t.turno).join(', ')}</div><div class="text-sm text-gray-500 dark:text-gray-400">Turni chiusi: <span class="font-semibold">${s.todayShifts.length}</span></div></div><div class="mt-2 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center"><span class="text-sm text-gray-600 dark:text-gray-300">Totale Erogato Oggi:</span><span class="font-bold text-primary-600 dark:text-primary-500">${App.formatNumber(s.totalLiters)} L</span></div></div>` : `<p class="text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun turno chiuso oggi.</p>`;
             lucide.createIcons();
         },
-        renderStatCard(id, title, iconBg, iconName, valId, value, footerHTML) {
-            return `
-                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
-                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
-                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="${valId}">${value}</div>
-                        ${footerHTML}
-                    </div>
-                </div>`;
-        },
         renderActivitiesAndOrders() {
             const todayISO = App.toLocalISOString(new Date());
             const acts = [...(App.state.data.appuntamenti||[]).filter(a => a.date === todayISO).map(a => ({...a, type:'app'})), ...(App.state.data.todos||[]).filter(t => t.dueDate === todayISO).map(t => ({...t, type:'todo'}))].sort((a,b) => (a.oraInizio||'').localeCompare(b.oraInizio||''));
@@ -172,7 +170,10 @@
                     return `<div class="p-3 border ${borderClass} ${bgClass} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow home-event-item" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${iconColor}"></i><div class="truncate"><div class="text-xs font-semibold ${labelColor}">${labelText}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
                 }).join('');
             }
-            const orders = (App.state.data.fuelOrders||[]).filter(o => o.date === todayISO || o.status === 'pending').sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            // MODIFICA: Filtro cambiato da (o.date === todayISO || o.status === 'pending') a (o.date === todayISO)
+            const orders = (App.state.data.fuelOrders||[]).filter(o => o.date === todayISO).sort((a,b) => new Date(b.date) - new Date(a.date));
+            
             const ordList = document.getElementById('home-fuel-orders');
             if(ordList) {
                 if(!orders.length) ordList.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun ordine in arrivo.</p>';
@@ -180,13 +181,29 @@
                     const totalL = Object.values(o.products).reduce((a,b)=>a+b,0);
                     const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
                     const details = Object.entries(o.products).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
-                    return `<div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"><div class="flex justify-between items-start mb-3"><div><div class="text-xs font-semibold text-gray-500 dark:text-gray-400">${App.formatDate(o.date)}</div><div class="text-base font-bold text-gray-900 dark:text-white">${App.formatNumber(totalL)} Litri Totali</div></div><div class="flex gap-2">${o.status === 'pending' ? `<button class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-500 rounded-md btn-delete-order" data-id="${o.id}" title="Cancella ordine"><i data-lucide="trash-2" class="size-4"></i></button>` : ''}</div></div><div class="text-sm text-gray-600 dark:text-gray-300 pt-3 border-t border-gray-100 dark:border-gray-700">${details || 'Nessun dettaglio'}</div></div>`;
+                    
+                    // MODIFICA: Rimosso pulsante "In attesa" e sfondo colorato
+                    return `
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <div class="text-xs font-semibold text-gray-500 dark:text-gray-400">${App.formatDate(o.date)}</div>
+                                    <div class="text-base font-bold text-gray-900 dark:text-white">${App.formatNumber(totalL)} Litri Totali</div>
+                                </div>
+                                <div class="flex gap-2">
+                                    ${o.status === 'pending' ? `<button class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-500 rounded-md btn-delete-order" data-id="${o.id}" title="Cancella ordine"><i data-lucide="trash-2" class="size-4"></i></button>` : ''}
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-300 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                ${details || 'Nessun dettaglio'}
+                            </div>
+                        </div>`;
                 }).join('') + '</div>';
             }
             lucide.createIcons();
             document.querySelectorAll('.home-event-item').forEach(b => b.onclick = () => {
-                if(window.App && window.App.modules && window.App.modules.applicazioni && typeof window.App.modules.applicazioni.openEventModal === 'function') {
-                     window.App.modules.applicazioni.openEventModal(b.dataset.id, b.dataset.type);
+                if(window.App && App.modules && App.modules.applicazioni && typeof App.modules.applicazioni.openEventModal === 'function') {
+                     App.modules.applicazioni.openEventModal(b.dataset.id, b.dataset.type);
                 }
             });
             document.getElementById('btn-go-apps').onclick = () => window.location.hash = '#applicazioni';

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Removed Extra Headers
+   MODULO: VirtualStation (js/virtualstation.js) - Accurate Revenue Calculation
    ========================================================================== */
 (function() {
     'use strict';
@@ -46,44 +46,25 @@
 
         initDragAndDrop() {
             const save = () => VirtualModule.saveLayout();
-
-            // 1. Macro-Sezioni (verticali)
             const mainSections = document.getElementById('virtual-sections-container');
-            if (mainSections) {
-                new Sortable(mainSections, {
-                    animation: 150,
-                    handle: '.section-handle', // Funzionerà solo per le sezioni che hanno ancora questo handle (es. Tabella)
-                    ghostClass: 'sortable-ghost',
-                    onSort: save
-                });
-            }
-            // 2. Card Statistiche
+            if (mainSections) new Sortable(mainSections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
             const stats = document.getElementById('v-stats-container');
-            if (stats) {
-                new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
-            }
-            // 3. Grafici
+            if (stats) new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
             const charts = document.getElementById('v-charts-container');
-            if (charts) {
-                new Sortable(charts, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
-            }
+            if (charts) new Sortable(charts, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
         },
 
         saveLayout() {
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-                const layout = {
-                    sections: getIds('virtual-sections-container'),
-                    stats: getIds('v-stats-container'),
-                    charts: getIds('v-charts-container')
-                };
-                localStorage.setItem('mystation_virtual_layout_v5', JSON.stringify(layout));
+                const layout = { sections: getIds('virtual-sections-container'), stats: getIds('v-stats-container'), charts: getIds('v-charts-container') };
+                localStorage.setItem('mystation_virtual_layout_v4', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_virtual_layout_v5');
+                const saved = localStorage.getItem('mystation_virtual_layout_v4');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
@@ -125,10 +106,16 @@
                     <div id="virtual-sections-container" class="flex flex-col gap-8">
                         
                         <div id="sec-stats" class="group">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta sezione">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-2"></i> Indicatori Chiave
+                            </h3>
                             <div id="v-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start"></div>
                         </div>
 
                         <div id="sec-charts" class="group">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta sezione">
+                                <i data-lucide="pie-chart" class="w-5 h-5 mr-2"></i> Analisi Grafica
+                            </h3>
                             <div id="v-charts-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                                 <div id="v-card-service" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
@@ -184,7 +171,6 @@
                 if(document.getElementById('val-stat-served')) document.getElementById('val-stat-served').textContent = stats.servitoPerc + '%';
             }
         },
-        
         renderStatCard(id, title, value, iconBg, iconName) {
             return `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
@@ -224,9 +210,9 @@
             if (!pageItems.length) tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">Nessun turno trovato.</td></tr>';
             else {
                 tbody.innerHTML = pageItems.map(t => {
-                    const total = VirtualModule.getTurnoTotal(t);
+                    const total = VirtualModule.getTurnoTotalLitri(t); // Usa i litri per la tabella
                     const isRiep = t.turno === 'Riepilogo Mensile';
-                    return `<tr class="border-b dark:border-gray-700 ${isRiep ? 'bg-primary-50 dark:bg-primary-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}"><th class="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">${App.formatDate(t.date)}</th><td class="px-4 py-3">${t.turno}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'benzina')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'gasolio')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'dieselplus')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'hvolution')}</td><td class="px-4 py-3 font-semibold">${App.formatCurrency(total).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-turno font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${t.id}">Modifica</button></td></tr>`;
+                    return `<tr class="border-b dark:border-gray-700 ${isRiep ? 'bg-primary-50 dark:bg-primary-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}"><th class="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">${App.formatDate(t.date)}</th><td class="px-4 py-3">${t.turno}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'benzina')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'gasolio')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'dieselplus')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'hvolution')}</td><td class="px-4 py-3 font-semibold">${App.formatNumber(total)}</td><td class="px-4 py-3 text-right"><button class="btn-edit-turno font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${t.id}">Modifica</button></td></tr>`;
                 }).join('');
             }
             if (totalPages > 1) {
@@ -238,19 +224,58 @@
             } else pagination.innerHTML = '';
             document.querySelectorAll('.btn-edit-turno').forEach(b => b.onclick = () => VirtualModule.openTurnoModal(b.dataset.id));
         },
-        fmtProd(t, p) { const tot = (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); return tot > 0 ? App.formatCurrency(tot).replace('€','').trim() : '-'; },
+
+        fmtProd(t, p) { const tot = (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); return tot > 0 ? App.formatNumber(tot) : '-'; },
         getFilteredTurni() {
             const mode = this.localState.filterMode; const now = new Date(); const start = new Date(); start.setHours(0,0,0,0);
             if (mode === 'month') start.setDate(1); else if (mode === 'year') start.setMonth(0, 1);
             return App.state.data.turni.filter(t => { const d = new Date(t.date); return mode === 'today' ? d >= start && d <= now : d >= start; }).sort((a,b) => new Date(b.date) - new Date(a.date));
         },
-        getTurnoTotal(t) { return VirtualModule.sumObj(t.prepay) + VirtualModule.sumObj(t.servito) + VirtualModule.sumObj(t.fdt); },
+        // Rinomina la vecchia getTurnoTotal in getTurnoTotalLitri
+        getTurnoTotalLitri(t) { return this.sumObj(t.prepay) + this.sumObj(t.servito) + this.sumObj(t.fdt); },
         sumObj(o) { return Object.values(o||{}).reduce((a,b)=>a+(parseFloat(b)||0),0); },
+        
+        // --- MODIFICA: CALCOLO FATTURATO REALE ---
         calculateStats() {
-            const turni = VirtualModule.getFilteredTurni(); let liters=0, rev=0, serv=0;
-            turni.forEach(t => { liters += VirtualModule.getTurnoTotal(t); serv += VirtualModule.sumObj(t.servito); rev += VirtualModule.getTurnoTotal(t) * 1.75; });
-            return { liters, revenue: rev, servitoPerc: liters>0 ? Math.round((serv/liters)*100) : 0 };
+            const turni = VirtualModule.getFilteredTurni(); 
+            const prices = VirtualModule.getLatestPrices();
+            let liters=0, rev=0, serv=0;
+            const mFdt=0.04, mServ=0.08, mAdblue=0.40, surSelf=0.005, surServ=0.220; // Ricarichi standard
+
+            turni.forEach(t => {
+                ['benzina','gasolio','dieselplus','hvolution','adblue'].forEach(k => {
+                    const pp = parseFloat(t.prepay?.[k])||0;
+                    const sv = parseFloat(t.servito?.[k])||0;
+                    // FDT (Fai Da Te) è rilevante solo per Riepilogo Mensile, ma lo includiamo per sicurezza
+                    const fd = parseFloat(t.fdt?.[k])||0; 
+                    const totLitriProdotto = pp + sv + fd;
+                    
+                    liters += totLitriProdotto;
+                    serv += sv; // Solo 'servito' conta per la % servito
+
+                    // Calcolo fatturato
+                    const pKey = k==='dieselplus'?'dieselPlus':k;
+                    const bp = prices[pKey]||0;
+                    
+                    if(bp > 0) { 
+                        if(k === 'adblue') { 
+                            rev += (sv * bp); // AdBlue venduto solo come servito (ipotizzato)
+                        } else { 
+                            rev += (pp * (bp + surSelf));
+                            rev += (sv * (bp + surSelf + surServ));
+                            rev += (fd * (bp + surSelf)); // FDT calcolato come self
+                        } 
+                    }
+                });
+            });
+            return { liters, revenue: rev, servitoPerc: liters > 0 ? Math.round((serv / liters) * 100) : 0 };
         },
+        getLatestPrices() { 
+            if(!App.state.data.priceHistory?.length) return {}; 
+            return [...App.state.data.priceHistory].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]; 
+        },
+        // --- FINE MODIFICA CALCOLO FATTURATO ---
+
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         initCharts() {
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
@@ -278,7 +303,7 @@
             this.localState.chartInstances.p.data.labels = ['Bz','Gs','D+','Hv','AdB']; this.localState.chartInstances.p.data.datasets[0].data = pData; this.localState.chartInstances.p.update();
             this.localState.chartInstances.s.data.datasets = [ { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 }, { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 } ]; this.localState.chartInstances.s.update();
             const currentYear = new Date().getFullYear(); const monthlyData = Array(12).fill(0);
-            App.state.data.turni.filter(t => new Date(t.date).getFullYear() === currentYear).forEach(t => { monthlyData[new Date(t.date).getMonth()] += VirtualModule.getTurnoTotal(t); });
+            App.state.data.turni.filter(t => new Date(t.date).getFullYear() === currentYear).forEach(t => { monthlyData[new Date(t.date).getMonth()] += VirtualModule.getTurnoTotalLitri(t); });
             const chartT = this.localState.chartInstances.t; const gradient = chartT.ctx.createLinearGradient(0, 0, 0, 300); gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
             chartT.data.datasets = [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: gradient }]; chartT.update();
         },
@@ -300,8 +325,8 @@
                 e.preventDefault(); const val = o.dataset.val; document.getElementById('selectedTurno').textContent = val; document.getElementById('turnoInput').value = val; document.getElementById('turnoDropdown').classList.add('hidden'); 
                 const isRiep = val === 'Riepilogo Mensile'; document.querySelectorAll('.fdt-input').forEach(inp => inp.disabled = !isRiep);
             });
-            document.getElementById('btn-save-turno').onclick = () => VirtualModule.saveTurno();
-            if(id) document.getElementById('btn-delete-turno').onclick = () => VirtualModule.deleteTurno(id);
+            document.getElementById('btn-save-turno').onclick = () => this.saveTurno();
+            if(id) document.getElementById('btn-delete-turno').onclick = () => this.deleteTurno(id);
         },
         saveTurno() {
             const fd = new FormData(document.getElementById('form-turno'));
@@ -316,14 +341,7 @@
         deleteTurno(id) {
             const t = App.state.data.turni.find(x=>x.id===id);
             App.showModal('', `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare questo turno?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Stai per eliminare il turno del <b>${App.formatDate(t?.date)} (${t?.turno})</b>.<br>Questa azione non può essere annullata.</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`, 'max-w-md');
-            setTimeout(() => {
-                 document.getElementById('btn-confirm-delete').onclick = () => {
-                     App.state.data.turni = App.state.data.turni.filter(t => t.id !== id);
-                     App.saveToStorage();
-                     App.closeModal();
-                     this.render();
-                 };
-            }, 50);
+            setTimeout(() => { document.getElementById('btn-confirm-delete').onclick = () => { App.state.data.turni = App.state.data.turni.filter(t => t.id !== id); App.saveToStorage(); App.closeModal(); this.render(); }; }, 50);
         },
         attachListeners() {
             document.querySelectorAll('.btn-filter-opt').forEach(b => b.onclick = (e) => { e.preventDefault(); this.localState.filterMode = b.dataset.mode; try { localStorage.setItem('virtual_filter_mode', b.dataset.mode); } catch(e){} this.render(); });
