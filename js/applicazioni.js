@@ -14,6 +14,9 @@
             editingEventId: null,
             eventModal: { type: 'app', date: '', time: '09:00', desc: '', duration: '30 min', priority: 'standard' },
             calculatorInput: '', // Stato per la calcolatrice
+            radioStations: [], // Stato per la radio
+            currentStation: null,
+            audioPlayer: null
         },
 
         init() {
@@ -42,6 +45,7 @@
             this.updateFuelTotal();
             this.updateBanconoteTotal();
             this.loadNotes(); // Carica le note
+            this.initRadio(); // Inizializza la radio
         },
 
         /* INIZIO MODIFICA DRAG & DROP */
@@ -114,7 +118,28 @@
             
             const simpleCardEnd = `</div></div>`;
 
+            /* INIZIO STILI EQUALIZZATORE RADIO */
+            const radioEqStyles = `
+                <style>
+                    .radio-eq-anim { display: none; width: 16px; height: 16px; margin-left: 8px; }
+                    .radio-eq-anim span {
+                        display: inline-block; width: 2px; height: 100%; background-color: #10b981; /* Colore Tema (verde) */
+                        margin-left: 1px; animation: radio-bounce 1s infinite ease-in-out;
+                    }
+                    .dark .radio-eq-anim span { background-color: #34d399; }
+                    .radio-eq-anim span:nth-child(2) { animation-delay: -0.8s; }
+                    .radio-eq-anim span:nth-child(3) { animation-delay: -0.6s; }
+                    .radio-eq-anim span:nth-child(4) { animation-delay: -0.4s; }
+                    @keyframes radio-bounce {
+                        0%, 40%, 100% { transform: scaleY(0.4); }
+                        20% { transform: scaleY(1.0); }
+                    }
+                </style>
+            `;
+            /* FINE STILI EQUALIZZATORE RADIO */
+
             return `
+                ${radioEqStyles}
                 <div id="apps-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Applicazioni & Utility</h2>
@@ -231,7 +256,24 @@
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 col-span-2" data-val="0">0</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val=".">.</button>
                                 </div>
-                            ${simpleCardEnd} </div>
+                            ${simpleCardEnd} ${simpleCardStart('app-card-radio', 'Radio Stream', 'radio', 'bg-pink-600')}
+                                <div class="flex items-center gap-4 mb-4">
+                                    <button id="radio-toggle-play" class="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-colors">
+                                        <i data-lucide="play" class="size-6"></i>
+                                    </button>
+                                    <div class="overflow-hidden">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">In Riproduzione:</div>
+                                        <div id="radio-now-playing" class="text-sm font-medium text-gray-900 dark:text-white truncate">Nessuna radio</div>
+                                    </div>
+                                </div>
+                                <audio id="radio-player" preload="none"></audio>
+                                <div>
+                                    <input type="text" id="radio-search-input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Cerca stazione...">
+                                </div>
+                                <div id="radio-station-list" class="mt-4 h-64 overflow-y-auto space-y-2 pr-2">
+                                    </div>
+                            ${simpleCardEnd}
+                            </div>
                         
                         <div id="apps-col-3" class="flex flex-col gap-6 min-h-[200px]">
                             ${simpleCardStart('app-card-money', 'Conta Banconote', 'banknote', 'bg-green-600')}
@@ -499,6 +541,124 @@
         },
         /* FINE GESTIONE NOTE */
 
+        /* INIZIO GESTIONE RADIO */
+        initRadio() {
+            if (!this.localState.audioPlayer) {
+                this.localState.audioPlayer = document.getElementById('radio-player');
+                const toggleBtn = document.getElementById('radio-toggle-play'); 
+                
+                /* INIZIO MODIFICA: Aggiorna UI su play/pause */
+                this.localState.audioPlayer.onplay = () => {
+                    if (toggleBtn) toggleBtn.innerHTML = '<i data-lucide="pause" class="size-6"></i>'; // Imposta su Pausa
+                    lucide.createIcons();
+                    this.renderRadioList(); 
+                };
+                this.localState.audioPlayer.onpause = () => {
+                    if (toggleBtn) toggleBtn.innerHTML = '<i data-lucide="play" class="size-6"></i>'; // Imposta su Play
+                    lucide.createIcons();
+                    this.renderRadioList(); 
+                };
+                /* FINE MODIFICA */
+            }
+            if (this.localState.radioStations.length === 0) {
+                this.fetchRadioStations();
+            } else {
+                this.renderRadioList();
+            }
+        },
+
+        fetchRadioStations() {
+            const list = document.getElementById('radio-station-list');
+            if(list) list.innerHTML = `<div class="text-sm text-gray-500 dark:text-gray-400">Caricamento stazioni...</div>`;
+            
+            const API_URL = 'https://de1.api.radio-browser.info/json/stations/search?countrycode=IT&codec=MP3&limit=50&order=votes&reverse=true';
+
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    this.localState.radioStations = data.filter(s => s.url_resolved);
+                    this.renderRadioList();
+                })
+                .catch(error => {
+                    console.error("Errore fetch radio:", error);
+                    if(list) list.innerHTML = `<div class="text-sm text-red-500">Errore nel caricare le stazioni.</div>`;
+                });
+        },
+
+        /* INIZIO CORREZIONE: Layout lista radio e fix typo */
+        renderRadioList() {
+            const list = document.getElementById('radio-station-list');
+            if (!list) return;
+
+            const searchTerm = document.getElementById('radio-search-input').value.toLowerCase();
+            const stations = this.localState.radioStations.filter(s => 
+                s.name.toLowerCase().includes(searchTerm)
+            );
+
+            if (stations.length === 0) {
+                list.innerHTML = `<div class="text-sm text-gray-500 dark:text-gray-400">Nessuna stazione trovata.</div>`;
+                return;
+            }
+
+            list.innerHTML = stations.map(station => {
+                const isCurrent = this.localState.currentStation?.url === station.url_resolved;
+                const isPlaying = isCurrent && !this.localState.audioPlayer.paused;
+                
+                const icon = isPlaying ? 'pause-circle' : 'play-circle';
+                const eqDisplay = isPlaying ? 'inline-flex' : 'none';
+
+                // CORREZIONE: `class="` invece di `class.`
+                return `
+                <div class="p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700">
+                    
+                    <span class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">${station.name}</span>
+                    
+                    <div class="flex items-center flex-shrink-0">
+                        <button class="btn-play-station p-1.5 text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg" data-url="${station.url_resolved}" data-name="${station.name}">
+                            <i data-lucide="${icon}" class="size-5"></i>
+                        </button>
+                        <div class="radio-eq-anim items-baseline" style="display: ${eqDisplay};">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+            /* FINE CORREZIONE */
+
+            lucide.createIcons();
+            
+            list.querySelectorAll('.btn-play-station').forEach(btn => {
+                btn.onclick = () => {
+                    this.playRadioStation(btn.dataset.url, btn.dataset.name);
+                };
+            });
+        },
+
+        playRadioStation(url, name) {
+            const player = this.localState.audioPlayer;
+            if (player.src === url) {
+                if (player.paused) player.play();
+                else player.pause();
+            } else {
+                player.src = url;
+                player.play();
+                document.getElementById('radio-now-playing').textContent = name;
+                this.localState.currentStation = { url, name };
+            }
+            // Aggiorna la lista immediatamente al click
+            this.renderRadioList();
+        },
+
+        togglePlayPauseRadio() {
+            const player = this.localState.audioPlayer;
+            if (player.paused) {
+                if (player.src) player.play();
+            } else {
+                player.pause();
+            }
+        },
+        /* FINE GESTIONE RADIO */
+
         attachListeners() {
             document.getElementById('cal-prev').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()-1); this.renderCalendar(); };
             document.getElementById('cal-next').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()+1); this.renderCalendar(); };
@@ -519,8 +679,16 @@
             /* FINE LISTENER CALCOLATRICE */
 
             /* INIZIO LISTENER NOTE */
-            document.getElementById('app-notes-textarea').onkeyup = () => this.saveNotes();
+            const notesTextarea = document.getElementById('app-notes-textarea');
+            if(notesTextarea) notesTextarea.onkeyup = () => this.saveNotes();
             /* FINE LISTENER NOTE */
+
+            /* INIZIO LISTENER RADIO */
+            const radioSearch = document.getElementById('radio-search-input');
+            const radioToggle = document.getElementById('radio-toggle-play');
+            if(radioSearch) radioSearch.oninput = () => this.renderRadioList();
+            if(radioToggle) radioToggle.onclick = () => this.togglePlayPauseRadio();
+            /* FINE LISTENER RADIO */
         }
     };
     if(window.App) App.registerModule('applicazioni', AppsModule); else document.addEventListener('app:ready', () => App.registerModule('applicazioni', AppsModule));
