@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Informazioni (js/informazioni.js) - Standardized Headers
+   MODULO: Informazioni (js/informazioni.js) - Total Drag & Drop (Fixed)
    ========================================================================== */
 (function() {
     'use strict';
@@ -37,22 +37,22 @@
             const save = () => this.saveLayout();
 
             // 1. Macro-Sezioni (Verticale)
-            const sections = document.getElementById('info-sections');
+            const sections = document.getElementById('info-sections-container');
             if (sections) {
                 new Sortable(sections, {
                     animation: 150,
-                    handle: '.section-handle', // Trascina dai titoli delle macro-sezioni
+                    handle: '.section-handle', // Trascina dalle intestazioni delle card principali
                     ghostClass: 'sortable-ghost',
                     onSort: save
                 });
             }
 
-            // 2. Card Collegamenti (Griglia)
+            // 2. Card Collegamenti (Griglia interna)
             const links = document.getElementById('info-links-grid');
             if (links) {
                 new Sortable(links, {
                     animation: 150,
-                    handle: '.card-header', // Trascina dalle intestazioni delle card
+                    handle: '.card-handle', // Trascina dalle intestazioni delle 3 card
                     ghostClass: 'sortable-ghost',
                     onSort: save
                 });
@@ -63,16 +63,16 @@
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
                 const layout = {
-                    sections: getIds('info-sections'),
+                    sections: getIds('info-sections-container'),
                     links: getIds('info-links-grid')
                 };
-                localStorage.setItem('mystation_info_layout_v1', JSON.stringify(layout));
+                localStorage.setItem('mystation_info_layout_v2', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout info bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_info_layout_v1');
+                const saved = localStorage.getItem('mystation_info_layout_v2');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
@@ -80,7 +80,7 @@
                     if (!container || !ids) return;
                     ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
                 };
-                restore('info-sections', layout.sections);
+                restore('info-sections-container', layout.sections);
                 restore('info-links-grid', layout.links);
             } catch (e) { console.warn("Errore ripristino layout info:", e); }
         },
@@ -92,16 +92,17 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Informazioni Utili</h2>
                     </div>
 
-                    <div id="info-sections" class="flex flex-col gap-8">
+                    <div id="info-sections-container" class="flex flex-col gap-8">
                         
-                        <div id="sec-links" class="group">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta intera sezione">
-                                <i data-lucide="link-2" class="w-5 h-5 mr-2"></i> Collegamenti Rapidi
-                            </h3>
-                            <div id="info-links-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                        <div id="sec-links" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden draggable-card">
+                            <div class="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 section-handle cursor-move" title="Sposta sezione">
+                                <i data-lucide="link-2" class="w-5 h-5 mr-3 text-gray-700 dark:text-gray-300"></i>
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Collegamenti Rapidi</h3>
+                            </div>
+                            <div id="info-links-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start p-6">
                                 
                                 <div id="card-gestione" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-handle cursor-move">
                                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Gestione e Servizi</h3>
                                         <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full">
                                             <i data-lucide="briefcase" class="w-5 h-5"></i>
@@ -120,7 +121,7 @@
                                 </div>
 
                                 <div id="card-collegamenti" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-handle cursor-move">
                                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Collegamenti Utili</h3>
                                         <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full">
                                             <i data-lucide="link" class="w-5 h-5"></i>
@@ -138,7 +139,7 @@
                                 </div>
 
                                 <div id="card-assistenza" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-handle cursor-move">
                                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Assistenza</h3>
                                         <div class="flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-full">
                                             <i data-lucide="phone-call" class="w-5 h-5"></i>
@@ -158,37 +159,35 @@
                             </div>
                         </div>
 
-                        <div id="sec-table" class="group">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta intera sezione">
-                                <i data-lucide="map-pin" class="w-5 h-5 mr-2"></i> Impianti ENILIVE Roma
-                            </h3>
-                            <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
-                                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Elenco Impianti</h3>
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <div class="relative">
-                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
-                                            <input type="search" id="stazioni-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca impianto..." value="${this.localState.searchQuery}">
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <button id="btn-import-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
-                                            <button id="btn-export-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
-                                            <button id="btn-print-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
-                                            <button id="btn-del-all-stazioni" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
-                                        </div>
+                        <div id="sec-table" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden draggable-card">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 px-6 py-4 border-b border-gray-200 dark:border-gray-700 section-handle cursor-move">
+                                <div class="flex items-center" title="Sposta intera sezione">
+                                    <i data-lucide="map-pin" class="w-5 h-5 mr-3 text-gray-700 dark:text-gray-300"></i>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Impianti ENILIVE Roma</h3>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-3 no-drag" onmousedown="event.stopPropagation()">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
+                                        <input type="search" id="stazioni-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca impianto..." value="${this.localState.searchQuery}">
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button id="btn-import-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
+                                        <button id="btn-export-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
+                                        <button id="btn-print-stazioni" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
+                                        <button id="btn-del-all-stazioni" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 flex items-center dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
                                     </div>
                                 </div>
-                                <div class="p-6">
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                                <tr><th class="px-4 py-3">PV</th><th class="px-4 py-3">Ragione Sociale</th><th class="px-4 py-3">Indirizzo</th><th class="px-4 py-3">Telefono</th></tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="stazioni-tbody"></tbody>
-                                        </table>
-                                    </div>
-                                    <div id="stazioni-pagination"></div>
+                            </div>
+                            <div class="p-6">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                            <tr><th class="px-4 py-3">PV</th><th class="px-4 py-3">Ragione Sociale</th><th class="px-4 py-3">Indirizzo</th><th class="px-4 py-3">Telefono</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="stazioni-tbody"></tbody>
+                                    </table>
                                 </div>
+                                <div id="stazioni-pagination"></div>
                             </div>
                         </div>
 
