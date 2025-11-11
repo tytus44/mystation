@@ -1,12 +1,12 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Animated Liters Bar Chart
+   MODULO: Home Dashboard (js/home.js) - Meteo Card 2-Col Span
    ========================================================================== */
 (function() {
     'use strict';
     const HomeModule = {
         localState: { 
             timeInterval: null,
-            litersChart: null // Aggiunto per tracciare l'istanza del grafico
+            litersChart: null 
         },
         init() { },
         render() {
@@ -21,7 +21,8 @@
             this.updateClock(); 
             this.renderStats(); 
             this.renderActivitiesAndOrders();
-            this.renderLitersChart(); // Aggiunta chiamata per (ri)creare il grafico
+            this.renderLitersChart();
+            /* RIMOZIONE fetchNews() */
         },
         
         initDragAndDrop() {
@@ -30,25 +31,37 @@
             if (statsContainer) {
                 new Sortable(statsContainer, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
             }
+            // Zona 1: Card principali
             ['home-col-1', 'home-col-2', 'home-col-3'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     new Sortable(el, { group: 'shared-home', animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
                 }
             });
+            // Zona 2: Widget inferiori
+            const bottomGrid = document.getElementById('home-bottom-grid');
+            if (bottomGrid) {
+                 new Sortable(bottomGrid, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
+            }
         },
 
         saveLayout() {
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-                const layout = { stats: getIds('home-stats-container'), col1: getIds('home-col-1'), col2: getIds('home-col-2'), col3: getIds('home-col-3') };
-                localStorage.setItem('mystation_home_layout_v11', JSON.stringify(layout));
+                const layout = { 
+                    stats: getIds('home-stats-container'), 
+                    col1: getIds('home-col-1'), 
+                    col2: getIds('home-col-2'), 
+                    col3: getIds('home-col-3'),
+                    bottom: getIds('home-bottom-grid') // Salva ordine widget
+                };
+                localStorage.setItem('mystation_home_layout_v12', JSON.stringify(layout));
             } catch(e) { console.warn('Salvataggio layout home bloccato', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_home_layout_v11');
+                const saved = localStorage.getItem('mystation_home_layout_v12');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restoreContainer = (containerId, itemIds) => {
@@ -60,6 +73,7 @@
                 restoreContainer('home-col-1', layout.col1);
                 restoreContainer('home-col-2', layout.col2);
                 restoreContainer('home-col-3', layout.col3);
+                restoreContainer('home-bottom-grid', layout.bottom); // Ripristina ordine widget
             } catch (e) { console.warn("Errore nel ripristino del layout:", e); }
         },
 
@@ -70,6 +84,8 @@
         },
 
         getLayoutHTML() {
+            /* RIMOZIONE VARIABILI METEO */
+
             return `
                 <div id="home-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -82,14 +98,10 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                         <div id="home-col-1" class="flex flex-col gap-6 min-h-[200px]">
                             <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
-        <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
-    </div>
-    <div class="p-6 h-80 relative">
-        <canvas id="home-liters-chart"></canvas>
-    </div>
-</div>
+                                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
+                                </div>
                                 <div class="p-6 h-80 relative">
                                     <canvas id="home-liters-chart"></canvas>
                                 </div>
@@ -121,7 +133,10 @@
                             </div>
                         </div>
                     </div>
-                </div>`;
+
+                    <div id="home-bottom-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        </div>
+                    </div>`;
         },
         renderStats() {
             const s = this.getTodayStats();
@@ -160,82 +175,62 @@
                 document.getElementById('bar-served').style.width = `${s.servitoPerc}%`;
             }
             
-            // MODIFICA: Rimossa la logica di render 'c2' (home-liters-breakdown) da qui
-            
             const c3 = document.getElementById('todays-shifts-info');
             if(c3) c3.innerHTML = s.todayShifts.length ? `<div class="flex flex-col gap-3"><div><div class="text-lg font-bold text-gray-900 dark:text-white mb-1">${s.todayShifts.map(t=>t.turno).join(', ')}</div><div class="text-sm text-gray-500 dark:text-gray-400">Turni chiusi: <span class="font-semibold">${s.todayShifts.length}</span></div></div><div class="mt-2 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center"><span class="text-sm text-gray-600 dark:text-gray-300">Totale Erogato Oggi:</span><span class="font-bold text-primary-600 dark:text-primary-500">${App.formatNumber(s.totalLiters)} L</span></div></div>` : `<p class="text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun turno chiuso oggi.</p>`;
             lucide.createIcons();
         },
 
-        // NUOVA FUNZIONE: renderLitersChart
         renderLitersChart() {
             const s = this.getTodayStats();
             const ctx = document.getElementById('home-liters-chart')?.getContext('2d');
             if (!ctx) return;
-
             const prods = [
-                {k:'benzina',l:'Benzina',c:'rgba(34, 197, 94, 0.8)'},
-                {k:'gasolio',l:'Gasolio',c:'rgba(249, 115, 22, 0.8)'},
-                {k:'dieselplus',l:'Diesel+',c:'rgba(225, 29, 72, 0.8)'},
-                {k:'hvolution',l:'Hvolution',c:'rgba(6, 182, 212, 0.8)'},
-                {k:'adblue',l:'AdBlue',c:'rgba(59, 130, 246, 0.8)'}
+                {k:'benzina',l:'Benzina',c:'rgba(34, 197, 94, 0.8)'}, {k:'gasolio',l:'Gasolio',c:'rgba(249, 115, 22, 0.8)'}, {k:'dieselplus',l:'Diesel+',c:'rgba(225, 29, 72, 0.8)'},
+                {k:'hvolution',l:'Hvolution',c:'rgba(6, 182, 212, 0.8)'}, {k:'adblue',l:'AdBlue',c:'rgba(59, 130, 246, 0.8)'}
             ];
+            const chartData = prods.map(p => s.products[p.k] || 0); const chartLabels = prods.map(p => p.l); const chartColors = prods.map(p => p.c);
 
-            const chartData = prods.map(p => s.products[p.k] || 0);
-            const chartLabels = prods.map(p => p.l);
-            const chartColors = prods.map(p => p.c);
+            /* INIZIO MODIFICA GRAFICO */
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const tickColor = isDark ? '#9ca3af' : '#4b5563';
+            /* FINE MODIFICA GRAFICO */
 
-            // Distrugge il grafico precedente per forzare la ri-animazione
-            if (this.localState.litersChart) {
-                this.localState.litersChart.destroy();
-            }
-
+            if (this.localState.litersChart) this.localState.litersChart.destroy();
             this.localState.litersChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        label: 'Litri Erogati',
-                        data: chartData,
-                        backgroundColor: chartColors,
-                        borderColor: chartColors.map(c => c.replace('0.8', '1')),
-                        borderWidth: 1,
-                        datalabels: {
-                            color: '#fff',
-                            anchor: 'end',
-                            align: 'start',
-                            offset: 10,
-                            formatter: (value) => value > 0 ? App.formatNumber(value) + ' L' : '',
-                            font: { weight: 'bold' }
-                        }
-                    }]
-                },
+                data: { labels: chartLabels, datasets: [{ label: 'Litri Erogati', data: chartData, backgroundColor: chartColors, borderColor: chartColors.map(c => c.replace('0.8', '1')), borderWidth: 1 }] },
+                /* INIZIO MODIFICA GRAFICO */
                 options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false },
-                        datalabels: { // Necessita del plugin chartjs-plugin-datalabels (non incluso, quindi questo potrebbe non funzionare)
-                            display: false // Lo disabilitiamo per sicurezza se il plugin non è caricato
-                        }
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { enabled: true } // Mostra litri in hover
                     },
-                    scales: {
-                        x: {
-                            display: false,
-                            stacked: true
-                        },
-                        y: {
-                            display: true,
+                    scales: { 
+                        x: { 
+                            display: true, // Mostra asse X (litri)
                             stacked: true,
-                            grid: { display: false },
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563'
+                            grid: { 
+                                display: true, // Mostra griglia X
+                                color: gridColor 
+                            },
+                            ticks: { 
+                                color: tickColor 
                             }
-                        }
+                        }, 
+                        y: { 
+                            display: true, 
+                            stacked: true, 
+                            grid: { 
+                                display: true, // Mostra griglia Y
+                                color: gridColor 
+                            }, 
+                            ticks: { color: tickColor } 
+                        } 
                     }
                 }
+                /* FINE MODIFICA GRAFICO */
             });
         },
 
@@ -291,6 +286,9 @@
             document.getElementById('btn-go-apps').onclick = () => window.location.hash = '#applicazioni';
             document.querySelectorAll('.btn-delete-order').forEach(b => b.onclick = () => this.deleteOrder(b.dataset.id));
         },
+
+        /* RIMOZIONE FUNZIONE fetchNews() */
+
         deleteOrder(id) {
             const o = App.state.data.fuelOrders.find(x => x.id === id); if (!o) return;
             App.showModal('', `<div class="text-center p-6"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4 mx-auto"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cancellare Ordine?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Eliminare l'ordine del <b>${App.formatDate(o.date)}</b>?</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-ord" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Elimina</button></div>`, 'max-w-md');
