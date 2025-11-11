@@ -21,7 +21,6 @@ const App = {
     },
 
     initTheme() {
-        // NOTA: il tema alternativo viene caricato da 'impostazioni.js'
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -152,42 +151,16 @@ const App = {
         const darkIcon = document.getElementById('theme-toggle-dark-icon');
         const lightIcon = document.getElementById('theme-toggle-light-icon');
         if (document.documentElement.classList.contains('dark')) { lightIcon.classList.remove('hidden'); } else { darkIcon.classList.remove('hidden'); }
-        
-        // --- INIZIO LOGICA TEMA AGGIORNATA ---
         document.getElementById('theme-toggle').addEventListener('click', () => {
-            // Regola 2: Resetta qualsiasi tema alternativo
-            document.documentElement.classList.remove('theme-notte', 'theme-ruby', 'theme-grass', 'theme-mint', 'theme-teal', 'theme-aqua', 'theme-lavender', 'theme-pinkrose', 'theme-darkgray');
-            localStorage.setItem('mystation_theme_variant', 'default');
-
-            // Aggiorna i bottoni in Impostazioni, se il modulo è caricato
-            if (window.App && App.modules && App.modules.impostazioni) {
-                App.modules.impostazioni.updateThemeButtonState('default');
-            }
-            
-            // Regola 1: Esegui il toggle di default (logica originale)
-            darkIcon.classList.toggle('hidden'); 
-            lightIcon.classList.toggle('hidden');
-            
+            darkIcon.classList.toggle('hidden'); lightIcon.classList.toggle('hidden');
             if (localStorage.getItem('color-theme')) {
-                if (localStorage.getItem('color-theme') === 'light') { 
-                    document.documentElement.classList.add('dark'); 
-                    localStorage.setItem('color-theme', 'dark');
-                } else { 
-                    document.documentElement.classList.remove('dark'); 
-                    localStorage.setItem('color-theme', 'light'); 
-                }
+                if (localStorage.getItem('color-theme') === 'light') { document.documentElement.classList.add('dark'); localStorage.setItem('color-theme', 'dark'); }
+                else { document.documentElement.classList.remove('dark'); localStorage.setItem('color-theme', 'light'); }
             } else {
-                if (document.documentElement.classList.contains('dark')) { 
-                    document.documentElement.classList.remove('dark'); 
-                    localStorage.setItem('color-theme', 'light'); 
-                } else { 
-                    document.documentElement.classList.add('dark'); 
-                    localStorage.setItem('color-theme', 'dark');
-                }
+                if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('color-theme', 'light'); }
+                else { document.documentElement.classList.add('dark'); localStorage.setItem('color-theme', 'dark'); }
             }
         });
-        // --- FINE LOGICA TEMA AGGIORNATA ---
-
         document.getElementById('sidebar-collapse-toggle')?.addEventListener('click', () => { this.setSidebarCompact(!document.getElementById('application-sidebar').classList.contains('w-16')); });
         document.getElementById('fullscreen-toggle')?.addEventListener('click', () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e)); else if (document.exitFullscreen) document.exitFullscreen(); });
         document.getElementById('btn-sidebar-mobile')?.addEventListener('click', () => { document.getElementById('application-sidebar').classList.toggle('-translate-x-full'); });
