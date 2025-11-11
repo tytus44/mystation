@@ -229,32 +229,32 @@
                             ${simpleCardEnd} </div>
 
                         <div id="apps-col-2" class="flex flex-col gap-6 min-h-[200px]">
-                            ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indigo-600')}
+${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indigo-600')}
                                 <div class="mb-4">
                                     <input type="text" id="calc-display" readonly class="w-full bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-lg text-right text-2xl font-bold p-4 text-gray-900 dark:text-white" value="0">
                                 </div>
                                 <div id="calc-buttons" class="grid grid-cols-4 gap-2">
-                                    <button class="calc-btn p-3 bg-red-200 dark:bg-red-800 rounded-lg text-lg font-medium hover:bg-red-300 dark:hover:bg-red-700" data-val="C">C</button>
-                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="/">/</button>
-                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="*">*</button>
-                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="-">-</button>
+                                    <button class="calc-btn p-3 bg-red-200 dark:bg-red-800 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-red-300 dark:hover:bg-red-700" data-val="C">C</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="/">/</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="*">*</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="-">-</button>
                                     
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="7">7</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="8">8</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="9">9</button>
-                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 row-span-2" data-val="+">+</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="7">7</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="8">8</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="9">9</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 row-span-2" data-val="+">+</button>
 
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="4">4</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="5">5</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="6">6</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="4">4</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="5">5</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="6">6</button>
 
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="1">1</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="2">2</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="3">3</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="1">1</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="2">2</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="3">3</button>
                                     <button class="calc-btn p-3 bg-primary-600 text-white rounded-lg text-lg font-medium hover:bg-primary-700 row-span-2" data-val="=">=</button>
 
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 col-span-2" data-val="0">0</button>
-                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val=".">.</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500 col-span-2" data-val="0">0</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val=".">.</button>
                                 </div>
                             ${simpleCardEnd} ${simpleCardStart('app-card-radio', 'Radio Stream', 'radio', 'bg-pink-600')}
                                 <div class="flex items-center gap-4 mb-4">
