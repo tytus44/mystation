@@ -12,7 +12,8 @@
             banconote: { 500:0, 200:0, 100:0, 50:0, 20:0, 10:0, 5:0 },
             fuelOrder: { date: App.toLocalISOString(new Date()), benzina:0, gasolio:0, dieselplus:0, hvolution:0 },
             editingEventId: null,
-            eventModal: { type: 'app', date: '', time: '09:00', desc: '', duration: '30 min', priority: 'standard' }
+            eventModal: { type: 'app', date: '', time: '09:00', desc: '', duration: '30 min', priority: 'standard' },
+            calculatorInput: '', // Stato per la calcolatrice
         },
 
         init() {
@@ -42,12 +43,26 @@
             this.updateBanconoteTotal();
         },
 
+        /* INIZIO MODIFICA DRAG & DROP */
         initDragAndDrop() {
             const save = () => this.saveLayout();
-            ['apps-top-grid', 'apps-bottom-grid'].forEach(id => {
+            // Griglia TOP
+            const topGrid = document.getElementById('apps-top-grid');
+            if (topGrid && !topGrid._sortable) {
+                topGrid._sortable = new Sortable(topGrid, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
+            }
+            
+            // Griglia BOTTOM (colonne separate)
+            ['apps-col-1', 'apps-col-2', 'apps-col-3'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el && !el._sortable) { // Evita ri-registrazioni
-                    el._sortable = new Sortable(el, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
+                if (el && !el._sortable) {
+                    el._sortable = new Sortable(el, { 
+                        group: 'shared-apps-bottom', // Gruppo per drag tra colonne
+                        animation: 150, 
+                        ghostClass: 'sortable-ghost', 
+                        handle: '.card-header', 
+                        onSort: save 
+                    });
                 }
             });
         },
@@ -55,7 +70,12 @@
         saveLayout() {
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-                const layout = { top: getIds('apps-top-grid'), bottom: getIds('apps-bottom-grid') };
+                const layout = { 
+                    top: getIds('apps-top-grid'), 
+                    col1: getIds('apps-col-1'),
+                    col2: getIds('apps-col-2'),
+                    col3: getIds('apps-col-3')
+                };
                 localStorage.setItem('mystation_apps_layout_v1', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout app bloccato:', e); }
         },
@@ -67,13 +87,16 @@
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
                     const container = document.getElementById(cid);
-                    if (!container || !ids) return;
+                    if (!container || !Array.isArray(ids)) return; // Aggiunto Array.isArray
                     ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
                 };
                 restore('apps-top-grid', layout.top);
-                restore('apps-bottom-grid', layout.bottom);
+                restore('apps-col-1', layout.col1);
+                restore('apps-col-2', layout.col2);
+                restore('apps-col-3', layout.col3);
             } catch (e) { console.error("Errore ripristino layout app:", e); }
         },
+        /* FINE MODIFICA DRAG & DROP */
 
         getLayoutHTML() {
             const fuelProducts = [ { key: 'benzina', label: 'Benzina' }, { key: 'gasolio', label: 'Gasolio' }, { key: 'dieselplus', label: 'Diesel+' }, { key: 'hvolution', label: 'Hvo' } ];
@@ -87,6 +110,8 @@
                         </div>
                     </div>
                     <div class="p-6">`;
+            
+            const simpleCardEnd = `</div></div>`;
 
             return `
                 <div id="apps-layout" class="flex flex-col gap-6 animate-fade-in">
@@ -133,83 +158,111 @@
                         </div>
                     </div>
 
-                    <div id="apps-bottom-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                        ${simpleCardStart('app-card-fuel', 'Ordine Carburante', 'truck', 'bg-cyan-600')}
-                            <div class="mb-5">
-                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Consegna</label>
-                                <input type="date" id="fuel-order-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="${this.localState.fuelOrder.date}">
-                            </div>
-                            <div class="space-y-4" id="fuel-order-form">
-                                ${fuelProducts.map(p => `
-                                    <div class="flex items-center justify-between gap-4">
-                                        <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p.label}</label>
-                                        <div class="flex items-center">
-                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.key}">
-                                                <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
-                                            </button>
-                                            <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.key}" value="0">
-                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.key}">
-                                                <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
-                                            </button>
-                                        </div>
-                                    </div>`).join('')}
-                            </div>
-                            <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <div class="flex justify-between items-center mb-4">
-                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Stimato:</span>
-                                    <span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span>
+                    <div id="apps-bottom-grid-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        
+                        <div id="apps-col-1" class="flex flex-col gap-6 min-h-[200px]">
+                            ${simpleCardStart('app-card-fuel', 'Ordine Carburante', 'truck', 'bg-cyan-600')}
+                                <div class="mb-5">
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Consegna</label>
+                                    <input type="date" id="fuel-order-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="${this.localState.fuelOrder.date}">
                                 </div>
-                                <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine">
-                                    <i data-lucide="save" class="size-4 sm:mr-2"></i>
-                                    <span class="hidden sm:inline">Salva Ordine</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                                <div class="space-y-4" id="fuel-order-form">
+                                    ${fuelProducts.map(p => `
+                                        <div class="flex items-center justify-between gap-4">
+                                            <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p.label}</label>
+                                            <div class="flex items-center">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.key}">
+                                                    <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
+                                                </button>
+                                                <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.key}" value="0">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.key}">
+                                                    <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
+                                                </button>
+                                            </div>
+                                        </div>`).join('')}
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Stimato:</span>
+                                        <span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span>
+                                    </div>
+                                    <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine">
+                                        <i data-lucide="save" class="size-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Salva Ordine</span>
+                                    </button>
+                                </div>
+                            ${simpleCardEnd} ${simpleCardStart('app-card-iva', 'Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
+                                <div class="space-y-4 mb-6">
+                                    <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label><input type="number" id="iva-lordo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
+                                    <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Imponibile (Netto)</label><input type="number" id="iva-netto" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
+                                </div>
+                                <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valore IVA:</span>
+                                    <span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span>
+                                </div>
+                            ${simpleCardEnd} </div>
 
-                    ${simpleCardStart('app-card-iva', 'Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
-                            <div class="space-y-4 mb-6">
-                                <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label><input type="number" id="iva-lordo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
-                                <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Imponibile (Netto)</label><input type="number" id="iva-netto" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
-                            </div>
-                            <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valore IVA:</span>
-                                <span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span>
-                            </div>
-                        </div>
-                    </div>
+                        <div id="apps-col-2" class="flex flex-col gap-6 min-h-[200px]">
+                            ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indigo-600')}
+                                <div class="mb-4">
+                                    <input type="text" id="calc-display" readonly class="w-full bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-lg text-right text-2xl font-bold p-4 text-gray-900 dark:text-white" value="0">
+                                </div>
+                                <div id="calc-buttons" class="grid grid-cols-4 gap-2">
+                                    <button class="calc-btn p-3 bg-red-200 dark:bg-red-800 rounded-lg text-lg font-medium hover:bg-red-300 dark:hover:bg-red-700" data-val="C">C</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="/">/</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="*">*</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="-">-</button>
+                                    
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="7">7</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="8">8</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="9">9</button>
+                                    <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 row-span-2" data-val="+">+</button>
 
-                    ${simpleCardStart('app-card-money', 'Conta Banconote', 'banknote', 'bg-green-600')}
-                            <div class="space-y-3 mb-6" id="banconote-list">
-                                ${[500,200,100,50,20,10,5].map(t => `
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="text-sm font-medium w-12 text-gray-900 dark:text-white">€ ${t}</span>
-                                        <div class="flex items-center">
-                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}">
-                                                <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
-                                            </button>
-                                            <input type="text" readonly class="w-16 h-10 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white" id="money-q-${t}" value="0">
-                                            <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}">
-                                                <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
-                                            </button>
-                                        </div>
-                                        <span class="text-sm font-bold w-20 text-right text-gray-900 dark:text-white" id="money-tot-${t}">€ 0</span>
-                                    </div>`).join('')}
-                            </div>
-                            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Pezzi:</span>
-                                    <span id="money-count-total" class="text-base font-semibold text-gray-900 dark:text-white">0</span>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="4">4</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="5">5</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="6">6</button>
+
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="1">1</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="2">2</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="3">3</button>
+                                    <button class="calc-btn p-3 bg-primary-600 text-white rounded-lg text-lg font-medium hover:bg-primary-700 row-span-2" data-val="=">=</button>
+
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 col-span-2" data-val="0">0</button>
+                                    <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val=".">.</button>
                                 </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-lg font-bold text-gray-900 dark:text-white">Totale Valore</span>
-                                    <span id="money-grand-total" class="text-xl font-bold text-green-600 dark:text-green-500">€ 0,00</span>
+                            ${simpleCardEnd} </div>
+                        
+                        <div id="apps-col-3" class="flex flex-col gap-6 min-h-[200px]">
+                            ${simpleCardStart('app-card-money', 'Conta Banconote', 'banknote', 'bg-green-600')}
+                                <div class="space-y-3 mb-6" id="banconote-list">
+                                    ${[500,200,100,50,20,10,5].map(t => `
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="text-sm font-medium w-12 text-gray-900 dark:text-white">€ ${t}</span>
+                                            <div class="flex items-center">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}">
+                                                    <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
+                                                </button>
+                                                <input type="text" readonly class="w-16 h-10 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white" id="money-q-${t}" value="0">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}">
+                                                    <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
+                                                </button>
+                                            </div>
+                                            <span class="text-sm font-bold w-20 text-right text-gray-900 dark:text-white" id="money-tot-${t}">€ 0</span>
+                                        </div>`).join('')}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+                                <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Pezzi:</span>
+                                        <span id="money-count-total" class="text-base font-semibold text-gray-900 dark:text-white">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-lg font-bold text-gray-900 dark:text-white">Totale Valore</span>
+                                        <span id="money-grand-total" class="text-xl font-bold text-green-600 dark:text-green-500">€ 0,00</span>
+                                    </div>
+                                </div>
+                            ${simpleCardEnd} </div>
+
+                    </div> </div>`; // Chiusura di apps-layout
         },
 
         // --- CALENDAR & EVENTS ---
@@ -382,6 +435,49 @@
             this.render();
         },
 
+        /* INIZIO LOGICA CALCOLATRICE */
+        handleCalculatorInput(value) {
+            const display = document.getElementById('calc-display');
+            let current = this.localState.calculatorInput || '';
+
+            try {
+                if (value === 'C') {
+                    current = '';
+                } else if (value === '=') {
+                    if (current) {
+                        // Sanificazione di base per new Function
+                        let safeCalc = String(current).replace(/[^-()\d/*+.]/g, '');
+                        if (safeCalc) {
+                            let result = new Function('return ' + safeCalc)();
+                            current = String(result);
+                        } else {
+                            current = '0';
+                        }
+                    }
+                } else {
+                    if (current === '' && ['/', '*', '+', '.'].includes(value)) {
+                         // Non iniziare con questi
+                    } 
+                    else if (['/', '*', '+', '-'].includes(current.slice(-1)) && ['/', '*', '+', '-'].includes(value)) {
+                        current = current.slice(0, -1) + value;
+                    } 
+                    else if (value === '.' && current.split(/[-/*+]/).pop().includes('.')) {
+                        // Non fare nulla (evita doppi punti)
+                    }
+                    else {
+                        current += value;
+                    }
+                }
+                
+                display.value = current || '0'; // Mostra 0 se vuoto
+                this.localState.calculatorInput = current;
+            } catch (e) {
+                display.value = 'Errore';
+                this.localState.calculatorInput = '';
+            }
+        },
+        /* FINE LOGICA CALCOLATRICE */
+
         attachListeners() {
             document.getElementById('cal-prev').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()-1); this.renderCalendar(); };
             document.getElementById('cal-next').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()+1); this.renderCalendar(); };
@@ -394,6 +490,12 @@
             document.querySelectorAll('.btn-fuel-dec').forEach(b => b.onclick = () => this.updateFuelOrder(b.dataset.p, false));
             document.getElementById('btn-save-order').onclick = () => this.saveFuelOrder();
             document.getElementById('fuel-order-date').onchange = (e) => this.localState.fuelOrder.date = e.target.value;
+
+            /* INIZIO LISTENER CALCOLATRICE */
+            document.querySelectorAll('#calc-buttons .calc-btn').forEach(b => {
+                b.onclick = () => this.handleCalculatorInput(b.dataset.val);
+            });
+            /* FINE LISTENER CALCOLATRICE */
         }
     };
     if(window.App) App.registerModule('applicazioni', AppsModule); else document.addEventListener('app:ready', () => App.registerModule('applicazioni', AppsModule));
