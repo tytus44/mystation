@@ -1,10 +1,13 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Fix Card Stretching (h-full removed)
+   MODULO: Home Dashboard (js/home.js) - Animated Liters Bar Chart
    ========================================================================== */
 (function() {
     'use strict';
     const HomeModule = {
-        localState: { timeInterval: null },
+        localState: { 
+            timeInterval: null,
+            litersChart: null // Aggiunto per tracciare l'istanza del grafico
+        },
         init() { },
         render() {
             const container = document.getElementById('home-container'); if (!container) return;
@@ -14,7 +17,12 @@
             this.initDragAndDrop();
             if (!this.localState.timeInterval) this.localState.timeInterval = setInterval(() => this.updateClock(), 1000);
         },
-        updateView() { this.updateClock(); this.renderStats(); this.renderActivitiesAndOrders(); },
+        updateView() { 
+            this.updateClock(); 
+            this.renderStats(); 
+            this.renderActivitiesAndOrders();
+            this.renderLitersChart(); // Aggiunta chiamata per (ri)creare il grafico
+        },
         
         initDragAndDrop() {
             const save = () => this.saveLayout();
@@ -72,14 +80,15 @@
                     <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start min-h-[100px]"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        
                         <div id="home-col-1" class="flex flex-col gap-6 min-h-[200px]">
                             <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
                                     <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
                                 </div>
-                                <div id="home-liters-breakdown" class="p-6 space-y-4"></div>
+                                <div class="p-6 h-80 relative">
+                                    <canvas id="home-liters-chart"></canvas>
+                                </div>
                             </div>
                         </div>
                         <div id="home-col-2" class="flex flex-col gap-6 min-h-[200px]">
@@ -147,15 +156,85 @@
                 document.getElementById('bar-served').style.width = `${s.servitoPerc}%`;
             }
             
-            const c2 = document.getElementById('home-liters-breakdown');
-            if(c2) {
-                const prods = [{k:'benzina',l:'Benzina',c:'bg-green-500'},{k:'gasolio',l:'Gasolio',c:'bg-orange-500'},{k:'dieselplus',l:'Diesel+',c:'bg-red-600'},{k:'hvolution',l:'Hvolution',c:'bg-cyan-500'},{k:'adblue',l:'AdBlue',c:'bg-blue-600'}];
-                c2.innerHTML = prods.map(p => { const l=s.products[p.k]||0; const perc=s.totalLiters>0?Math.round((l/s.totalLiters)*100):0; return `<div><div class="flex justify-between items-center mb-1"><span class="text-sm font-medium text-gray-700 dark:text-gray-300">${p.l}</span><span class="text-sm font-bold text-gray-900 dark:text-white">${App.formatNumber(l)} L <span class="text-xs font-normal text-gray-500 ml-1">(${perc}%)</span></span></div><div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700"><div class="${p.c} h-2 rounded-full" style="width: ${perc}%"></div></div></div>`; }).join('');
-            }
+            // MODIFICA: Rimossa la logica di render 'c2' (home-liters-breakdown) da qui
+            
             const c3 = document.getElementById('todays-shifts-info');
             if(c3) c3.innerHTML = s.todayShifts.length ? `<div class="flex flex-col gap-3"><div><div class="text-lg font-bold text-gray-900 dark:text-white mb-1">${s.todayShifts.map(t=>t.turno).join(', ')}</div><div class="text-sm text-gray-500 dark:text-gray-400">Turni chiusi: <span class="font-semibold">${s.todayShifts.length}</span></div></div><div class="mt-2 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center"><span class="text-sm text-gray-600 dark:text-gray-300">Totale Erogato Oggi:</span><span class="font-bold text-primary-600 dark:text-primary-500">${App.formatNumber(s.totalLiters)} L</span></div></div>` : `<p class="text-gray-500 dark:text-gray-400 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> Nessun turno chiuso oggi.</p>`;
             lucide.createIcons();
         },
+
+        // NUOVA FUNZIONE: renderLitersChart
+        renderLitersChart() {
+            const s = this.getTodayStats();
+            const ctx = document.getElementById('home-liters-chart')?.getContext('2d');
+            if (!ctx) return;
+
+            const prods = [
+                {k:'benzina',l:'Benzina',c:'rgba(34, 197, 94, 0.8)'},
+                {k:'gasolio',l:'Gasolio',c:'rgba(249, 115, 22, 0.8)'},
+                {k:'dieselplus',l:'Diesel+',c:'rgba(225, 29, 72, 0.8)'},
+                {k:'hvolution',l:'Hvolution',c:'rgba(6, 182, 212, 0.8)'},
+                {k:'adblue',l:'AdBlue',c:'rgba(59, 130, 246, 0.8)'}
+            ];
+
+            const chartData = prods.map(p => s.products[p.k] || 0);
+            const chartLabels = prods.map(p => p.l);
+            const chartColors = prods.map(p => p.c);
+
+            // Distrugge il grafico precedente per forzare la ri-animazione
+            if (this.localState.litersChart) {
+                this.localState.litersChart.destroy();
+            }
+
+            this.localState.litersChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Litri Erogati',
+                        data: chartData,
+                        backgroundColor: chartColors,
+                        borderColor: chartColors.map(c => c.replace('0.8', '1')),
+                        borderWidth: 1,
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'end',
+                            align: 'start',
+                            offset: 10,
+                            formatter: (value) => value > 0 ? App.formatNumber(value) + ' L' : '',
+                            font: { weight: 'bold' }
+                        }
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false },
+                        datalabels: { // Necessita del plugin chartjs-plugin-datalabels (non incluso, quindi questo potrebbe non funzionare)
+                            display: false // Lo disabilitiamo per sicurezza se il plugin non è caricato
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                            stacked: true
+                        },
+                        y: {
+                            display: true,
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#4b5563'
+                            }
+                        }
+                    }
+                }
+            });
+        },
+
         renderActivitiesAndOrders() {
             const todayISO = App.toLocalISOString(new Date());
             const acts = [...(App.state.data.appuntamenti||[]).filter(a => a.date === todayISO).map(a => ({...a, type:'app'})), ...(App.state.data.todos||[]).filter(t => t.dueDate === todayISO).map(t => ({...t, type:'todo'}))].sort((a,b) => (a.oraInizio||'').localeCompare(b.oraInizio||''));

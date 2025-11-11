@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Accurate Revenue Calculation
+   MODULO: VirtualStation (js/virtualstation.js) - Context Fix & No Legend
    ========================================================================== */
 (function() {
     'use strict';
@@ -38,6 +38,7 @@
         },
 
         updateView() {
+            // FIX: Chiamata esplicita a VirtualModule per evitare errori di contesto
             VirtualModule.updateStats();
             VirtualModule.updateFilterLabel();
             VirtualModule.renderTable();
@@ -47,17 +48,27 @@
         initDragAndDrop() {
             const save = () => VirtualModule.saveLayout();
             const mainSections = document.getElementById('virtual-sections-container');
-            if (mainSections) new Sortable(mainSections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
+            if (mainSections) {
+                new Sortable(mainSections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
+            }
             const stats = document.getElementById('v-stats-container');
-            if (stats) new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
+            if (stats) {
+                new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
+            }
             const charts = document.getElementById('v-charts-container');
-            if (charts) new Sortable(charts, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
+            if (charts) {
+                new Sortable(charts, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
+            }
         },
 
         saveLayout() {
             try {
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
-                const layout = { sections: getIds('virtual-sections-container'), stats: getIds('v-stats-container'), charts: getIds('v-charts-container') };
+                const layout = {
+                    sections: getIds('virtual-sections-container'),
+                    stats: getIds('v-stats-container'),
+                    charts: getIds('v-charts-container')
+                };
                 localStorage.setItem('mystation_virtual_layout_v4', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout bloccato:', e); }
         },
@@ -106,16 +117,10 @@
                     <div id="virtual-sections-container" class="flex flex-col gap-8">
                         
                         <div id="sec-stats" class="group">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta sezione">
-                                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-2"></i> Indicatori Chiave
-                            </h3>
                             <div id="v-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start"></div>
                         </div>
 
                         <div id="sec-charts" class="group">
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-move section-handle inline-flex items-center hover:text-primary-600 transition-colors" title="Sposta sezione">
-                                <i data-lucide="pie-chart" class="w-5 h-5 mr-2"></i> Analisi Grafica
-                            </h3>
                             <div id="v-charts-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                                 <div id="v-card-service" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
@@ -210,7 +215,7 @@
             if (!pageItems.length) tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">Nessun turno trovato.</td></tr>';
             else {
                 tbody.innerHTML = pageItems.map(t => {
-                    const total = VirtualModule.getTurnoTotalLitri(t); // Usa i litri per la tabella
+                    const total = VirtualModule.getTurnoTotalLitri(t);
                     const isRiep = t.turno === 'Riepilogo Mensile';
                     return `<tr class="border-b dark:border-gray-700 ${isRiep ? 'bg-primary-50 dark:bg-primary-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}"><th class="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">${App.formatDate(t.date)}</th><td class="px-4 py-3">${t.turno}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'benzina')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'gasolio')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'dieselplus')}</td><td class="px-4 py-3">${VirtualModule.fmtProd(t, 'hvolution')}</td><td class="px-4 py-3 font-semibold">${App.formatNumber(total)}</td><td class="px-4 py-3 text-right"><button class="btn-edit-turno font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${t.id}">Modifica</button></td></tr>`;
                 }).join('');
@@ -225,45 +230,36 @@
             document.querySelectorAll('.btn-edit-turno').forEach(b => b.onclick = () => VirtualModule.openTurnoModal(b.dataset.id));
         },
 
+        // --- HELPER FUNCTIONS ---
         fmtProd(t, p) { const tot = (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); return tot > 0 ? App.formatNumber(tot) : '-'; },
         getFilteredTurni() {
             const mode = this.localState.filterMode; const now = new Date(); const start = new Date(); start.setHours(0,0,0,0);
             if (mode === 'month') start.setDate(1); else if (mode === 'year') start.setMonth(0, 1);
             return App.state.data.turni.filter(t => { const d = new Date(t.date); return mode === 'today' ? d >= start && d <= now : d >= start; }).sort((a,b) => new Date(b.date) - new Date(a.date));
         },
-        // Rinomina la vecchia getTurnoTotal in getTurnoTotalLitri
         getTurnoTotalLitri(t) { return this.sumObj(t.prepay) + this.sumObj(t.servito) + this.sumObj(t.fdt); },
         sumObj(o) { return Object.values(o||{}).reduce((a,b)=>a+(parseFloat(b)||0),0); },
         
-        // --- MODIFICA: CALCOLO FATTURATO REALE ---
         calculateStats() {
             const turni = VirtualModule.getFilteredTurni(); 
             const prices = VirtualModule.getLatestPrices();
             let liters=0, rev=0, serv=0;
-            const mFdt=0.04, mServ=0.08, mAdblue=0.40, surSelf=0.005, surServ=0.220; // Ricarichi standard
-
+            const mFdt=0.04, mServ=0.08, mAdblue=0.40, surSelf=0.005, surServ=0.220; 
             turni.forEach(t => {
                 ['benzina','gasolio','dieselplus','hvolution','adblue'].forEach(k => {
                     const pp = parseFloat(t.prepay?.[k])||0;
                     const sv = parseFloat(t.servito?.[k])||0;
-                    // FDT (Fai Da Te) è rilevante solo per Riepilogo Mensile, ma lo includiamo per sicurezza
                     const fd = parseFloat(t.fdt?.[k])||0; 
                     const totLitriProdotto = pp + sv + fd;
-                    
                     liters += totLitriProdotto;
-                    serv += sv; // Solo 'servito' conta per la % servito
-
-                    // Calcolo fatturato
+                    serv += sv; 
                     const pKey = k==='dieselplus'?'dieselPlus':k;
                     const bp = prices[pKey]||0;
-                    
                     if(bp > 0) { 
                         if(k === 'adblue') { 
-                            rev += (sv * bp); // AdBlue venduto solo come servito (ipotizzato)
+                            rev += (sv * bp); 
                         } else { 
-                            rev += (pp * (bp + surSelf));
-                            rev += (sv * (bp + surSelf + surServ));
-                            rev += (fd * (bp + surSelf)); // FDT calcolato come self
+                            rev += (pp * (bp + surSelf)) + (sv * (bp + surSelf + surServ)) + (fd * (bp + surSelf)); 
                         } 
                     }
                 });
@@ -274,40 +270,87 @@
             if(!App.state.data.priceHistory?.length) return {}; 
             return [...App.state.data.priceHistory].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]; 
         },
-        // --- FINE MODIFICA CALCOLO FATTURATO ---
 
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
+        
         initCharts() {
+            // Chiamata singola, solo al primo 'render'
+            VirtualModule.updateCharts();
+        },
+
+        updateCharts() {
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
             const ctxS = document.getElementById('v-service-chart')?.getContext('2d');
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
-            if (!ctxP || !ctxS || !ctxT) return;
+            if (!ctxP || !ctxS || !ctxT) return; 
+
+            // 1. Distrugge i grafici esistenti
             if(this.localState.chartInstances.p) this.localState.chartInstances.p.destroy();
             if(this.localState.chartInstances.s) this.localState.chartInstances.s.destroy();
             if(this.localState.chartInstances.t) this.localState.chartInstances.t.destroy();
-            this.localState.chartInstances.p = new Chart(ctxP, { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 10 } } } } });
-            this.localState.chartInstances.s = new Chart(ctxS, { type: 'bar', data: { labels: ['Totale'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } });
-            this.localState.chartInstances.t = new Chart(ctxT, { type: 'line', data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
-            this.updateCharts();
-        },
-        updateCharts() {
-            if(!this.localState.chartInstances.p) return;
+
+            // 2. Calcola i nuovi dati (FIX: usando VirtualModule. per il contesto)
             const turni = VirtualModule.getFilteredTurni();
             const pData = [0,0,0,0,0]; let fdt=0, prepay=0, servito=0;
             turni.forEach(t => {
-                pData[0] += VirtualModule.getProdTotal(t,'benzina'); pData[1] += VirtualModule.getProdTotal(t,'gasolio');
-                pData[2] += VirtualModule.getProdTotal(t,'dieselplus'); pData[3] += VirtualModule.getProdTotal(t,'hvolution');
+                pData[0] += VirtualModule.getProdTotal(t,'benzina');
+                pData[1] += VirtualModule.getProdTotal(t,'gasolio');
+                pData[2] += VirtualModule.getProdTotal(t,'dieselplus');
+                pData[3] += VirtualModule.getProdTotal(t,'hvolution');
                 pData[4] += VirtualModule.getProdTotal(t,'adblue');
-                fdt += VirtualModule.sumObj(t.fdt); prepay += VirtualModule.sumObj(t.prepay); servito += VirtualModule.sumObj(t.servito);
+                fdt += VirtualModule.sumObj(t.fdt); 
+                prepay += VirtualModule.sumObj(t.prepay); 
+                servito += VirtualModule.sumObj(t.servito);
             });
-            this.localState.chartInstances.p.data.labels = ['Bz','Gs','D+','Hv','AdB']; this.localState.chartInstances.p.data.datasets[0].data = pData; this.localState.chartInstances.p.update();
-            this.localState.chartInstances.s.data.datasets = [ { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 }, { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 } ]; this.localState.chartInstances.s.update();
-            const currentYear = new Date().getFullYear(); const monthlyData = Array(12).fill(0);
-            App.state.data.turni.filter(t => new Date(t.date).getFullYear() === currentYear).forEach(t => { monthlyData[new Date(t.date).getMonth()] += VirtualModule.getTurnoTotalLitri(t); });
-            const chartT = this.localState.chartInstances.t; const gradient = chartT.ctx.createLinearGradient(0, 0, 0, 300); gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
-            chartT.data.datasets = [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: gradient }]; chartT.update();
+            const pLabels = ['Bz','Gs','D+','Hv','AdB'];
+
+            const currentYear = new Date().getFullYear(); 
+            const monthlyData = Array(12).fill(0);
+            App.state.data.turni.filter(t => new Date(t.date).getFullYear() === currentYear).forEach(t => { 
+                monthlyData[new Date(t.date).getMonth()] += VirtualModule.getTurnoTotalLitri(t); 
+            });
+            const lineGradient = ctxT.createLinearGradient(0, 0, 0, 300); 
+            lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
+            lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+            // 3. Crea le nuove istanze (forzando l'animazione)
+            this.localState.chartInstances.p = new Chart(ctxP, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: pLabels, 
+                    datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false } // MODIFICA: Legenda rimossa
+                    } 
+                } 
+            });
+            this.localState.chartInstances.s = new Chart(ctxS, { 
+                type: 'bar', 
+                data: { 
+                    labels: ['Totale'], 
+                    datasets: [ 
+                        { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, 
+                        { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 }, 
+                        { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 } 
+                    ] 
+                }, 
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } 
+            });
+            this.localState.chartInstances.t = new Chart(ctxT, { 
+                type: 'line', 
+                data: { 
+                    labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], 
+                    datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] 
+                }, 
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } 
+            });
         },
         getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
+
         openTurnoModal(id=null) {
             this.localState.editingId = id;
             const t = id ? App.state.data.turni.find(x=>x.id===id) : null;
