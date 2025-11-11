@@ -278,18 +278,18 @@
             VirtualModule.updateCharts();
         },
 
-        updateCharts() {
+updateCharts() {
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
             const ctxS = document.getElementById('v-service-chart')?.getContext('2d');
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
             if (!ctxP || !ctxS || !ctxT) return; 
 
-            // 1. Distrugge i grafici esistenti
+            // Distrugge i grafici esistenti per forzare la ri-animazione
             if(this.localState.chartInstances.p) this.localState.chartInstances.p.destroy();
             if(this.localState.chartInstances.s) this.localState.chartInstances.s.destroy();
             if(this.localState.chartInstances.t) this.localState.chartInstances.t.destroy();
 
-            // 2. Calcola i nuovi dati (FIX: usando VirtualModule. per il contesto)
+            // Calcola i nuovi dati (FIX: usando VirtualModule.X per il contesto)
             const turni = VirtualModule.getFilteredTurni();
             const pData = [0,0,0,0,0]; let fdt=0, prepay=0, servito=0;
             turni.forEach(t => {
@@ -302,7 +302,8 @@
                 prepay += VirtualModule.sumObj(t.prepay); 
                 servito += VirtualModule.sumObj(t.servito);
             });
-            const pLabels = ['Bz','Gs','D+','Hv','AdB'];
+            // MODIFICA: Etichette complete per il grafico a torta
+            const pLabels = ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'];
 
             const currentYear = new Date().getFullYear(); 
             const monthlyData = Array(12).fill(0);
@@ -313,18 +314,18 @@
             lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
             lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
-            // 3. Crea le nuove istanze (forzando l'animazione)
+            // Crea le nuove istanze (forzando l'animazione)
             this.localState.chartInstances.p = new Chart(ctxP, { 
                 type: 'doughnut', 
                 data: { 
-                    labels: pLabels, 
+                    labels: pLabels, // Etichette complete
                     datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] 
                 }, 
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { 
-                        legend: { display: false } // MODIFICA: Legenda rimossa
+                        legend: { display: false } // Legenda rimossa
                     } 
                 } 
             });
