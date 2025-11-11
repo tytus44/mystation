@@ -82,10 +82,14 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                         <div id="home-col-1" class="flex flex-col gap-6 min-h-[200px]">
                             <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
-                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
-                                </div>
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
+        <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
+    </div>
+    <div class="p-6 h-80 relative">
+        <canvas id="home-liters-chart"></canvas>
+    </div>
+</div>
                                 <div class="p-6 h-80 relative">
                                     <canvas id="home-liters-chart"></canvas>
                                 </div>
