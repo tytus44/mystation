@@ -41,6 +41,7 @@
             this.renderEventsList();
             this.updateFuelTotal();
             this.updateBanconoteTotal();
+            this.loadNotes(); // Carica le note
         },
 
         /* INIZIO MODIFICA DRAG & DROP */
@@ -260,6 +261,8 @@
                                         <span id="money-grand-total" class="text-xl font-bold text-green-600 dark:text-green-500">€ 0,00</span>
                                     </div>
                                 </div>
+                            ${simpleCardEnd} ${simpleCardStart('app-card-notes', 'Note Rapide', 'clipboard-list', 'bg-yellow-500')}
+                                <textarea id="app-notes-textarea" class="w-full h-64 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-primary-500 focus:border-primary-500" placeholder="Scrivi qui le tue note..."></textarea>
                             ${simpleCardEnd} </div>
 
                     </div> </div>`; // Chiusura di apps-layout
@@ -478,6 +481,24 @@
         },
         /* FINE LOGICA CALCOLATRICE */
 
+        /* INIZIO GESTIONE NOTE */
+        saveNotes() {
+            try {
+                const notes = document.getElementById('app-notes-textarea').value;
+                localStorage.setItem('mystation_apps_notes_v1', notes);
+            } catch (e) { console.warn('Salvataggio note bloccato:', e); }
+        },
+        loadNotes() {
+            try {
+                const notes = localStorage.getItem('mystation_apps_notes_v1');
+                const textarea = document.getElementById('app-notes-textarea');
+                if (textarea && notes) {
+                    textarea.value = notes;
+                }
+            } catch (e) { console.warn('Caricamento note fallito:', e); }
+        },
+        /* FINE GESTIONE NOTE */
+
         attachListeners() {
             document.getElementById('cal-prev').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()-1); this.renderCalendar(); };
             document.getElementById('cal-next').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()+1); this.renderCalendar(); };
@@ -496,6 +517,10 @@
                 b.onclick = () => this.handleCalculatorInput(b.dataset.val);
             });
             /* FINE LISTENER CALCOLATRICE */
+
+            /* INIZIO LISTENER NOTE */
+            document.getElementById('app-notes-textarea').onkeyup = () => this.saveNotes();
+            /* FINE LISTENER NOTE */
         }
     };
     if(window.App) App.registerModule('applicazioni', AppsModule); else document.addEventListener('app:ready', () => App.registerModule('applicazioni', AppsModule));
