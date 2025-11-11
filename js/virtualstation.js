@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Context Fix & No Legend
+   MODULO: VirtualStation (js/virtualstation.js) - Chart Anim Fix (v2)
    ========================================================================== */
 (function() {
     'use strict';
@@ -30,7 +30,6 @@
                 lucide.createIcons();
                 if (typeof initFlowbite === 'function') initFlowbite();
                 this.attachListeners();
-                setTimeout(() => this.initCharts(), 50);
             }
             this.updateView();
             this.restoreLayout();
@@ -38,11 +37,10 @@
         },
 
         updateView() {
-            // FIX: Chiamata esplicita a VirtualModule per evitare errori di contesto
             VirtualModule.updateStats();
             VirtualModule.updateFilterLabel();
             VirtualModule.renderTable();
-            VirtualModule.updateCharts();
+            VirtualModule.updateCharts(); // Animazione grafici ad ogni update
         },
 
         initDragAndDrop() {
@@ -273,23 +271,18 @@
 
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         
-        initCharts() {
-            // Chiamata singola, solo al primo 'render'
-            VirtualModule.updateCharts();
-        },
-
-updateCharts() {
+        updateCharts() {
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
             const ctxS = document.getElementById('v-service-chart')?.getContext('2d');
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
             if (!ctxP || !ctxS || !ctxT) return; 
 
             // Distrugge i grafici esistenti per forzare la ri-animazione
-            if(this.localState.chartInstances.p) this.localState.chartInstances.p.destroy();
-            if(this.localState.chartInstances.s) this.localState.chartInstances.s.destroy();
-            if(this.localState.chartInstances.t) this.localState.chartInstances.t.destroy();
+            if(VirtualModule.localState.chartInstances.p) VirtualModule.localState.chartInstances.p.destroy();
+            if(VirtualModule.localState.chartInstances.s) VirtualModule.localState.chartInstances.s.destroy();
+            if(VirtualModule.localState.chartInstances.t) VirtualModule.localState.chartInstances.t.destroy();
 
-            // Calcola i nuovi dati (FIX: usando VirtualModule.X per il contesto)
+            // Calcola i nuovi dati
             const turni = VirtualModule.getFilteredTurni();
             const pData = [0,0,0,0,0]; let fdt=0, prepay=0, servito=0;
             turni.forEach(t => {
@@ -302,7 +295,6 @@ updateCharts() {
                 prepay += VirtualModule.sumObj(t.prepay); 
                 servito += VirtualModule.sumObj(t.servito);
             });
-            // MODIFICA: Etichette complete per il grafico a torta
             const pLabels = ['Benzina', 'Gasolio', 'Diesel+', 'Hvolution', 'AdBlue'];
 
             const currentYear = new Date().getFullYear(); 
@@ -314,43 +306,76 @@ updateCharts() {
             lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
             lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
-            // Crea le nuove istanze (forzando l'animazione)
-            this.localState.chartInstances.p = new Chart(ctxP, { 
-                type: 'doughnut', 
-                data: { 
-                    labels: pLabels, // Etichette complete
-                    datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] 
-                }, 
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { display: false } // Legenda rimossa
+            // --- FIX ANIMAZIONE GRAFICI ---
+            // Ritarda la creazione (aumentato a 50ms)
+            setTimeout(() => {
+                if (!document.getElementById('v-products-chart')) return;
+
+                VirtualModule.localState.chartInstances.p = new Chart(ctxP, { 
+                    type: 'doughnut', 
+                    data: { 
+                        labels: pLabels,
+                        datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] 
+                    }, 
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { display: false }
+                        } 
                     } 
-                } 
-            });
-            this.localState.chartInstances.s = new Chart(ctxS, { 
-                type: 'bar', 
-                data: { 
-                    labels: ['Totale'], 
-                    datasets: [ 
-                        { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, 
-                        { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 }, 
-                        { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 } 
-                    ] 
-                }, 
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } 
-            });
-            this.localState.chartInstances.t = new Chart(ctxT, { 
-                type: 'line', 
-                data: { 
-                    labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], 
-                    datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] 
-                }, 
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } 
-            });
+                });
+                
+                // REGOLA 1: Ordine FaiDaTe, Servito, Prepay
+                VirtualModule.localState.chartInstances.s = new Chart(ctxS, { 
+                    type: 'bar', 
+                    data: { 
+                        labels: ['Totale'], 
+                        datasets: [ 
+                            { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, 
+                            { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 },
+                            { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 }
+                        ] 
+                    }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } 
+                });
+                
+                VirtualModule.localState.chartInstances.t = new Chart(ctxT, { 
+                    type: 'line', 
+                    data: { 
+                        labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], 
+                        datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] 
+                    }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } 
+                });
+            }, 50); // Ritardo di 50ms per assicurare l'animazione
         },
         getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
+
+        updateModalFields(turno) {
+            const ppInputs = document.querySelectorAll('#form-turno .pp-input');
+            const svInputs = document.querySelectorAll('#form-turno .sv-input');
+            const fdInputs = document.querySelectorAll('#form-turno .fd-input');
+
+            // Default: disabilita tutto
+            ppInputs.forEach(i => i.disabled = true);
+            svInputs.forEach(i => i.disabled = true);
+            fdInputs.forEach(i => i.disabled = true);
+
+            if (['Notte', 'Pausa', 'Weekend'].includes(turno)) {
+                // REGOLA 1: Solo Prepay
+                ppInputs.forEach(i => i.disabled = false);
+            } else if (['Mattina', 'Pomeriggio'].includes(turno)) {
+                // REGOLA 1: Solo FaiDaTe e Servito
+                svInputs.forEach(i => i.disabled = false);
+                fdInputs.forEach(i => i.disabled = false);
+            } else if (turno === 'Riepilogo Mensile') {
+                // Riepilogo abilita tutto
+                ppInputs.forEach(i => i.disabled = false);
+                svInputs.forEach(i => i.disabled = false);
+                fdInputs.forEach(i => i.disabled = false);
+            }
+        },
 
         openTurnoModal(id=null) {
             this.localState.editingId = id;
@@ -359,16 +384,49 @@ updateCharts() {
             const cls = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
             const turnoOpts = ['Mattina','Pomeriggio','Notte','Pausa','Weekend','Riepilogo Mensile'];
             const curTurno = t?.turno || 'Mattina';
-            const isRiep = curTurno === 'Riepilogo Mensile';
+            
             const dropdownHtml = `<div class="relative"><button id="turnoDropdownBtn" data-dropdown-toggle="turnoDropdown" class="${cls} flex justify-between items-center w-full" type="button"><span id="selectedTurno">${curTurno}</span><svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="turnoDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-full absolute dark:bg-gray-700"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="turnoDropdownBtn">${turnoOpts.map(o => `<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white turno-opt" data-val="${o}">${o}</a></li>`).join('')}</ul></div></div><input type="hidden" name="turno" id="turnoInput" value="${curTurno}">`;
-            const form = `<form id="form-turno" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls} ps-10" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>${dropdownHtml}</div></div><div class="space-y-4"><h4 class="font-medium text-gray-900 dark:text-white border-b pb-2 dark:border-gray-700">Erogato (Litri)</h4><div class="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>Prepay</div><div>Servito</div><div>FaiDaTe</div></div>${['Benzina','Gasolio','DieselPlus','Hvolution'].map(p => { const k = p.toLowerCase(); return `<div class="grid grid-cols-4 gap-4 items-center"><div class="text-gray-900 dark:text-white">${p}</div><input type="number" step="1" name="pp_${k}" value="${t?.prepay?.[k]||''}" class="${cls}" placeholder="0"><input type="number" step="1" name="sv_${k}" value="${t?.servito?.[k]||''}" class="${cls}" placeholder="0"><input type="number" step="1" name="fd_${k}" value="${t?.fdt?.[k]||''}" class="${cls} fdt-input" placeholder="0" ${!isRiep?'disabled':''}></div>`; }).join('')}<div class="grid grid-cols-4 gap-4 items-center"><div class="text-gray-900 dark:text-white">AdBlue</div><div></div><input type="number" step="1" name="sv_adblue" value="${t?.servito?.adblue||''}" class="${cls}" placeholder="0"><div></div></div></div></form>`;
+            
+            const products = [
+                {label: 'Gasolio', key: 'gasolio'},
+                {label: 'Diesel+', key: 'dieselplus'},
+                {label: 'Benzina', key: 'benzina'},
+                {label: 'AdBlue', key: 'adblue'},
+                {label: 'Hvolution', key: 'hvolution'}
+            ];
+
+            // REGOLA 1: Ordine FaiDaTe, Servito, Prepay
+            const form = `<form id="form-turno" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls} ps-10" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>${dropdownHtml}</div></div><div class="space-y-4"><h4 class="font-medium text-gray-900 dark:text-white border-b pb-2 dark:border-gray-700">Erogato (Litri)</h4><div class="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>FaiDaTe</div><div>Servito</div><div>Prepay</div></div>
+            ${products.map(p => {
+                const k = p.key;
+                const isAdBlue = (k === 'adblue');
+                const ppInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="pp_${k}" value="${t?.prepay?.[k]||''}" class="${cls} pp-input" placeholder="0">`;
+                const svInput = `<input type="number" step="1" name="sv_${k}" value="${t?.servito?.[k]||''}" class="${cls} sv-input" placeholder="0">`;
+                const fdInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="fd_${k}" value="${t?.fdt?.[k]||''}" class="${cls} fd-input" placeholder="0">`;
+                
+                return `<div class="grid grid-cols-4 gap-4 items-center">
+                    <div class="text-gray-900 dark:text-white">${p.label}</div>
+                    ${fdInput}
+                    ${svInput}
+                    ${ppInput}
+                </div>`;
+            }).join('')}
+            </div></form>`;
+            
             const deleteBtn = id ? `<button id="btn-delete-turno" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
             App.showModal(id?'Modifica Turno':'Nuovo Turno', form, `${deleteBtn}<button id="btn-save-turno" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva Turno</button>`);
             initFlowbite(); 
+            
+            VirtualModule.updateModalFields(curTurno);
             document.querySelectorAll('.turno-opt').forEach(o => o.onclick = (e) => { 
-                e.preventDefault(); const val = o.dataset.val; document.getElementById('selectedTurno').textContent = val; document.getElementById('turnoInput').value = val; document.getElementById('turnoDropdown').classList.add('hidden'); 
-                const isRiep = val === 'Riepilogo Mensile'; document.querySelectorAll('.fdt-input').forEach(inp => inp.disabled = !isRiep);
+                e.preventDefault(); 
+                const val = o.dataset.val; 
+                document.getElementById('selectedTurno').textContent = val; 
+                document.getElementById('turnoInput').value = val; 
+                document.getElementById('turnoDropdown').classList.add('hidden'); 
+                VirtualModule.updateModalFields(val);
             });
+
             document.getElementById('btn-save-turno').onclick = () => this.saveTurno();
             if(id) document.getElementById('btn-delete-turno').onclick = () => this.deleteTurno(id);
         },

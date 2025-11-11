@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Drag & Drop
+   MODULO: Impostazioni (js/impostazioni.js) - Drag & Drop e Temi (Nuova Palette)
    ========================================================================== */
 (function() {
     'use strict';
@@ -16,21 +16,21 @@
                 lucide.createIcons();
                 this.attachListeners();
             }
-            // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
             this.initDragAndDrop();
+            this.loadThemeVariant(); // Carica il tema all'avvio del modulo
         },
 
         initDragAndDrop() {
             const save = () => this.saveLayout();
             ['settings-col-1', 'settings-col-2'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    new Sortable(el, {
-                        group: 'shared-settings', // Permette lo scambio tra colonne
+                if (el && !el._sortable) { 
+                    el._sortable = new Sortable(el, {
+                        group: 'shared-settings', 
                         animation: 150,
                         ghostClass: 'sortable-ghost',
-                        handle: '.card-header', // Trascina dall'intestazione
+                        handle: '.card-header', 
                         onSort: save
                     });
                 }
@@ -64,7 +64,84 @@
             } catch (e) { console.error("Errore ripristino layout impostazioni:", e); }
         },
 
+        /* --- LOGICA GESTIONE TEMI --- */
+        
+        loadThemeVariant() {
+            const savedTheme = localStorage.getItem('mystation_theme_variant') || 'default';
+            this.applyThemeVariant(savedTheme, false); // false = non salvare, solo applicare
+        },
+
+        applyThemeVariant(theme, save = true) {
+            // Rimuovi prima tutte le varianti di tema
+            document.documentElement.classList.remove('theme-notte', 'theme-ruby', 'theme-grass', 'theme-mint', 'theme-teal', 'theme-aqua', 'theme-lavender', 'theme-pinkrose', 'theme-darkgray');
+            
+            let isDark = false; // Default a light
+            
+            if (theme === 'default') {
+                isDark = localStorage.getItem('color-theme') === 'dark';
+                document.documentElement.classList.toggle('dark', isDark);
+
+            } else if (theme === 'notte') {
+                document.documentElement.classList.add('theme-notte', 'dark');
+                if(save) localStorage.setItem('color-theme', 'dark');
+                isDark = true;
+            
+            } else if (theme === 'darkgray') {
+                document.documentElement.classList.add('theme-darkgray', 'dark');
+                if(save) localStorage.setItem('color-theme', 'dark');
+                isDark = true;
+
+            } else { 
+                // Tutti gli altri temi (ruby, grass, mint, etc.) sono chiari
+                document.documentElement.classList.add(`theme-${theme}`);
+                document.documentElement.classList.remove('dark');
+                if(save) localStorage.setItem('color-theme', 'light');
+                isDark = false;
+            }
+
+            if (save) {
+                localStorage.setItem('mystation_theme_variant', theme);
+            }
+            
+            this.updateSidebarIcons(isDark);
+            this.updateThemeButtonState(theme);
+        },
+
+        updateThemeButtonState(activeTheme) {
+            document.querySelectorAll('#theme-selector-buttons .theme-btn').forEach(btn => {
+                if (btn.dataset.theme === activeTheme) {
+                    btn.classList.add('bg-primary-600', 'text-white', 'dark:bg-primary-600', 'dark:text-white');
+                    btn.classList.remove('bg-white', 'text-gray-900', 'dark:bg-gray-800', 'dark:text-gray-400');
+                } else {
+                    btn.classList.remove('bg-primary-600', 'text-white', 'dark:bg-primary-600', 'dark:text-white');
+                    btn.classList.add('bg-white', 'text-gray-900', 'dark:bg-gray-800', 'dark:text-gray-400');
+                }
+            });
+        },
+        
+        updateSidebarIcons(isDark) {
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            if (darkIcon && lightIcon) {
+                if (isDark) {
+                    darkIcon.classList.remove('hidden');
+                    lightIcon.classList.add('hidden');
+                } else {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                }
+            }
+        },
+
+        /* --- LAYOUT HTML --- */
+
         getLayoutHTML() {
+            // Helper per i bottoni dei temi
+            const themeBtn = (theme, label) => `
+                <button data-theme="${theme}" class="theme-btn py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                    ${label}
+                </button>`;
+            
             return `
                 <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -73,6 +150,7 @@
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                         <div id="settings-col-1" class="flex flex-col gap-6 h-full">
+                            
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-primary-100 rounded-lg dark:bg-primary-900/30 mr-3">
@@ -90,6 +168,30 @@
                                         <i data-lucide="upload" class="w-4 h-4 sm:mr-2"></i>
                                         <span class="hidden sm:inline">Importa Backup</span>
                                     </button>
+                                </div>
+                            </div>
+
+                            <div id="card-themes" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                <div class="flex items-center mb-4 card-header cursor-move">
+                                    <div class="p-2 bg-purple-100 rounded-lg dark:bg-purple-900/30 mr-3">
+                                        <i data-lucide="palette" class="w-6 h-6 text-purple-600 dark:text-purple-500"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Temi Alternativi</h3>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                                    Seleziona una variante per sovrascrivere il tema di default. Lo switch (sole/luna) ripristina il tema di default.
+                                </p>
+                                <div class="flex flex-wrap gap-4" id="theme-selector-buttons">
+                                    ${themeBtn('default', 'Default')}
+                                    ${themeBtn('notte', 'Notte (S)')}
+                                    ${themeBtn('ruby', 'Ruby (C)')}
+                                    ${themeBtn('grass', 'Grass (C)')}
+                                    ${themeBtn('mint', 'Mint (C)')}
+                                    ${themeBtn('teal', 'Teal (C)')}
+                                    ${themeBtn('aqua', 'Aqua (C)')}
+                                    ${themeBtn('lavender', 'Lavender (C)')}
+                                    ${themeBtn('pinkrose', 'Pink Rose (C)')}
+                                    ${themeBtn('darkgray', 'Dark Gray (S)')}
                                 </div>
                             </div>
 
@@ -131,9 +233,6 @@
                         </div>
                     </div>
                 </div>`;
-            
-            lucide.createIcons();
-            this.attachListeners();
         },
 
         confirmClearData() {
@@ -164,6 +263,14 @@
             
             document.getElementById('btn-settings-import').onclick = () => document.getElementById('import-file-input').click();
             document.getElementById('btn-clear-data').onclick = () => this.confirmClearData();
+
+            // LISTENER PER I TEMI
+            document.querySelectorAll('#theme-selector-buttons .theme-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const theme = btn.dataset.theme;
+                    this.applyThemeVariant(theme, true); // Applica e salva
+                };
+            });
         }
     };
 
