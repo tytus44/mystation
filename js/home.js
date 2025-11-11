@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Filter Fuel Orders to Today Only
+   MODULO: Home Dashboard (js/home.js) - Fix Card Stretching (h-full removed)
    ========================================================================== */
 (function() {
     'use strict';
@@ -72,7 +72,8 @@
                     <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start min-h-[100px]"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        <div id="home-col-1" class="flex flex-col gap-6 h-full min-h-[200px]">
+                        
+                        <div id="home-col-1" class="flex flex-col gap-6 min-h-[200px]">
                             <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
@@ -81,7 +82,7 @@
                                 <div id="home-liters-breakdown" class="p-6 space-y-4"></div>
                             </div>
                         </div>
-                        <div id="home-col-2" class="flex flex-col gap-6 h-full min-h-[200px]">
+                        <div id="home-col-2" class="flex flex-col gap-6 min-h-[200px]">
                             <div id="card-turni" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Turni di oggi</h3>
@@ -97,8 +98,8 @@
                                 <div id="home-fuel-orders" class="p-6"></div>
                             </div>
                         </div>
-                        <div id="home-col-3" class="flex flex-col gap-6 h-full min-h-[200px]">
-                            <div id="card-attivita" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 h-full min-h-[300px] flex flex-col draggable-card overflow-hidden">
+                        <div id="home-col-3" class="flex flex-col gap-6 min-h-[200px]">
+                            <div id="card-attivita" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[300px] flex flex-col draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Attività di Oggi</h3>
                                     <button id="btn-go-apps" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700 dark:text-gray-400" title="Vai ad Applicazioni"><i data-lucide="external-link" class="w-5 h-5"></i></button>
@@ -171,7 +172,6 @@
                 }).join('');
             }
             
-            // MODIFICA: Filtro cambiato da (o.date === todayISO || o.status === 'pending') a (o.date === todayISO)
             const orders = (App.state.data.fuelOrders||[]).filter(o => o.date === todayISO).sort((a,b) => new Date(b.date) - new Date(a.date));
             
             const ordList = document.getElementById('home-fuel-orders');
@@ -182,7 +182,6 @@
                     const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
                     const details = Object.entries(o.products).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
                     
-                    // MODIFICA: Rimosso pulsante "In attesa" e sfondo colorato
                     return `
                         <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
                             <div class="flex justify-between items-start mb-3">
