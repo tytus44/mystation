@@ -80,9 +80,11 @@
                 activeEl.classList.add('ring-2');
                 // Applica il colore del bordo in base al tema per forzare la visibilità
                 let ringColor = '#3b82f6'; // Default (primary-500)
-                if (themeToSelect === 'cielo') ringColor = '#00e1f6'; // SOSTITUITO
-                if (themeToSelect === 'rose') ringColor = '#ff9999';
-                if (themeToSelect === 'dark' || themeToSelect === 'windows-dark') ringColor = '#60a5fa'; // Primary-400
+                if (themeToSelect === 'cielo') ringColor = '#00e1f6';
+                if (themeToSelect === 'rose') ringColor = '#e64062';
+                if (themeToSelect === 'dark') ringColor = '#60a5fa'; 
+                if (themeToSelect === 'lavanda') ringColor = '#b0b0d8';
+                if (themeToSelect === 'classico') ringColor = '#47698a'; // AGGIUNTO
                 
                 activeEl.style.borderColor = ringColor;
             }
@@ -100,8 +102,8 @@
                             
                             <div id="card-theme" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-yellow-100 rounded-lg dark:bg-yellow-900/30 mr-3">
-                                        <i data-lucide="palette" class="w-6 h-6 text-yellow-600 dark:text-yellow-500"></i>
+                                    <div class="p-2 bg-yellow-500 rounded-lg mr-3">
+                                        <i data-lucide="palette" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Seleziona Tema</h3>
                                 </div>
@@ -125,12 +127,12 @@
                                         <span class="text-sm font-medium mt-2 block text-center">Scuro</span>
                                     </button>
                                     
-                                    <button id="btn-theme-windows" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="windows-dark" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full bg-black"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #0078d4;"></div>
+                                    <button id="btn-theme-lavanda" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="lavanda" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #404080;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #8080c0;"></div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Windows</span>
+                                        <span class="text-sm font-medium mt-2 block text-center">Lavanda</span>
                                     </button>
                                     
                                     <button id="btn-theme-cielo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
@@ -143,18 +145,26 @@
                                     
                                     <button id="btn-theme-rose" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
                                         <div data-theme="rose" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #ffdddd;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #ff9999;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #fcd8e0;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #e64062;"></div>
                                         </div>
                                         <span class="text-sm font-medium mt-2 block text-center">Rose</span>
+                                    </button>
+
+                                    <button id="btn-theme-classico" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="classico" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #e6edf4;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #47698a;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Classico</span>
                                     </button>
                                     
                                 </div>
                             </div>
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-primary-100 rounded-lg dark:bg-primary-900/30 mr-3">
-                                        <i data-lucide="database" class="w-6 h-6 text-primary-600 dark:text-primary-500"></i>
+                                    <div class="p-2 bg-primary-600 rounded-lg mr-3">
+                                        <i data-lucide="database" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Backup e Ripristino</h3>
                                 </div>
@@ -173,8 +183,8 @@
 
                             <div id="card-forms" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-green-100 rounded-lg dark:bg-green-900/30 mr-3">
-                                        <i data-lucide="file-text" class="w-6 h-6 text-green-600 dark:text-green-500"></i>
+                                    <div class="p-2 bg-green-600 rounded-lg mr-3">
+                                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Modulistica Giornaliera</h3>
                                 </div>
@@ -195,7 +205,9 @@
                         <div id="settings-col-2" class="flex flex-col gap-6 h-full">
                             <div id="card-danger" class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600 dark:text-red-500 mr-3"></i>
+                                    <div class="p-2 bg-red-600 rounded-lg mr-3">
+                                        <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                                    </div>
                                     <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
                                 </div>
                                 <p class="text-sm text-red-600 dark:text-red-400 mb-6">
@@ -243,9 +255,10 @@
             // Listeners per i temi
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
             document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
-            document.getElementById('btn-theme-windows').onclick = () => App.setTheme('windows-dark');
-            document.getElementById('btn-theme-cielo').onclick = () => App.setTheme('cielo'); // SOSTITUITO
+            document.getElementById('btn-theme-lavanda').onclick = () => App.setTheme('lavanda'); 
+            document.getElementById('btn-theme-cielo').onclick = () => App.setTheme('cielo');
             document.getElementById('btn-theme-rose').onclick = () => App.setTheme('rose');
+            document.getElementById('btn-theme-classico').onclick = () => App.setTheme('classico'); // AGGIUNTO
         }
     };
 

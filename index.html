@@ -80,105 +80,84 @@
     </style>
     
     <style>
-        /* Sovrascrive gli stili 'dark:' quando 'windows-dark' è attivo,
-           usando i colori nativi di Windows 11. 
-           Colori principali da Visual Studio / Windows Design
-        */
+        /* Palette: #404080, #8080c0, #b0b0d8, #d0d0e8, #f0f0f8 */
 
-        /* --- Palette Sfondi Nativi (Grigi Scuri) --- */
+        /* --- Palette Sfondi (Viola Scuri) --- */
         
-        /* Sidebar, Sfondo Card (dark:bg-gray-800) -> #252526 */
-        html.dark.windows-dark .dark\:bg-gray-800 {
-             background-color: #252526 !important;
+        /* Sidebar, Sfondo Card (dark:bg-gray-800) */
+        html.dark.lavanda .dark\:bg-gray-800 {
+             background-color: #404080 !important;
         }
         
         /* Sfondo Footer Sidebar (dark:bg-gray-800/50) */
-        html.dark.windows-dark .dark\:bg-gray-800\/50 {
-            background-color: rgba(37, 37, 38, 0.7) !important; /* #252526 con trasparenza */
+        html.dark.lavanda .dark\:bg-gray-800\/50 {
+            background-color: rgba(64, 64, 128, 0.7) !important;
         }
 
-        /* Sfondo Modal (dark:bg-gray-700) -> #2D2D30 (leggermente più chiaro) */
-        html.dark.windows-dark .dark\:bg-gray-700 {
-            background-color: #2D2D30 !important;
+        /* Sfondo Modal (dark:bg-gray-700) */
+        html.dark.lavanda .dark\:bg-gray-700 {
+            background-color: #505090 !important; /* Tono intermedio */
         }
         
-        /* Sfondo Input (es. Flowbite Datepicker) -> #333337 */
-        html.dark.windows-dark .dark\:bg-gray-700.datepicker-dropdown {
-             background-color: #333337 !important;
+        /* Sfondo Input (es. Flowbite Datepicker) */
+        html.dark.lavanda .dark\:bg-gray-700.datepicker-dropdown {
+             background-color: #505090 !important;
         }
-        html.dark.windows-dark .dark\:bg-gray-900.datepicker-dropdown {
-             background-color: #333337 !important;
+        html.dark.lavanda .dark\:bg-gray-900.datepicker-dropdown {
+             background-color: #505090 !important;
         }
          
-        /* Hover Link Sidebar (dark:hover:bg-gray-700) -> #3E3E40 */
-        html.dark.windows-dark .dark\:hover\:bg-gray-700:hover {
-             background-color: #3E3E40 !important;
-        }
+        /* --- Palette Bordi (Viola) --- */
         
-        /* Link Attivo Sidebar (dark:bg-gray-100) -> #3E3E40 */
-         html.dark.windows-dark .dark\:bg-gray-100 {
-             background-color: #3E3E40 !important;
-         }
-
-        /* --- Palette Bordi Nativi (Grigi) --- */
-        
-        /* Bordo Sidebar, Card (dark:border-gray-700) -> #3F3F46 */
-        html.dark.windows-dark .dark\:border-gray-700 {
-            border-color: #3F3F46 !important;
+        html.dark.lavanda .dark\:border-gray-700 {
+            border-color: #8080c0 !important;
         }
-        /* Bordo Modal (dark:border-gray-600) -> #3F3F46 */
-        html.dark.windows-dark .dark\:border-gray-600 {
-            border-color: #3F3F46 !important;
+        html.dark.lavanda .dark\:border-gray-600 {
+            border-color: #8080c0 !important;
         }
 
-        /* --- Palette Testi Nativi (Bianchi/Grigi) --- */
+        /* --- Palette Testi (Chiari) --- */
         
-        /* Testo Principale (dark:text-white) -> #F1F1F1 */
-        html.dark.windows-dark .dark\:text-white {
-            color: #F1F1F1 !important;
+        html.dark.lavanda .dark\:text-white {
+            color: #f0f0f8 !important;
         }
-        /* Testo Secondario (dark:text-gray-400) -> #CCCCCC */
-        html.dark.windows-dark .dark\:text-gray-400 {
-            color: #CCCCCC !important;
+        html.dark.lavanda .dark\:text-gray-400 {
+            color: #d0d0e8 !important;
         }
-        /* Testo Terziario (dark:text-gray-500) -> #999999 */
-        html.dark.windows-dark .dark\:text-gray-500 {
-             color: #999999 !important;
+        html.dark.lavanda .dark\:text-gray-500 {
+             color: #b0b0d8 !important;
         }
-        html.dark.windows-dark .dark\:hover\:text-white:hover {
-            color: #F1F1F1 !important;
+        html.dark.lavanda .dark\:hover\:text-white:hover {
+            color: #f0f0f8 !important;
         }
         
-        /* --- Palette Accento Nativa (BLU WINDOWS #0078D4) --- */
-        /* Sostituisce il blu 'primary' con il blu 'accent' di Win11 */
+        /* --- Palette Accento (Viola Chiari) --- */
         
-        /* Testo Blu (es. icone) */
-        html.dark.windows-dark .dark\:text-primary-500 {
-             color: #0078d4 !important;
+        /* Testo (es. icone) */
+        html.dark.lavanda .dark\:text-primary-500 {
+             color: #d0d0e8 !important;
         }
-        html.dark.windows-dark .dark\:text-primary-600 {
-             color: #0078d4 !important;
-        }
-        
-        /* Sfondi Blu (es. bottoni) */
-        html.dark.windows-dark .dark\:bg-primary-600 {
-            background-color: #0078d4 !important;
-        }
-        html.dark.windows-dark .dark\:hover\:bg-primary-700:hover {
-            background-color: #005a9e !important; /* Versione più scura per hover */
+        html.dark.lavanda .dark\:text-primary-600 {
+             color: #d0d0e8 !important;
         }
         
-        /* Sfondi Sfumati (es. icone card) -> Blu Win con trasparenza */
-        html.dark.windows-dark .dark\:bg-primary-900\/30 {
-             background-color: rgba(0, 120, 212, 0.2) !important;
+        /* Sfondi (es. bottoni) */
+        html.dark.lavanda .dark\:bg-primary-600 {
+            background-color: #8080c0 !important;
+        }
+        html.dark.lavanda .dark\:hover\:bg-primary-700:hover {
+            background-color: #b0b0d8 !important;
         }
         
-        /* Anelli Focus (Focus Rings) -> Blu Win */
-        html.dark.windows-dark .dark\:focus\:ring-primary-800:focus {
-             --tw-ring-color: #0078d4 !important;
+        /* Sfondi Sfumati (es. icone card) */
+        html.dark.lavanda .dark\:bg-primary-900\/30 {
+             background-color: rgba(176, 176, 216, 0.2) !important;
         }
-        html.dark.windows-dark .dark\:focus\:ring-primary-300:focus {
-            --tw-ring-color: #0078d4 !important;
+        
+        /* Anelli Focus (Focus Rings) */
+        html.dark.lavanda .dark\:focus\:ring-primary-800:focus,
+        html.dark.lavanda .dark\:focus\:ring-primary-300:focus {
+            --tw-ring-color: #b0b0d8 !important;
         }
         
     </style>
@@ -187,27 +166,13 @@
         /* Palette: #00e1f6, #33e7f8, #66edfa, #99f3fb, #ccf9fd */
         
         /* === Sostituzione Palette GRAY (Toni Ciano Chiari) === */
-        /* Sfondo body leggermente off-cyan */
-        html.cielo body.bg-gray-50 {
-            /* background-color: #f5fcff !important; */
-        }
-        html.cielo #sidebar-footer.bg-gray-50 {
-            /* background-color: #f5fcff !important; */
-        }
         html.cielo .border-gray-200 {
             border-color: #99f3fb !important;
         }
         html.cielo .sticky.bg-white {
              border-color: #99f3fb !important;
         }
-        html.cielo #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.cielo #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.cielo #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #ccf9fd !important;
-        }
-         html.cielo a.bg-gray-100 {
-             background-color: #99f3fb !important;
-         }
+         /* Link Attivo/Hover gestiti globalmente */
 
         /* === Sostituzione Palette PRIMARY (Accento Ciano) === */
         html.cielo .bg-primary-100 {
@@ -246,88 +211,151 @@
     </style>
 
     <style>
-        /* Palette: #ff9999, #ffaaaa, #ffbbbb, #ffcccc, #ffdddd */
+        /* Palette: #a02040, #e64062, #f08094, #f8b0c0, #fcd8e0 */
         
         /* === Sostituzione Palette GRAY (Toni Rosa Chiari) === */
-        html.rose body.bg-gray-50 {
-            /* background-color: #fffafa !important; */
-        }
-        html.rose #sidebar-footer.bg-gray-50 {
-            /* background-color: #fffafa !important; */
-        }
         html.rose .border-gray-200 {
-            border-color: #ffcccc !important;
+            border-color: #f8b0c0 !important;
         }
         html.rose .sticky.bg-white {
-             border-color: #ffcccc !important;
+             border-color: #f8b0c0 !important;
         }
-        html.rose #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.rose #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.rose #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #ffdddd !important;
-        }
-         html.rose a.bg-gray-100 {
-             background-color: #ffcccc !important;
-         }
+         /* Link Attivo/Hover gestiti globalmente */
 
-        /* === Sostituzione Palette PRIMARY (Accento Rosa Salmone) === */
+        /* === Sostituzione Palette PRIMARY (Accento Rosa/Rosso) === */
         html.rose .bg-primary-100 {
-            background-color: #ffdddd !important;
+            background-color: #fcd8e0 !important;
         }
         html.rose .text-primary-500 {
-            color: #ff8888 !important; /* Leggermente più scuro di ff9999 */
+            color: #e64062 !important;
         }
         html.rose .text-primary-600 {
-            color: #ff8888 !important;
+            color: #e64062 !important;
         }
         html.rose .hover\:text-primary-700:hover {
-             color: #e66767 !important; /* Darker shade */
+             color: #a02040 !important; 
         }
         html.rose .bg-primary-600 {
-            background-color: #ff9999 !important;
+            background-color: #e64062 !important;
         }
         html.rose .hover\:bg-primary-700:hover {
-            background-color: #ff8888 !important;
+            background-color: #a02040 !important;
         }
         html.rose .focus\:ring-primary-300:focus {
-            --tw-ring-color: #ffbbbb !important;
+            --tw-ring-color: #f08094 !important;
         }
         html.rose .focus\:ring-primary-800:focus {
-            --tw-ring-color: #ff8888 !important;
+            --tw-ring-color: #a02040 !important;
         }
         html.rose ::-webkit-scrollbar-thumb {
-            background-color: #ffaaaa !important;
+            background-color: #f08094 !important;
         }
         html.rose ::-webkit-scrollbar-thumb:hover {
-            background-color: #ff9999 !important;
+            background-color: #e64062 !important;
         }
         html.rose .theme-swatch.ring-primary-500 {
-            --tw-ring-color: #ff9999 !important;
+            --tw-ring-color: #e64062 !important;
+        }
+    </style>
+    
+    <style>
+        /* Palette: #47698a, #7c9cbc, #a0b9d1, #c5d4e2, #e6edf4 */
+        
+        /* === Sostituzione Palette GRAY (Toni Blu Classico) === */
+        html.classico .border-gray-200 {
+            border-color: #c5d4e2 !important;
+        }
+        html.classico .sticky.bg-white {
+             border-color: #c5d4e2 !important;
+        }
+         /* Link Attivo/Hover gestiti globalmente */
+
+        /* === Sostituzione Palette PRIMARY (Accento Blu Classico) === */
+        html.classico .bg-primary-100 {
+            background-color: #e6edf4 !important;
+        }
+        html.classico .text-primary-500 {
+            color: #47698a !important;
+        }
+        html.classico .text-primary-600 {
+            color: #47698a !important;
+        }
+        html.classico .hover\:text-primary-700:hover {
+             color: #2f455c !important; /* Darker shade */
+        }
+        html.classico .bg-primary-600 {
+            background-color: #47698a !important;
+        }
+        html.classico .hover\:bg-primary-700:hover {
+            background-color: #2f455c !important; /* Darker shade */
+        }
+        html.classico .focus\:ring-primary-300:focus {
+            --tw-ring-color: #7c9cbc !important;
+        }
+        html.classico .focus\:ring-primary-800:focus {
+            --tw-ring-color: #47698a !important;
+        }
+        html.classico ::-webkit-scrollbar-thumb {
+            background-color: #7c9cbc !important;
+        }
+        html.classico ::-webkit-scrollbar-thumb:hover {
+            background-color: #47698a !important;
+        }
+        html.classico .theme-swatch.ring-primary-500 {
+            --tw-ring-color: #47698a !important;
+        }
+    </style>
+
+    <style>
+        /* Sovrascrive il blu primario solo per il tema scuro di default 
+           :not(.lavanda) assicura che non sovrascriva altri temi scuri
+        */
+        html.dark:not(.lavanda) .dark\:text-primary-500 {
+             color: #1d4ed8 !important; /* primary-700 */
+        }
+        html.dark:not(.lavanda) .dark\:text-primary-600 {
+             color: #1d4ed8 !important; /* primary-700 */
+        }
+        
+        /* Sfondi (es. bottoni) */
+        html.dark:not(.lavanda) .dark\:bg-primary-600 {
+            background-color: #1d4ed8 !important; /* primary-700 */
+        }
+        html.dark:not(.lavanda) .dark\:hover\:bg-primary-700:hover {
+            background-color: #1e40af !important; /* primary-800 */
+        }
+        
+        /* Sfondi Sfumati (es. icone card) */
+        html.dark:not(.lavanda) .dark\:bg-primary-900\/30 {
+             background-color: rgba(30, 58, 138, 0.3) !important; /* primary-900/30 */
+        }
+        
+        /* Anelli Focus (Focus Rings) */
+        html.dark:not(.lavanda) .dark\:focus\:ring-primary-800:focus {
+             --tw-ring-color: #1e40af !important; /* primary-800 */
+        }
+        
+        /* Scrollbar */
+        html.dark:not(.lavanda) ::-webkit-scrollbar-thumb {
+            background-color: #1d4ed8 !important; /* primary-700 */
+        }
+        html.dark:not(.lavanda) ::-webkit-scrollbar-thumb:hover {
+            background-color: #1e40af !important; /* primary-800 */
         }
     </style>
     
     <style>
         /* 1. Sfondo Vettoriale (applicato a HTML, sta dietro a tutto) */
-        html {
+        html:not(.classico):not(.dark) { /* MODIFICA: Non applicare a Classico o Dark */
             background-color: #f3f4f6; /* Fallback Chiaro */
             background-image: 
                 radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), /* Cielo */
-                radial-gradient(at 80% 10%, #ffaaaa 0px, transparent 50%), /* Rose */
+                radial-gradient(at 80% 10%, #f08094 0px, transparent 50%), /* Rose */
                 radial-gradient(at 50% 70%, #3b82f6 0px, transparent 40%); /* Primary */
             background-attachment: fixed !important;
             transition: background-color 0.3s;
         }
-        html.dark {
-            background-color: #0c0c0d; 
-            background-image: 
-                radial-gradient(at 10% 20%, #0078d4 0px, transparent 60%), /* Windows */
-                radial-gradient(at 80% 10%, #00e1f6 0px, transparent 60%), /* Cielo Accent */
-                radial-gradient(at 50% 70%, #1d4ed8 0px, transparent 50%);
-        }
-        html.dark.windows-dark {
-            background-color: #202020 !important;
-        }
-        html.cielo { /* NUOVO SFONDO CIELO */
+        html.cielo {
             background-color: #f5fcff !important;
             background-image: 
                 radial-gradient(at 50% 70%, #00e1f6 0px, transparent 40%),
@@ -337,17 +365,37 @@
         html.rose {
             background-color: #fffafa !important;
             background-image: 
-                radial-gradient(at 50% 70%, #ff9999 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #ffaaaa 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #ffcccc 0px, transparent 50%);
+                radial-gradient(at 50% 70%, #e64062 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #f08094 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #f8b0c0 0px, transparent 50%);
+        }
+
+        /* 2. Sfondi Solidi per temi Scuro, Lavanda e Classico */
+        html.dark {
+            background-color: #111827 !important; /* Tema Scuro: Sfondo solido gray-900 */
+            background-image: none !important;
+        }
+        html.dark.lavanda {
+            background-color: #202040 !important; /* Tema Lavanda: Sfondo solido viola scuro */
+            background-image: none !important;
+        }
+        html.classico {
+             background-color: #e6edf4 !important;
+             background-image: none !important;
         }
         
-        /* 2. Rende il body (che contiene <main>) trasparente */
+        /* 3. Rende il body (che contiene <main>) trasparente (PER TEMI VETRO) */
         body {
             background-color: transparent !important;
         }
+        /* ECCEZIONE: Rende solido il body per temi solidi */
+        html.dark body,
+        html.dark.lavanda body,
+        html.classico body {
+             background-color: inherit !important;
+        }
 
-        /* 3. Applica l'effetto vetro a tutti gli elementi con sfondo */
+        /* 4. Applica l'effetto vetro (SOLO temi chiari, tranne Classico) */
         
         /* TEMA: Chiaro (Default) - (aside, card, footer) */
         .bg-white, .sticky.bg-white {
@@ -356,48 +404,41 @@
             backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
-        /* Footer sidebar (che ha bg-gray-50) */
         #sidebar-footer.bg-gray-50 {
              background-color: rgba(249, 250, 251, 0.75) !important;
              backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
         
-        /* TEMA: Dark (Default) - (aside, card, footer) */
+        /* TEMA: Dark (Default) - (solido, no vetro) */
         .dark .dark\:bg-gray-800 {
-            background-color: rgba(31, 41, 55, 0.7) !important;
-            border-color: rgba(55, 65, 81, 0.7) !important; 
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+            background-color: #1f2937 !important; /* gray-800 */
+            border-color: #374151 !important; /* gray-700 */ 
         }
         .dark .dark\:bg-gray-700 { /* Modal */
-            background-color: rgba(55, 65, 81, 0.7) !important;
-            border-color: rgba(75, 85, 99, 0.7) !important; 
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+            background-color: #374151 !important; /* gray-700 */
+            border-color: #4b5563 !important; /* gray-600 */ 
         }
         .dark #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(31, 41, 55, 0.5) !important;
-             border-color: rgba(55, 65, 81, 0.7) !important; 
-             backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+             background-color: rgba(31, 41, 55, 0.5) !important; /* Mantiene trasparenza base, no blur */
+             border-color: #374151 !important; /* gray-700 */ 
          }
 
-        /* TEMA: Windows */
-        .dark.windows-dark .dark\:bg-gray-800 {
-            background-color: rgba(37, 37, 38, 0.75) !important; /* #252526 */
-            border-color: rgba(63, 63, 70, 0.8) !important; /* #3F3F46 */
+        /* TEMA: Lavanda (solido, no vetro) */
+        .dark.lavanda .dark\:bg-gray-800 {
+            background-color: #404080 !important; 
+            border-color: #8080c0 !important; 
         }
-        .dark.windows-dark .dark\:bg-gray-700 {
-            background-color: rgba(45, 45, 48, 0.75) !important; /* #2D2D30 */
-            border-color: rgba(63, 63, 70, 0.8) !important; /* #3F3F46 */
+        .dark.lavanda .dark\:bg-gray-700 {
+            background-color: #505090 !important; 
+            border-color: #8080c0 !important;
         }
-        .dark.windows-dark #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(37, 37, 38, 0.55) !important;
-             border-color: rgba(63, 63, 70, 0.8) !important; /* #3F3F46 */
+        .dark.lavanda #sidebar-footer.dark\:bg-gray-800\/50 {
+             background-color: rgba(64, 64, 128, 0.7) !important; /* Mantiene trasparenza base, no blur */
+             border-color: #8080c0 !important;
         }
 
-        /* TEMA: Cielo (SOSTITUITO) */
+        /* TEMA: Cielo (vetro) */
         html.cielo .bg-white, html.cielo .sticky.bg-white {
              background-color: rgba(255, 255, 255, 0.7) !important;
              border-color: rgba(153, 243, 251, 0.7) !important; /* #99f3fb */
@@ -407,25 +448,129 @@
             border-color: rgba(153, 243, 251, 0.7) !important; /* #99f3fb */
         }
 
-        /* TEMA: Rose */
+        /* TEMA: Rose (vetro) */
         html.rose .bg-white, html.rose .sticky.bg-white {
              background-color: rgba(255, 255, 255, 0.7) !important;
-             border-color: rgba(255, 204, 204, 0.7) !important; /* #ffcccc */
+             border-color: rgba(248, 176, 192, 0.7) !important; /* #f8b0c0 */
         }
          html.rose #sidebar-footer.bg-gray-50 {
             background-color: rgba(255, 250, 250, 0.75) !important; /* #fffafa */
-            border-color: rgba(255, 204, 204, 0.7) !important; /* #ffcccc */
+            border-color: rgba(248, 176, 192, 0.7) !important; /* #f8b0c0 */
         }
         
-        /* Applica il blur anche al body (che contiene il main) per i temi chiari */
-        body.bg-gray-50,
-        html.cielo body.bg-gray-50, /* MODIFICATO */
-        html.rose body.bg-gray-50 {
-             background-color: transparent !important; /* Rende il body trasparente */
-             backdrop-filter: none !important; /* Il body non deve sfocare, solo essere trasparente */
-             -webkit-backdrop-filter: none !important;
+        /* TEMA: CLASSICO (solido, no vetro) */
+        html.classico .bg-white, html.classico .sticky.bg-white {
+            background-color: #ffffff !important;
+            border-bottom-color: #c5d4e2 !important; 
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        html.classico #sidebar-footer.bg-gray-50 {
+             background-color: #e6edf4 !important;
+             border-color: #c5d4e2 !important; 
+             backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
+        /* body trasparente per temi vetro chiari */
+        body.bg-gray-50,
+        html.cielo body.bg-gray-50,
+        html.rose body.bg-gray-50 {
+             background-color: transparent !important; 
+             backdrop-filter: none !important;
+             -webkit-backdrop-filter: none !important;
+        }
+    </style>
+    
+    <style>
+        /* Regole per cambiare l'hover E lo stato ATTIVO della sidebar */
+
+        /* --- 1. Stile Base (Testo e Icona) --- */
+        #sidebar-nav a, #sidebar-footer a, #sidebar-footer button {
+            transition: background-color 0.15s ease-out, color 0.15s ease-out;
+            border-radius: 0 !important; /* MODIFICA: Rimuove angoli arrotondati */
+            padding-left: 1.5rem !important; /* px-6 */
+            padding-right: 1.5rem !important; /* px-6 */
+        }
+        /* Mantiene il padding corretto quando la sidebar è compressa */
+        aside.w-16 #sidebar-nav a, 
+        aside.w-16 #sidebar-footer a, 
+        aside.w-16 #sidebar-footer button {
+            padding-left: 0.5rem !important; /* px-2 */
+            padding-right: 0.5rem !important; /* px-2 */
+        }
+
+        #sidebar-nav a [data-lucide], #sidebar-footer a [data-lucide], #sidebar-footer button [data-lucide] {
+            transition: color 0.15s ease-out;
+        }
+
+        /* --- 2. Stile HOVER e ATTIVO (combinati) --- */
+
+        /* Chiaro (Default) */
+        #sidebar-nav a:hover, #sidebar-footer a:hover, #sidebar-footer button:hover,
+        a.bg-gray-100 { /* ATTIVO */
+            background-color: #3b82f6 !important; /* primary-500 */
+            color: white !important;
+        }
+        #sidebar-nav a:hover [data-lucide], #sidebar-footer a:hover [data-lucide], #sidebar-footer button:hover [data-lucide],
+        a.bg-gray-100 [data-lucide] { /* ATTIVO */
+            color: white !important;
+        }
+        
+        /* Scuro (Default) - MODIFICATO */
+        .dark #sidebar-nav a:hover, .dark #sidebar-footer a:hover, .dark #sidebar-footer button:hover,
+        .dark a.dark\:bg-gray-700 { /* ATTIVO */
+            background-color: #1d4ed8 !important; /* primary-700 */
+            color: white !important;
+        }
+        .dark #sidebar-nav a:hover [data-lucide], .dark #sidebar-footer a:hover [data-lucide], .dark #sidebar-footer button:hover [data-lucide],
+        .dark a.dark\:bg-gray-700 [data-lucide] { /* ATTIVO */
+            color: white !important;
+        }
+        
+        /* Lavanda (Scuro) */
+        .dark.lavanda #sidebar-nav a:hover, .dark.lavanda #sidebar-footer a:hover, .dark.lavanda #sidebar-footer button:hover,
+        .dark.lavanda a.dark\:bg-gray-700 { /* ATTIVO */
+            background-color: #8080c0 !important; /* Accento Lavanda */
+            color: #f0f0f8 !important; /* Testo Lavanda */
+        }
+        .dark.lavanda #sidebar-nav a:hover [data-lucide], .dark.lavanda #sidebar-footer a:hover [data-lucide], .dark.lavanda #sidebar-footer button:hover [data-lucide],
+        .dark.lavanda a.dark\:bg-gray-700 [data-lucide] { /* ATTIVO */
+            color: #f0f0f8 !important;
+        }
+        
+        /* Cielo (Chiaro) */
+        html.cielo #sidebar-nav a:hover, html.cielo #sidebar-footer a:hover, html.cielo #sidebar-footer button:hover,
+        html.cielo a.bg-gray-100 { /* ATTIVO */
+            background-color: #00e1f6 !important; /* Accento Cielo */
+            color: #0c0c0d !important; /* Testo scuro (leggibilità) */
+        }
+        html.cielo #sidebar-nav a:hover [data-lucide], html.cielo #sidebar-footer a:hover [data-lucide], html.cielo #sidebar-footer button:hover [data-lucide],
+        html.cielo a.bg-gray-100 [data-lucide] { /* ATTIVO */
+            color: #0c0c0d !important;
+        }
+        
+        /* Rose (Chiaro) */
+        html.rose #sidebar-nav a:hover, html.rose #sidebar-footer a:hover, html.rose #sidebar-footer button:hover,
+        html.rose a.bg-gray-100 { /* ATTIVO */
+            background-color: #e64062 !important; /* Accento Rose */
+            color: white !important;
+        }
+        html.rose #sidebar-nav a:hover [data-lucide], html.rose #sidebar-footer a:hover [data-lucide], html.rose #sidebar-footer button:hover [data-lucide],
+        html.rose a.bg-gray-100 [data-lucide] { /* ATTIVO */
+            color: white !important;
+        }
+
+        /* Classico (Chiaro) */
+        html.classico #sidebar-nav a:hover, html.classico #sidebar-footer a:hover, html.classico #sidebar-footer button:hover,
+        html.classico a.bg-gray-100 { /* ATTIVO */
+            background-color: #47698a !important; /* Accento Classico */
+            color: white !important;
+        }
+        html.classico #sidebar-nav a:hover [data-lucide], html.classico #sidebar-footer a:hover [data-lucide], html.classico #sidebar-footer button:hover [data-lucide],
+        html.classico a.bg-gray-100 [data-lucide] { /* ATTIVO */
+            color: white !important;
+        }
     </style>
 
 </head>
@@ -446,40 +591,37 @@
         </div>
     </div>
 
-    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-64 h-screen transition-all duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
-        <div class="flex-none h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700" id="sidebar-header">
+    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-60 h-screen transition-all duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex flex-col"> <div class="flex-none h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700" id="sidebar-header">
             <a class="flex-none text-xl font-semibold dark:text-white flex items-center gap-2 truncate" href="#">
                 <img src="img/logo.svg" alt="Logo" class="h-8 flex-shrink-0 mr-3">
                 <span class="sidebar-text transition-opacity duration-300">MyStation</span>
             </a>
         </div>
-        <div class="flex-1 overflow-y-auto py-3 px-3">
-            <ul class="space-y-1.5" id="sidebar-nav">
-                <li><a href="#home" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="home" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Dashboard</span></a></li>
-                <li><a href="#virtualstation" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="monitor" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Virtualstation</span></a></li>
-                <li><a href="#amministrazione" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="briefcase" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Amministrazione</span></a></li>
-                <li><a href="#registro" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="clipboard-list" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Registro di Carico</span></a></li>
-                <li><a href="#prezzi" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="tag" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Prezzi</span></a></li>
-                <li><a href="#anagrafica" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="users" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Anagrafica</span></a></li>
-                <li><a href="#spese" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="receipt" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Spese</span></a></li>
-                <li><a href="#applicazioni" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="grid" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Applicazioni</span></a></li>
-                <li><a href="#informazioni" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="info" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Informazioni</span></a></li>
+        
+        <div class="flex-1 overflow-y-auto py-3"> <ul class="space-y-1.5" id="sidebar-nav">
+                <li><a href="#home" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="home" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Dashboard</span></a></li>
+                <li><a href="#virtualstation" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="monitor" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Virtualstation</span></a></li>
+                <li><a href="#amministrazione" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="briefcase" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Amministrazione</span></a></li>
+                <li><a href="#registro" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="clipboard-list" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Registro di Carico</span></a></li>
+                <li><a href="#prezzi" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="tag" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Prezzi</span></a></li>
+                <li><a href="#anagrafica" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="users" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Anagrafica</span></a></li>
+                <li><a href="#spese" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="receipt" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Spese</span></a></li>
+                <li><a href="#applicazioni" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="grid" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Applicazioni</span></a></li>
+                <li><a href="#informazioni" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="info" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Informazioni</span></a></li>
             </ul>
         </div>
-        <div class="flex-none p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-1" id="sidebar-footer">
-            <a href="#impostazioni" class="flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" id="link-impostazioni">
+        
+        <div class="flex-none py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-1" id="sidebar-footer"> <a href="#impostazioni" class="flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group" id="link-impostazioni">
                 <i data-lucide="settings" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i>
                 <span class="ml-3 sidebar-text truncate">Impostazioni</span>
             </a>
-            <ul class="space-y-1 pt-1">
-                <li><button id="fullscreen-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
-                <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
+            <ul class="space-y-1 pt-1"> <li><button id="fullscreen-toggle" class="w-full flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
+                <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center px-6 py-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
             </ul>
         </div>
     </aside>
 
-    <main class="p-4 lg:ml-64 lg:pt-6 mt-14 lg:mt-0 h-auto min-h-screen">
-        <section id="home" class="hidden-section"><div id="home-container"></div></section>
+    <main class="p-4 lg:ml-60 lg:pt-6 mt-14 lg:mt-0 h-auto min-h-screen"> <section id="home" class="hidden-section"><div id="home-container"></div></section>
         <section id="virtualstation" class="hidden-section"><div id="virtual-container"></div></section>
         <section id="amministrazione" class="hidden-section"><div id="amministrazione-container"></div></section>
         <section id="registro" class="hidden-section"><div id="registro-container"></div></section>

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Chart Anim Fix (v2)
+   MODULO: VirtualStation (js/virtualstation.js) - Filtri mensili (v3)
    ========================================================================== */
 (function() {
     'use strict';
@@ -17,6 +17,11 @@
         init() {
             try {
                 this.localState.filterMode = localStorage.getItem('virtual_filter_mode') || 'today';
+                // Salvaguardia: se è rimasto il vecchio "month", resetta a "today"
+                if (this.localState.filterMode === 'month') {
+                    this.localState.filterMode = 'today';
+                    localStorage.setItem('virtual_filter_mode', 'today');
+                }
             } catch (e) { console.warn('Storage blocked:', e); }
             if (!App.state.data.turni) App.state.data.turni = [];
         },
@@ -88,6 +93,13 @@
         },
 
         getLayoutHTML() {
+            // --- MODIFICA: Genera i link per i 12 mesi ---
+            const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+            const monthLinks = months.map((monthName, index) => {
+                return `<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="month-${index}">${monthName}</a></li>`;
+            }).join('');
+            // --- FINE MODIFICA ---
+
             return `
                 <div id="virtual-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
@@ -101,8 +113,8 @@
                             <div id="dropdownFilter" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
                                 <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownFilterButton">
                                     <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="today">Oggi</a></li>
-                                    <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="month" id="filter-month-opt">Mese</a></li>
-                                    <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="year" id="filter-year-opt">Anno</a></li>
+                                    ${monthLinks}
+                                    <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="year">Anno ${new Date().getFullYear()}</a></li>
                                 </ul>
                             </div>
                             <button id="btn-new-turno" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Turno">
@@ -189,17 +201,24 @@
                 </div>`;
         },
         
+        // --- MODIFICA: Aggiorna label per i mesi ---
         updateFilterLabel() {
-            const today = new Date();
-            const month = today.toLocaleString('it-IT', { month: 'long' });
-            const year = today.getFullYear();
-            document.getElementById('filter-month-opt').textContent = VirtualModule.capitalize(month);
-            document.getElementById('filter-year-opt').textContent = year;
+            const mode = this.localState.filterMode;
             let label = 'Oggi';
-            if (this.localState.filterMode === 'month') label = VirtualModule.capitalize(month);
-            if (this.localState.filterMode === 'year') label = year;
+            const year = new Date().getFullYear();
+            
+            if (mode === 'year') {
+                label = `Anno ${year}`;
+            } else if (mode.startsWith('month-')) {
+                const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+                const monthIndex = parseInt(mode.split('-')[1], 10);
+                label = months[monthIndex];
+            }
+            // if mode is 'today', label is already 'Oggi'
             document.getElementById('filter-label').textContent = label;
         },
+        // --- FINE MODIFICA ---
+
         renderTable() {
             const tbody = document.getElementById('v-table-body');
             const pagination = document.getElementById('v-pagination');
@@ -230,11 +249,40 @@
 
         // --- HELPER FUNCTIONS ---
         fmtProd(t, p) { const tot = (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); return tot > 0 ? App.formatNumber(tot) : '-'; },
+        
+        // --- MODIFICA: Logica di filtro aggiornata ---
         getFilteredTurni() {
-            const mode = this.localState.filterMode; const now = new Date(); const start = new Date(); start.setHours(0,0,0,0);
-            if (mode === 'month') start.setDate(1); else if (mode === 'year') start.setMonth(0, 1);
-            return App.state.data.turni.filter(t => { const d = new Date(t.date); return mode === 'today' ? d >= start && d <= now : d >= start; }).sort((a,b) => new Date(b.date) - new Date(a.date));
+            const mode = this.localState.filterMode; 
+            const now = new Date(); 
+            const start = new Date(); 
+            start.setHours(0,0,0,0);
+            
+            const allTurni = App.state.data.turni.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            if (mode === 'today') {
+                return allTurni.filter(t => { const d = new Date(t.date); return d >= start && d <= now; });
+            }
+            
+            const currentYear = now.getFullYear();
+
+            if (mode === 'year') {
+                start.setMonth(0, 1); // 1 Gennaio
+                return allTurni.filter(t => new Date(t.date).getFullYear() === currentYear);
+            }
+            
+            if (mode.startsWith('month-')) {
+                const monthIndex = parseInt(mode.split('-')[1], 10);
+                return allTurni.filter(t => {
+                    const d = new Date(t.date);
+                    return d.getFullYear() === currentYear && d.getMonth() === monthIndex;
+                });
+            }
+            
+            // Fallback a 'today' se il filtro non è riconosciuto
+            return allTurni.filter(t => { const d = new Date(t.date); return d >= start && d <= now; });
         },
+        // --- FINE MODIFICA ---
+
         getTurnoTotalLitri(t) { return this.sumObj(t.prepay) + this.sumObj(t.servito) + this.sumObj(t.fdt); },
         sumObj(o) { return Object.values(o||{}).reduce((a,b)=>a+(parseFloat(b)||0),0); },
         
