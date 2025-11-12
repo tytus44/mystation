@@ -19,6 +19,8 @@
             // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
             this.initDragAndDrop();
+
+            this.updateThemeUI(localStorage.getItem('color-theme') || 'light');
         },
 
         initDragAndDrop() {
@@ -64,6 +66,28 @@
             } catch (e) { console.error("Errore ripristino layout impostazioni:", e); }
         },
 
+        updateThemeUI(activeTheme) {
+            // Rimuovi la classe 'attiva' (bordo) da tutti i pulsanti
+            document.querySelectorAll('.theme-swatch').forEach(el => {
+                el.classList.remove('ring-2');
+                el.style.borderColor = ''; // Resetta il colore del bordo
+            });
+
+            // Aggiungi la classe 'attiva' solo a quello selezionato
+            let themeToSelect = activeTheme || 'light';
+            const activeEl = document.querySelector(`.theme-swatch[data-theme="${themeToSelect}"]`);
+            if (activeEl) {
+                activeEl.classList.add('ring-2');
+                // Applica il colore del bordo in base al tema per forzare la visibilità
+                let ringColor = '#3b82f6'; // Default (primary-500)
+                if (themeToSelect === 'cielo') ringColor = '#00e1f6'; // SOSTITUITO
+                if (themeToSelect === 'rose') ringColor = '#ff9999';
+                if (themeToSelect === 'dark' || themeToSelect === 'windows-dark') ringColor = '#60a5fa'; // Primary-400
+                
+                activeEl.style.borderColor = ringColor;
+            }
+        },
+
         getLayoutHTML() {
             return `
                 <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
@@ -73,6 +97,60 @@
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                         <div id="settings-col-1" class="flex flex-col gap-6 h-full">
+                            
+                            <div id="card-theme" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                <div class="flex items-center mb-4 card-header cursor-move">
+                                    <div class="p-2 bg-yellow-100 rounded-lg dark:bg-yellow-900/30 mr-3">
+                                        <i data-lucide="palette" class="w-6 h-6 text-yellow-600 dark:text-yellow-500"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Seleziona Tema</h3>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Scegli l'aspetto dell'interfaccia.</p>
+                                
+                                <div class="flex flex-wrap gap-4">
+                                    
+                                    <button id="btn-theme-light" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="light" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full bg-gray-200"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #2563eb;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Chiaro</span>
+                                    </button>
+                                    
+                                    <button id="btn-theme-dark" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="dark" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full bg-gray-700"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #2563eb;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Scuro</span>
+                                    </button>
+                                    
+                                    <button id="btn-theme-windows" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="windows-dark" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full bg-black"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #0078d4;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Windows</span>
+                                    </button>
+                                    
+                                    <button id="btn-theme-cielo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="cielo" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #ccf9fd;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #00e1f6;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Cielo</span>
+                                    </button>
+                                    
+                                    <button id="btn-theme-rose" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="rose" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #ffdddd;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #ff9999;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Rose</span>
+                                    </button>
+                                    
+                                </div>
+                            </div>
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-primary-100 rounded-lg dark:bg-primary-900/30 mr-3">
@@ -131,9 +209,6 @@
                         </div>
                     </div>
                 </div>`;
-            
-            lucide.createIcons();
-            this.attachListeners();
         },
 
         confirmClearData() {
@@ -164,6 +239,13 @@
             
             document.getElementById('btn-settings-import').onclick = () => document.getElementById('import-file-input').click();
             document.getElementById('btn-clear-data').onclick = () => this.confirmClearData();
+
+            // Listeners per i temi
+            document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
+            document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
+            document.getElementById('btn-theme-windows').onclick = () => App.setTheme('windows-dark');
+            document.getElementById('btn-theme-cielo').onclick = () => App.setTheme('cielo'); // SOSTITUITO
+            document.getElementById('btn-theme-rose').onclick = () => App.setTheme('rose');
         }
     };
 

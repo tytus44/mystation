@@ -10,7 +10,7 @@ const App = {
     toastTimeout: null, // Timer per gestire la chiusura automatica del toast
 
     init() {
-        this.initTheme();
+        this.loadTheme(); // MODIFICATO
         this.loadFromStorage();
         this.modal = new Modal(document.getElementById('generic-modal'));
         this.setupGlobalListeners();
@@ -20,13 +20,53 @@ const App = {
         if (localStorage.getItem('sidebar-collapsed') === 'true') this.setSidebarCompact(true);
     },
 
-    initTheme() {
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
+    // --- MODIFICA TEMA ---
+    
+    /**
+     * Carica il tema salvato dal localStorage all'avvio dell'app.
+     * Imposta 'light' come default se nessun tema valido è salvato.
+     */
+    loadTheme() {
+        const savedTheme = localStorage.getItem('color-theme');
+        // 'metallo' SOSTITUITO con 'cielo'
+        if (savedTheme === 'dark' || savedTheme === 'windows-dark' || savedTheme === 'cielo' || savedTheme === 'rose') {
+            this.setTheme(savedTheme);
         } else {
-            document.documentElement.classList.remove('dark');
+            this.setTheme('light'); // Imposta 'light' come default
         }
     },
+
+    /**
+     * Applica un tema specifico all'applicazione.
+     * @param {string} theme - Il nome del tema da applicare ('light', 'dark', 'windows-dark', 'cielo', 'rose').
+     */
+    setTheme(theme) {
+        const html = document.documentElement;
+        
+        // 1. Rimuovere TUTTE le classi di tema per evitare conflitti
+        html.classList.remove('dark', 'windows-dark', 'metallo', 'rose', 'cielo'); // 'metallo' rimosso, 'cielo' aggiunto
+        
+        // 2. Aggiungere le classi corrette
+        if (theme === 'dark') {
+            html.classList.add('dark');
+        } else if (theme === 'windows-dark') {
+            html.classList.add('dark', 'windows-dark');
+        } else if (theme === 'cielo') { // 'metallo' SOSTITUITO con 'cielo'
+            html.classList.add('cielo'); 
+        } else if (theme === 'rose') {
+            html.classList.add('rose');
+        }
+        // Per il tema 'light' (default), non aggiungiamo nessuna classe.
+        
+        // 3. Salvare la scelta in localStorage
+        localStorage.setItem('color-theme', theme);
+        
+        // 4. Aggiorna l'UI del selettore nelle impostazioni (se il modulo è caricato)
+        if (this.modules.impostazioni && typeof this.modules.impostazioni.updateThemeUI === 'function') {
+            this.modules.impostazioni.updateThemeUI(theme);
+        }
+    },
+    // --- FINE MODIFICA TEMA ---
 
     registerModule(name, module) {
         this.modules[name] = module;
@@ -93,7 +133,6 @@ const App = {
     },
     closeModal() { this.modal.hide(); },
 
-    // NUOVA FUNZIONE TOAST GLOBALE
     showToast(message, type = 'success') {
         const toast = document.getElementById('global-toast');
         const iconContainer = document.getElementById('toast-icon-container');
@@ -102,13 +141,11 @@ const App = {
 
         if (!toast || !iconContainer || !icon || !msgEl) return;
 
-        // Resetta eventuali timeout precedenti se l'utente clicca rapidamente
         clearTimeout(this.toastTimeout);
 
         msgEl.textContent = message;
         toast.classList.remove('hidden');
 
-        // Imposta colore e icona in base al tipo
         if (type === 'success') {
             iconContainer.className = 'inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200';
             icon.setAttribute('data-lucide', 'check');
@@ -121,7 +158,6 @@ const App = {
         }
         lucide.createIcons();
 
-        // Nascondi automaticamente dopo 3 secondi
         this.toastTimeout = setTimeout(() => {
             toast.classList.add('hidden');
         }, 3000);
@@ -148,19 +184,6 @@ const App = {
     },
 
     setupGlobalListeners() {
-        const darkIcon = document.getElementById('theme-toggle-dark-icon');
-        const lightIcon = document.getElementById('theme-toggle-light-icon');
-        if (document.documentElement.classList.contains('dark')) { lightIcon.classList.remove('hidden'); } else { darkIcon.classList.remove('hidden'); }
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            darkIcon.classList.toggle('hidden'); lightIcon.classList.toggle('hidden');
-            if (localStorage.getItem('color-theme')) {
-                if (localStorage.getItem('color-theme') === 'light') { document.documentElement.classList.add('dark'); localStorage.setItem('color-theme', 'dark'); }
-                else { document.documentElement.classList.remove('dark'); localStorage.setItem('color-theme', 'light'); }
-            } else {
-                if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('color-theme', 'light'); }
-                else { document.documentElement.classList.add('dark'); localStorage.setItem('color-theme', 'dark'); }
-            }
-        });
         document.getElementById('sidebar-collapse-toggle')?.addEventListener('click', () => { this.setSidebarCompact(!document.getElementById('application-sidebar').classList.contains('w-16')); });
         document.getElementById('fullscreen-toggle')?.addEventListener('click', () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e)); else if (document.exitFullscreen) document.exitFullscreen(); });
         document.getElementById('btn-sidebar-mobile')?.addEventListener('click', () => { document.getElementById('application-sidebar').classList.toggle('-translate-x-full'); });

@@ -78,6 +78,356 @@
         }
         
     </style>
+    
+    <style>
+        /* Sovrascrive gli stili 'dark:' quando 'windows-dark' è attivo,
+           usando i colori nativi di Windows 11. 
+           Colori principali da Visual Studio / Windows Design
+        */
+
+        /* --- Palette Sfondi Nativi (Grigi Scuri) --- */
+        
+        /* Sidebar, Sfondo Card (dark:bg-gray-800) -> #252526 */
+        html.dark.windows-dark .dark\:bg-gray-800 {
+             background-color: #252526 !important;
+        }
+        
+        /* Sfondo Footer Sidebar (dark:bg-gray-800/50) */
+        html.dark.windows-dark .dark\:bg-gray-800\/50 {
+            background-color: rgba(37, 37, 38, 0.7) !important; /* #252526 con trasparenza */
+        }
+
+        /* Sfondo Modal (dark:bg-gray-700) -> #2D2D30 (leggermente più chiaro) */
+        html.dark.windows-dark .dark\:bg-gray-700 {
+            background-color: #2D2D30 !important;
+        }
+        
+        /* Sfondo Input (es. Flowbite Datepicker) -> #333337 */
+        html.dark.windows-dark .dark\:bg-gray-700.datepicker-dropdown {
+             background-color: #333337 !important;
+        }
+        html.dark.windows-dark .dark\:bg-gray-900.datepicker-dropdown {
+             background-color: #333337 !important;
+        }
+         
+        /* Hover Link Sidebar (dark:hover:bg-gray-700) -> #3E3E40 */
+        html.dark.windows-dark .dark\:hover\:bg-gray-700:hover {
+             background-color: #3E3E40 !important;
+        }
+        
+        /* Link Attivo Sidebar (dark:bg-gray-100) -> #3E3E40 */
+         html.dark.windows-dark .dark\:bg-gray-100 {
+             background-color: #3E3E40 !important;
+         }
+
+        /* --- Palette Bordi Nativi (Grigi) --- */
+        
+        /* Bordo Sidebar, Card (dark:border-gray-700) -> #3F3F46 */
+        html.dark.windows-dark .dark\:border-gray-700 {
+            border-color: #3F3F46 !important;
+        }
+        /* Bordo Modal (dark:border-gray-600) -> #3F3F46 */
+        html.dark.windows-dark .dark\:border-gray-600 {
+            border-color: #3F3F46 !important;
+        }
+
+        /* --- Palette Testi Nativi (Bianchi/Grigi) --- */
+        
+        /* Testo Principale (dark:text-white) -> #F1F1F1 */
+        html.dark.windows-dark .dark\:text-white {
+            color: #F1F1F1 !important;
+        }
+        /* Testo Secondario (dark:text-gray-400) -> #CCCCCC */
+        html.dark.windows-dark .dark\:text-gray-400 {
+            color: #CCCCCC !important;
+        }
+        /* Testo Terziario (dark:text-gray-500) -> #999999 */
+        html.dark.windows-dark .dark\:text-gray-500 {
+             color: #999999 !important;
+        }
+        html.dark.windows-dark .dark\:hover\:text-white:hover {
+            color: #F1F1F1 !important;
+        }
+        
+        /* --- Palette Accento Nativa (BLU WINDOWS #0078D4) --- */
+        /* Sostituisce il blu 'primary' con il blu 'accent' di Win11 */
+        
+        /* Testo Blu (es. icone) */
+        html.dark.windows-dark .dark\:text-primary-500 {
+             color: #0078d4 !important;
+        }
+        html.dark.windows-dark .dark\:text-primary-600 {
+             color: #0078d4 !important;
+        }
+        
+        /* Sfondi Blu (es. bottoni) */
+        html.dark.windows-dark .dark\:bg-primary-600 {
+            background-color: #0078d4 !important;
+        }
+        html.dark.windows-dark .dark\:hover\:bg-primary-700:hover {
+            background-color: #005a9e !important; /* Versione più scura per hover */
+        }
+        
+        /* Sfondi Sfumati (es. icone card) -> Blu Win con trasparenza */
+        html.dark.windows-dark .dark\:bg-primary-900\/30 {
+             background-color: rgba(0, 120, 212, 0.2) !important;
+        }
+        
+        /* Anelli Focus (Focus Rings) -> Blu Win */
+        html.dark.windows-dark .dark\:focus\:ring-primary-800:focus {
+             --tw-ring-color: #0078d4 !important;
+        }
+        html.dark.windows-dark .dark\:focus\:ring-primary-300:focus {
+            --tw-ring-color: #0078d4 !important;
+        }
+        
+    </style>
+
+    <style>
+        /* Palette: #00e1f6, #33e7f8, #66edfa, #99f3fb, #ccf9fd */
+        
+        /* === Sostituzione Palette GRAY (Toni Ciano Chiari) === */
+        /* Sfondo body leggermente off-cyan */
+        html.cielo body.bg-gray-50 {
+            /* background-color: #f5fcff !important; */
+        }
+        html.cielo #sidebar-footer.bg-gray-50 {
+            /* background-color: #f5fcff !important; */
+        }
+        html.cielo .border-gray-200 {
+            border-color: #99f3fb !important;
+        }
+        html.cielo .sticky.bg-white {
+             border-color: #99f3fb !important;
+        }
+        html.cielo #sidebar-nav a.hover\:bg-gray-100:hover,
+        html.cielo #sidebar-footer a.hover\:bg-gray-100:hover,
+        html.cielo #sidebar-footer button.hover\:bg-gray-100:hover {
+            background-color: #ccf9fd !important;
+        }
+         html.cielo a.bg-gray-100 {
+             background-color: #99f3fb !important;
+         }
+
+        /* === Sostituzione Palette PRIMARY (Accento Ciano) === */
+        html.cielo .bg-primary-100 {
+            background-color: #ccf9fd !important;
+        }
+        html.cielo .text-primary-500 {
+            color: #00e1f6 !important;
+        }
+        html.cielo .text-primary-600 {
+            color: #00e1f6 !important;
+        }
+        html.cielo .hover\:text-primary-700:hover {
+             color: #00c4d9 !important; /* Darker shade */
+        }
+        html.cielo .bg-primary-600 {
+            background-color: #00e1f6 !important;
+        }
+        html.cielo .hover\:bg-primary-700:hover {
+            background-color: #00c4d9 !important; /* Darker shade */
+        }
+        html.cielo .focus\:ring-primary-300:focus {
+            --tw-ring-color: #66edfa !important;
+        }
+        html.cielo .focus\:ring-primary-800:focus {
+            --tw-ring-color: #00e1f6 !important;
+        }
+        html.cielo ::-webkit-scrollbar-thumb {
+            background-color: #33e7f8 !important;
+        }
+        html.cielo ::-webkit-scrollbar-thumb:hover {
+            background-color: #00e1f6 !important;
+        }
+        html.cielo .theme-swatch.ring-primary-500 {
+            --tw-ring-color: #00e1f6 !important;
+        }
+    </style>
+
+    <style>
+        /* Palette: #ff9999, #ffaaaa, #ffbbbb, #ffcccc, #ffdddd */
+        
+        /* === Sostituzione Palette GRAY (Toni Rosa Chiari) === */
+        html.rose body.bg-gray-50 {
+            /* background-color: #fffafa !important; */
+        }
+        html.rose #sidebar-footer.bg-gray-50 {
+            /* background-color: #fffafa !important; */
+        }
+        html.rose .border-gray-200 {
+            border-color: #ffcccc !important;
+        }
+        html.rose .sticky.bg-white {
+             border-color: #ffcccc !important;
+        }
+        html.rose #sidebar-nav a.hover\:bg-gray-100:hover,
+        html.rose #sidebar-footer a.hover\:bg-gray-100:hover,
+        html.rose #sidebar-footer button.hover\:bg-gray-100:hover {
+            background-color: #ffdddd !important;
+        }
+         html.rose a.bg-gray-100 {
+             background-color: #ffcccc !important;
+         }
+
+        /* === Sostituzione Palette PRIMARY (Accento Rosa Salmone) === */
+        html.rose .bg-primary-100 {
+            background-color: #ffdddd !important;
+        }
+        html.rose .text-primary-500 {
+            color: #ff8888 !important; /* Leggermente più scuro di ff9999 */
+        }
+        html.rose .text-primary-600 {
+            color: #ff8888 !important;
+        }
+        html.rose .hover\:text-primary-700:hover {
+             color: #e66767 !important; /* Darker shade */
+        }
+        html.rose .bg-primary-600 {
+            background-color: #ff9999 !important;
+        }
+        html.rose .hover\:bg-primary-700:hover {
+            background-color: #ff8888 !important;
+        }
+        html.rose .focus\:ring-primary-300:focus {
+            --tw-ring-color: #ffbbbb !important;
+        }
+        html.rose .focus\:ring-primary-800:focus {
+            --tw-ring-color: #ff8888 !important;
+        }
+        html.rose ::-webkit-scrollbar-thumb {
+            background-color: #ffaaaa !important;
+        }
+        html.rose ::-webkit-scrollbar-thumb:hover {
+            background-color: #ff9999 !important;
+        }
+        html.rose .theme-swatch.ring-primary-500 {
+            --tw-ring-color: #ff9999 !important;
+        }
+    </style>
+    
+    <style>
+        /* 1. Sfondo Vettoriale (applicato a HTML, sta dietro a tutto) */
+        html {
+            background-color: #f3f4f6; /* Fallback Chiaro */
+            background-image: 
+                radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), /* Cielo */
+                radial-gradient(at 80% 10%, #ffaaaa 0px, transparent 50%), /* Rose */
+                radial-gradient(at 50% 70%, #3b82f6 0px, transparent 40%); /* Primary */
+            background-attachment: fixed !important;
+            transition: background-color 0.3s;
+        }
+        html.dark {
+            background-color: #0c0c0d; 
+            background-image: 
+                radial-gradient(at 10% 20%, #0078d4 0px, transparent 60%), /* Windows */
+                radial-gradient(at 80% 10%, #00e1f6 0px, transparent 60%), /* Cielo Accent */
+                radial-gradient(at 50% 70%, #1d4ed8 0px, transparent 50%);
+        }
+        html.dark.windows-dark {
+            background-color: #202020 !important;
+        }
+        html.cielo { /* NUOVO SFONDO CIELO */
+            background-color: #f5fcff !important;
+            background-image: 
+                radial-gradient(at 50% 70%, #00e1f6 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #99f3fb 0px, transparent 50%);
+        }
+        html.rose {
+            background-color: #fffafa !important;
+            background-image: 
+                radial-gradient(at 50% 70%, #ff9999 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #ffaaaa 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #ffcccc 0px, transparent 50%);
+        }
+        
+        /* 2. Rende il body (che contiene <main>) trasparente */
+        body {
+            background-color: transparent !important;
+        }
+
+        /* 3. Applica l'effetto vetro a tutti gli elementi con sfondo */
+        
+        /* TEMA: Chiaro (Default) - (aside, card, footer) */
+        .bg-white, .sticky.bg-white {
+            background-color: rgba(255, 255, 255, 0.75) !important;
+            border-bottom-color: rgba(229, 231, 235, 0.7) !important; 
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        /* Footer sidebar (che ha bg-gray-50) */
+        #sidebar-footer.bg-gray-50 {
+             background-color: rgba(249, 250, 251, 0.75) !important;
+             backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        
+        /* TEMA: Dark (Default) - (aside, card, footer) */
+        .dark .dark\:bg-gray-800 {
+            background-color: rgba(31, 41, 55, 0.7) !important;
+            border-color: rgba(55, 65, 81, 0.7) !important; 
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .dark .dark\:bg-gray-700 { /* Modal */
+            background-color: rgba(55, 65, 81, 0.7) !important;
+            border-color: rgba(75, 85, 99, 0.7) !important; 
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .dark #sidebar-footer.dark\:bg-gray-800\/50 {
+             background-color: rgba(31, 41, 55, 0.5) !important;
+             border-color: rgba(55, 65, 81, 0.7) !important; 
+             backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+         }
+
+        /* TEMA: Windows */
+        .dark.windows-dark .dark\:bg-gray-800 {
+            background-color: rgba(37, 37, 38, 0.75) !important; /* #252526 */
+            border-color: rgba(63, 63, 70, 0.8) !important; /* #3F3F46 */
+        }
+        .dark.windows-dark .dark\:bg-gray-700 {
+            background-color: rgba(45, 45, 48, 0.75) !important; /* #2D2D30 */
+            border-color: rgba(63, 63, 70, 0.8) !important; /* #3F3F46 */
+        }
+        .dark.windows-dark #sidebar-footer.dark\:bg-gray-800\/50 {
+             background-color: rgba(37, 37, 38, 0.55) !important;
+             border-color: rgba(63, 63, 70, 0.8) !important; /* #3F3F46 */
+        }
+
+        /* TEMA: Cielo (SOSTITUITO) */
+        html.cielo .bg-white, html.cielo .sticky.bg-white {
+             background-color: rgba(255, 255, 255, 0.7) !important;
+             border-color: rgba(153, 243, 251, 0.7) !important; /* #99f3fb */
+        }
+        html.cielo #sidebar-footer.bg-gray-50 {
+            background-color: rgba(245, 252, 255, 0.75) !important; /* #f5fcff */
+            border-color: rgba(153, 243, 251, 0.7) !important; /* #99f3fb */
+        }
+
+        /* TEMA: Rose */
+        html.rose .bg-white, html.rose .sticky.bg-white {
+             background-color: rgba(255, 255, 255, 0.7) !important;
+             border-color: rgba(255, 204, 204, 0.7) !important; /* #ffcccc */
+        }
+         html.rose #sidebar-footer.bg-gray-50 {
+            background-color: rgba(255, 250, 250, 0.75) !important; /* #fffafa */
+            border-color: rgba(255, 204, 204, 0.7) !important; /* #ffcccc */
+        }
+        
+        /* Applica il blur anche al body (che contiene il main) per i temi chiari */
+        body.bg-gray-50,
+        html.cielo body.bg-gray-50, /* MODIFICATO */
+        html.rose body.bg-gray-50 {
+             background-color: transparent !important; /* Rende il body trasparente */
+             backdrop-filter: none !important; /* Il body non deve sfocare, solo essere trasparente */
+             -webkit-backdrop-filter: none !important;
+        }
+
+    </style>
+
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 antialiased text-sm">
 
@@ -122,7 +472,6 @@
                 <span class="ml-3 sidebar-text truncate">Impostazioni</span>
             </a>
             <ul class="space-y-1 pt-1">
-                <li><button id="theme-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-shrink-0"><i data-lucide="moon" id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i><i data-lucide="sun" id="theme-toggle-light-icon" class="hidden w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"></i></span><span class="ml-3 sidebar-text truncate">Cambia tema</span></button></li>
                 <li><button id="fullscreen-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
                 <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center p-2 text-sm font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
             </ul>

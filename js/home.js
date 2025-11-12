@@ -294,18 +294,38 @@
             App.showModal('', `<div class="text-center p-6"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4 mx-auto"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cancellare Ordine?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Eliminare l'ordine del <b>${App.formatDate(o.date)}</b>?</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-ord" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Elimina</button></div>`, 'max-w-md');
             setTimeout(() => { document.getElementById('btn-confirm-del-ord').onclick = () => { App.state.data.fuelOrders = App.state.data.fuelOrders.filter(x=>x.id!==id); App.saveToStorage(); App.closeModal(); this.renderActivitiesAndOrders(); App.showToast('Ordine cancellato', 'success'); }; }, 50);
         },
+        
+        // ===============================================
+        //  === FUNZIONE CORRETTA ===
+        // ===============================================
         getTodayStats() {
             const today=new Date(); today.setHours(0,0,0,0); const tmr=new Date(today); tmr.setDate(tmr.getDate()+1);
             const turniOggi = (App.state.data.turni||[]).filter(t => { const d=new Date(t.date); return d>=today && d<tmr && t.turno!=='Riepilogo Mensile'; }).sort((a,b)=>new Date(a.date)-new Date(b.date));
             const prices = this.getLatestPrices();
             let lit=0, rev=0, marg=0, serv=0; const prods={benzina:0,gasolio:0,dieselplus:0,hvolution:0,adblue:0};
             const mFdt=0.04, mServ=0.08, mAdblue=0.40, surSelf=0.005, surServ=0.220;
+            
             turniOggi.forEach(t => {
                 ['benzina','gasolio','dieselplus','hvolution','adblue'].forEach(k => {
-                    const pp = parseFloat(t.prepay?.[k])||0, sv = parseFloat(t.servito?.[k])||0, tot = pp+sv;
+                    // --- INIZIO CORREZIONE ---
+                    const pp = parseFloat(t.prepay?.[k])||0;
+                    const sv = parseFloat(t.servito?.[k])||0;
+                    const fd = parseFloat(t.fdt?.[k])||0; // 1. Aggiunto FaiDaTe (fdt)
+                    const tot = pp + sv + fd; // 2. Somma di tutti e tre
+                    // --- FINE CORREZIONE ---
+                    
                     prods[k]+=tot; lit+=tot; serv+=sv;
                     const pKey = k==='dieselplus'?'dieselPlus':k, bp = prices[pKey]||0;
-                    if(bp>0) { if(k==='adblue') { rev+=sv*bp; marg+=sv*mAdblue; } else { rev+=(pp*(bp+surSelf))+(sv*(bp+surSelf+surServ)); marg+=(pp*mFdt)+(sv*mServ); } }
+                    if(bp>0) { 
+                        if(k==='adblue') { 
+                            rev+=sv*bp; // AdBlue (solo servito)
+                            marg+=sv*mAdblue; 
+                        } else { 
+                            // 3. Aggiunto il fatturato di fdt al totale
+                            rev += (pp * (bp + surSelf)) + (sv * (bp + surSelf + surServ)) + (fd * (bp + surSelf));
+                            marg += (pp * mFdt) + (sv * mServ) + (fd * mFdt); // Aggiunto anche margine fdt
+                        } 
+                    }
                 });
             });
             return { revenue:rev, margin:marg, totalLiters:lit, servitoPerc: lit>0?Math.round((serv/lit)*100):0, products:prods, todayShifts:turniOggi };
