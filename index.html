@@ -81,43 +81,27 @@
     
     <style>
         /* Palette: #404080, #8080c0, #b0b0d8, #d0d0e8, #f0f0f8 */
-
-        /* --- Palette Sfondi (Viola Scuri) --- */
-        
-        /* Sidebar, Sfondo Card (dark:bg-gray-800) */
         html.dark.lavanda .dark\:bg-gray-800 {
              background-color: #404080 !important;
         }
-        
-        /* Sfondo Footer Sidebar (dark:bg-gray-800/50) */
         html.dark.lavanda .dark\:bg-gray-800\/50 {
             background-color: rgba(64, 64, 128, 0.7) !important;
         }
-
-        /* Sfondo Modal (dark:bg-gray-700) */
         html.dark.lavanda .dark\:bg-gray-700 {
-            background-color: #505090 !important; /* Tono intermedio */
+            background-color: #505090 !important; 
         }
-        
-        /* Sfondo Input (es. Flowbite Datepicker) */
         html.dark.lavanda .dark\:bg-gray-700.datepicker-dropdown {
              background-color: #505090 !important;
         }
         html.dark.lavanda .dark\:bg-gray-900.datepicker-dropdown {
              background-color: #505090 !important;
         }
-         
-        /* --- Palette Bordi (Viola) --- */
-        
         html.dark.lavanda .dark\:border-gray-700 {
             border-color: #8080c0 !important;
         }
         html.dark.lavanda .dark\:border-gray-600 {
             border-color: #8080c0 !important;
         }
-
-        /* --- Palette Testi (Chiari) --- */
-        
         html.dark.lavanda .dark\:text-white {
             color: #f0f0f8 !important;
         }
@@ -130,31 +114,21 @@
         html.dark.lavanda .dark\:hover\:text-white:hover {
             color: #f0f0f8 !important;
         }
-        
-        /* --- Palette Accento (Viola Chiari) --- */
-        
-        /* Testo (es. icone) */
         html.dark.lavanda .dark\:text-primary-500 {
              color: #d0d0e8 !important;
         }
         html.dark.lavanda .dark\:text-primary-600 {
              color: #d0d0e8 !important;
         }
-        
-        /* Sfondi (es. bottoni) */
         html.dark.lavanda .dark\:bg-primary-600 {
             background-color: #8080c0 !important;
         }
         html.dark.lavanda .dark\:hover\:bg-primary-700:hover {
             background-color: #b0b0d8 !important;
         }
-        
-        /* Sfondi Sfumati (es. icone card) */
         html.dark.lavanda .dark\:bg-primary-900\/30 {
              background-color: rgba(176, 176, 216, 0.2) !important;
         }
-        
-        /* Anelli Focus (Focus Rings) */
         html.dark.lavanda .dark\:focus\:ring-primary-800:focus,
         html.dark.lavanda .dark\:focus\:ring-primary-300:focus {
             --tw-ring-color: #b0b0d8 !important;
@@ -163,18 +137,81 @@
     </style>
 
     <style>
-        /* Palette: #00e1f6, #33e7f8, #66edfa, #99f3fb, #ccf9fd */
+        /* --- Palette Sfondi (Grigi Neutri/Carbone) --- */
+        html.dark.notte .dark\:bg-gray-800 {
+             background-color: #121212 !important; /* Grigio Carbone Scuro */
+        }
+        html.dark.notte .dark\:bg-gray-800\/50 {
+            background-color: rgba(18, 18, 18, 0.7) !important;
+        }
+        html.dark.notte .dark\:bg-gray-700 {
+            background-color: #1e1e1e !important; /* Grigio Carbone Chiaro */
+        }
+        html.dark.notte .dark\:bg-gray-700.datepicker-dropdown {
+             background-color: #1e1e1e !important;
+        }
+        html.dark.notte .dark\:bg-gray-900.datepicker-dropdown {
+             background-color: #1e1e1e !important;
+        }
+         
+        /* --- Palette Bordi (Grigi Neutri) --- */
+        html.dark.notte .dark\:border-gray-700 {
+            border-color: #2d2d2d !important;
+        }
+        html.dark.notte .dark\:border-gray-600 {
+            border-color: #2d2d2d !important;
+        }
+
+        /* --- Palette Testi (Chiari) --- */
+        html.dark.notte .dark\:text-white {
+            color: #f9fafb !important; /* gray-50 */
+        }
+        html.dark.notte .dark\:text-gray-400 {
+            color: #9ca3af !important; /* gray-400 */
+        }
+        html.dark.notte .dark\:text-gray-500 {
+             color: #6b7280 !important; /* gray-500 */
+        }
+        html.dark.notte .dark\:hover\:text-white:hover {
+            color: #f9fafb !important;
+        }
         
-        /* === Sostituzione Palette GRAY (Toni Ciano Chiari) === */
+        /* --- Palette Accento (Rosso) --- */
+        html.dark.notte .dark\:text-primary-500 {
+             color: #f87171 !important; /* red-400 */
+        }
+        html.dark.notte .dark\:text-primary-600 {
+             color: #f87171 !important;
+        }
+        html.dark.notte .dark\:bg-primary-600 {
+            background-color: #ef4444 !important; /* red-500 */
+        }
+        html.dark.notte .dark\:hover\:bg-primary-700:hover {
+            background-color: #dc2626 !important; /* red-600 */
+        }
+        html.dark.notte .dark\:bg-primary-900\/30 {
+             background-color: rgba(153, 27, 27, 0.3) !important; /* red-900/30 */
+        }
+        html.dark.notte .dark\:focus\:ring-primary-800:focus,
+        html.dark.notte .dark\:focus\:ring-primary-300:focus {
+            --tw-ring-color: #ef4444 !important; /* red-500 */
+        }
+        html.dark.notte ::-webkit-scrollbar-thumb {
+            background-color: #ef4444 !important; /* red-500 */
+        }
+        html.dark.notte ::-webkit-scrollbar-thumb:hover {
+            background-color: #dc2626 !important; /* red-600 */
+        }
+    </style>
+
+    <style>
+        /* Palette: #00e1f6, #33e7f8, #66edfa, #99f3fb, #ccf9fd */
         html.cielo .border-gray-200 {
             border-color: #99f3fb !important;
         }
         html.cielo .sticky.bg-white {
              border-color: #99f3fb !important;
         }
-         /* Link Attivo/Hover gestiti globalmente */
-
-        /* === Sostituzione Palette PRIMARY (Accento Ciano) === */
         html.cielo .bg-primary-100 {
             background-color: #ccf9fd !important;
         }
@@ -185,13 +222,13 @@
             color: #00e1f6 !important;
         }
         html.cielo .hover\:text-primary-700:hover {
-             color: #00c4d9 !important; /* Darker shade */
+             color: #00c4d9 !important; 
         }
         html.cielo .bg-primary-600 {
             background-color: #00e1f6 !important;
         }
         html.cielo .hover\:bg-primary-700:hover {
-            background-color: #00c4d9 !important; /* Darker shade */
+            background-color: #00c4d9 !important; 
         }
         html.cielo .focus\:ring-primary-300:focus {
             --tw-ring-color: #66edfa !important;
@@ -212,17 +249,12 @@
 
     <style>
         /* Palette: #a02040, #e64062, #f08094, #f8b0c0, #fcd8e0 */
-        
-        /* === Sostituzione Palette GRAY (Toni Rosa Chiari) === */
         html.rose .border-gray-200 {
             border-color: #f8b0c0 !important;
         }
         html.rose .sticky.bg-white {
              border-color: #f8b0c0 !important;
         }
-         /* Link Attivo/Hover gestiti globalmente */
-
-        /* === Sostituzione Palette PRIMARY (Accento Rosa/Rosso) === */
         html.rose .bg-primary-100 {
             background-color: #fcd8e0 !important;
         }
@@ -260,17 +292,12 @@
     
     <style>
         /* Palette: #47698a, #7c9cbc, #a0b9d1, #c5d4e2, #e6edf4 */
-        
-        /* === Sostituzione Palette GRAY (Toni Blu Classico) === */
         html.classico .border-gray-200 {
             border-color: #c5d4e2 !important;
         }
         html.classico .sticky.bg-white {
              border-color: #c5d4e2 !important;
         }
-         /* Link Attivo/Hover gestiti globalmente */
-
-        /* === Sostituzione Palette PRIMARY (Accento Blu Classico) === */
         html.classico .bg-primary-100 {
             background-color: #e6edf4 !important;
         }
@@ -281,13 +308,13 @@
             color: #47698a !important;
         }
         html.classico .hover\:text-primary-700:hover {
-             color: #2f455c !important; /* Darker shade */
+             color: #2f455c !important; 
         }
         html.classico .bg-primary-600 {
             background-color: #47698a !important;
         }
         html.classico .hover\:bg-primary-700:hover {
-            background-color: #2f455c !important; /* Darker shade */
+            background-color: #2f455c !important; 
         }
         html.classico .focus\:ring-primary-300:focus {
             --tw-ring-color: #7c9cbc !important;
@@ -305,53 +332,44 @@
             --tw-ring-color: #47698a !important;
         }
     </style>
-
+    
     <style>
-        /* Sovrascrive il blu primario solo per il tema scuro di default 
-           :not(.lavanda) assicura che non sovrascriva altri temi scuri
-        */
-        html.dark:not(.lavanda) .dark\:text-primary-500 {
+        /* Sovrascrive il blu primario solo per il tema scuro di default */
+        html.dark:not(.lavanda):not(.notte) .dark\:text-primary-500 {
              color: #1d4ed8 !important; /* primary-700 */
         }
-        html.dark:not(.lavanda) .dark\:text-primary-600 {
+        html.dark:not(.lavanda):not(.notte) .dark\:text-primary-600 {
              color: #1d4ed8 !important; /* primary-700 */
         }
-        
-        /* Sfondi (es. bottoni) */
-        html.dark:not(.lavanda) .dark\:bg-primary-600 {
+        html.dark:not(.lavanda):not(.notte) .dark\:bg-primary-600 {
             background-color: #1d4ed8 !important; /* primary-700 */
         }
-        html.dark:not(.lavanda) .dark\:hover\:bg-primary-700:hover {
+        html.dark:not(.lavanda):not(.notte) .dark\:hover\:bg-primary-700:hover {
             background-color: #1e40af !important; /* primary-800 */
         }
-        
-        /* Sfondi Sfumati (es. icone card) */
-        html.dark:not(.lavanda) .dark\:bg-primary-900\/30 {
+        html.dark:not(.lavanda):not(.notte) .dark\:bg-primary-900\/30 {
              background-color: rgba(30, 58, 138, 0.3) !important; /* primary-900/30 */
         }
-        
-        /* Anelli Focus (Focus Rings) */
-        html.dark:not(.lavanda) .dark\:focus\:ring-primary-800:focus {
+        html.dark:not(.lavanda):not(.notte) .dark\:focus\:ring-primary-800:focus {
              --tw-ring-color: #1e40af !important; /* primary-800 */
         }
-        
-        /* Scrollbar */
-        html.dark:not(.lavanda) ::-webkit-scrollbar-thumb {
+        html.dark:not(.lavanda):not(.notte) ::-webkit-scrollbar-thumb {
             background-color: #1d4ed8 !important; /* primary-700 */
         }
-        html.dark:not(.lavanda) ::-webkit-scrollbar-thumb:hover {
+        html.dark:not(.lavanda):not(.notte) ::-webkit-scrollbar-thumb:hover {
             background-color: #1e40af !important; /* primary-800 */
         }
     </style>
     
     <style>
-        /* 1. Sfondo Vettoriale (applicato a HTML, sta dietro a tutto) */
-        html:not(.classico):not(.dark) { /* MODIFICA: Non applicare a Classico o Dark */
+        /* 1. Sfondo Vettoriale (solo per temi chiari non classici) */
+        /* --- SFONDO PER TEMA CHIARO (DEFAULT) --- */
+        html:not(.classico):not(.dark):not(.cielo):not(.rose) {
             background-color: #f3f4f6; /* Fallback Chiaro */
             background-image: 
-                radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), /* Cielo */
-                radial-gradient(at 80% 10%, #f08094 0px, transparent 50%), /* Rose */
-                radial-gradient(at 50% 70%, #3b82f6 0px, transparent 40%); /* Primary */
+                radial-gradient(at 10% 20%, #93c5fd 0px, transparent 50%), /* Primary-300 */
+                radial-gradient(at 80% 10%, #fbcfe8 0px, transparent 50%), /* Pink-200 */
+                radial-gradient(at 50% 70%, #3b82f6 0px, transparent 40%); /* Primary-500 */
             background-attachment: fixed !important;
             transition: background-color 0.3s;
         }
@@ -360,23 +378,31 @@
             background-image: 
                 radial-gradient(at 50% 70%, #00e1f6 0px, transparent 40%),
                 radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #99f3fb 0px, transparent 50%);
+                radial-gradient(at 80% 10%, #99f3fb 0px, transparent 50%) !important;
+            background-attachment: fixed !important;
+            transition: background-color 0.3s;
         }
         html.rose {
             background-color: #fffafa !important;
             background-image: 
                 radial-gradient(at 50% 70%, #e64062 0px, transparent 40%),
                 radial-gradient(at 10% 20%, #f08094 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #f8b0c0 0px, transparent 50%);
+                radial-gradient(at 80% 10%, #f8b0c0 0px, transparent 50%) !important;
+            background-attachment: fixed !important;
+            transition: background-color 0.3s;
         }
 
-        /* 2. Sfondi Solidi per temi Scuro, Lavanda e Classico */
+        /* 2. Sfondi Solidi per temi Scuro, Lavanda, Notte e Classico */
         html.dark {
             background-color: #111827 !important; /* Tema Scuro: Sfondo solido gray-900 */
             background-image: none !important;
         }
         html.dark.lavanda {
             background-color: #202040 !important; /* Tema Lavanda: Sfondo solido viola scuro */
+            background-image: none !important;
+        }
+        html.dark.notte {
+            background-color: #000000 !important; /* Tema Notte: Sfondo solido NERO */
             background-image: none !important;
         }
         html.classico {
@@ -391,6 +417,7 @@
         /* ECCEZIONE: Rende solido il body per temi solidi */
         html.dark body,
         html.dark.lavanda body,
+        html.dark.notte body,
         html.classico body {
              background-color: inherit !important;
         }
@@ -411,16 +438,16 @@
         }
         
         /* TEMA: Dark (Default) - (solido, no vetro) */
-        .dark .dark\:bg-gray-800 {
+        .dark:not(.lavanda):not(.notte) .dark\:bg-gray-800 {
             background-color: #1f2937 !important; /* gray-800 */
             border-color: #374151 !important; /* gray-700 */ 
         }
-        .dark .dark\:bg-gray-700 { /* Modal */
+        .dark:not(.lavanda):not(.notte) .dark\:bg-gray-700 { /* Modal */
             background-color: #374151 !important; /* gray-700 */
             border-color: #4b5563 !important; /* gray-600 */ 
         }
-        .dark #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(31, 41, 55, 0.5) !important; /* Mantiene trasparenza base, no blur */
+        .dark:not(.lavanda):not(.notte) #sidebar-footer.dark\:bg-gray-800\/50 {
+             background-color: rgba(31, 41, 55, 0.5) !important; 
              border-color: #374151 !important; /* gray-700 */ 
          }
 
@@ -434,8 +461,22 @@
             border-color: #8080c0 !important;
         }
         .dark.lavanda #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(64, 64, 128, 0.7) !important; /* Mantiene trasparenza base, no blur */
+             background-color: rgba(64, 64, 128, 0.7) !important; 
              border-color: #8080c0 !important;
+        }
+
+        /* TEMA: Notte (solido, no vetro) */
+        .dark.notte .dark\:bg-gray-800 {
+            background-color: #121212 !important; 
+            border-color: #2d2d2d !important;
+        }
+        .dark.notte .dark\:bg-gray-700 {
+            background-color: #1e1e1e !important; 
+            border-color: #2d2d2d !important;
+        }
+        .dark.notte #sidebar-footer.dark\:bg-gray-800\/50 {
+            background-color: rgba(18, 18, 18, 0.7) !important; 
+            border-color: #2d2d2d !important;
         }
 
         /* TEMA: Cielo (vetro) */
@@ -518,13 +559,13 @@
         }
         
         /* Scuro (Default) - MODIFICATO */
-        .dark #sidebar-nav a:hover, .dark #sidebar-footer a:hover, .dark #sidebar-footer button:hover,
-        .dark a.dark\:bg-gray-700 { /* ATTIVO */
+        .dark:not(.lavanda):not(.notte) #sidebar-nav a:hover, .dark:not(.lavanda):not(.notte) #sidebar-footer a:hover, .dark:not(.lavanda):not(.notte) #sidebar-footer button:hover,
+        .dark:not(.lavanda):not(.notte) a.dark\:bg-gray-700 { /* ATTIVO */
             background-color: #1d4ed8 !important; /* primary-700 */
             color: white !important;
         }
-        .dark #sidebar-nav a:hover [data-lucide], .dark #sidebar-footer a:hover [data-lucide], .dark #sidebar-footer button:hover [data-lucide],
-        .dark a.dark\:bg-gray-700 [data-lucide] { /* ATTIVO */
+        .dark:not(.lavanda):not(.notte) #sidebar-nav a:hover [data-lucide], .dark:not(.lavanda):not(.notte) #sidebar-footer a:hover [data-lucide], .dark:not(.lavanda):not(.notte) #sidebar-footer button:hover [data-lucide],
+        .dark:not(.lavanda):not(.notte) a.dark\:bg-gray-700 [data-lucide] { /* ATTIVO */
             color: white !important;
         }
         
@@ -537,6 +578,17 @@
         .dark.lavanda #sidebar-nav a:hover [data-lucide], .dark.lavanda #sidebar-footer a:hover [data-lucide], .dark.lavanda #sidebar-footer button:hover [data-lucide],
         .dark.lavanda a.dark\:bg-gray-700 [data-lucide] { /* ATTIVO */
             color: #f0f0f8 !important;
+        }
+        
+        /* Notte (Scuro) - AGGIUNTO */
+        .dark.notte #sidebar-nav a:hover, .dark.notte #sidebar-footer a:hover, .dark.notte #sidebar-footer button:hover,
+        .dark.notte a.dark\:bg-gray-700 { /* ATTIVO */
+            background-color: #ef4444 !important; /* red-500 */
+            color: white !important;
+        }
+        .dark.notte #sidebar-nav a:hover [data-lucide], .dark.notte #sidebar-footer a:hover [data-lucide], .dark.notte #sidebar-footer button:hover [data-lucide],
+        .dark.notte a.dark\:bg-gray-700 [data-lucide] { /* ATTIVO */
+            color: white !important;
         }
         
         /* Cielo (Chiaro) */

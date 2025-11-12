@@ -81,10 +81,11 @@
                 // Applica il colore del bordo in base al tema per forzare la visibilità
                 let ringColor = '#3b82f6'; // Default (primary-500)
                 if (themeToSelect === 'cielo') ringColor = '#00e1f6';
-                if (themeToSelect === 'rose') ringColor = '#e64062';
+                if (themeToSelect === 'rose') ringColor = '#e64062'; 
                 if (themeToSelect === 'dark') ringColor = '#60a5fa'; 
                 if (themeToSelect === 'lavanda') ringColor = '#b0b0d8';
-                if (themeToSelect === 'classico') ringColor = '#47698a'; // AGGIUNTO
+                if (themeToSelect === 'classico') ringColor = '#47698a';
+                if (themeToSelect === 'notte') ringColor = '#ef4444'; // AGGIUNTO
                 
                 activeEl.style.borderColor = ringColor;
             }
@@ -133,6 +134,14 @@
                                             <div class="w-1/2 h-full" style="background-color: #8080c0;"></div>
                                         </div>
                                         <span class="text-sm font-medium mt-2 block text-center">Lavanda</span>
+                                    </button>
+
+                                    <button id="btn-theme-notte" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="notte" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #111827;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #ef4444;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Notte</span>
                                     </button>
                                     
                                     <button id="btn-theme-cielo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
@@ -258,7 +267,8 @@
             document.getElementById('btn-theme-lavanda').onclick = () => App.setTheme('lavanda'); 
             document.getElementById('btn-theme-cielo').onclick = () => App.setTheme('cielo');
             document.getElementById('btn-theme-rose').onclick = () => App.setTheme('rose');
-            document.getElementById('btn-theme-classico').onclick = () => App.setTheme('classico'); // AGGIUNTO
+            document.getElementById('btn-theme-classico').onclick = () => App.setTheme('classico');
+            document.getElementById('btn-theme-notte').onclick = () => App.setTheme('notte'); // AGGIUNTO
         }
     };
 

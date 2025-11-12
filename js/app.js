@@ -28,8 +28,8 @@ const App = {
      */
     loadTheme() {
         const savedTheme = localStorage.getItem('color-theme');
-        // 'corporate' SOSTITUITO con 'lavanda'
-        if (savedTheme === 'dark' || savedTheme === 'lavanda' || savedTheme === 'cielo' || savedTheme === 'rose' || savedTheme === 'classico') { // AGGIUNTO 'classico'
+        // AGGIUNTO 'notte'
+        if (savedTheme === 'dark' || savedTheme === 'lavanda' || savedTheme === 'cielo' || savedTheme === 'rose' || savedTheme === 'classico' || savedTheme === 'notte') {
             this.setTheme(savedTheme);
         } else {
             this.setTheme('light'); // Imposta 'light' come default
@@ -38,19 +38,21 @@ const App = {
 
     /**
      * Applica un tema specifico all'applicazione.
-     * @param {string} theme - Il nome del tema da applicare ('light', 'dark', 'lavanda', 'cielo', 'rose', 'classico').
+     * @param {string} theme - Il nome del tema da applicare.
      */
     setTheme(theme) {
         const html = document.documentElement;
         
         // 1. Rimuovere TUTTE le classi di tema per evitare conflitti
-        html.classList.remove('dark', 'windows-dark', 'corporate', 'cielo', 'rose', 'lavanda', 'classico'); // 'classico' aggiunto
+        html.classList.remove('dark', 'windows-dark', 'corporate', 'cielo', 'rose', 'lavanda', 'classico', 'notte');
         
         // 2. Aggiungere le classi corrette
         if (theme === 'dark') {
             html.classList.add('dark');
         } else if (theme === 'lavanda') { 
             html.classList.add('dark', 'lavanda'); 
+        } else if (theme === 'notte') { // AGGIUNTO
+            html.classList.add('dark', 'notte'); 
         } else if (theme === 'cielo') {
             html.classList.add('cielo'); 
         } else if (theme === 'rose') {
@@ -89,25 +91,17 @@ const App = {
 
     setupNavigation() { window.addEventListener('hashchange', () => this.handleRoute()); },
     
-    // --- handleRoute (MODIFICATO E SEMPLIFICATO) ---
     handleRoute() {
         const hash = window.location.hash.substring(1) || 'home';
         document.querySelectorAll('main section').forEach(el => el.classList.add('hidden-section'));
         
-        // Aggiorna la classe "attiva" per i link della sidebar
         document.querySelectorAll('#sidebar-nav a, #link-impostazioni').forEach(link => {
-            // Rimuovi solo le classi base di "attivo"
             link.classList.remove('bg-gray-100', 'dark:bg-gray-700');
-            
-            // Pulisci eventuali stili inline (causati dai miei errori precedenti)
             link.style.backgroundColor = '';
             link.style.color = '';
             link.querySelectorAll('[data-lucide]').forEach(icon => icon.style.color = '');
 
-            // Se il link è quello della pagina corrente, aggiungi le classi di "attivo"
             if (link.getAttribute('href') === `#${hash}`) {
-                // Usiamo le classi standard di Tailwind/Flowbite
-                // Il nostro CSS in index.html sovrascriverà queste classi
                 link.classList.add('bg-gray-100', 'dark:bg-gray-700');
             }
         });
@@ -122,7 +116,6 @@ const App = {
              if(d) d.hide();
         }
     },
-    // --- FINE handleRoute ---
 
     formatCurrency(val) { return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val || 0); },
     formatPrice(val) { return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(val || 0); },
@@ -183,22 +176,21 @@ const App = {
         }, 3000);
     },
 
-    // --- MODIFICATA LARGHEZZA SIDEBAR ---
     setSidebarCompact(isCompact) {
         const sidebar = document.getElementById('application-sidebar');
         const main = document.querySelector('main');
         const icon = document.getElementById('collapse-icon');
         const header = document.getElementById('sidebar-header');
         if (isCompact) {
-            sidebar.classList.replace('w-60', 'w-16'); // Modificato
-            main.classList.replace('lg:ml-60', 'lg:ml-16'); // Modificato
+            sidebar.classList.replace('w-60', 'w-16'); 
+            main.classList.replace('lg:ml-60', 'lg:ml-16'); 
             header.classList.replace('px-6', 'px-2'); 
             header.classList.add('justify-center');
             document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
             if(icon) icon.setAttribute('data-lucide', 'panel-left-open');
         } else {
-            sidebar.classList.replace('w-16', 'w-60'); // Modificato
-            main.classList.replace('lg:ml-16', 'lg:ml-60'); // Modificato
+            sidebar.classList.replace('w-16', 'w-60'); 
+            main.classList.replace('lg:ml-16', 'lg:ml-60'); 
             header.classList.replace('px-2', 'px-6'); 
             header.classList.remove('justify-center');
             document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
