@@ -1,4 +1,3 @@
-MyStation Admin
 MyStation Admin è un pannello di amministrazione privato, local-first, progettato per la gestione completa di una stazione di servizio (predefinito Enilive, ma facilmente modificabile).
 
 Si tratta di una Single Page Application (SPA) che non richiede un backend: tutti i dati vengono salvati e letti direttamente dal localStorage del browser. Questo la rende veloce, portatile e completamente offline.
