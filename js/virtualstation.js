@@ -387,13 +387,15 @@
             
             const dropdownHtml = `<div class="relative"><button id="turnoDropdownBtn" data-dropdown-toggle="turnoDropdown" class="${cls} flex justify-between items-center w-full" type="button"><span id="selectedTurno">${curTurno}</span><svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="turnoDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-full absolute dark:bg-gray-700"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="turnoDropdownBtn">${turnoOpts.map(o => `<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white turno-opt" data-val="${o}">${o}</a></li>`).join('')}</ul></div></div><input type="hidden" name="turno" id="turnoInput" value="${curTurno}">`;
             
+            /* INIZIO MODIFICA */
             const products = [
                 {label: 'Gasolio', key: 'gasolio'},
                 {label: 'Diesel+', key: 'dieselplus'},
-                {label: 'Benzina', key: 'benzina'},
                 {label: 'AdBlue', key: 'adblue'},
+                {label: 'Benzina', key: 'benzina'},
                 {label: 'Hvolution', key: 'hvolution'}
             ];
+            /* FINE MODIFICA */
 
             // REGOLA 1: Ordine FaiDaTe, Servito, Prepay
             const form = `<form id="form-turno" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls} ps-10" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>${dropdownHtml}</div></div><div class="space-y-4"><h4 class="font-medium text-gray-900 dark:text-white border-b pb-2 dark:border-gray-700">Erogato (Litri)</h4><div class="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>FaiDaTe</div><div>Servito</div><div>Prepay</div></div>
