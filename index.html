@@ -109,7 +109,7 @@
             border-color: #333333 !important; 
         }
         
-        /* Accento Grigio (Monocromatico) - CORRETTO */
+        /* Accento Grigio (Monocromatico) */
         html.dark.notte .text-primary-500,
         html.dark.notte .dark\:text-primary-500 {
              color: #9ca3af !important; /* gray-400 */
@@ -231,6 +231,26 @@
         html.yellow ::-webkit-scrollbar-thumb { background-color: #fdd835 !important; }
         html.yellow ::-webkit-scrollbar-thumb:hover { background-color: #fbc02d !important; }
         html.yellow .theme-swatch.ring-primary-500 { --tw-ring-color: #fdd835 !important; }
+    </style>
+    
+    <style>
+        #home-banner {
+            background-image: url('img/station.png');
+            background-size: cover;
+            background-position: center 60%; /* Centra l'immagine leggermente più in basso */
+            border: 1px solid rgba(229, 231, 235, 0.7); /* border-gray-200 */
+        }
+        
+        .dark #home-banner {
+             border-color: rgba(55, 65, 81, 0.7); /* dark:border-gray-700 */
+        }
+        
+        /* Bordi per temi personalizzati */
+        html.dark.notte #home-banner { border-color: #333333 !important; }
+        html.indigo #home-banner { border-color: #c5cae9 !important; }
+        html.pink #home-banner { border-color: #f8bbd0 !important; }
+        html.cyan #home-banner { border-color: #b2ebf2 !important; }
+        html.yellow #home-banner { border-color: #fff9c4 !important; }
     </style>
 
     <style>
