@@ -28,8 +28,8 @@ const App = {
      */
     loadTheme() {
         const savedTheme = localStorage.getItem('color-theme');
-        // Lista temi aggiornata
-        const validThemes = ['dark', 'greydark', 'indigo', 'pink', 'cyan', 'yellow'];
+        // 'greydark' SOSTITUITO con 'notte'
+        const validThemes = ['dark', 'notte', 'indigo', 'pink', 'cyan', 'yellow'];
         if (validThemes.includes(savedTheme)) {
             this.setTheme(savedTheme);
         } else {
@@ -45,13 +45,13 @@ const App = {
         const html = document.documentElement;
         
         // 1. Rimuovere TUTTE le classi di tema per evitare conflitti
-        html.classList.remove('dark', 'corporate', 'cielo', 'rose', 'greydark', 'indigo', 'pink', 'green', 'cyan', 'yellow');
+        html.classList.remove('dark', 'corporate', 'cielo', 'rose', 'greydark', 'indigo', 'pink', 'green', 'cyan', 'yellow', 'notte');
         
         // 2. Aggiungere le classi corrette
         if (theme === 'dark') {
             html.classList.add('dark');
-        } else if (theme === 'greydark') {
-            html.classList.add('dark', 'greydark'); // Tema scuro personalizzato
+        } else if (theme === 'notte') { // 'greydark' SOSTITUITO con 'notte'
+            html.classList.add('dark', 'notte'); 
         } else if (theme === 'indigo') {
             html.classList.add('indigo');
         } else if (theme === 'pink') {

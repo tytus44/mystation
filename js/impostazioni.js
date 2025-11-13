@@ -81,7 +81,7 @@
                 
                 // Applica il colore del bordo in base al tema per forzare la visibilità
                 let ringColor = '#3b82f6'; // Default (primary-500)
-                if (themeToSelect === 'dark' || themeToSelect === 'greydark') ringColor = '#60a5fa';
+                if (themeToSelect === 'dark' || themeToSelect === 'notte') ringColor = '#60a5fa'; // 'notte' è scuro
                 if (themeToSelect === 'indigo') ringColor = '#3f51b5';
                 if (themeToSelect === 'pink') ringColor = '#e91e63';
                 if (themeToSelect === 'cyan') ringColor = '#00bcd4';
@@ -92,7 +92,7 @@
         },
 
         getLayoutHTML() {
-            // Colori icone card ripristinati a versioni più chiare
+            // Colori icone card ripristinati
             return `
                 <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -129,12 +129,12 @@
                                         <span class="text-sm font-medium mt-2 block text-center">Scuro</span>
                                     </button>
                                     
-                                    <button id="btn-theme-greydark" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="greydark" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #374151;"></div>
+                                    <button id="btn-theme-notte" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="notte" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #1e1e1e;"></div>
                                             <div class="w-1/2 h-full" style="background-color: #9ca3af;"></div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Grey Dark</span>
+                                        <span class="text-sm font-medium mt-2 block text-center">Night</span>
                                     </button>
                                     
                                     <button id="btn-theme-indigo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
@@ -265,7 +265,7 @@
             // Listeners per i temi (AGGIORNATI)
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
             document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
-            document.getElementById('btn-theme-greydark').onclick = () => App.setTheme('greydark');
+            document.getElementById('btn-theme-notte').onclick = () => App.setTheme('notte');
             document.getElementById('btn-theme-indigo').onclick = () => App.setTheme('indigo');
             document.getElementById('btn-theme-pink').onclick = () => App.setTheme('pink');
             document.getElementById('btn-theme-cyan').onclick = () => App.setTheme('cyan');

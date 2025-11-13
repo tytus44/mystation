@@ -80,54 +80,59 @@
     </style>
     
     <style>
-        /* Palette: Tailwind Gray */
-        html.dark.greydark .dark\:bg-gray-800 {
-             background-color: #374151 !important; /* gray-700 */
+        /* Palette: Ispirata allo screenshot (Molto scura) */
+        html.dark.notte .dark\:bg-gray-800 {
+             background-color: #1e1e1e !important; 
         }
-        html.dark.greydark .dark\:bg-gray-800\/50 {
-            background-color: rgba(55, 65, 81, 0.7) !important; /* gray-700/70% */
+        html.dark.notte .dark\:bg-gray-800\/50 {
+            background-color: #1e1e1e !important;
         }
-        html.dark.greydark .dark\:bg-gray-700 {
-            background-color: #4b5563 !important; /* gray-600 */
+        html.dark.notte .dark\:bg-gray-700 {
+            background-color: #252526 !important; 
         }
-        html.dark.greydark .dark\:bg-gray-700.datepicker-dropdown {
-             background-color: #4b5563 !important;
+        html.dark.notte .dark\:bg-gray-700.datepicker-dropdown {
+             background-color: #252526 !important;
         }
-        html.dark.greydark .dark\:bg-gray-900.datepicker-dropdown {
-             background-color: #4b5563 !important;
+        html.dark.notte .dark\:bg-gray-900.datepicker-dropdown {
+             background-color: #252526 !important;
         }
-         
-        html.dark.greydark .dark\:hover\:bg-gray-700:hover {
-             background-color: #4b5563 !important; /* gray-600 */
+        html.dark.notte .dark\:hover\:bg-gray-700:hover {
+             background-color: #252526 !important; 
         }
-         html.dark.greydark .dark\:bg-gray-100 {
-             background-color: #4b5563 !important; /* gray-600 */
+         html.dark.notte .dark\:bg-gray-100 {
+             background-color: #252526 !important; 
          }
-        html.dark.greydark .dark\:border-gray-700 {
-            border-color: #6b7280 !important; /* gray-500 */
+        html.dark.notte .dark\:border-gray-700 {
+            border-color: #333333 !important; 
         }
-        html.dark.greydark .dark\:border-gray-600 {
-            border-color: #6b7280 !important; /* gray-500 */
+        html.dark.notte .dark\:border-gray-600 {
+            border-color: #333333 !important; 
         }
         
-        /* Accento Grigio */
-        html.dark.greydark .dark\:text-primary-500 {
+        /* Accento Grigio (Monocromatico) - CORRETTO */
+        html.dark.notte .text-primary-500,
+        html.dark.notte .dark\:text-primary-500 {
              color: #9ca3af !important; /* gray-400 */
         }
-        html.dark.greydark .dark\:text-primary-600 {
+        html.dark.notte .text-primary-600,
+        html.dark.notte .dark\:text-primary-600 {
              color: #9ca3af !important; /* gray-400 */
         }
-        html.dark.greydark .dark\:bg-primary-600 {
-            background-color: #9ca3af !important;
+        html.dark.notte .bg-primary-600,
+        html.dark.notte .dark\:bg-primary-600 {
+            background-color: #6b7280 !important; /* gray-500 */
         }
-        html.dark.greydark .dark\:hover\:bg-primary-700:hover {
-            background-color: #6b7280 !important;
+        html.dark.notte .hover\:bg-primary-700:hover,
+        html.dark.notte .dark\:hover\:bg-primary-700:hover {
+            background-color: #9ca3af !important; /* gray-400 */
         }
-        html.dark.greydark .dark\:bg-primary-900\/30 {
+        html.dark.notte .bg-primary-100,
+        html.dark.notte .dark\:bg-primary-900\/30 {
              background-color: rgba(156, 163, 175, 0.2) !important;
         }
-        html.dark.greydark .dark\:focus\:ring-primary-800:focus,
-        html.dark.greydark .dark\:focus\:ring-primary-300:focus {
+        html.dark.notte .focus\:ring-primary-300:focus,
+        html.dark.notte .dark\:focus\:ring-primary-800:focus,
+        html.dark.notte .dark\:focus\:ring-primary-300:focus {
             --tw-ring-color: #9ca3af !important;
         }
     </style>
@@ -135,7 +140,6 @@
     <style>
         /* Palette: #3f51b5 (500), #303f9f (700), #c5cae9 (100), #e8eaf6 (50) */
         
-        /* === Sostituzione Palette GRAY === */
         html.indigo .border-gray-200 { border-color: #c5cae9 !important; }
         html.indigo .sticky.bg-white { border-color: #c5cae9 !important; }
         html.indigo #sidebar-nav a.hover\:bg-gray-100:hover,
@@ -144,15 +148,13 @@
             background-color: #e8eaf6 !important;
         }
          html.indigo a.bg-gray-100 { background-color: #c5cae9 !important; }
-
-        /* === Sostituzione Palette PRIMARY === */
         html.indigo .bg-primary-100 { background-color: #c5cae9 !important; }
         html.indigo .text-primary-500 { color: #3f51b5 !important; }
         html.indigo .text-primary-600 { color: #3f51b5 !important; }
         html.indigo .hover\:text-primary-700:hover { color: #303f9f !important; }
         html.indigo .bg-primary-600 { background-color: #3f51b5 !important; }
         html.indigo .hover\:bg-primary-700:hover { background-color: #303f9f !important; }
-        html.indigo .focus\:ring-primary-300:focus { --tw-ring-color: #9fa8da !important; } /* 200 */
+        html.indigo .focus\:ring-primary-300:focus { --tw-ring-color: #9fa8da !important; } 
         html.indigo .focus\:ring-primary-800:focus { --tw-ring-color: #303f9f !important; }
         html.indigo ::-webkit-scrollbar-thumb { background-color: #3f51b5 !important; }
         html.indigo ::-webkit-scrollbar-thumb:hover { background-color: #303f9f !important; }
@@ -162,7 +164,6 @@
     <style>
         /* Palette: #e91e63 (500), #c2185b (700), #f8bbd0 (100), #fce4ec (50) */
         
-        /* === Sostituzione Palette GRAY === */
         html.pink .border-gray-200 { border-color: #f8bbd0 !important; }
         html.pink .sticky.bg-white { border-color: #f8bbd0 !important; }
         html.pink #sidebar-nav a.hover\:bg-gray-100:hover,
@@ -171,15 +172,13 @@
             background-color: #fce4ec !important;
         }
          html.pink a.bg-gray-100 { background-color: #f8bbd0 !important; }
-
-        /* === Sostituzione Palette PRIMARY === */
         html.pink .bg-primary-100 { background-color: #f8bbd0 !important; }
         html.pink .text-primary-500 { color: #e91e63 !important; }
         html.pink .text-primary-600 { color: #e91e63 !important; }
         html.pink .hover\:text-primary-700:hover { color: #c2185b !important; }
         html.pink .bg-primary-600 { background-color: #e91e63 !important; }
         html.pink .hover\:bg-primary-700:hover { background-color: #c2185b !important; }
-        html.pink .focus\:ring-primary-300:focus { --tw-ring-color: #f48fb1 !important; } /* 200 */
+        html.pink .focus\:ring-primary-300:focus { --tw-ring-color: #f48fb1 !important; } 
         html.pink .focus\:ring-primary-800:focus { --tw-ring-color: #c2185b !important; }
         html.pink ::-webkit-scrollbar-thumb { background-color: #e91e63 !important; }
         html.pink ::-webkit-scrollbar-thumb:hover { background-color: #c2185b !important; }
@@ -189,7 +188,6 @@
     <style>
         /* Palette: #00bcd4 (500), #0097a7 (700), #b2ebf2 (100), #e0f7fa (50) */
         
-        /* === Sostituzione Palette GRAY === */
         html.cyan .border-gray-200 { border-color: #b2ebf2 !important; }
         html.cyan .sticky.bg-white { border-color: #b2ebf2 !important; }
         html.cyan #sidebar-nav a.hover\:bg-gray-100:hover,
@@ -198,15 +196,13 @@
             background-color: #e0f7fa !important;
         }
          html.cyan a.bg-gray-100 { background-color: #b2ebf2 !important; }
-
-        /* === Sostituzione Palette PRIMARY === */
         html.cyan .bg-primary-100 { background-color: #b2ebf2 !important; }
         html.cyan .text-primary-500 { color: #00bcd4 !important; }
         html.cyan .text-primary-600 { color: #00bcd4 !important; }
         html.cyan .hover\:text-primary-700:hover { color: #0097a7 !important; }
         html.cyan .bg-primary-600 { background-color: #00bcd4 !important; }
         html.cyan .hover\:bg-primary-700:hover { background-color: #0097a7 !important; }
-        html.cyan .focus\:ring-primary-300:focus { --tw-ring-color: #80deea !important; } /* 200 */
+        html.cyan .focus\:ring-primary-300:focus { --tw-ring-color: #80deea !important; } 
         html.cyan .focus\:ring-primary-800:focus { --tw-ring-color: #0097a7 !important; }
         html.cyan ::-webkit-scrollbar-thumb { background-color: #00bcd4 !important; }
         html.cyan ::-webkit-scrollbar-thumb:hover { background-color: #0097a7 !important; }
@@ -216,7 +212,6 @@
     <style>
         /* Palette: #fdd835 (500), #fbc02d (700), #fff9c4 (100), #fffde7 (50) */
         
-        /* === Sostituzione Palette GRAY === */
         html.yellow .border-gray-200 { border-color: #fff9c4 !important; }
         html.yellow .sticky.bg-white { border-color: #fff9c4 !important; }
         html.yellow #sidebar-nav a.hover\:bg-gray-100:hover,
@@ -225,15 +220,13 @@
             background-color: #fffde7 !important;
         }
          html.yellow a.bg-gray-100 { background-color: #fff9c4 !important; }
-
-        /* === Sostituzione Palette PRIMARY === */
         html.yellow .bg-primary-100 { background-color: #fff9c4 !important; }
         html.yellow .text-primary-500 { color: #fdd835 !important; }
         html.yellow .text-primary-600 { color: #fdd835 !important; }
         html.yellow .hover\:text-primary-700:hover { color: #fbc02d !important; }
         html.yellow .bg-primary-600 { background-color: #fdd835 !important; }
         html.yellow .hover\:bg-primary-700:hover { background-color: #fbc02d !important; }
-        html.yellow .focus\:ring-primary-300:focus { --tw-ring-color: #fff59d !important; } /* 200 */
+        html.yellow .focus\:ring-primary-300:focus { --tw-ring-color: #fff59d !important; }
         html.yellow .focus\:ring-primary-800:focus { --tw-ring-color: #fbc02d !important; }
         html.yellow ::-webkit-scrollbar-thumb { background-color: #fdd835 !important; }
         html.yellow ::-webkit-scrollbar-thumb:hover { background-color: #fbc02d !important; }
@@ -254,20 +247,19 @@
         html.dark {
             background-color: #0c0c0d; 
             background-image: 
-                radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%), /* Grey Dark */
+                radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%), /* Grey */
                 radial-gradient(at 80% 10%, #00bcd4 0px, transparent 60%), /* Cyan */
                 radial-gradient(at 50% 70%, #303f9f 0px, transparent 50%); /* Indigo Dark */
         }
         
         /* BG Sfondi per temi chiari E scuri personalizzati */
         
-        html.dark.greydark {
-            background-color: #1f2937 !important; /* gray-800 */
-            background-image: 
-                radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%),
-                radial-gradient(at 80% 10%, #6b7280 0px, transparent 60%),
-                radial-gradient(at 50% 70%, #4b5563 0px, transparent 50%);
+        /* TEMA NOTTE (SOLIDO) - CORRETTO */
+        html.dark.notte {
+            background-color: #1e1e1e !important;
+            background-image: none !important;
         }
+
         html.indigo { 
             background-color: #e8eaf6 !important; /* Indigo 50 */
             background-image: 
@@ -301,6 +293,11 @@
         body {
             background-color: transparent !important;
         }
+        /* ECCEZIONE: Rende il body solido per il tema Notte */
+        html.dark.notte body {
+            background-color: #1e1e1e !important;
+        }
+
 
         /* 3. Applica l'effetto vetro a tutti gli elementi con sfondo */
         
@@ -348,22 +345,30 @@
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
 
-        /* TEMA: Grey Dark */
-        .dark.greydark .dark\:bg-gray-800 {
-            background-color: rgba(55, 65, 81, 0.75) !important; /* gray-700 */
-            border-color: rgba(107, 114, 128, 0.8) !important; /* gray-500 */
+        /* TEMA: Notte (SOLIDO, NO VETRO) */
+        .dark.notte .dark\:bg-gray-800 {
+            background-color: #1e1e1e !important; 
+            border-color: #333333 !important; 
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
-        .dark.greydark .dark\:bg-gray-700 {
-            background-color: rgba(75, 85, 99, 0.75) !important; /* gray-600 */
-            border-color: rgba(107, 114, 128, 0.8) !important; /* gray-500 */
+        .dark.notte .dark\:bg-gray-700 {
+            background-color: #252526 !important; 
+            border-color: #333333 !important; 
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
-        .dark.greydark #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(55, 65, 81, 0.55) !important;
-             border-color: rgba(107, 114, 128, 0.8) !important;
+        .dark.notte #sidebar-footer.dark\:bg-gray-800\/50 {
+             background-color: #1e1e1e !important;
+             border-color: #333333 !important; 
+             backdrop-filter: none !important;
+             -webkit-backdrop-filter: none !important;
         }
-        .dark.greydark .dark\:bg-red-900\/10 {
-            background-color: rgba(76, 29, 29, 0.7) !important; 
-            border-color: rgba(153, 27, 27, 0.7) !important;
+        .dark.notte .dark\:bg-red-900\/10 {
+            background-color: #450a0a !important; /* Rosso scuro solido */
+            border-color: #991b1b !important; /* red-800 */
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
         
         /* Regole Glass per TUTTI i temi chiari personalizzati */
