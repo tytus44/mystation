@@ -78,20 +78,29 @@
 
         updateClock() {
             const now = new Date();
-            document.getElementById('live-time').textContent = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('live-date').textContent = this.capitalize(now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }));
+            const timeEl = document.getElementById('live-time');
+            const dateEl = document.getElementById('live-date');
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+            if (dateEl) dateEl.textContent = this.capitalize(now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }));
         },
 
         getLayoutHTML() {
             return `
                 <div id="home-layout" class="flex flex-col gap-6 animate-fade-in">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <div><h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Dashboard</h1><p class="text-gray-500 dark:text-gray-400">Benvenuto in MyStation Admin V11</p></div>
-                        <div class="mt-4 md:mt-0 text-right"><div id="live-time" class="text-3xl font-bold text-primary-600 dark:text-primary-500">--:--</div><div id="live-date" class="text-sm font-medium text-gray-500 dark:text-gray-400">---</div></div>
-                    </div>
                     
-                    <div id="home-banner" class="w-full h-48 rounded-lg shadow-sm overflow-hidden">
+                    <div id="home-banner" class="w-full h-64 rounded-lg shadow-sm overflow-hidden relative p-6 flex flex-col md:flex-row justify-between items-start">
+                        
+                        <div>
+                            <h1 class="text-2xl font-bold text-white mb-1" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Dashboard</h1>
+                            <p class="text-gray-200" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Benvenuto in MyStation</p>
                         </div>
+                        
+                        <div class="mt-4 md:mt-0 text-right">
+                            <div id="live-time" class="text-3xl font-bold text-white" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">--:--</div>
+                            <div id="live-date" class="text-sm font-medium text-gray-300" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">---</div>
+                        </div>
+                        
+                    </div>
                     <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start min-h-[100px]"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
