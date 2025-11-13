@@ -103,7 +103,7 @@
                             
                             <div id="card-theme" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-yellow-500 rounded-lg mr-3">
+                                    <div class="p-2 bg-yellow-500 rounded-full mr-3">
                                         <i data-lucide="palette" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Seleziona Tema</h3>
@@ -172,7 +172,7 @@
                             </div>
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-primary-600 rounded-lg mr-3">
+                                    <div class="p-2 bg-primary-600 rounded-full mr-3">
                                         <i data-lucide="database" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Backup e Ripristino</h3>
@@ -192,7 +192,7 @@
 
                             <div id="card-forms" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-green-600 rounded-lg mr-3">
+                                    <div class="p-2 bg-green-600 rounded-full mr-3">
                                         <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Modulistica Giornaliera</h3>
@@ -214,7 +214,7 @@
                         <div id="settings-col-2" class="flex flex-col gap-6 h-full">
                             <div id="card-danger" class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-red-600 rounded-lg mr-3">
+                                    <div class="p-2 bg-red-600 rounded-full mr-3">
                                         <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
