@@ -28,8 +28,9 @@ const App = {
      */
     loadTheme() {
         const savedTheme = localStorage.getItem('color-theme');
-        // AGGIUNTO 'notte'
-        if (savedTheme === 'dark' || savedTheme === 'lavanda' || savedTheme === 'cielo' || savedTheme === 'rose' || savedTheme === 'classico' || savedTheme === 'notte') {
+        // Lista temi aggiornata
+        const validThemes = ['dark', 'greydark', 'indigo', 'pink', 'cyan', 'yellow'];
+        if (validThemes.includes(savedTheme)) {
             this.setTheme(savedTheme);
         } else {
             this.setTheme('light'); // Imposta 'light' come default
@@ -44,21 +45,21 @@ const App = {
         const html = document.documentElement;
         
         // 1. Rimuovere TUTTE le classi di tema per evitare conflitti
-        html.classList.remove('dark', 'windows-dark', 'corporate', 'cielo', 'rose', 'lavanda', 'classico', 'notte');
+        html.classList.remove('dark', 'corporate', 'cielo', 'rose', 'greydark', 'indigo', 'pink', 'green', 'cyan', 'yellow');
         
         // 2. Aggiungere le classi corrette
         if (theme === 'dark') {
             html.classList.add('dark');
-        } else if (theme === 'lavanda') { 
-            html.classList.add('dark', 'lavanda'); 
-        } else if (theme === 'notte') { // AGGIUNTO
-            html.classList.add('dark', 'notte'); 
-        } else if (theme === 'cielo') {
-            html.classList.add('cielo'); 
-        } else if (theme === 'rose') {
-            html.classList.add('rose');
-        } else if (theme === 'classico') {
-            html.classList.add('classico');
+        } else if (theme === 'greydark') {
+            html.classList.add('dark', 'greydark'); // Tema scuro personalizzato
+        } else if (theme === 'indigo') {
+            html.classList.add('indigo');
+        } else if (theme === 'pink') {
+            html.classList.add('pink');
+        } else if (theme === 'cyan') {
+            html.classList.add('cyan');
+        } else if (theme === 'yellow') {
+            html.classList.add('yellow');
         }
         // Per il tema 'light' (default), non aggiungiamo nessuna classe.
         
@@ -90,22 +91,13 @@ const App = {
     clearData() { localStorage.removeItem('mystation_data_v11'); window.location.reload(); },
 
     setupNavigation() { window.addEventListener('hashchange', () => this.handleRoute()); },
-    
     handleRoute() {
         const hash = window.location.hash.substring(1) || 'home';
         document.querySelectorAll('main section').forEach(el => el.classList.add('hidden-section'));
-        
         document.querySelectorAll('#sidebar-nav a, #link-impostazioni').forEach(link => {
             link.classList.remove('bg-gray-100', 'dark:bg-gray-700');
-            link.style.backgroundColor = '';
-            link.style.color = '';
-            link.querySelectorAll('[data-lucide]').forEach(icon => icon.style.color = '');
-
-            if (link.getAttribute('href') === `#${hash}`) {
-                link.classList.add('bg-gray-100', 'dark:bg-gray-700');
-            }
+            if (link.getAttribute('href') === `#${hash}`) link.classList.add('bg-gray-100', 'dark:bg-gray-700');
         });
-
         const activeSection = document.getElementById(hash);
         if (activeSection) {
             activeSection.classList.remove('hidden-section');
@@ -182,17 +174,13 @@ const App = {
         const icon = document.getElementById('collapse-icon');
         const header = document.getElementById('sidebar-header');
         if (isCompact) {
-            sidebar.classList.replace('w-60', 'w-16'); 
-            main.classList.replace('lg:ml-60', 'lg:ml-16'); 
-            header.classList.replace('px-6', 'px-2'); 
-            header.classList.add('justify-center');
+            sidebar.classList.replace('w-64', 'w-16'); main.classList.replace('lg:ml-64', 'lg:ml-16');
+            header.classList.replace('px-6', 'px-2'); header.classList.add('justify-center');
             document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
             if(icon) icon.setAttribute('data-lucide', 'panel-left-open');
         } else {
-            sidebar.classList.replace('w-16', 'w-60'); 
-            main.classList.replace('lg:ml-16', 'lg:ml-60'); 
-            header.classList.replace('px-2', 'px-6'); 
-            header.classList.remove('justify-center');
+            sidebar.classList.replace('w-16', 'w-64'); main.classList.replace('lg:ml-16', 'lg:ml-64');
+            header.classList.replace('px-2', 'px-6'); header.classList.remove('justify-center');
             document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
             if(icon) icon.setAttribute('data-lucide', 'panel-left-close');
         }

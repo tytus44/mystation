@@ -78,20 +78,21 @@
             const activeEl = document.querySelector(`.theme-swatch[data-theme="${themeToSelect}"]`);
             if (activeEl) {
                 activeEl.classList.add('ring-2');
+                
                 // Applica il colore del bordo in base al tema per forzare la visibilità
                 let ringColor = '#3b82f6'; // Default (primary-500)
-                if (themeToSelect === 'cielo') ringColor = '#00e1f6';
-                if (themeToSelect === 'rose') ringColor = '#e64062'; 
-                if (themeToSelect === 'dark') ringColor = '#60a5fa'; 
-                if (themeToSelect === 'lavanda') ringColor = '#b0b0d8';
-                if (themeToSelect === 'classico') ringColor = '#47698a';
-                if (themeToSelect === 'notte') ringColor = '#ef4444'; // AGGIUNTO
+                if (themeToSelect === 'dark' || themeToSelect === 'greydark') ringColor = '#60a5fa';
+                if (themeToSelect === 'indigo') ringColor = '#3f51b5';
+                if (themeToSelect === 'pink') ringColor = '#e91e63';
+                if (themeToSelect === 'cyan') ringColor = '#00bcd4';
+                if (themeToSelect === 'yellow') ringColor = '#fdd835';
                 
                 activeEl.style.borderColor = ringColor;
             }
         },
 
         getLayoutHTML() {
+            // Colori icone card ripristinati a versioni più chiare
             return `
                 <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -103,8 +104,8 @@
                             
                             <div id="card-theme" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-yellow-500 rounded-full mr-3">
-                                        <i data-lucide="palette" class="w-6 h-6 text-white"></i>
+                                    <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mr-3">
+                                        <i data-lucide="palette" class="w-6 h-6 text-yellow-600 dark:text-yellow-500"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Seleziona Tema</h3>
                                 </div>
@@ -128,52 +129,52 @@
                                         <span class="text-sm font-medium mt-2 block text-center">Scuro</span>
                                     </button>
                                     
-                                    <button id="btn-theme-lavanda" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="lavanda" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #404080;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #8080c0;"></div>
+                                    <button id="btn-theme-greydark" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="greydark" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #374151;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #9ca3af;"></div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Lavanda</span>
-                                    </button>
-
-                                    <button id="btn-theme-notte" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="notte" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #111827;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #ef4444;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Notte</span>
+                                        <span class="text-sm font-medium mt-2 block text-center">Grey Dark</span>
                                     </button>
                                     
-                                    <button id="btn-theme-cielo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="cielo" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #ccf9fd;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #00e1f6;"></div>
+                                    <button id="btn-theme-indigo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="indigo" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #c5cae9;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #3f51b5;"></div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Cielo</span>
-                                    </button>
-                                    
-                                    <button id="btn-theme-rose" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="rose" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #fcd8e0;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #e64062;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Rose</span>
+                                        <span class="text-sm font-medium mt-2 block text-center">Indigo</span>
                                     </button>
 
-                                    <button id="btn-theme-classico" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="classico" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #e6edf4;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #47698a;"></div>
+                                    <button id="btn-theme-pink" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="pink" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #f8bbd0;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #e91e63;"></div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Classico</span>
+                                        <span class="text-sm font-medium mt-2 block text-center">Pink</span>
+                                    </button>
+
+                                    <button id="btn-theme-cyan" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="cyan" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #b2ebf2;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #00bcd4;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Cyan</span>
+                                    </button>
+
+                                    <button id="btn-theme-yellow" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
+                                        <div data-theme="yellow" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
+                                            <div class="w-1/2 h-full" style="background-color: #fff9c4;"></div>
+                                            <div class="w-1/2 h-full" style="background-color: #fdd835;"></div>
+                                        </div>
+                                        <span class="text-sm font-medium mt-2 block text-center">Yellow</span>
                                     </button>
                                     
                                 </div>
                             </div>
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-primary-600 rounded-full mr-3">
-                                        <i data-lucide="database" class="w-6 h-6 text-white"></i>
+                                    <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-full mr-3">
+                                        <i data-lucide="database" class="w-6 h-6 text-primary-600 dark:text-primary-500"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Backup e Ripristino</h3>
                                 </div>
@@ -192,8 +193,8 @@
 
                             <div id="card-forms" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-green-600 rounded-full mr-3">
-                                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                                    <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-full mr-3">
+                                        <i data-lucide="file-text" class="w-6 h-6 text-green-600 dark:text-green-500"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">Modulistica Giornaliera</h3>
                                 </div>
@@ -214,8 +215,8 @@
                         <div id="settings-col-2" class="flex flex-col gap-6 h-full">
                             <div id="card-danger" class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-red-600 rounded-full mr-3">
-                                        <i data-lucide="alert-triangle" class="w-6 h-6 text-white"></i>
+                                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full mr-3">
+                                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600 dark:text-red-500"></i>
                                     </div>
                                     <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
                                 </div>
@@ -261,14 +262,14 @@
             document.getElementById('btn-settings-import').onclick = () => document.getElementById('import-file-input').click();
             document.getElementById('btn-clear-data').onclick = () => this.confirmClearData();
 
-            // Listeners per i temi
+            // Listeners per i temi (AGGIORNATI)
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
             document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
-            document.getElementById('btn-theme-lavanda').onclick = () => App.setTheme('lavanda'); 
-            document.getElementById('btn-theme-cielo').onclick = () => App.setTheme('cielo');
-            document.getElementById('btn-theme-rose').onclick = () => App.setTheme('rose');
-            document.getElementById('btn-theme-classico').onclick = () => App.setTheme('classico');
-            document.getElementById('btn-theme-notte').onclick = () => App.setTheme('notte'); // AGGIUNTO
+            document.getElementById('btn-theme-greydark').onclick = () => App.setTheme('greydark');
+            document.getElementById('btn-theme-indigo').onclick = () => App.setTheme('indigo');
+            document.getElementById('btn-theme-pink').onclick = () => App.setTheme('pink');
+            document.getElementById('btn-theme-cyan').onclick = () => App.setTheme('cyan');
+            document.getElementById('btn-theme-yellow').onclick = () => App.setTheme('yellow');
         }
     };
 

@@ -80,242 +80,221 @@
     </style>
     
     <style>
-        /* Palette: #182c40, #20374e, #28415b, #435c74, #5e768d */
-
-        /* --- Palette Sfondi (Grigi Scuri) --- */
-        
-        /* Sidebar, Sfondo Card (dark:bg-gray-800) */
-        html.dark.corporate .dark\:bg-gray-800 {
-             background-color: #20374e !important;
+        /* Palette: Tailwind Gray */
+        html.dark.greydark .dark\:bg-gray-800 {
+             background-color: #374151 !important; /* gray-700 */
         }
-        
-        /* Sfondo Footer Sidebar (dark:bg-gray-800/50) */
-        html.dark.corporate .dark\:bg-gray-800\/50 {
-            background-color: rgba(32, 55, 78, 0.7) !important;
+        html.dark.greydark .dark\:bg-gray-800\/50 {
+            background-color: rgba(55, 65, 81, 0.7) !important; /* gray-700/70% */
         }
-
-        /* Sfondo Modal (dark:bg-gray-700) */
-        html.dark.corporate .dark\:bg-gray-700 {
-            background-color: #28415b !important;
+        html.dark.greydark .dark\:bg-gray-700 {
+            background-color: #4b5563 !important; /* gray-600 */
         }
-        
-        /* Sfondo Input (es. Flowbite Datepicker) */
-        html.dark.corporate .dark\:bg-gray-700.datepicker-dropdown {
-             background-color: #28415b !important;
+        html.dark.greydark .dark\:bg-gray-700.datepicker-dropdown {
+             background-color: #4b5563 !important;
         }
-        html.dark.corporate .dark\:bg-gray-900.datepicker-dropdown {
-             background-color: #28415b !important;
+        html.dark.greydark .dark\:bg-gray-900.datepicker-dropdown {
+             background-color: #4b5563 !important;
         }
          
-        /* Hover Link Sidebar (dark:hover:bg-gray-700) */
-        html.dark.corporate .dark\:hover\:bg-gray-700:hover {
-             background-color: #435c74 !important;
+        html.dark.greydark .dark\:hover\:bg-gray-700:hover {
+             background-color: #4b5563 !important; /* gray-600 */
         }
-        
-        /* Link Attivo Sidebar (dark:bg-gray-100) */
-         html.dark.corporate .dark\:bg-gray-100 {
-             background-color: #435c74 !important;
+         html.dark.greydark .dark\:bg-gray-100 {
+             background-color: #4b5563 !important; /* gray-600 */
          }
-
-        /* --- Palette Bordi (Grigi) --- */
-        
-        html.dark.corporate .dark\:border-gray-700 {
-            border-color: #435c74 !important;
+        html.dark.greydark .dark\:border-gray-700 {
+            border-color: #6b7280 !important; /* gray-500 */
         }
-        html.dark.corporate .dark\:border-gray-600 {
-            border-color: #435c74 !important;
-        }
-
-        /* --- Palette Testi (Chiari) --- */
-        
-        html.dark.corporate .dark\:text-white {
-            color: #F1F1F1 !important;
-        }
-        html.dark.corporate .dark\:text-gray-400 {
-            color: #CCCCCC !important;
-        }
-        html.dark.corporate .dark\:text-gray-500 {
-             color: #999999 !important;
-        }
-        html.dark.corporate .dark\:hover\:text-white:hover {
-            color: #F1F1F1 !important;
+        html.dark.greydark .dark\:border-gray-600 {
+            border-color: #6b7280 !important; /* gray-500 */
         }
         
-        /* --- Palette Accento (Blu-Grigi Corporate) --- */
-        
-        /* Testo (es. icone) */
-        html.dark.corporate .dark\:text-primary-500 {
-             color: #5e768d !important;
+        /* Accento Grigio */
+        html.dark.greydark .dark\:text-primary-500 {
+             color: #9ca3af !important; /* gray-400 */
         }
-        html.dark.corporate .dark\:text-primary-600 {
-             color: #5e768d !important;
+        html.dark.greydark .dark\:text-primary-600 {
+             color: #9ca3af !important; /* gray-400 */
         }
-        
-        /* Sfondi (es. bottoni) */
-        html.dark.corporate .dark\:bg-primary-600 {
-            background-color: #5e768d !important;
+        html.dark.greydark .dark\:bg-primary-600 {
+            background-color: #9ca3af !important;
         }
-        html.dark.corporate .dark\:hover\:bg-primary-700:hover {
-            background-color: #435c74 !important;
+        html.dark.greydark .dark\:hover\:bg-primary-700:hover {
+            background-color: #6b7280 !important;
         }
-        
-        /* Sfondi Sfumati (es. icone card) */
-        html.dark.corporate .dark\:bg-primary-900\/30 {
-             background-color: rgba(94, 118, 141, 0.2) !important;
+        html.dark.greydark .dark\:bg-primary-900\/30 {
+             background-color: rgba(156, 163, 175, 0.2) !important;
         }
-        
-        /* Anelli Focus (Focus Rings) */
-        html.dark.corporate .dark\:focus\:ring-primary-800:focus,
-        html.dark.corporate .dark\:focus\:ring-primary-300:focus {
-            --tw-ring-color: #5e768d !important;
-        }
-        
-    </style>
-
-    <style>
-        /* Palette: #00e1f6, #33e7f8, #66edfa, #99f3fb, #ccf9fd */
-        
-        /* === Sostituzione Palette GRAY (Toni Ciano Chiari) === */
-        html.cielo .border-gray-200 {
-            border-color: #99f3fb !important;
-        }
-        html.cielo .sticky.bg-white {
-             border-color: #99f3fb !important;
-        }
-        html.cielo #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.cielo #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.cielo #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #ccf9fd !important;
-        }
-         html.cielo a.bg-gray-100 {
-             background-color: #99f3fb !important;
-         }
-
-        /* === Sostituzione Palette PRIMARY (Accento Ciano) === */
-        html.cielo .bg-primary-100 {
-            background-color: #ccf9fd !important;
-        }
-        html.cielo .text-primary-500 {
-            color: #00e1f6 !important;
-        }
-        html.cielo .text-primary-600 {
-            color: #00e1f6 !important;
-        }
-        html.cielo .hover\:text-primary-700:hover {
-             color: #00c4d9 !important; /* Darker shade */
-        }
-        html.cielo .bg-primary-600 {
-            background-color: #00e1f6 !important;
-        }
-        html.cielo .hover\:bg-primary-700:hover {
-            background-color: #00c4d9 !important; /* Darker shade */
-        }
-        html.cielo .focus\:ring-primary-300:focus {
-            --tw-ring-color: #66edfa !important;
-        }
-        html.cielo .focus\:ring-primary-800:focus {
-            --tw-ring-color: #00e1f6 !important;
-        }
-        html.cielo ::-webkit-scrollbar-thumb {
-            background-color: #33e7f8 !important;
-        }
-        html.cielo ::-webkit-scrollbar-thumb:hover {
-            background-color: #00e1f6 !important;
-        }
-        html.cielo .theme-swatch.ring-primary-500 {
-            --tw-ring-color: #00e1f6 !important;
+        html.dark.greydark .dark\:focus\:ring-primary-800:focus,
+        html.dark.greydark .dark\:focus\:ring-primary-300:focus {
+            --tw-ring-color: #9ca3af !important;
         }
     </style>
 
     <style>
-        /* Palette: #ff9999, #ffaaaa, #ffbbbb, #ffcccc, #ffdddd */
+        /* Palette: #3f51b5 (500), #303f9f (700), #c5cae9 (100), #e8eaf6 (50) */
         
-        /* === Sostituzione Palette GRAY (Toni Rosa Chiari) === */
-        html.rose .border-gray-200 {
-            border-color: #ffcccc !important;
+        /* === Sostituzione Palette GRAY === */
+        html.indigo .border-gray-200 { border-color: #c5cae9 !important; }
+        html.indigo .sticky.bg-white { border-color: #c5cae9 !important; }
+        html.indigo #sidebar-nav a.hover\:bg-gray-100:hover,
+        html.indigo #sidebar-footer a.hover\:bg-gray-100:hover,
+        html.indigo #sidebar-footer button.hover\:bg-gray-100:hover {
+            background-color: #e8eaf6 !important;
         }
-        html.rose .sticky.bg-white {
-             border-color: #ffcccc !important;
-        }
-        html.rose #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.rose #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.rose #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #ffdddd !important;
-        }
-         html.rose a.bg-gray-100 {
-             background-color: #ffcccc !important;
-         }
+         html.indigo a.bg-gray-100 { background-color: #c5cae9 !important; }
 
-        /* === Sostituzione Palette PRIMARY (Accento Rosa Salmone) === */
-        html.rose .bg-primary-100 {
-            background-color: #ffdddd !important;
+        /* === Sostituzione Palette PRIMARY === */
+        html.indigo .bg-primary-100 { background-color: #c5cae9 !important; }
+        html.indigo .text-primary-500 { color: #3f51b5 !important; }
+        html.indigo .text-primary-600 { color: #3f51b5 !important; }
+        html.indigo .hover\:text-primary-700:hover { color: #303f9f !important; }
+        html.indigo .bg-primary-600 { background-color: #3f51b5 !important; }
+        html.indigo .hover\:bg-primary-700:hover { background-color: #303f9f !important; }
+        html.indigo .focus\:ring-primary-300:focus { --tw-ring-color: #9fa8da !important; } /* 200 */
+        html.indigo .focus\:ring-primary-800:focus { --tw-ring-color: #303f9f !important; }
+        html.indigo ::-webkit-scrollbar-thumb { background-color: #3f51b5 !important; }
+        html.indigo ::-webkit-scrollbar-thumb:hover { background-color: #303f9f !important; }
+        html.indigo .theme-swatch.ring-primary-500 { --tw-ring-color: #3f51b5 !important; }
+    </style>
+
+    <style>
+        /* Palette: #e91e63 (500), #c2185b (700), #f8bbd0 (100), #fce4ec (50) */
+        
+        /* === Sostituzione Palette GRAY === */
+        html.pink .border-gray-200 { border-color: #f8bbd0 !important; }
+        html.pink .sticky.bg-white { border-color: #f8bbd0 !important; }
+        html.pink #sidebar-nav a.hover\:bg-gray-100:hover,
+        html.pink #sidebar-footer a.hover\:bg-gray-100:hover,
+        html.pink #sidebar-footer button.hover\:bg-gray-100:hover {
+            background-color: #fce4ec !important;
         }
-        html.rose .text-primary-500 {
-            color: #ff8888 !important; /* Leggermente più scuro di ff9999 */
+         html.pink a.bg-gray-100 { background-color: #f8bbd0 !important; }
+
+        /* === Sostituzione Palette PRIMARY === */
+        html.pink .bg-primary-100 { background-color: #f8bbd0 !important; }
+        html.pink .text-primary-500 { color: #e91e63 !important; }
+        html.pink .text-primary-600 { color: #e91e63 !important; }
+        html.pink .hover\:text-primary-700:hover { color: #c2185b !important; }
+        html.pink .bg-primary-600 { background-color: #e91e63 !important; }
+        html.pink .hover\:bg-primary-700:hover { background-color: #c2185b !important; }
+        html.pink .focus\:ring-primary-300:focus { --tw-ring-color: #f48fb1 !important; } /* 200 */
+        html.pink .focus\:ring-primary-800:focus { --tw-ring-color: #c2185b !important; }
+        html.pink ::-webkit-scrollbar-thumb { background-color: #e91e63 !important; }
+        html.pink ::-webkit-scrollbar-thumb:hover { background-color: #c2185b !important; }
+        html.pink .theme-swatch.ring-primary-500 { --tw-ring-color: #e91e63 !important; }
+    </style>
+
+    <style>
+        /* Palette: #00bcd4 (500), #0097a7 (700), #b2ebf2 (100), #e0f7fa (50) */
+        
+        /* === Sostituzione Palette GRAY === */
+        html.cyan .border-gray-200 { border-color: #b2ebf2 !important; }
+        html.cyan .sticky.bg-white { border-color: #b2ebf2 !important; }
+        html.cyan #sidebar-nav a.hover\:bg-gray-100:hover,
+        html.cyan #sidebar-footer a.hover\:bg-gray-100:hover,
+        html.cyan #sidebar-footer button.hover\:bg-gray-100:hover {
+            background-color: #e0f7fa !important;
         }
-        html.rose .text-primary-600 {
-            color: #ff8888 !important;
-        }
-        html.rose .hover\:text-primary-700:hover {
-             color: #e66767 !important; /* Darker shade */
-        }
-        html.rose .bg-primary-600 {
-            background-color: #ff9999 !important;
-        }
-        html.rose .hover\:bg-primary-700:hover {
-            background-color: #ff8888 !important;
-        }
-        html.rose .focus\:ring-primary-300:focus {
-            --tw-ring-color: #ffbbbb !important;
-        }
-        html.rose .focus\:ring-primary-800:focus {
-            --tw-ring-color: #ff8888 !important;
-        }
-        html.rose ::-webkit-scrollbar-thumb {
-            background-color: #ffaaaa !important;
-        }
-        html.rose ::-webkit-scrollbar-thumb:hover {
-            background-color: #ff9999 !important;
-        }
-        html.rose .theme-swatch.ring-primary-500 {
-            --tw-ring-color: #ff9999 !important;
-        }
+         html.cyan a.bg-gray-100 { background-color: #b2ebf2 !important; }
+
+        /* === Sostituzione Palette PRIMARY === */
+        html.cyan .bg-primary-100 { background-color: #b2ebf2 !important; }
+        html.cyan .text-primary-500 { color: #00bcd4 !important; }
+        html.cyan .text-primary-600 { color: #00bcd4 !important; }
+        html.cyan .hover\:text-primary-700:hover { color: #0097a7 !important; }
+        html.cyan .bg-primary-600 { background-color: #00bcd4 !important; }
+        html.cyan .hover\:bg-primary-700:hover { background-color: #0097a7 !important; }
+        html.cyan .focus\:ring-primary-300:focus { --tw-ring-color: #80deea !important; } /* 200 */
+        html.cyan .focus\:ring-primary-800:focus { --tw-ring-color: #0097a7 !important; }
+        html.cyan ::-webkit-scrollbar-thumb { background-color: #00bcd4 !important; }
+        html.cyan ::-webkit-scrollbar-thumb:hover { background-color: #0097a7 !important; }
+        html.cyan .theme-swatch.ring-primary-500 { --tw-ring-color: #00bcd4 !important; }
     </style>
     
+    <style>
+        /* Palette: #fdd835 (500), #fbc02d (700), #fff9c4 (100), #fffde7 (50) */
+        
+        /* === Sostituzione Palette GRAY === */
+        html.yellow .border-gray-200 { border-color: #fff9c4 !important; }
+        html.yellow .sticky.bg-white { border-color: #fff9c4 !important; }
+        html.yellow #sidebar-nav a.hover\:bg-gray-100:hover,
+        html.yellow #sidebar-footer a.hover\:bg-gray-100:hover,
+        html.yellow #sidebar-footer button.hover\:bg-gray-100:hover {
+            background-color: #fffde7 !important;
+        }
+         html.yellow a.bg-gray-100 { background-color: #fff9c4 !important; }
+
+        /* === Sostituzione Palette PRIMARY === */
+        html.yellow .bg-primary-100 { background-color: #fff9c4 !important; }
+        html.yellow .text-primary-500 { color: #fdd835 !important; }
+        html.yellow .text-primary-600 { color: #fdd835 !important; }
+        html.yellow .hover\:text-primary-700:hover { color: #fbc02d !important; }
+        html.yellow .bg-primary-600 { background-color: #fdd835 !important; }
+        html.yellow .hover\:bg-primary-700:hover { background-color: #fbc02d !important; }
+        html.yellow .focus\:ring-primary-300:focus { --tw-ring-color: #fff59d !important; } /* 200 */
+        html.yellow .focus\:ring-primary-800:focus { --tw-ring-color: #fbc02d !important; }
+        html.yellow ::-webkit-scrollbar-thumb { background-color: #fdd835 !important; }
+        html.yellow ::-webkit-scrollbar-thumb:hover { background-color: #fbc02d !important; }
+        html.yellow .theme-swatch.ring-primary-500 { --tw-ring-color: #fdd835 !important; }
+    </style>
+
     <style>
         /* 1. Sfondo Vettoriale (applicato a HTML, sta dietro a tutto) */
         html {
             background-color: #f3f4f6; /* Fallback Chiaro */
             background-image: 
-                radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), /* Cielo */
-                radial-gradient(at 80% 10%, #ffaaaa 0px, transparent 50%), /* Rose */
-                radial-gradient(at 50% 70%, #3b82f6 0px, transparent 40%); /* Primary */
+                radial-gradient(at 10% 20%, #3f51b5 0px, transparent 50%), /* Indigo */
+                radial-gradient(at 80% 10%, #e91e63 0px, transparent 50%), /* Pink */
+                radial-gradient(at 50% 70%, #00bcd4 0px, transparent 40%); /* Cyan */
             background-attachment: fixed !important;
             transition: background-color 0.3s;
         }
         html.dark {
             background-color: #0c0c0d; 
             background-image: 
-                radial-gradient(at 10% 20%, #435c74 0px, transparent 60%), /* Corporate */
-                radial-gradient(at 80% 10%, #00e1f6 0px, transparent 60%), /* Cielo Accent */
-                radial-gradient(at 50% 70%, #1d4ed8 0px, transparent 50%);
+                radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%), /* Grey Dark */
+                radial-gradient(at 80% 10%, #00bcd4 0px, transparent 60%), /* Cyan */
+                radial-gradient(at 50% 70%, #303f9f 0px, transparent 50%); /* Indigo Dark */
         }
-        html.dark.corporate { /* SOSTITUITO */
-            background-color: #182c40 !important;
-        }
-        html.cielo {
-            background-color: #f5fcff !important;
+        
+        /* BG Sfondi per temi chiari E scuri personalizzati */
+        
+        html.dark.greydark {
+            background-color: #1f2937 !important; /* gray-800 */
             background-image: 
-                radial-gradient(at 50% 70%, #00e1f6 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #66edfa 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #99f3fb 0px, transparent 50%);
+                radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%),
+                radial-gradient(at 80% 10%, #6b7280 0px, transparent 60%),
+                radial-gradient(at 50% 70%, #4b5563 0px, transparent 50%);
         }
-        html.rose {
-            background-color: #fffafa !important;
+        html.indigo { 
+            background-color: #e8eaf6 !important; /* Indigo 50 */
             background-image: 
-                radial-gradient(at 50% 70%, #ff9999 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #ffaaaa 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #ffcccc 0px, transparent 50%);
+                radial-gradient(at 50% 70%, #3f51b5 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #7986cb 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #c5cae9 0px, transparent 50%);
+        }
+        html.pink { 
+            background-color: #fce4ec !important; /* Pink 50 */
+            background-image: 
+                radial-gradient(at 50% 70%, #e91e63 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #f06292 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #f8bbd0 0px, transparent 50%);
+        }
+        html.cyan { 
+            background-color: #e0f7fa !important; /* Cyan 50 */
+            background-image: 
+                radial-gradient(at 50% 70%, #00bcd4 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #4dd0e1 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #b2ebf2 0px, transparent 50%);
+        }
+        html.yellow { 
+            background-color: #fffde7 !important; /* Yellow 50 */
+            background-image: 
+                radial-gradient(at 50% 70%, #fdd835 0px, transparent 40%),
+                radial-gradient(at 10% 20%, #fff176 0px, transparent 50%), 
+                radial-gradient(at 80% 10%, #fff9c4 0px, transparent 50%);
         }
         
         /* 2. Rende il body (che contiene <main>) trasparente */
@@ -325,7 +304,7 @@
 
         /* 3. Applica l'effetto vetro a tutti gli elementi con sfondo */
         
-        /* TEMA: Chiaro (Default) - (aside, card, footer) */
+        /* TEMA: Chiaro (Default) */
         .bg-white, .sticky.bg-white {
             background-color: rgba(255, 255, 255, 0.75) !important;
             border-bottom-color: rgba(229, 231, 235, 0.7) !important; 
@@ -337,15 +316,13 @@
              backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
-        
-        /* --- AGGIUNTO: Regola per Card Pericolo (Chiaro) --- */
         .bg-red-50 {
-            background-color: rgba(254, 242, 242, 0.75) !important; /* red-50 con 75% opacità */
+            background-color: rgba(254, 242, 242, 0.75) !important;
             backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
         
-        /* TEMA: Dark (Default) - (aside, card, footer) */
+        /* TEMA: Dark (Default) */
         .dark .dark\:bg-gray-800 {
             background-color: rgba(31, 41, 55, 0.7) !important;
             border-color: rgba(55, 65, 81, 0.7) !important; 
@@ -364,68 +341,61 @@
              backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
          }
-
-        /* --- AGGIUNTO: Regola per Card Pericolo (Scuro) --- */
         .dark .dark\:bg-red-900\/10 {
-            background-color: rgba(76, 29, 29, 0.7) !important; /* Dark red con 70% opacità */
-            border-color: rgba(153, 27, 27, 0.7) !important; /* red-800 con 70% opacità */
+            background-color: rgba(76, 29, 29, 0.7) !important;
+            border-color: rgba(153, 27, 27, 0.7) !important;
             backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
 
-        /* TEMA: Corporate */
-        .dark.corporate .dark\:bg-gray-800 {
-            background-color: rgba(32, 55, 78, 0.75) !important; /* #20374e */
-            border-color: rgba(67, 92, 116, 0.8) !important; /* #435c74 */
+        /* TEMA: Grey Dark */
+        .dark.greydark .dark\:bg-gray-800 {
+            background-color: rgba(55, 65, 81, 0.75) !important; /* gray-700 */
+            border-color: rgba(107, 114, 128, 0.8) !important; /* gray-500 */
         }
-        .dark.corporate .dark\:bg-gray-700 {
-            background-color: rgba(40, 65, 91, 0.75) !important; /* #28415b */
-            border-color: rgba(67, 92, 116, 0.8) !important; /* #435c74 */
+        .dark.greydark .dark\:bg-gray-700 {
+            background-color: rgba(75, 85, 99, 0.75) !important; /* gray-600 */
+            border-color: rgba(107, 114, 128, 0.8) !important; /* gray-500 */
         }
-        .dark.corporate #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(32, 55, 78, 0.55) !important;
-             border-color: rgba(67, 92, 116, 0.8) !important; /* #435c74 */
+        .dark.greydark #sidebar-footer.dark\:bg-gray-800\/50 {
+             background-color: rgba(55, 65, 81, 0.55) !important;
+             border-color: rgba(107, 114, 128, 0.8) !important;
         }
-        /* --- AGGIUNTO: Regola Card Pericolo (Corporate) --- */
-        .dark.corporate .dark\:bg-red-900\/10 {
+        .dark.greydark .dark\:bg-red-900\/10 {
             background-color: rgba(76, 29, 29, 0.7) !important; 
             border-color: rgba(153, 27, 27, 0.7) !important;
         }
-
-        /* TEMA: Cielo */
-        html.cielo .bg-white, html.cielo .sticky.bg-white {
+        
+        /* Regole Glass per TUTTI i temi chiari personalizzati */
+        html.indigo .bg-white, html.indigo .sticky.bg-white,
+        html.pink .bg-white, html.pink .sticky.bg-white,
+        html.cyan .bg-white, html.cyan .sticky.bg-white,
+        html.yellow .bg-white, html.yellow .sticky.bg-white {
              background-color: rgba(255, 255, 255, 0.7) !important;
-             border-color: rgba(153, 243, 251, 0.7) !important; /* #99f3fb */
-        }
-        html.cielo #sidebar-footer.bg-gray-50 {
-            background-color: rgba(245, 252, 255, 0.75) !important; /* #f5fcff */
-            border-color: rgba(153, 243, 251, 0.7) !important; /* #99f3fb */
-        }
-        /* --- AGGIUNTO: Regola Card Pericolo (Cielo) --- */
-        html.cielo .bg-red-50 {
-            background-color: rgba(254, 242, 242, 0.75) !important;
-        }
-
-        /* TEMA: Rose */
-        html.rose .bg-white, html.rose .sticky.bg-white {
-             background-color: rgba(255, 255, 255, 0.7) !important;
-             border-color: rgba(255, 204, 204, 0.7) !important; /* #ffcccc */
-        }
-         html.rose #sidebar-footer.bg-gray-50 {
-            background-color: rgba(255, 250, 250, 0.75) !important; /* #fffafa */
-            border-color: rgba(255, 204, 204, 0.7) !important; /* #ffcccc */
-        }
-        /* --- AGGIUNTO: Regola Card Pericolo (Rose) --- */
-        html.rose .bg-red-50 {
-            background-color: rgba(254, 242, 242, 0.75) !important;
         }
         
-        /* Applica il blur anche al body (che contiene il main) per i temi chiari */
+        /* Footers */
+        html.indigo #sidebar-footer.bg-gray-50 { background-color: rgba(232, 234, 246, 0.75) !important; }
+        html.pink #sidebar-footer.bg-gray-50 { background-color: rgba(252, 228, 236, 0.75) !important; }
+        html.cyan #sidebar-footer.bg-gray-50 { background-color: rgba(224, 247, 250, 0.75) !important; }
+        html.yellow #sidebar-footer.bg-gray-50 { background-color: rgba(255, 253, 231, 0.75) !important; }
+        
+        /* Card Pericolo */
+        html.indigo .bg-red-50,
+        html.pink .bg-red-50,
+        html.cyan .bg-red-50,
+        html.yellow .bg-red-50 {
+            background-color: rgba(254, 242, 242, 0.75) !important;
+        }
+
+        /* Body trasparente per temi chiari */
         body.bg-gray-50,
-        html.cielo body.bg-gray-50,
-        html.rose body.bg-gray-50 {
-             background-color: transparent !important; /* Rende il body trasparente */
-             backdrop-filter: none !important; /* Il body non deve sfocare, solo essere trasparente */
+        html.indigo body.bg-gray-50,
+        html.pink body.bg-gray-50,
+        html.cyan body.bg-gray-50,
+        html.yellow body.bg-gray-50 {
+             background-color: transparent !important; 
+             backdrop-filter: none !important; 
              -webkit-backdrop-filter: none !important;
         }
 
