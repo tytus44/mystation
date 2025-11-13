@@ -234,28 +234,27 @@
     </style>
     
     <style>
+        /* Default (Temi Chiari): Immagine SENZA overlay */
         #home-banner {
-            /* Gradiente scuro + Immagine */
-            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('img/station.png');
+            background-image: url('img/station.png'); /* Estensione corretta */
             background-size: cover;
             background-position: center 60%; 
             border: 1px solid rgba(229, 231, 235, 0.7); /* border-gray-200 */
         }
         
+        /* Temi Scuri (Scuro e Notte): Immagine CON overlay */
         .dark #home-banner {
              border-color: rgba(55, 65, 81, 0.7); /* dark:border-gray-700 */
-             /* Gradiente più scuro per i temi dark */
-             background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('img/station.png');
+             background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('img/station.png'); /* Estensione corretta */
         }
         
-        /* TEMA NOTTE: Rimuove l'immagine, usa sfondo solido */
+        /* TEMA NOTTE: Sovrascrive il bordo */
         html.dark.notte #home-banner {
-            background-image: none !important;
-            background-color: #1e1e1e !important; /* Colore card tema Notte */
             border-color: #333333 !important; 
+            /* Eredita l'immagine con overlay da .dark #home-banner */
         }
         
-        /* Bordi per temi chiari */
+        /* Bordi per temi chiari personalizzati */
         html.indigo #home-banner { border-color: #c5cae9 !important; }
         html.pink #home-banner { border-color: #f8bbd0 !important; }
         html.cyan #home-banner { border-color: #b2ebf2 !important; }
@@ -283,12 +282,10 @@
         
         /* BG Sfondi per temi chiari E scuri personalizzati */
         
-        /* TEMA NOTTE (SOLIDO) - CORRETTO */
         html.dark.notte {
             background-color: #1e1e1e !important;
             background-image: none !important;
         }
-
         html.indigo { 
             background-color: #e8eaf6 !important; /* Indigo 50 */
             background-image: 
