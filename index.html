@@ -254,12 +254,10 @@
         
         /* BG Sfondi per temi chiari E scuri personalizzati */
         
-        /* TEMA NOTTE (SOLIDO) - CORRETTO */
         html.dark.notte {
             background-color: #1e1e1e !important;
             background-image: none !important;
         }
-
         html.indigo { 
             background-color: #e8eaf6 !important; /* Indigo 50 */
             background-image: 
@@ -313,8 +311,24 @@
              backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
+        /* Card colorate (Chiaro) */
         .bg-red-50 {
             background-color: rgba(254, 242, 242, 0.75) !important;
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .bg-blue-50 {
+            background-color: rgba(239, 246, 255, 0.75) !important;
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .bg-yellow-50 {
+            background-color: rgba(254, 252, 232, 0.75) !important;
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .bg-green-50 {
+            background-color: rgba(240, 253, 244, 0.75) !important;
             backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
@@ -338,12 +352,33 @@
              backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
          }
-        .dark .dark\:bg-red-900\/10 {
+        /* Card colorate (Scuro) */
+        .dark .dark\:bg-red-900\/10,
+        .dark .dark\:bg-red-900\/20 {
             background-color: rgba(76, 29, 29, 0.7) !important;
             border-color: rgba(153, 27, 27, 0.7) !important;
             backdrop-filter: blur(16px) saturate(1.1);
             -webkit-backdrop-filter: blur(16px) saturate(1.1);
         }
+        .dark .dark\:bg-blue-900\/20 {
+            background-color: rgba(30, 58, 138, 0.7) !important; /* blue-900 */
+            border-color: rgba(30, 64, 175, 0.7) !important; /* blue-800 */
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .dark .dark\:bg-yellow-900\/20 {
+            background-color: rgba(71, 45, 6, 0.7) !important; /* yellow-900 */
+            border-color: rgba(113, 63, 18, 0.7) !important; /* yellow-800 */
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+        .dark .dark\:bg-green-900\/20 {
+            background-color: rgba(20, 83, 45, 0.7) !important; /* green-900 */
+            border-color: rgba(22, 101, 52, 0.7) !important; /* green-800 */
+            backdrop-filter: blur(16px) saturate(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        }
+
 
         /* TEMA: Notte (SOLIDO, NO VETRO) */
         .dark.notte .dark\:bg-gray-800 {
@@ -364,9 +399,19 @@
              backdrop-filter: none !important;
              -webkit-backdrop-filter: none !important;
         }
-        .dark.notte .dark\:bg-red-900\/10 {
-            background-color: #450a0a !important; /* Rosso scuro solido */
-            border-color: #991b1b !important; /* red-800 */
+        /* Card colorate (Notte) */
+        .dark.notte .dark\:bg-red-900\/10,
+        .dark.notte .dark\:bg-red-900\/20 {
+            background-color: #450a0a !important; 
+            border-color: #991b1b !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        .dark.notte .dark\:bg-blue-900\/20,
+        .dark.notte .dark\:bg-yellow-900\/20,
+        .dark.notte .dark\:bg-green-900\/20 {
+            background-color: #252526 !important; 
+            border-color: #333333 !important; 
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
         }
@@ -385,12 +430,18 @@
         html.cyan #sidebar-footer.bg-gray-50 { background-color: rgba(224, 247, 250, 0.75) !important; }
         html.yellow #sidebar-footer.bg-gray-50 { background-color: rgba(255, 253, 231, 0.75) !important; }
         
-        /* Card Pericolo */
-        html.indigo .bg-red-50,
-        html.pink .bg-red-50,
-        html.cyan .bg-red-50,
-        html.yellow .bg-red-50 {
+        /* Card Colorate (Temi Chiari) */
+        html.indigo .bg-red-50, html.pink .bg-red-50, html.cyan .bg-red-50, html.yellow .bg-red-50 {
             background-color: rgba(254, 242, 242, 0.75) !important;
+        }
+        html.indigo .bg-blue-50, html.pink .bg-blue-50, html.cyan .bg-blue-50, html.yellow .bg-blue-50 {
+             background-color: rgba(239, 246, 255, 0.75) !important;
+        }
+        html.indigo .bg-yellow-50, html.pink .bg-yellow-50, html.cyan .bg-yellow-50, html.yellow .bg-yellow-50 {
+            background-color: rgba(254, 252, 232, 0.75) !important;
+        }
+        html.indigo .bg-green-50, html.pink .bg-green-50, html.cyan .bg-green-50, html.yellow .bg-green-50 {
+             background-color: rgba(240, 253, 244, 0.75) !important;
         }
 
         /* Body trasparente per temi chiari */
