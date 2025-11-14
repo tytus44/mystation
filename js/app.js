@@ -4,53 +4,160 @@
 'use strict';
 
 const App = {
-    state: { data: { priceHistory: [], competitorPrices: [], registryEntries: [], previousYearStock: {}, clients: [], stazioni: [], turni: [], spese: [], speseEtichette: [], todos: [], appuntamenti: [], fuelOrders: [] } },
+    state: { 
+        data: { priceHistory: [], competitorPrices: [], registryEntries: [], previousYearStock: {}, clients: [], stazioni: [], turni: [], spese: [], speseEtichette: [], todos: [], appuntamenti: [], fuelOrders: [] },
+        pin: null // Aggiunto stato per il PIN
+    },
     modules: {},
     modal: null,
     toastTimeout: null, // Timer per gestire la chiusura automatica del toast
 
     init() {
-        this.loadTheme(); // MODIFICATO
-        this.loadFromStorage();
+        this.loadTheme();
+        this.loadFromStorage(); // Questo ora carica anche il PIN
+
+        const sessionActive = sessionStorage.getItem('mystation_session') === 'active';
+
+        if (sessionActive || !this.state.pin) {
+            // Se la sessione è già attiva o non c'è un PIN impostato, avvia l'app
+            this.initApp();
+        } else {
+            // Altrimenti, mostra la schermata di blocco
+            this.showLockScreen();
+        }
+    },
+
+    /**
+     * Inizializza l'app principale (dopo lo sblocco o se non c'è PIN)
+     */
+    initApp() {
         this.modal = new Modal(document.getElementById('generic-modal'));
         this.setupGlobalListeners();
         this.setupNavigation();
         document.dispatchEvent(new CustomEvent('app:ready'));
         this.handleRoute();
         if (localStorage.getItem('sidebar-collapsed') === 'true') this.setSidebarCompact(true);
+        
+        // Nasconde la lockscreen se fosse ancora visibile (caso: primo avvio senza PIN)
+        const lockscreen = document.getElementById('pin-lockscreen');
+        if (lockscreen) {
+            lockscreen.style.display = 'none';
+        }
     },
 
-    // --- MODIFICA TEMA ---
-    
+    // --- LOGICA DI BLOCCO PIN ---
+
     /**
-     * Carica il tema salvato dal localStorage all'avvio dell'app.
-     * Imposta 'light' come default se nessun tema valido è salvato.
+     * Mostra la schermata di blocco e imposta i listener
      */
-    loadTheme() {
-        const savedTheme = localStorage.getItem('color-theme');
-        // 'greydark' SOSTITUITO con 'notte'
-        const validThemes = ['dark', 'notte', 'indigo', 'pink', 'cyan', 'yellow'];
-        if (validThemes.includes(savedTheme)) {
-            this.setTheme(savedTheme);
+    showLockScreen() {
+        const lockscreen = document.getElementById('pin-lockscreen');
+        if (lockscreen) {
+            lockscreen.style.display = 'flex';
+        }
+        
+        const pinInput = document.getElementById('pin-input');
+        const unlockBtn = document.getElementById('pin-unlock-btn');
+
+        // Imposta il focus sull'input
+        setTimeout(() => pinInput.focus(), 100);
+
+        // Aggiunge i listener per il click e per il tasto Invio
+        unlockBtn.onclick = () => this.checkPin();
+        pinInput.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                this.checkPin();
+            }
+        };
+    },
+
+    /**
+     * Controlla il PIN inserito
+     */
+    checkPin() {
+        const pinInput = document.getElementById('pin-input');
+        const pinError = document.getElementById('pin-error-msg');
+        const pinModal = document.getElementById('pin-modal-content');
+        
+        if (pinInput.value === this.state.pin) {
+            this.unlockApp();
         } else {
-            this.setTheme('light'); // Imposta 'light' come default
+            // Mostra errore e "scuote" il modal
+            pinError.style.display = 'block';
+            pinModal.classList.add('animate-shake');
+            pinInput.value = ''; // Pulisce l'input errato
+            
+            // Rimuove l'animazione dopo che è terminata
+            setTimeout(() => {
+                pinModal.classList.remove('animate-shake');
+            }, 300);
         }
     },
 
     /**
-     * Applica un tema specifico all'applicazione.
-     * @param {string} theme - Il nome del tema da applicare.
+     * Sblocca l'app, salva la sessione e avvia l'interfaccia
      */
+    unlockApp() {
+        // Salva in sessionStorage per mantenere lo sblocco durante i refresh
+        sessionStorage.setItem('mystation_session', 'active');
+        
+        const lockscreen = document.getElementById('pin-lockscreen');
+        if (lockscreen) {
+            lockscreen.style.display = 'none';
+        }
+        
+        // Pulisce il modal
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-error-msg').style.display = 'none';
+        
+        // Avvia l'app
+        this.initApp();
+    },
+
+    /**
+     * Blocca l'app (funzione "Esci")
+     */
+    lockApp() {
+        sessionStorage.removeItem('mystation_session');
+        window.location.reload();
+    },
+
+    /**
+     * Imposta o rimuove un nuovo PIN
+     * @param {string} newPin - Il nuovo PIN da salvare
+     */
+    setPin(newPin) {
+        if (newPin) {
+            localStorage.setItem('mystation_pin', newPin);
+            this.state.pin = newPin;
+            App.showToast('Nuovo PIN impostato!', 'success');
+        } else {
+            // Se il pin è vuoto, lo rimuove
+            localStorage.removeItem('mystation_pin');
+            this.state.pin = null;
+            App.showToast('PIN rimosso. L\'app non è più protetta.', 'success');
+        }
+    },
+
+    // --- FINE LOGICA PIN ---
+
+    loadTheme() {
+        const savedTheme = localStorage.getItem('color-theme');
+        const validThemes = ['dark', 'notte', 'indigo', 'pink', 'cyan', 'yellow'];
+        if (validThemes.includes(savedTheme)) {
+            this.setTheme(savedTheme);
+        } else {
+            this.setTheme('light'); 
+        }
+    },
+
     setTheme(theme) {
         const html = document.documentElement;
-        
-        // 1. Rimuovere TUTTE le classi di tema per evitare conflitti
         html.classList.remove('dark', 'corporate', 'cielo', 'rose', 'greydark', 'indigo', 'pink', 'green', 'cyan', 'yellow', 'notte');
         
-        // 2. Aggiungere le classi corrette
         if (theme === 'dark') {
             html.classList.add('dark');
-        } else if (theme === 'notte') { // 'greydark' SOSTITUITO con 'notte'
+        } else if (theme === 'notte') {
             html.classList.add('dark', 'notte'); 
         } else if (theme === 'indigo') {
             html.classList.add('indigo');
@@ -61,17 +168,13 @@ const App = {
         } else if (theme === 'yellow') {
             html.classList.add('yellow');
         }
-        // Per il tema 'light' (default), non aggiungiamo nessuna classe.
         
-        // 3. Salvare la scelta in localStorage
         localStorage.setItem('color-theme', theme);
         
-        // 4. Aggiorna l'UI del selettore nelle impostazioni (se il modulo è caricato)
         if (this.modules.impostazioni && typeof this.modules.impostazioni.updateThemeUI === 'function') {
             this.modules.impostazioni.updateThemeUI(theme);
         }
     },
-    // --- FINE MODIFICA TEMA ---
 
     registerModule(name, module) {
         this.modules[name] = module;
@@ -79,6 +182,7 @@ const App = {
     },
 
     loadFromStorage() {
+        // Carica i dati dell'app
         const saved = localStorage.getItem('mystation_data_v11');
         if (saved) {
             try { 
@@ -86,9 +190,15 @@ const App = {
                 ['todos', 'appuntamenti', 'fuelOrders'].forEach(key => { if (!this.state.data[key]) this.state.data[key] = []; });
             } catch (e) { console.error(e); }
         }
+        // Carica il PIN salvato
+        this.state.pin = localStorage.getItem('mystation_pin') || null;
     },
     saveToStorage() { localStorage.setItem('mystation_data_v11', JSON.stringify(this.state.data)); },
-    clearData() { localStorage.removeItem('mystation_data_v11'); window.location.reload(); },
+    clearData() { 
+        localStorage.removeItem('mystation_data_v11'); 
+        // Non rimuoviamo il PIN, solo i dati
+        window.location.reload(); 
+    },
 
     setupNavigation() { window.addEventListener('hashchange', () => this.handleRoute()); },
     handleRoute() {

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Drag & Drop
+   MODULO: Impostazioni (js/impostazioni.js) - Aggiunta Logica PIN
    ========================================================================== */
 (function() {
     'use strict';
@@ -21,6 +21,7 @@
             this.initDragAndDrop();
 
             this.updateThemeUI(localStorage.getItem('color-theme') || 'light');
+            this.updatePinUI(); // Aggiorna l'UI del PIN
         },
 
         initDragAndDrop() {
@@ -78,21 +79,110 @@
             const activeEl = document.querySelector(`.theme-swatch[data-theme="${themeToSelect}"]`);
             if (activeEl) {
                 activeEl.classList.add('ring-2');
-                
                 // Applica il colore del bordo in base al tema per forzare la visibilità
                 let ringColor = '#3b82f6'; // Default (primary-500)
-                if (themeToSelect === 'dark' || themeToSelect === 'notte') ringColor = '#60a5fa'; // 'notte' è scuro
+                if (themeToSelect === 'notte') ringColor = '#60a5fa';
                 if (themeToSelect === 'indigo') ringColor = '#3f51b5';
                 if (themeToSelect === 'pink') ringColor = '#e91e63';
                 if (themeToSelect === 'cyan') ringColor = '#00bcd4';
                 if (themeToSelect === 'yellow') ringColor = '#fdd835';
+                if (themeToSelect === 'dark') ringColor = '#60a5fa'; 
                 
                 activeEl.style.borderColor = ringColor;
             }
         },
 
+        // --- FUNZIONI PIN MODIFICATE ---
+        
+        /**
+         * Aggiorna il testo del pulsante PIN (Imposta/Rimuovi)
+         */
+        updatePinUI() {
+            const pinStatus = document.getElementById('pin-status');
+            const currentPinWrapper = document.getElementById('pin-current-wrapper');
+            if (!pinStatus || !currentPinWrapper) return;
+            
+            if (App.state.pin) {
+                pinStatus.textContent = "PIN impostato. Inserisci il PIN attuale per modificarlo o rimuoverlo.";
+                pinStatus.className = "text-sm text-green-600 dark:text-green-400";
+                currentPinWrapper.classList.remove('hidden'); // Mostra campo PIN attuale
+            } else {
+                pinStatus.textContent = "Nessun PIN impostato. L'app è sbloccata all'avvio. Compila i campi per crearne uno.";
+                pinStatus.className = "text-sm text-gray-500 dark:text-gray-400";
+                currentPinWrapper.classList.add('hidden'); // Nasconde campo PIN attuale
+            }
+        },
+        
+        /**
+         * Salva il nuovo PIN dopo aver verificato quello attuale
+         */
+        savePin() {
+            const currentPinInput = document.getElementById('pin-current-input');
+            const newPinInput = document.getElementById('pin-new-input');
+            const confirmPinInput = document.getElementById('pin-confirm-input');
+            
+            const currentPin = currentPinInput.value;
+            const newPin = newPinInput.value;
+            const confirmPin = confirmPinInput.value;
+
+            // --- NUOVA VERIFICA ---
+            // Se un PIN esiste, DEVE corrispondere a quello attuale
+            if (App.state.pin && App.state.pin !== currentPin) {
+                App.showToast('PIN attuale non corretto.', 'error');
+                return;
+            }
+            // --- FINE NUOVA VERIFICA ---
+
+            // Caso 1: Rimuovere il PIN (solo se il PIN attuale è corretto)
+            if (!newPin && !confirmPin) {
+                App.setPin(null); // Passa null per rimuovere
+                this.updatePinUI();
+                currentPinInput.value = '';
+                return;
+            }
+
+            // Caso 2: I nuovi PIN non corrispondono
+            if (newPin !== confirmPin) {
+                App.showToast('I nuovi PIN non corrispondono.', 'error');
+                return;
+            }
+            
+            // Caso 3: PIN troppo corto
+            if (newPin.length < 4) {
+                 App.showToast('Il nuovo PIN deve essere di almeno 4 cifre.', 'error');
+                 return;
+            }
+
+            // Caso 4: Successo (Impostazione o Modifica)
+            App.setPin(newPin);
+            App.showToast(App.state.pin ? 'PIN aggiornato con successo!' : 'PIN impostato con successo!', 'success');
+            currentPinInput.value = '';
+            newPinInput.value = '';
+            confirmPinInput.value = '';
+            this.updatePinUI();
+        },
+        
+        /**
+         * Chiede conferma per il Logout
+         */
+        confirmLogout() {
+             App.showModal(
+                'Esci dall\'account', 
+                `<p class="text-gray-500 dark:text-gray-400">Vuoi davvero uscire? L'applicazione verrà bloccata e sarà necessario inserire il PIN per il prossimo accesso.</p>`, 
+                `<button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button>
+                 <button id="btn-confirm-logout" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Sì, esci</button>`,
+                'max-w-md'
+             );
+             
+             document.getElementById('btn-confirm-logout').onclick = () => {
+                 App.closeModal();
+                 App.lockApp();
+             };
+        },
+        
+        // --- FINE FUNZIONI PIN ---
+
         getLayoutHTML() {
-            // Colori icone card ripristinati
             return `
                 <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -171,6 +261,36 @@
                                     
                                 </div>
                             </div>
+                            
+                            <div id="card-pin" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                                <div class="flex items-center mb-4 card-header cursor-move">
+                                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full mr-3">
+                                        <i data-lucide="lock" class="w-6 h-6 text-blue-600 dark:text-blue-500"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Sicurezza e PIN</h3>
+                                </div>
+                                <p id="pin-status" class="text-sm text-gray-500 dark:text-gray-400 mb-6">Caricamento stato PIN...</p>
+                                
+                                <div id="pin-current-wrapper" class="mb-4 hidden">
+                                    <label for="pin-current-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PIN Attuale</label>
+                                    <input type="password" id="pin-current-input" inputmode="numeric" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="••••">
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="pin-new-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nuovo PIN (min. 4 cifre)</label>
+                                        <input type="password" id="pin-new-input" inputmode="numeric" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="••••">
+                                    </div>
+                                    <div>
+                                        <label for="pin-confirm-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Conferma PIN</label>
+                                        <input type="password" id="pin-confirm-input" inputmode="numeric" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="••••">
+                                    </div>
+                                </div>
+                                <button id="btn-save-pin" class="mt-5 text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                                    Salva PIN
+                                </button>
+                            </div>
+                            
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-full mr-3">
@@ -191,6 +311,10 @@
                                 </div>
                             </div>
 
+                        </div>
+
+                        <div id="settings-col-2" class="flex flex-col gap-6 h-full">
+                            
                             <div id="card-forms" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-full mr-3">
@@ -210,9 +334,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
-
-                        <div id="settings-col-2" class="flex flex-col gap-6 h-full">
+                            
                             <div id="card-danger" class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full mr-3">
@@ -221,12 +343,18 @@
                                     <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
                                 </div>
                                 <p class="text-sm text-red-600 dark:text-red-400 mb-6">
-                                    Le azioni in questa sezione sono <strong>irreversibili</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere con qualsiasi operazione di cancellazione.
+                                    Le azioni in questa sezione sono <strong>irreversibili</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere.
                                 </p>
-                                <button id="btn-clear-data" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center justify-center sm:w-auto w-full" title="Elimina TUTTI i dati">
-                                    <i data-lucide="trash-2" class="w-4 h-4 sm:mr-2"></i>
-                                    <span class="hidden sm:inline">Elimina TUTTI i dati</span>
-                                </button>
+                                <div class="flex flex-wrap gap-4">
+                                    <button id="btn-clear-data" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center" title="Elimina TUTTI i dati">
+                                        <i data-lucide="trash-2" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Elimina Dati</span>
+                                    </button>
+                                    <button id="btn-logout" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center" title="Blocca applicazione">
+                                        <i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Esci</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -240,13 +368,13 @@
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Sei assolutamente sicuro?</h3>
                     <p class="text-gray-500 dark:text-gray-400 mb-6">
                         Questa azione eliminerà <b>TUTTI</b> i dati salvati nel browser (prezzi, registri, anagrafiche, spese, turni).<br>
-                        Non potrai tornare indietro una volta confermato.
+                        Questa azione <b>NON</b> eliminerà il tuo PIN.
                     </p>
                 </div>`;
             const footer = `
                 <div class="flex justify-center gap-4 w-full">
                     <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
-                    <button id="btn-confirm-clear" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800">Sì, elimina tutto</button>
+                    <button id="btn-confirm-clear" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800">Sì, elimina dati</button>
                 </div>`;
             
             App.showModal('', html, footer, 'max-w-md');
@@ -262,6 +390,10 @@
             document.getElementById('btn-settings-import').onclick = () => document.getElementById('import-file-input').click();
             document.getElementById('btn-clear-data').onclick = () => this.confirmClearData();
 
+            // --- NUOVI LISTENER PER PIN E LOGOUT ---
+            document.getElementById('btn-save-pin').onclick = () => this.savePin();
+            document.getElementById('btn-logout').onclick = () => this.confirmLogout();
+            
             // Listeners per i temi (AGGIORNATI)
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
             document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
