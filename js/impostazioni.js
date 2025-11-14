@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Aggiunta Logica PIN
+   MODULO: Impostazioni (js/impostazioni.js) - Logica PIN a 4 cifre
    ========================================================================== */
 (function() {
     'use strict';
@@ -114,51 +114,65 @@
         },
         
         /**
+         * Legge i 4 campi input di un gruppo e restituisce il PIN
+         */
+        getPinFromInputs(groupName) {
+            const inputs = document.querySelectorAll(`[data-pin-group="${groupName}"] .pin-input`);
+            let pin = '';
+            inputs.forEach(input => pin += input.value);
+            return pin;
+        },
+
+        /**
+         * Pulisce i campi input di un gruppo
+         */
+        clearPinInputs(groupName) {
+            document.querySelectorAll(`[data-pin-group="${groupName}"] .pin-input`).forEach(input => {
+                input.value = '';
+            });
+        },
+
+        /**
          * Salva il nuovo PIN dopo aver verificato quello attuale
          */
         savePin() {
-            const currentPinInput = document.getElementById('pin-current-input');
-            const newPinInput = document.getElementById('pin-new-input');
-            const confirmPinInput = document.getElementById('pin-confirm-input');
-            
-            const currentPin = currentPinInput.value;
-            const newPin = newPinInput.value;
-            const confirmPin = confirmPinInput.value;
+            const currentPin = this.getPinFromInputs('current');
+            const newPin = this.getPinFromInputs('new');
+            const confirmPin = this.getPinFromInputs('confirm');
 
-            // --- NUOVA VERIFICA ---
-            // Se un PIN esiste, DEVE corrispondere a quello attuale
+            // 1. Verifica PIN attuale (se esiste)
             if (App.state.pin && App.state.pin !== currentPin) {
                 App.showToast('PIN attuale non corretto.', 'error');
                 return;
             }
-            // --- FINE NUOVA VERIFICA ---
 
-            // Caso 1: Rimuovere il PIN (solo se il PIN attuale è corretto)
+            // 2. Caso Rimozione PIN
             if (!newPin && !confirmPin) {
                 App.setPin(null); // Passa null per rimuovere
                 this.updatePinUI();
-                currentPinInput.value = '';
+                this.clearPinInputs('current');
                 return;
             }
 
-            // Caso 2: I nuovi PIN non corrispondono
+            // 3. Verifica corrispondenza
             if (newPin !== confirmPin) {
                 App.showToast('I nuovi PIN non corrispondono.', 'error');
                 return;
             }
             
-            // Caso 3: PIN troppo corto
-            if (newPin.length < 4) {
-                 App.showToast('Il nuovo PIN deve essere di almeno 4 cifre.', 'error');
+            // 4. VALIDAZIONE: Esattamente 4 cifre numeriche
+            const isNumeric = /^\d{4}$/.test(newPin); // Regex per 4 cifre esatte
+            
+            if (!isNumeric) {
+                 App.showToast('Il PIN deve essere di 4 cifre numeriche.', 'error');
                  return;
             }
 
-            // Caso 4: Successo (Impostazione o Modifica)
+            // 5. Successo (Impostazione o Modifica)
             App.setPin(newPin);
-            App.showToast(App.state.pin ? 'PIN aggiornato con successo!' : 'PIN impostato con successo!', 'success');
-            currentPinInput.value = '';
-            newPinInput.value = '';
-            confirmPinInput.value = '';
+            this.clearPinInputs('current');
+            this.clearPinInputs('new');
+            this.clearPinInputs('confirm');
             this.updatePinUI();
         },
         
@@ -169,8 +183,11 @@
              App.showModal(
                 'Esci dall\'account', 
                 `<p class="text-gray-500 dark:text-gray-400">Vuoi davvero uscire? L'applicazione verrà bloccata e sarà necessario inserire il PIN per il prossimo accesso.</p>`, 
-                `<button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button>
-                 <button id="btn-confirm-logout" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Sì, esci</button>`,
+                // CORREZIONE: Aggiunto 'gap-4' al div wrapper
+                `<div class="flex justify-end gap-4 w-full">
+                     <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
+                     <button id="btn-confirm-logout" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800">Sì, esci</button>
+                 </div>`,
                 'max-w-md'
              );
              
@@ -183,6 +200,13 @@
         // --- FINE FUNZIONI PIN ---
 
         getLayoutHTML() {
+            const pinInputHTML = `
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            `;
+            
             return `
                 <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex justify-between items-center">
@@ -272,23 +296,50 @@
                                 <p id="pin-status" class="text-sm text-gray-500 dark:text-gray-400 mb-6">Caricamento stato PIN...</p>
                                 
                                 <div id="pin-current-wrapper" class="mb-4 hidden">
-                                    <label for="pin-current-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PIN Attuale</label>
-                                    <input type="password" id="pin-current-input" inputmode="numeric" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="••••">
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PIN Attuale (4 cifre)</label>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex gap-2" data-pin-group="current">
+                                            ${pinInputHTML}
+                                        </div>
+                                        <button type="button" class="btn-toggle-pin p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-target="current">
+                                            <i data-lucide="eye" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 gap-4">
                                     <div>
-                                        <label for="pin-new-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nuovo PIN (min. 4 cifre)</label>
-                                        <input type="password" id="pin-new-input" inputmode="numeric" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="••••">
+                                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nuovo PIN (4 cifre)</label>
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex gap-2" data-pin-group="new">
+                                                ${pinInputHTML}
+                                            </div>
+                                            <button type="button" class="btn-toggle-pin p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-target="new">
+                                                <i data-lucide="eye" class="w-5 h-5"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div>
-                                        <label for="pin-confirm-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Conferma PIN</label>
-                                        <input type="password" id="pin-confirm-input" inputmode="numeric" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="••••">
+                                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Conferma PIN</label>
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex gap-2" data-pin-group="confirm">
+                                                ${pinInputHTML}
+                                            </div>
+                                            <button type="button" class="btn-toggle-pin p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-target="confirm">
+                                                <i data-lucide="eye" class="w-5 h-5"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <button id="btn-save-pin" class="mt-5 text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                                    Salva PIN
-                                </button>
+                                <div class="flex flex-wrap gap-4 mt-5">
+                                    <button id="btn-save-pin" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                                        Salva PIN
+                                    </button>
+                                    <button id="btn-logout" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center" title="Blocca applicazione">
+                                        <i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Esci</span>
+                                    </button>
+                                </div>
                             </div>
                             
                             <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
@@ -343,16 +394,12 @@
                                     <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
                                 </div>
                                 <p class="text-sm text-red-600 dark:text-red-400 mb-6">
-                                    Le azioni in questa sezione sono <strong>irreversibili</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere.
+                                    L'azione in questa sezione è <strong>irreversibile</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere.
                                 </p>
                                 <div class="flex flex-wrap gap-4">
                                     <button id="btn-clear-data" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center" title="Elimina TUTTI i dati">
                                         <i data-lucide="trash-2" class="w-4 h-4 sm:mr-2"></i>
                                         <span class="hidden sm:inline">Elimina Dati</span>
-                                    </button>
-                                    <button id="btn-logout" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center" title="Blocca applicazione">
-                                        <i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Esci</span>
                                     </button>
                                 </div>
                             </div>
@@ -381,6 +428,69 @@
             document.getElementById('btn-confirm-clear').onclick = () => App.clearData();
         },
 
+        /**
+         * Helper per la logica di auto-avanzamento dei campi PIN
+         */
+        setupPinInputs(groupName) {
+            const inputs = document.querySelectorAll(`[data-pin-group="${groupName}"] .pin-input`);
+            
+            inputs.forEach((input, index) => {
+                input.oninput = () => {
+                    input.value = input.value.replace(/[^0-9]/g, '');
+                };
+                
+                input.onkeydown = (e) => {
+                    if (e.key >= '0' && e.key <= '9' && input.value.length === 0) {
+                        e.preventDefault();
+                        input.value = e.key;
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    } else if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        input.value = '';
+                        if (index > 0) {
+                            inputs[index - 1].focus();
+                        }
+                    } else if (e.key.includes('Arrow')) {
+                        e.preventDefault();
+                        if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        } else if (e.key === 'ArrowLeft' && index > 0) {
+                            inputs[index - 1].focus();
+                        }
+                    } else if (e.key.length === 1 && input.value.length > 0) {
+                        e.preventDefault();
+                        input.value = e.key;
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    } else if (e.key !== 'Tab' && e.key.length === 1) {
+                        e.preventDefault();
+                    }
+                };
+            });
+        },
+
+        /**
+         * Helper per mostrare/nascondere il PIN
+         */
+        togglePinVisibility(targetGroup) {
+            const inputs = document.querySelectorAll(`[data-pin-group="${targetGroup}"] .pin-input`);
+            const icon = document.querySelector(`.btn-toggle-pin[data-target="${targetGroup}"] i`);
+            
+            inputs.forEach(input => {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.setAttribute('data-lucide', 'eye-off');
+                } else {
+                    input.type = 'password';
+                    icon.setAttribute('data-lucide', 'eye');
+                }
+            });
+            lucide.createIcons();
+        },
+
         attachListeners() {
             document.getElementById('btn-settings-export').onclick = () => {
                 App.exportData();
@@ -393,6 +503,16 @@
             // --- NUOVI LISTENER PER PIN E LOGOUT ---
             document.getElementById('btn-save-pin').onclick = () => this.savePin();
             document.getElementById('btn-logout').onclick = () => this.confirmLogout();
+            
+            // Setup logica input PIN
+            this.setupPinInputs('current');
+            this.setupPinInputs('new');
+            this.setupPinInputs('confirm');
+            
+            // Setup bottoni "occhio"
+            document.querySelectorAll('.btn-toggle-pin').forEach(btn => {
+                btn.onclick = () => this.togglePinVisibility(btn.dataset.target);
+            });
             
             // Listeners per i temi (AGGIORNATI)
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');

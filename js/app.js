@@ -1,35 +1,30 @@
 /* ==========================================================================
-   MyStation Admin - CORE (js/app.js) - Added global showToast
+   MyStation Admin - CORE (js/app.js) - Logica PIN a 4 cifre
    ========================================================================== */
 'use strict';
 
 const App = {
     state: { 
         data: { priceHistory: [], competitorPrices: [], registryEntries: [], previousYearStock: {}, clients: [], stazioni: [], turni: [], spese: [], speseEtichette: [], todos: [], appuntamenti: [], fuelOrders: [] },
-        pin: null // Aggiunto stato per il PIN
+        pin: null 
     },
     modules: {},
     modal: null,
-    toastTimeout: null, // Timer per gestire la chiusura automatica del toast
+    toastTimeout: null, 
 
     init() {
         this.loadTheme();
-        this.loadFromStorage(); // Questo ora carica anche il PIN
+        this.loadFromStorage(); 
 
         const sessionActive = sessionStorage.getItem('mystation_session') === 'active';
 
         if (sessionActive || !this.state.pin) {
-            // Se la sessione è già attiva o non c'è un PIN impostato, avvia l'app
             this.initApp();
         } else {
-            // Altrimenti, mostra la schermata di blocco
             this.showLockScreen();
         }
     },
 
-    /**
-     * Inizializza l'app principale (dopo lo sblocco o se non c'è PIN)
-     */
     initApp() {
         this.modal = new Modal(document.getElementById('generic-modal'));
         this.setupGlobalListeners();
@@ -38,17 +33,16 @@ const App = {
         this.handleRoute();
         if (localStorage.getItem('sidebar-collapsed') === 'true') this.setSidebarCompact(true);
         
-        // Nasconde la lockscreen se fosse ancora visibile (caso: primo avvio senza PIN)
         const lockscreen = document.getElementById('pin-lockscreen');
         if (lockscreen) {
             lockscreen.style.display = 'none';
         }
     },
 
-    // --- LOGICA DI BLOCCO PIN ---
+    // --- LOGICA DI BLOCCO PIN (per 4 cifre) ---
 
     /**
-     * Mostra la schermata di blocco e imposta i listener
+     * Mostra la schermata di blocco e imposta i listener per i 4 campi
      */
     showLockScreen() {
         const lockscreen = document.getElementById('pin-lockscreen');
@@ -56,38 +50,86 @@ const App = {
             lockscreen.style.display = 'flex';
         }
         
-        const pinInput = document.getElementById('pin-input');
+        const inputs = document.querySelectorAll('.pin-square'); // 4 campi
         const unlockBtn = document.getElementById('pin-unlock-btn');
 
-        // Imposta il focus sull'input
-        setTimeout(() => pinInput.focus(), 100);
+        // Imposta il focus sul primo input
+        setTimeout(() => inputs[0].focus(), 100);
 
-        // Aggiunge i listener per il click e per il tasto Invio
+        inputs.forEach((input, index) => {
+            // Blocca caratteri non numerici
+            input.oninput = () => {
+                input.value = input.value.replace(/[^0-9]/g, '');
+            };
+            
+            input.onkeydown = (e) => {
+                if (e.key >= '0' && e.key <= '9' && input.value.length === 0) {
+                    // Se è un numero (e il campo è vuoto)
+                    e.preventDefault();
+                    input.value = e.key;
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus(); // Auto-avanzamento
+                    }
+                } else if (e.key === 'Backspace') {
+                    // Se è backspace
+                    e.preventDefault();
+                    input.value = '';
+                    if (index > 0) {
+                        inputs[index - 1].focus(); // Torna indietro
+                    }
+                } else if (e.key === 'Enter') {
+                    // Se premi invio sull'ultimo campo, controlla
+                    if (index === inputs.length - 1) {
+                        this.checkPin();
+                    }
+                } else if (e.key.includes('Arrow')) {
+                    // Gestione frecce
+                    e.preventDefault();
+                    if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    } else if (e.key === 'ArrowLeft' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                } else if (e.key.length === 1 && input.value.length > 0) {
+                     // Sovrascrive se il campo è già pieno
+                    e.preventDefault();
+                    input.value = e.key;
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                } else if (e.key.length === 1) {
+                    // Blocca altri caratteri (es. 'a', 'b', 'c')
+                    e.preventDefault();
+                }
+            };
+        });
+
         unlockBtn.onclick = () => this.checkPin();
-        pinInput.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                this.checkPin();
-            }
-        };
     },
 
     /**
-     * Controlla il PIN inserito
+     * Controlla il PIN inserito dai 4 campi
      */
     checkPin() {
-        const pinInput = document.getElementById('pin-input');
+        const inputs = document.querySelectorAll('.pin-square');
         const pinError = document.getElementById('pin-error-msg');
         const pinModal = document.getElementById('pin-modal-content');
-        
-        if (pinInput.value === this.state.pin) {
+
+        let code = '';
+        inputs.forEach(input => {
+            code += input.value;
+        });
+
+        if (code === this.state.pin) {
             this.unlockApp();
         } else {
-            // Mostra errore e "scuote" il modal
             pinError.style.display = 'block';
             pinModal.classList.add('animate-shake');
-            pinInput.value = ''; // Pulisce l'input errato
             
-            // Rimuove l'animazione dopo che è terminata
+            // Svuota tutti i campi e torna al primo
+            inputs.forEach(input => input.value = '');
+            inputs[0].focus();
+            
             setTimeout(() => {
                 pinModal.classList.remove('animate-shake');
             }, 300);
@@ -98,7 +140,6 @@ const App = {
      * Sblocca l'app, salva la sessione e avvia l'interfaccia
      */
     unlockApp() {
-        // Salva in sessionStorage per mantenere lo sblocco durante i refresh
         sessionStorage.setItem('mystation_session', 'active');
         
         const lockscreen = document.getElementById('pin-lockscreen');
@@ -107,10 +148,9 @@ const App = {
         }
         
         // Pulisce il modal
-        document.getElementById('pin-input').value = '';
+        document.querySelectorAll('.pin-square').forEach(input => input.value = '');
         document.getElementById('pin-error-msg').style.display = 'none';
         
-        // Avvia l'app
         this.initApp();
     },
 
@@ -132,7 +172,6 @@ const App = {
             this.state.pin = newPin;
             App.showToast('Nuovo PIN impostato!', 'success');
         } else {
-            // Se il pin è vuoto, lo rimuove
             localStorage.removeItem('mystation_pin');
             this.state.pin = null;
             App.showToast('PIN rimosso. L\'app non è più protetta.', 'success');
@@ -182,7 +221,6 @@ const App = {
     },
 
     loadFromStorage() {
-        // Carica i dati dell'app
         const saved = localStorage.getItem('mystation_data_v11');
         if (saved) {
             try { 
@@ -190,13 +228,11 @@ const App = {
                 ['todos', 'appuntamenti', 'fuelOrders'].forEach(key => { if (!this.state.data[key]) this.state.data[key] = []; });
             } catch (e) { console.error(e); }
         }
-        // Carica il PIN salvato
         this.state.pin = localStorage.getItem('mystation_pin') || null;
     },
     saveToStorage() { localStorage.setItem('mystation_data_v11', JSON.stringify(this.state.data)); },
     clearData() { 
         localStorage.removeItem('mystation_data_v11'); 
-        // Non rimuoviamo il PIN, solo i dati
         window.location.reload(); 
     },
 
