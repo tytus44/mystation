@@ -1,10 +1,15 @@
 /* ==========================================================================
-   MODULO: Gestione Prezzi (js/prezzi.js) - Total Drag & Drop
+   MODULO: Gestione Prezzi (js/prezzi.js) - Fix AdBlue e Grafico Annuale
    ========================================================================== */
 (function() {
     'use strict';
     const PrezziModule = {
-        localState: { editingId: null, currentPage: 1, itemsPerPage: 5 },
+        localState: { 
+            editingId: null, 
+            currentPage: 1, 
+            itemsPerPage: 5,
+            chart: null // Aggiunto stato per il grafico
+        },
         surcharges: { self: 0.005, served: 0.220 },
         init() { },
         render() {
@@ -29,6 +34,13 @@
 
                     <div id="prezzi-main-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                         
+                        <div id="card-grafico" class="lg:col-span-3 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                            <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Andamento Prezzi (Anno Corrente)</h3>
+                            </div>
+                            <div class="p-6 h-96"><canvas id="prezzi-chart-canvas"></canvas></div>
+                        </div>
+                        
                         <div id="card-storico" class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 draggable-card">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Storico Listini Base</h3>
@@ -46,12 +58,11 @@
                             ${this.renderPagination(totalPages)}
                         </div>
 
-                        <div id="card-concorrenza" class="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                        <div id="card-concorrenza" class="lg:col-span-1 flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 draggable-card">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Concorrenza</h3>
                                 <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Aggiorna Concorrenza">
                                     <i data-lucide="refresh-cw" class="size-4 sm:mr-2"></i>
-
                                 </button>
                             </div>
                             <div class="p-6">${this.renderConcorrenzaBody(p)}</div>
@@ -61,6 +72,7 @@
                 </div>`;
             
             lucide.createIcons();
+            this.renderChart(); // Chiamata per renderizzare il grafico
             this.attachListeners();
             // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
@@ -123,12 +135,15 @@
             const l = h.length ? [...h].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
             const comp = (bp) => (!bp ? { listino:0, self:0, served:0 } : { listino:bp, self:bp+this.surcharges.self, served:bp+this.surcharges.self+this.surcharges.served });
             const compFlat = (bp) => (!bp ? { listino:0, self:0, served:0 } : { listino:bp, self:bp, served:bp });
+            // AdBlue è incluso qui
             return { date: l?.date||null, benzina: comp(l?.benzina), gasolio: comp(l?.gasolio), dieselPlus: comp(l?.dieselPlus), hvolution: comp(l?.hvolution), adblue: compFlat(l?.adblue) };
         },
         renderStatCard(id, t, p, bg, i) {
             const showServed = p.self > 0 && p.served !== p.self;
+            // Correzione per AdBlue (non ha self/served)
+            const priceToShow = (t === 'AdBlue') ? p.listino : p.self;
             return `<div id="${id}" class="p-4 ${bg} rounded-xl text-white shadow-sm flex justify-between items-center draggable-card cursor-move">
-                <div><h4 class="text-sm font-medium opacity-90">${t}</h4><p class="text-2xl font-bold mt-1">${App.formatPrice(p.self)}</p>${showServed?`<p class="text-xs opacity-80 mt-1">Servito: ${App.formatPrice(p.served)}</p>`:''}</div>
+                <div><h4 class="text-sm font-medium opacity-90">${t}</h4><p class="text-2xl font-bold mt-1">${App.formatPrice(priceToShow)}</p>${showServed?`<p class="text-xs opacity-80 mt-1">Servito: ${App.formatPrice(p.served)}</p>`:''}</div>
                 <div class="p-3 bg-white/20 rounded-full"><i data-lucide="${i}" class="size-6"></i></div>
             </div>`;
         },
@@ -157,25 +172,126 @@
             const row = (n, d) => `<div class="py-3 border-b border-gray-200 dark:border-gray-700 last:border-0"><h4 class="font-bold text-gray-800 dark:text-white mb-2">${n}</h4><div class="flex justify-between text-sm mb-1"><span class="text-gray-500 dark:text-gray-400">Benzina:</span><div><span class="dark:text-gray-200">${App.formatPrice(d?.benzina)}</span> ${diff(d?.benzina, my.benzina.self)}</div></div><div class="flex justify-between text-sm"><span class="text-gray-500 dark:text-gray-400">Gasolio:</span><div><span class="dark:text-gray-200">${App.formatPrice(d?.gasolio)}</span> ${diff(d?.gasolio, my.gasolio.self)}</div></div></div>`;
             return `<p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Ultimo agg.: ${App.formatDate(l.date)}</p>${row('MyOil',l.myoil)}${row('Esso',l.esso)}${row('Q8',l.q8)}${l.notes?`<p class="text-sm italic text-gray-500 dark:text-gray-400 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">${l.notes}</p>`:''}`;
         },
+
+        // --- NUOVA FUNZIONE GRAFICO ANNUALE ---
+        renderChart() {
+            const ctx = document.getElementById('prezzi-chart-canvas')?.getContext('2d');
+            if (!ctx) return;
+            
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const tickColor = isDark ? '#9ca3af' : '#4b5563';
+            
+            const currentYear = new Date().getFullYear();
+            const labels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            
+            // Oggetti per accumulare somme e conteggi mensili
+            const monthlySums = { benzina: Array(12).fill(0), gasolio: Array(12).fill(0), dieselPlus: Array(12).fill(0) };
+            const monthlyCounts = { benzina: Array(12).fill(0), gasolio: Array(12).fill(0), dieselPlus: Array(12).fill(0) };
+
+            // Filtra solo per l'anno corrente
+            const yearHistory = App.state.data.priceHistory.filter(p => new Date(p.date).getFullYear() === currentYear);
+
+            // Calcola somme e conteggi
+            yearHistory.forEach(p => {
+                const month = new Date(p.date).getMonth();
+                if (p.benzina > 0) {
+                    monthlySums.benzina[month] += p.benzina;
+                    monthlyCounts.benzina[month]++;
+                }
+                if (p.gasolio > 0) {
+                    monthlySums.gasolio[month] += p.gasolio;
+                    monthlyCounts.gasolio[month]++;
+                }
+                if (p.dieselPlus > 0) {
+                    monthlySums.dieselPlus[month] += p.dieselPlus;
+                    monthlyCounts.dieselPlus[month]++;
+                }
+            });
+
+            // Calcola le medie
+            const calculateAverage = (sums, counts) => sums.map((sum, i) => (counts[i] > 0 ? (sum / counts[i]).toFixed(3) : null));
+            
+            const datasets = [
+                { 
+                    label: 'Benzina', 
+                    data: calculateAverage(monthlySums.benzina, monthlyCounts.benzina), 
+                    borderColor: '#22c55e', 
+                    tension: 0.1, 
+                    fill: false,
+                    spanGaps: true // Collega i punti anche se ci sono mesi nulli
+                },
+                { 
+                    label: 'Gasolio', 
+                    data: calculateAverage(monthlySums.gasolio, monthlyCounts.gasolio), 
+                    borderColor: '#f97316', 
+                    tension: 0.1, 
+                    fill: false,
+                    spanGaps: true
+                },
+                { 
+                    label: 'Diesel+', 
+                    data: calculateAverage(monthlySums.dieselPlus, monthlyCounts.dieselPlus), 
+                    borderColor: '#e11d48', 
+                    tension: 0.1, 
+                    fill: false,
+                    spanGaps: true
+                }
+            ];
+
+            if (this.localState.chart) this.localState.chart.destroy();
+            this.localState.chart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: true } 
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: tickColor },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: tickColor },
+                            grid: { color: gridColor }
+                        }
+                    }
+                }
+            });
+        },
+        
         openListinoModal(id=null) {
             this.localState.editingId = id;
             const i = id ? App.state.data.priceHistory.find(x=>x.id===id) : null;
-            /* INIZIO MODIFICA */
             const h = App.state.data.priceHistory;
             const latest = h.length ? [...h].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
-            /* FINE MODIFICA */
             const d = new Date().toISOString().split('T')[0];
             const cls = "h-11 py-3 px-4 block w-full border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 shadow-sm text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
-            /* INIZIO MODIFICA */
+            // AGGIUNTO 'adblue' al form
             const form = `<form id="form-listino" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium mb-2 dark:text-white">Data Listino</label><input type="date" name="date" value="${i?i.date.split('T')[0]:d}" class="${cls}" required></div><div><label class="block text-sm font-medium mb-2 text-blue-600 dark:text-blue-500">AdBlue (€/L)</label><input type="number" step="0.001" name="adblue" value="${i ? (i.adblue||'') : (latest?.adblue||'')}" class="${cls}" placeholder="Opzionale"></div></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium mb-2 text-green-600 dark:text-green-500">Benzina *</label><input type="number" step="0.001" name="benzina" value="${i ? (i.benzina||'') : (latest?.benzina||'')}" required class="${cls}"></div><div><label class="block text-sm font-medium mb-2 text-orange-600 dark:text-orange-500">Gasolio *</label><input type="number" step="0.001" name="gasolio" value="${i ? (i.gasolio||'') : (latest?.gasolio||'')}" required class="${cls}"></div><div><label class="block text-sm font-medium mb-2 text-rose-600 dark:text-rose-500">Diesel+ *</label><input type="number" step="0.001" name="dieselPlus" value="${i ? (i.dieselPlus||'') : (latest?.dieselPlus||'')}" required class="${cls}"></div><div><label class="block text-sm font-medium mb-2 text-cyan-600 dark:text-cyan-500">Hvolution *</label><input type="number" step="0.001" name="hvolution" value="${i ? (i.hvolution||'') : (latest?.hvolution||'')}" required class="${cls}"></div></div></form>`;
-            /* FINE MODIFICA */
-            App.showModal(id?'Modifica Listino':'Nuovo Listino Base', form, '<button id="btn-save-listino" class="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">Salva</button>');
+            
+            // Modificato per usare un modale più stretto
+            App.showModal(id?'Modifica Listino':'Nuovo Listino Base', form, '<button id="btn-save-listino" class="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">Salva</button>', 'max-w-xl');
             document.getElementById('btn-save-listino').onclick = () => this.saveListino();
         },
         saveListino() {
             const f = document.getElementById('form-listino'); if(!f.reportValidity()) return;
             const fd = new FormData(f);
-            const n = { id: this.localState.editingId||App.generateId('list'), date: new Date(fd.get('date')).toISOString(), benzina: parseFloat(fd.get('benzina'))||0, gasolio: parseFloat(fd.get('gasolio'))||0, dieselPlus: parseFloat(fd.get('dieselPlus'))||null, hvolution: parseFloat(fd.get('hvolution'))||null, adblue: parseFloat(fd.get('adblue'))||null };
+            
+            // --- CORREZIONE ADBLUE APPLICATA QUI ---
+            const n = { 
+                id: this.localState.editingId||App.generateId('list'), 
+                date: new Date(fd.get('date')).toISOString(), 
+                benzina: parseFloat(fd.get('benzina'))||0, 
+                gasolio: parseFloat(fd.get('gasolio'))||0, 
+                dieselPlus: parseFloat(fd.get('dieselPlus'))||null, 
+                hvolution: parseFloat(fd.get('hvolution'))||null, 
+                adblue: parseFloat(fd.get('adblue'))||null // Riga per salvare AdBlue
+            };
+            
             if(this.localState.editingId) { const idx = App.state.data.priceHistory.findIndex(x=>x.id===this.localState.editingId); if(idx!==-1) App.state.data.priceHistory[idx]=n; } else App.state.data.priceHistory.push(n);
             App.saveToStorage(); App.closeModal(); this.render();
         },
@@ -185,7 +301,9 @@
             const d = new Date().toISOString().split('T')[0];
             const cls = "h-11 px-4 block w-full border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 shadow-sm text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
             const form = `<form id="form-concorrenza" class="space-y-6"><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium mb-2 dark:text-white">Data Rilevazione</label><input type="date" name="date" value="${d}" class="${cls}" required></div><div><label class="block text-sm font-medium mb-2 dark:text-white">Annotazioni</label><input type="text" name="notes" class="${cls}" placeholder="..."></div></div><div class="grid grid-cols-3 gap-4 items-center"><div></div><label class="text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Benzina</label><label class="text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Gasolio</label><div class="font-bold text-gray-800 dark:text-white">MyOil</div><input type="number" step="0.001" name="myoil_benzina" value="${l.myoil?.benzina||''}" class="${cls}" placeholder="0.000"><input type="number" step="0.001" name="myoil_gasolio" value="${l.myoil?.gasolio||''}" class="${cls}" placeholder="0.000"><div class="font-bold text-gray-800 dark:text-white">Esso</div><input type="number" step="0.001" name="esso_benzina" value="${l.esso?.benzina||''}" class="${cls}" placeholder="0.000"><input type="number" step="0.001" name="esso_gasolio" value="${l.esso?.gasolio||''}" class="${cls}" placeholder="0.000"><div class="font-bold text-gray-800 dark:text-white">Q8</div><input type="number" step="0.001" name="q8_benzina" value="${l.q8?.benzina||''}" class="${cls}" placeholder="0.000"><input type="number" step="0.001" name="q8_gasolio" value="${l.q8?.gasolio||''}" class="${cls}" placeholder="0.000"></div></form>`;
-            App.showModal('Aggiorna Concorrenza', form, '<button id="btn-save-concorrenza" class="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">Salva</button>');
+            
+            // Modificato per usare un modale più stretto
+            App.showModal('Aggiorna Concorrenza', form, '<button id="btn-save-concorrenza" class="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">Salva</button>', 'max-w-xl');
             document.getElementById('btn-save-concorrenza').onclick = () => this.saveConcorrenza();
         },
         saveConcorrenza() {
