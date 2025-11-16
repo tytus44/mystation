@@ -91,13 +91,13 @@
                     <div id="home-banner" class="w-full h-64 rounded-lg shadow-sm overflow-hidden relative p-6 flex flex-col md:flex-row justify-between items-start">
                         
                         <div>
-                            <h1 class="text-2xl font-bold text-white mb-1" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Dashboard</h1>
-                            <p class="text-gray-200" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Benvenuto in MyStation</p>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Dashboard</h1>
+<p class="text-gray-700 dark:text-gray-200">Benvenuto in MyStation</p>
                         </div>
                         
                         <div class="mt-4 md:mt-0 text-right">
-                            <div id="live-time" class="text-3xl font-bold text-white" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">--:--</div>
-                            <div id="live-date" class="text-sm font-medium text-gray-300" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.7);">---</div>
+<div id="live-time" class="text-3xl font-bold text-gray-900 dark:text-white">--:--</div>
+<div id="live-date" class="text-sm font-medium text-gray-600 dark:text-gray-300">---</div>
                         </div>
                         
                     </div>
