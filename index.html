@@ -87,7 +87,7 @@
             animation: shake 0.3s ease-in-out;
         }
 
-        /* --- STILE PER CASELLE PIN (4 CIFRE) --- */
+        /* --- STILE PER CASELLE PIN (4 CIFRE - LOGIN) --- */
         #pin-inputs-container {
             display: flex;
             justify-content: center; /* Centra i 4 box */
@@ -111,7 +111,7 @@
             margin: 0;
         }
         
-        /* --- NUOVO: Stile per box PIN piccoli in Impostazioni --- */
+        /* --- STILE PER CASELLE PIN PICCOLE (IMPOSTAZIONI) --- */
         .pin-square-small {
             width: 2.5rem; /* 40px */
             height: 2.5rem; /* 40px */
@@ -127,6 +127,30 @@
             -webkit-appearance: none;
             margin: 0;
         }
+        
+        /* --- INIZIO MODIFICA: Stile COMPATTO per box Prezzo (4 cifre) --- */
+        .price-input-group {
+            display: flex;
+            gap: 0.25rem; /* Ridotto da 0.5rem a 4px */
+            align-items: center;
+        }
+        .price-square {
+            width: 2rem; /* Ridotto da 2.5rem (40px) a 32px */
+            height: 2.25rem; /* Ridotto altezza a 36px */
+            text-align: center;
+            font-size: 1.125rem; /* 18px */
+            border-radius: 0.375rem; /* rounded-md */
+            border-width: 1px;
+            padding: 0;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .price-square::-webkit-outer-spin-button,
+        .price-square::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* --- FINE MODIFICA --- */
         
     </style>
     
@@ -277,7 +301,7 @@
         html.yellow .hover\:text-primary-700:hover { color: #fbc02d !important; }
         html.yellow .bg-primary-600 { background-color: #fdd835 !important; }
         html.yellow .hover\:bg-primary-700:hover { background-color: #fbc02d !important; }
-        html.yellow .focus\:ring-primary-300:focus { --tw-ring-color: #fff59d !important; } 
+        html.yellow .focus\:ring-primary-300:focus { --tw-ring-color: #fff59d !important; }
         html.yellow .focus\:ring-primary-800:focus { --tw-ring-color: #fbc02d !important; }
         html.yellow ::-webkit-scrollbar-thumb { background-color: #fdd835 !important; }
         html.yellow ::-webkit-scrollbar-thumb:hover { background-color: #fbc02d !important; }
@@ -287,7 +311,7 @@
     <style>
         /* Default (Temi Chiari): Immagine SENZA overlay */
         #home-banner {
-            background-image: url('img/station1.png'); 
+            background-image: url('img/station.png'); 
             background-size: cover;
             background-position: center 60%; 
             border: 1px solid rgba(229, 231, 235, 0.7); /* border-gray-200 */
@@ -296,7 +320,7 @@
         /* Temi Scuri (Scuro e Notte): Immagine CON overlay */
         .dark #home-banner {
              border-color: rgba(55, 65, 81, 0.7); /* dark:border-gray-700 */
-             background-image: url('img/station2.png'); 
+             background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('img/station.png'); 
         }
         
         /* TEMA NOTTE: Sovrascrive il bordo */
