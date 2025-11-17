@@ -386,14 +386,14 @@
                                 </div>
                             </div>
                             
-                            <div id="card-danger" class="p-6 border border-red-200 rounded-lg shadow-sm bg-red-50 dark:bg-red-900/10 dark:border-red-900/50 draggable-card">
+                            <div id="card-danger" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
                                 <div class="flex items-center mb-4 card-header cursor-move">
                                     <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full mr-3">
                                         <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600 dark:text-red-500"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-red-700 dark:text-red-500">Zona Pericolo</h3>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Zona Pericolo</h3>
                                 </div>
-                                <p class="text-sm text-red-600 dark:text-red-400 mb-6">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
                                     L'azione in questa sezione è <strong>irreversibile</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere.
                                 </p>
                                 <div class="flex flex-wrap gap-4">
