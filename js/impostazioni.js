@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Logica PIN a 4 cifre
+   MODULO: Impostazioni (js/impostazioni.js) - Design Solido & PIN
    ========================================================================== */
 (function() {
     'use strict';
@@ -79,24 +79,23 @@
             const activeEl = document.querySelector(`.theme-swatch[data-theme="${themeToSelect}"]`);
             if (activeEl) {
                 activeEl.classList.add('ring-2');
-                // Applica il colore del bordo in base al tema per forzare la visibilità
+                // Applica un colore di bordo solido e visibile per l'indicatore
                 let ringColor = '#3b82f6'; // Default (primary-500)
+                
+                // Mappatura per i nuovi temi solidi
                 if (themeToSelect === 'notte') ringColor = '#60a5fa';
-                if (themeToSelect === 'indigo') ringColor = '#3f51b5';
-                if (themeToSelect === 'pink') ringColor = '#e91e63';
-                if (themeToSelect === 'cyan') ringColor = '#00bcd4';
-                if (themeToSelect === 'yellow') ringColor = '#fdd835';
+                if (themeToSelect === 'indigo') ringColor = '#4f46e5';
+                if (themeToSelect === 'pink') ringColor = '#db2777';
+                if (themeToSelect === 'cyan') ringColor = '#0891b2';
+                if (themeToSelect === 'yellow') ringColor = '#d97706';
                 if (themeToSelect === 'dark') ringColor = '#60a5fa'; 
                 
                 activeEl.style.borderColor = ringColor;
             }
         },
 
-        // --- FUNZIONI PIN MODIFICATE ---
+        // --- FUNZIONI PIN ---
         
-        /**
-         * Aggiorna il testo del pulsante PIN (Imposta/Rimuovi)
-         */
         updatePinUI() {
             const pinStatus = document.getElementById('pin-status');
             const currentPinWrapper = document.getElementById('pin-current-wrapper');
@@ -105,17 +104,14 @@
             if (App.state.pin) {
                 pinStatus.textContent = "PIN impostato. Inserisci il PIN attuale per modificarlo o rimuoverlo.";
                 pinStatus.className = "text-sm text-green-600 dark:text-green-400";
-                currentPinWrapper.classList.remove('hidden'); // Mostra campo PIN attuale
+                currentPinWrapper.classList.remove('hidden'); 
             } else {
                 pinStatus.textContent = "Nessun PIN impostato. L'app è sbloccata all'avvio. Compila i campi per crearne uno.";
                 pinStatus.className = "text-sm text-gray-500 dark:text-gray-400";
-                currentPinWrapper.classList.add('hidden'); // Nasconde campo PIN attuale
+                currentPinWrapper.classList.add('hidden');
             }
         },
         
-        /**
-         * Legge i 4 campi input di un gruppo e restituisce il PIN
-         */
         getPinFromInputs(groupName) {
             const inputs = document.querySelectorAll(`[data-pin-group="${groupName}"] .pin-input`);
             let pin = '';
@@ -123,52 +119,41 @@
             return pin;
         },
 
-        /**
-         * Pulisce i campi input di un gruppo
-         */
         clearPinInputs(groupName) {
             document.querySelectorAll(`[data-pin-group="${groupName}"] .pin-input`).forEach(input => {
                 input.value = '';
             });
         },
 
-        /**
-         * Salva il nuovo PIN dopo aver verificato quello attuale
-         */
         savePin() {
             const currentPin = this.getPinFromInputs('current');
             const newPin = this.getPinFromInputs('new');
             const confirmPin = this.getPinFromInputs('confirm');
 
-            // 1. Verifica PIN attuale (se esiste)
             if (App.state.pin && App.state.pin !== currentPin) {
                 App.showToast('PIN attuale non corretto.', 'error');
                 return;
             }
 
-            // 2. Caso Rimozione PIN
             if (!newPin && !confirmPin) {
-                App.setPin(null); // Passa null per rimuovere
+                App.setPin(null); 
                 this.updatePinUI();
                 this.clearPinInputs('current');
                 return;
             }
 
-            // 3. Verifica corrispondenza
             if (newPin !== confirmPin) {
                 App.showToast('I nuovi PIN non corrispondono.', 'error');
                 return;
             }
             
-            // 4. VALIDAZIONE: Esattamente 4 cifre numeriche
-            const isNumeric = /^\d{4}$/.test(newPin); // Regex per 4 cifre esatte
+            const isNumeric = /^\d{4}$/.test(newPin);
             
             if (!isNumeric) {
                  App.showToast('Il PIN deve essere di 4 cifre numeriche.', 'error');
                  return;
             }
 
-            // 5. Successo (Impostazione o Modifica)
             App.setPin(newPin);
             this.clearPinInputs('current');
             this.clearPinInputs('new');
@@ -176,14 +161,10 @@
             this.updatePinUI();
         },
         
-        /**
-         * Chiede conferma per il Logout
-         */
         confirmLogout() {
              App.showModal(
                 'Esci dall\'account', 
                 `<p class="text-gray-500 dark:text-gray-400">Vuoi davvero uscire? L'applicazione verrà bloccata e sarà necessario inserire il PIN per il prossimo accesso.</p>`, 
-                // CORREZIONE: Aggiunto 'gap-4' al div wrapper
                 `<div class="flex justify-end gap-4 w-full">
                      <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
                      <button id="btn-confirm-logout" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800">Sì, esci</button>
@@ -196,8 +177,6 @@
                  App.lockApp();
              };
         },
-        
-        // --- FINE FUNZIONI PIN ---
 
         getLayoutHTML() {
             const pinInputHTML = `
@@ -428,9 +407,6 @@
             document.getElementById('btn-confirm-clear').onclick = () => App.clearData();
         },
 
-        /**
-         * Helper per la logica di auto-avanzamento dei campi PIN
-         */
         setupPinInputs(groupName) {
             const inputs = document.querySelectorAll(`[data-pin-group="${groupName}"] .pin-input`);
             
@@ -472,9 +448,6 @@
             });
         },
 
-        /**
-         * Helper per mostrare/nascondere il PIN
-         */
         togglePinVisibility(targetGroup) {
             const inputs = document.querySelectorAll(`[data-pin-group="${targetGroup}"] .pin-input`);
             const icon = document.querySelector(`.btn-toggle-pin[data-target="${targetGroup}"] i`);
@@ -500,21 +473,17 @@
             document.getElementById('btn-settings-import').onclick = () => document.getElementById('import-file-input').click();
             document.getElementById('btn-clear-data').onclick = () => this.confirmClearData();
 
-            // --- NUOVI LISTENER PER PIN E LOGOUT ---
             document.getElementById('btn-save-pin').onclick = () => this.savePin();
             document.getElementById('btn-logout').onclick = () => this.confirmLogout();
             
-            // Setup logica input PIN
             this.setupPinInputs('current');
             this.setupPinInputs('new');
             this.setupPinInputs('confirm');
             
-            // Setup bottoni "occhio"
             document.querySelectorAll('.btn-toggle-pin').forEach(btn => {
                 btn.onclick = () => this.togglePinVisibility(btn.dataset.target);
             });
             
-            // Listeners per i temi (AGGIORNATI)
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
             document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
             document.getElementById('btn-theme-notte').onclick = () => App.setTheme('notte');
