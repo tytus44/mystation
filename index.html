@@ -25,540 +25,75 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
-        /* FIX CRITICO DATEPICKER */
         .datepicker { z-index: 99999 !important; }
-        /* FIX INPUT NUMERICI */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
         input[type="number"] { -moz-appearance: textfield !important; appearance: textfield !important; }
         .hidden-section { display: none !important; }
-        /* Dark mode icona datepicker nativo */
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 20px; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #2563eb; }
+        
+        .animate-shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
-        /* --- CALENDAR DOTS (RIPRISTINATI E VERIFICATI) --- */
-        .calendar-dots {
-            position: absolute;
-            bottom: 3px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 2px;
-        }
-        .cal-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-        }
-        .dot-app { background-color: #3b82f6; }      /* Blu - Appuntamento */
-        .dot-urgent { background-color: #ef4444; }   /* Rosso - Urgente */
-        .dot-priority { background-color: #eab308; } /* Giallo - Importante */
-        .dot-standard { background-color: #22c55e; } /* Verde - Standard */
+        /* Login PIN */
+        #pin-inputs-container { display: flex; justify-content: center; gap: 0.75rem; }
+        .pin-square { width: 3.5rem; height: 3.5rem; text-align: center; font-size: 1.875rem; font-weight: 600; border-radius: 0.5rem; border-width: 1px; -moz-appearance: textfield; appearance: textfield; }
+        .pin-square::-webkit-outer-spin-button, .pin-square::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Settings PIN */
+        .pin-square-small { width: 2.5rem; height: 2.5rem; text-align: center; font-size: 1.25rem; border-radius: 0.375rem; border-width: 1px; -moz-appearance: textfield; appearance: textfield; }
+        .pin-square-small::-webkit-outer-spin-button, .pin-square-small::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Price Inputs */
+        .price-input-group { display: flex; gap: 0.25rem; align-items: center; }
+        .price-square { width: 2rem; height: 2.25rem; text-align: center; font-size: 1.125rem; border-radius: 0.375rem; border-width: 1px; padding: 0; -moz-appearance: textfield; appearance: textfield; }
+        .price-square::-webkit-outer-spin-button, .price-square::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* Stile per l'elemento mentre viene trascinato */
         .sortable-ghost { opacity: 0.4; border: 2px dashed #3b82f6 !important; }
-        /* Stile per il cursore di trascinamento sulle card */
-        .draggable-card { cursor: move; /* fallback if grab cursor is unsupported */ cursor: grab; }
+        .draggable-card { cursor: grab; }
         .draggable-card:active { cursor: grabbing; }
 
-        /* --- STILE SCROLLBAR --- */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: #3b82f6; /* Colore primario (primary-500) */
-            border-radius: 20px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: #2563eb; /* Colore primario (primary-600) */
-        }
-        
-        /* --- ANIMAZIONE SHAKE PER PIN ERRATO --- */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
-        }
-        .animate-shake {
-            animation: shake 0.3s ease-in-out;
-        }
-
-        /* --- STILE PER CASELLE PIN (4 CIFRE - LOGIN) --- */
-        #pin-inputs-container {
-            display: flex;
-            justify-content: center; /* Centra i 4 box */
-            gap: 0.75rem; /* 12px */
-        }
-        .pin-square {
-            width: 3.5rem; /* 56px */
-            height: 3.5rem; /* 56px */
-            text-align: center;
-            font-size: 1.875rem; /* 30px */
-            font-weight: 600;
-            border-radius: 0.5rem; /* rounded-lg */
-            border-width: 1px;
-            /* Rimuove le frecce su input[type=number] */
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-        .pin-square::-webkit-outer-spin-button,
-        .pin-square::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        /* --- STILE PER CASELLE PIN PICCOLE (IMPOSTAZIONI) --- */
-        .pin-square-small {
-            width: 2.5rem; /* 40px */
-            height: 2.5rem; /* 40px */
-            text-align: center;
-            font-size: 1.25rem; /* 20px */
-            border-radius: 0.375rem; /* rounded-md */
-            border-width: 1px;
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-        .pin-square-small::-webkit-outer-spin-button,
-        .pin-square-small::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        /* --- INIZIO MODIFICA: Stile COMPATTO per box Prezzo (4 cifre) --- */
-        .price-input-group {
-            display: flex;
-            gap: 0.25rem; /* Ridotto da 0.5rem a 4px */
-            align-items: center;
-        }
-        .price-square {
-            width: 2rem; /* Ridotto da 2.5rem (40px) a 32px */
-            height: 2.25rem; /* Ridotto altezza a 36px */
-            text-align: center;
-            font-size: 1.125rem; /* 18px */
-            border-radius: 0.375rem; /* rounded-md */
-            border-width: 1px;
-            padding: 0;
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-        .price-square::-webkit-outer-spin-button,
-        .price-square::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        /* --- FINE MODIFICA --- */
-        
-    </style>
-    
-    <style>
-        /* Palette: Ispirata allo screenshot (Molto scura) */
-        html.dark.notte .dark\:bg-gray-800 {
-             background-color: #1e1e1e !important; 
-        }
-        html.dark.notte .dark\:bg-gray-800\/50 {
-            background-color: #1e1e1e !important;
-        }
-        html.dark.notte .dark\:bg-gray-700 {
-            background-color: #252526 !important; 
-        }
-        html.dark.notte .dark\:bg-gray-700.datepicker-dropdown {
-             background-color: #252526 !important;
-        }
-        html.dark.notte .dark\:bg-gray-900.datepicker-dropdown {
-             background-color: #252526 !important;
-        }
-        html.dark.notte .dark\:hover\:bg-gray-700:hover {
-             background-color: #252526 !important; 
-        }
-         html.dark.notte .dark\:bg-gray-100 {
-             background-color: #252526 !important; 
-         }
-        html.dark.notte .dark\:border-gray-700 {
-            border-color: #333333 !important; 
-        }
-        html.dark.notte .dark\:border-gray-600 {
-            border-color: #333333 !important; 
-        }
-        
-        /* Accento Grigio (Monocromatico) */
-        html.dark.notte .text-primary-500,
-        html.dark.notte .dark\:text-primary-500 {
-             color: #9ca3af !important; /* gray-400 */
-        }
-        html.dark.notte .text-primary-600,
-        html.dark.notte .dark\:text-primary-600 {
-             color: #9ca3af !important; /* gray-400 */
-        }
-        html.dark.notte .bg-primary-600,
-        html.dark.notte .dark\:bg-primary-600 {
-            background-color: #6b7280 !important; /* gray-500 */
-        }
-        html.dark.notte .hover\:bg-primary-700:hover,
-        html.dark.notte .dark\:hover\:bg-primary-700:hover {
-            background-color: #9ca3af !important; /* gray-400 */
-        }
-        html.dark.notte .bg-primary-100,
-        html.dark.notte .dark\:bg-primary-900\/30 {
-             background-color: rgba(156, 163, 175, 0.2) !important;
-        }
-        html.dark.notte .focus\:ring-primary-300:focus,
-        html.dark.notte .dark\:focus\:ring-primary-800:focus,
-        html.dark.notte .dark\:focus\:ring-primary-300:focus {
-            --tw-ring-color: #9ca3af !important;
-        }
-    </style>
-
-    <style>
-        /* Palette: #3f51b5 (500), #303f9f (700), #c5cae9 (100), #e8eaf6 (50) */
-        
-        html.indigo .border-gray-200 { border-color: #c5cae9 !important; }
-        html.indigo .sticky.bg-white { border-color: #c5cae9 !important; }
-        html.indigo #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.indigo #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.indigo #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #e8eaf6 !important;
-        }
-         html.indigo a.bg-gray-100 { background-color: #c5cae9 !important; }
-        html.indigo .bg-primary-100 { background-color: #c5cae9 !important; }
-        html.indigo .text-primary-500 { color: #3f51b5 !important; }
-        html.indigo .text-primary-600 { color: #3f51b5 !important; }
-        html.indigo .hover\:text-primary-700:hover { color: #303f9f !important; }
-        html.indigo .bg-primary-600 { background-color: #3f51b5 !important; }
-        html.indigo .hover\:bg-primary-700:hover { background-color: #303f9f !important; }
-        html.indigo .focus\:ring-primary-300:focus { --tw-ring-color: #9fa8da !important; } 
-        html.indigo .focus\:ring-primary-800:focus { --tw-ring-color: #303f9f !important; }
-        html.indigo ::-webkit-scrollbar-thumb { background-color: #3f51b5 !important; }
-        html.indigo ::-webkit-scrollbar-thumb:hover { background-color: #303f9f !important; }
-        html.indigo .theme-swatch.ring-primary-500 { --tw-ring-color: #3f51b5 !important; }
-    </style>
-
-    <style>
-        /* Palette: #e91e63 (500), #c2185b (700), #f8bbd0 (100), #fce4ec (50) */
-        
-        html.pink .border-gray-200 { border-color: #f8bbd0 !important; }
-        html.pink .sticky.bg-white { border-color: #f8bbd0 !important; }
-        html.pink #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.pink #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.pink #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #fce4ec !important;
-        }
-         html.pink a.bg-gray-100 { background-color: #f8bbd0 !important; }
-        html.pink .bg-primary-100 { background-color: #f8bbd0 !important; }
-        html.pink .text-primary-500 { color: #e91e63 !important; }
-        html.pink .text-primary-600 { color: #e91e63 !important; }
-        html.pink .hover\:text-primary-700:hover { color: #c2185b !important; }
-        html.pink .bg-primary-600 { background-color: #e91e63 !important; }
-        html.pink .hover\:bg-primary-700:hover { background-color: #c2185b !important; }
-        html.pink .focus\:ring-primary-300:focus { --tw-ring-color: #f48fb1 !important; } 
-        html.pink .focus\:ring-primary-800:focus { --tw-ring-color: #c2185b !important; }
-        html.pink ::-webkit-scrollbar-thumb { background-color: #e91e63 !important; }
-        html.pink ::-webkit-scrollbar-thumb:hover { background-color: #c2185b !important; }
-        html.pink .theme-swatch.ring-primary-500 { --tw-ring-color: #e91e63 !important; }
-    </style>
-
-    <style>
-        /* Palette: #00bcd4 (500), #0097a7 (700), #b2ebf2 (100), #e0f7fa (50) */
-        
-        html.cyan .border-gray-200 { border-color: #b2ebf2 !important; }
-        html.cyan .sticky.bg-white { border-color: #b2ebf2 !important; }
-        html.cyan #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.cyan #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.cyan #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #e0f7fa !important;
-        }
-         html.cyan a.bg-gray-100 { background-color: #b2ebf2 !important; }
-        html.cyan .bg-primary-100 { background-color: #b2ebf2 !important; }
-        html.cyan .text-primary-500 { color: #00bcd4 !important; }
-        html.cyan .text-primary-600 { color: #00bcd4 !important; }
-        html.cyan .hover\:text-primary-700:hover { color: #0097a7 !important; }
-        html.cyan .bg-primary-600 { background-color: #00bcd4 !important; }
-        html.cyan .hover\:bg-primary-700:hover { background-color: #0097a7 !important; }
-        html.cyan .focus\:ring-primary-300:focus { --tw-ring-color: #80deea !important; } 
-        html.cyan .focus\:ring-primary-800:focus { --tw-ring-color: #0097a7 !important; }
-        html.cyan ::-webkit-scrollbar-thumb { background-color: #00bcd4 !important; }
-        html.cyan ::-webkit-scrollbar-thumb:hover { background-color: #0097a7 !important; }
-        html.cyan .theme-swatch.ring-primary-500 { --tw-ring-color: #00bcd4 !important; }
-    </style>
-    
-    <style>
-        /* Palette: #fdd835 (500), #fbc02d (700), #fff9c4 (100), #fffde7 (50) */
-        
-        html.yellow .border-gray-200 { border-color: #fff9c4 !important; }
-        html.yellow .sticky.bg-white { border-color: #fff9c4 !important; }
-        html.yellow #sidebar-nav a.hover\:bg-gray-100:hover,
-        html.yellow #sidebar-footer a.hover\:bg-gray-100:hover,
-        html.yellow #sidebar-footer button.hover\:bg-gray-100:hover {
-            background-color: #fffde7 !important;
-        }
-         html.yellow a.bg-gray-100 { background-color: #fff9c4 !important; }
-        html.yellow .bg-primary-100 { background-color: #fff9c4 !important; }
-        html.yellow .text-primary-500 { color: #fdd835 !important; }
-        html.yellow .text-primary-600 { color: #fdd835 !important; }
-        html.yellow .hover\:text-primary-700:hover { color: #fbc02d !important; }
-        html.yellow .bg-primary-600 { background-color: #fdd835 !important; }
-        html.yellow .hover\:bg-primary-700:hover { background-color: #fbc02d !important; }
-        html.yellow .focus\:ring-primary-300:focus { --tw-ring-color: #fff59d !important; }
-        html.yellow .focus\:ring-primary-800:focus { --tw-ring-color: #fbc02d !important; }
-        html.yellow ::-webkit-scrollbar-thumb { background-color: #fdd835 !important; }
-        html.yellow ::-webkit-scrollbar-thumb:hover { background-color: #fbc02d !important; }
-        html.yellow .theme-swatch.ring-primary-500 { --tw-ring-color: #fdd835 !important; }
-    </style>
-    
-    <style>
-        /* Default (Temi Chiari): image1.png SENZA overlay */
-        #home-banner {
-            background-image: url('img/image1.png'); 
-            background-size: cover;
-            background-position: center 60%; 
-            border: 1px solid rgba(229, 231, 235, 0.7); /* border-gray-200 */
-        }
-        
-        /* Temi Scuri (Scuro e Notte): image2.png SENZA overlay */
-        .dark #home-banner {
-             border-color: rgba(55, 65, 81, 0.7); /* dark:border-gray-700 */
-             background-image: url('img/image2.png'); 
-        }
-        
-        /* TEMA NOTTE: Sovrascrive il bordo */
-        html.dark.notte #home-banner {
-            border-color: #333333 !important; 
-        }
-        
-        /* Bordi per temi chiari personalizzati */
+        /* Banner Images */
+        #home-banner { background-image: url('img/image1.png'); background-size: cover; background-position: center 60%; border: 1px solid rgba(229, 231, 235, 0.7); }
+        .dark #home-banner { border-color: rgba(55, 65, 81, 0.7); background-image: url('img/image2.png'); }
+        html.dark.notte #home-banner { border-color: #333333 !important; }
         html.indigo #home-banner { border-color: #c5cae9 !important; }
         html.pink #home-banner { border-color: #f8bbd0 !important; }
         html.cyan #home-banner { border-color: #b2ebf2 !important; }
         html.yellow #home-banner { border-color: #fff9c4 !important; }
+
+        /* Sfondo Vettoriale */
+        html { background-color: #f3f4f6; background-image: radial-gradient(at 10% 20%, #3f51b5 0px, transparent 50%), radial-gradient(at 80% 10%, #e91e63 0px, transparent 50%), radial-gradient(at 50% 70%, #00bcd4 0px, transparent 40%); background-attachment: fixed !important; transition: background-color 0.3s; }
+        html.dark { background-color: #0c0c0d; background-image: radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%), radial-gradient(at 80% 10%, #00bcd4 0px, transparent 60%), radial-gradient(at 50% 70%, #303f9f 0px, transparent 50%); }
+        html.dark.notte { background-color: #191919 !important; background-image: none !important; }
+        html.indigo { background-color: #e8eaf6 !important; background-image: radial-gradient(at 50% 70%, #3f51b5 0px, transparent 40%), radial-gradient(at 10% 20%, #7986cb 0px, transparent 50%), radial-gradient(at 80% 10%, #c5cae9 0px, transparent 50%); }
+        html.pink { background-color: #fce4ec !important; background-image: radial-gradient(at 50% 70%, #e91e63 0px, transparent 40%), radial-gradient(at 10% 20%, #f06292 0px, transparent 50%), radial-gradient(at 80% 10%, #f8bbd0 0px, transparent 50%); }
+        html.cyan { background-color: #e0f7fa !important; background-image: radial-gradient(at 50% 70%, #00bcd4 0px, transparent 40%), radial-gradient(at 10% 20%, #4dd0e1 0px, transparent 50%), radial-gradient(at 80% 10%, #b2ebf2 0px, transparent 50%); }
+        html.yellow { background-color: #fffde7 !important; background-image: radial-gradient(at 50% 70%, #fdd835 0px, transparent 40%), radial-gradient(at 10% 20%, #fff176 0px, transparent 50%), radial-gradient(at 80% 10%, #fff9c4 0px, transparent 50%); }
+        
+        body { background-color: transparent !important; }
+        html.dark.notte body { background-color: #191919 !important; }
+
+        /* Glass Effect */
+        .bg-white, .sticky.bg-white { background-color: rgba(255, 255, 255, 0.75) !important; border-bottom-color: rgba(229, 231, 235, 0.7) !important; backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1); }
+        #sidebar-footer.bg-gray-50 { background-color: rgba(249, 250, 251, 0.75) !important; backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1); }
+        
+        .dark .dark\:bg-gray-800 { background-color: rgba(31, 41, 55, 0.7) !important; border-color: rgba(55, 65, 81, 0.7) !important; backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1); }
+        .dark .dark\:bg-gray-700 { background-color: rgba(55, 65, 81, 0.7) !important; border-color: rgba(75, 85, 99, 0.7) !important; backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1); }
+        .dark #sidebar-footer.dark\:bg-gray-800\/50 { background-color: rgba(31, 41, 55, 0.5) !important; border-color: rgba(55, 65, 81, 0.7) !important; backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1); }
+
+        /* Notte (Solid) */
+        .dark.notte .dark\:bg-gray-800, .dark.notte .dark\:bg-gray-700, .dark.notte #sidebar-footer.dark\:bg-gray-800\/50 { background-color: #1e1e1e !important; border-color: #333333 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        
+        /* Palette Overrides (Omitted for brevity but same logic) */
+        html.indigo .bg-white, html.pink .bg-white, html.cyan .bg-white, html.yellow .bg-white { background-color: rgba(255, 255, 255, 0.7) !important; }
     </style>
-
-    <style>
-        /* 1. Sfondo Vettoriale (applicato a HTML, sta dietro a tutto) */
-        html {
-            background-color: #f3f4f6; /* Fallback Chiaro */
-            background-image: 
-                radial-gradient(at 10% 20%, #3f51b5 0px, transparent 50%), /* Indigo */
-                radial-gradient(at 80% 10%, #e91e63 0px, transparent 50%), /* Pink */
-                radial-gradient(at 50% 70%, #00bcd4 0px, transparent 40%); /* Cyan */
-            background-attachment: fixed !important;
-            transition: background-color 0.3s;
-        }
-        html.dark {
-            background-color: #0c0c0d; 
-            background-image: 
-                radial-gradient(at 10% 20%, #9ca3af 0px, transparent 60%), /* Grey */
-                radial-gradient(at 80% 10%, #00bcd4 0px, transparent 60%), /* Cyan */
-                radial-gradient(at 50% 70%, #303f9f 0px, transparent 50%); /* Indigo Dark */
-        }
-        
-        /* BG Sfondi per temi chiari E scuri personalizzati */
-        
-        html.dark.notte {
-            background-color: #191919 !important;
-            background-image: none !important;
-        }
-        html.indigo { 
-            background-color: #e8eaf6 !important; /* Indigo 50 */
-            background-image: 
-                radial-gradient(at 50% 70%, #3f51b5 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #7986cb 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #c5cae9 0px, transparent 50%);
-        }
-        html.pink { 
-            background-color: #fce4ec !important; /* Pink 50 */
-            background-image: 
-                radial-gradient(at 50% 70%, #e91e63 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #f06292 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #f8bbd0 0px, transparent 50%);
-        }
-        html.cyan { 
-            background-color: #e0f7fa !important; /* Cyan 50 */
-            background-image: 
-                radial-gradient(at 50% 70%, #00bcd4 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #4dd0e1 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #b2ebf2 0px, transparent 50%);
-        }
-        html.yellow { 
-            background-color: #fffde7 !important; /* Yellow 50 */
-            background-image: 
-                radial-gradient(at 50% 70%, #fdd835 0px, transparent 40%),
-                radial-gradient(at 10% 20%, #fff176 0px, transparent 50%), 
-                radial-gradient(at 80% 10%, #fff9c4 0px, transparent 50%);
-        }
-        
-        /* 2. Rende il body (che contiene <main>) trasparente */
-        body {
-            background-color: transparent !important;
-        }
-        /* ECCEZIONE: Rende il body solido per il tema Notte */
-        html.dark.notte body {
-            background-color: #191919 !important;
-        }
-
-
-        /* 3. Applica l'effetto vetro a tutti gli elementi con sfondo */
-        
-        /* TEMA: Chiaro (Default) */
-        .bg-white, .sticky.bg-white {
-            background-color: rgba(255, 255, 255, 0.75) !important;
-            border-bottom-color: rgba(229, 231, 235, 0.7) !important; 
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        #sidebar-footer.bg-gray-50 {
-             background-color: rgba(249, 250, 251, 0.75) !important;
-             backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        /* Card colorate (Chiaro) */
-        .bg-red-50 {
-            background-color: rgba(254, 242, 242, 0.75) !important;
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .bg-blue-50 {
-            background-color: rgba(239, 246, 255, 0.75) !important;
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .bg-yellow-50 {
-            background-color: rgba(254, 252, 232, 0.75) !important;
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .bg-green-50 {
-            background-color: rgba(240, 253, 244, 0.75) !important;
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        
-        /* TEMA: Dark (Default) */
-        .dark .dark\:bg-gray-800 {
-            background-color: rgba(31, 41, 55, 0.7) !important;
-            border-color: rgba(55, 65, 81, 0.7) !important; 
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .dark .dark\:bg-gray-700 { /* Modal */
-            background-color: rgba(55, 65, 81, 0.7) !important;
-            border-color: rgba(75, 85, 99, 0.7) !important; 
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .dark #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: rgba(31, 41, 55, 0.5) !important;
-             border-color: rgba(55, 65, 81, 0.7) !important; 
-             backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-         }
-        /* Card colorate (Scuro) */
-        .dark .dark\:bg-red-900\/10,
-        .dark .dark\:bg-red-900\/20 {
-            background-color: rgba(76, 29, 29, 0.7) !important;
-            border-color: rgba(153, 27, 27, 0.7) !important;
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .dark .dark\:bg-blue-900\/20 {
-            background-color: rgba(30, 58, 138, 0.7) !important; /* blue-900 */
-            border-color: rgba(30, 64, 175, 0.7) !important; /* blue-800 */
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .dark .dark\:bg-yellow-900\/20 {
-            background-color: rgba(71, 45, 6, 0.7) !important; /* yellow-900 */
-            border-color: rgba(113, 63, 18, 0.7) !important; /* yellow-800 */
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-        .dark .dark\:bg-green-900\/20 {
-            background-color: rgba(20, 83, 45, 0.7) !important; /* green-900 */
-            border-color: rgba(22, 101, 52, 0.7) !important; /* green-800 */
-            backdrop-filter: blur(16px) saturate(1.1);
-            -webkit-backdrop-filter: blur(16px) saturate(1.1);
-        }
-
-
-        /* TEMA: Notte (SOLIDO, NO VETRO) */
-        .dark.notte .dark\:bg-gray-800 {
-            background-color: #000000 !important; 
-            border-color: #333333 !important; 
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
-        .dark.notte .dark\:bg-gray-700 {
-            background-color: #252526 !important; 
-            border-color: #333333 !important; 
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
-        .dark.notte #sidebar-footer.dark\:bg-gray-800\/50 {
-             background-color: #1e1e1e !important;
-             border-color: #333333 !important; 
-             backdrop-filter: none !important;
-             -webkit-backdrop-filter: none !important;
-        }
-        /* Card colorate (Notte) */
-        .dark.notte .dark\:bg-red-900\/10,
-        .dark.notte .dark\:bg-red-900\/20 {
-            background-color: #450a0a !important; 
-            border-color: #991b1b !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
-        .dark.notte .dark\:bg-blue-900\/20,
-        .dark.notte .dark\:bg-yellow-900\/20,
-        .dark.notte .dark\:bg-green-900\/20 {
-            background-color: #252526 !important; 
-            border-color: #333333 !important; 
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
-        
-        /* Regole Glass per TUTTI i temi chiari personalizzati */
-        html.indigo .bg-white, html.indigo .sticky.bg-white,
-        html.pink .bg-white, html.pink .sticky.bg-white,
-        html.cyan .bg-white, html.cyan .sticky.bg-white,
-        html.yellow .bg-white, html.yellow .sticky.bg-white {
-             background-color: rgba(255, 255, 255, 0.7) !important;
-        }
-        
-        /* Footers */
-        html.indigo #sidebar-footer.bg-gray-50 { background-color: rgba(232, 234, 246, 0.75) !important; }
-        html.pink #sidebar-footer.bg-gray-50 { background-color: rgba(252, 228, 236, 0.75) !important; }
-        html.cyan #sidebar-footer.bg-gray-50 { background-color: rgba(224, 247, 250, 0.75) !important; }
-        html.yellow #sidebar-footer.bg-gray-50 { background-color: rgba(255, 253, 231, 0.75) !important; }
-        
-        /* Card Colorate (Temi Chiari) */
-        html.indigo .bg-red-50, html.pink .bg-red-50, html.cyan .bg-red-50, html.yellow .bg-red-50 {
-            background-color: rgba(254, 242, 242, 0.75) !important;
-        }
-        html.indigo .bg-blue-50, html.pink .bg-blue-50, html.cyan .bg-blue-50, html.yellow .bg-blue-50 {
-             background-color: rgba(239, 246, 255, 0.75) !important;
-        }
-        html.indigo .bg-yellow-50, html.pink .bg-yellow-50, html.cyan .bg-yellow-50, html.yellow .bg-yellow-50 {
-            background-color: rgba(254, 252, 232, 0.75) !important;
-        }
-        html.indigo .bg-green-50, html.pink .bg-green-50, html.cyan .bg-green-50, html.yellow .bg-green-50 {
-             background-color: rgba(240, 253, 244, 0.75) !important;
-        }
-
-        /* Body trasparente per temi chiari */
-        body.bg-gray-50,
-        html.indigo body.bg-gray-50,
-        html.pink body.bg-gray-50,
-        html.cyan body.bg-gray-50,
-        html.yellow body.bg-gray-50 {
-             background-color: transparent !important; 
-             backdrop-filter: none !important; 
-             -webkit-backdrop-filter: none !important;
-        }
-
-    </style>
-
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 antialiased text-sm">
 
@@ -586,25 +121,25 @@
         </div>
         <div class="flex-1 overflow-y-auto py-3">
             <ul class="space-y-1" id="sidebar-nav">
-                <li><a href="#home" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="home" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Dashboard</span></a></li>
-                <li><a href="#virtualstation" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="monitor" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Virtualstation</span></a></li>
-                <li><a href="#amministrazione" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="briefcase" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Amministrazione</span></a></li>
-                <li><a href="#registro" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="clipboard-list" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Registro di Carico</span></a></li>
-                <li><a href="#prezzi" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="tag" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Prezzi</span></a></li>
-                <li><a href="#anagrafica" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="users" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Anagrafica</span></a></li>
-                <li><a href="#spese" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="receipt" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Gestione Spese</span></a></li>
-                <li><a href="#applicazioni" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="grid" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Applicazioni</span></a></li>
-                <li><a href="#informazioni" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="info" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Informazioni</span></a></li>
+                <li><a href="#home" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="home" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Dashboard</span></a></li>
+                <li><a href="#virtualstation" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="monitor" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Virtualstation</span></a></li>
+                <li><a href="#amministrazione" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Amministrazione</span></a></li>
+                <li><a href="#registro" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="clipboard-list" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Registro di Carico</span></a></li>
+                <li><a href="#prezzi" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="tag" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Gestione Prezzi</span></a></li>
+                <li><a href="#anagrafica" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="users" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Anagrafica</span></a></li>
+                <li><a href="#spese" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="receipt" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Gestione Spese</span></a></li>
+                <li><a href="#applicazioni" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="grid" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Applicazioni</span></a></li>
+                <li><a href="#informazioni" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="info" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Informazioni</span></a></li>
             </ul>
         </div>
         <div class="flex-none py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-1" id="sidebar-footer">
-            <a href="#impostazioni" class="flex items-center py-2 px-6 text-sm font-medium text-gray-900 rounded-none dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600" id="link-impostazioni">
-                <i data-lucide="settings" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i>
+            <a href="#impostazioni" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150" id="link-impostazioni">
+                <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i>
                 <span class="ml-3 sidebar-text truncate">Impostazioni</span>
             </a>
             <ul class="space-y-1 pt-1">
-                <li><button id="fullscreen-toggle" class="w-full flex items-center py-2 px-6 text-sm font-medium text-gray-900 rounded-none dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
-                <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center py-2 px-6 text-sm font-medium text-gray-900 rounded-none dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent hover:border-gray-300 dark:hover:border-gray-600"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
+                <li><button id="fullscreen-toggle" class="w-full flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
+                <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
             </ul>
         </div>
     </aside>
