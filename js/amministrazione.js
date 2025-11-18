@@ -83,8 +83,8 @@
                                 <input type="search" id="admin-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca cliente..." value="${this.localState.searchQuery}">
                             </div>
                             <div class="inline-flex rounded-md shadow-sm" role="group">
-                                <button type="button" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-s-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="list" title="Vista Elenco"><i data-lucide="list" class="w-4 h-4"></i></button>
-                                <button type="button" class="px-4 py-2 text-sm font-medium border border-l-0 border-gray-200 rounded-e-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-s-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="list" title="Vista Elenco"><i data-lucide="list" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-l-0 border-gray-200 rounded-e-lg hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 view-btn" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
                             </div>
                             <button id="btn-new-client" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Cliente">
                                 <i data-lucide="user-plus" class="size-4 sm:mr-2"></i>
@@ -146,7 +146,7 @@
         updateViewButtons() {
             document.querySelectorAll('.view-btn').forEach(btn => {
                 const isActive = btn.dataset.view === this.localState.currentView;
-                btn.className = `px-4 py-2 text-sm font-medium border ${btn.dataset.view === 'list' ? 'rounded-s-lg' : 'border-l-0 rounded-e-lg'} ${isActive ? 'z-10 text-primary-600 bg-gray-100 dark:bg-gray-700 dark:text-white' : 'text-gray-900 bg-white hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'} border-gray-200 dark:border-gray-700 view-btn`;
+                btn.className = `px-4 py-2.5 text-sm font-medium border ${btn.dataset.view === 'list' ? 'rounded-s-lg' : 'border-l-0 rounded-e-lg'} ${isActive ? 'z-10 text-primary-600 bg-gray-100 dark:bg-gray-700 dark:text-white' : 'text-gray-900 bg-white hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'} border-gray-200 dark:border-gray-700 view-btn`;
             });
             const titleEl = document.getElementById('admin-view-title');
             if(titleEl) titleEl.textContent = this.localState.currentView === 'list' ? 'Elenco Clienti' : 'Griglia Clienti';
@@ -186,7 +186,6 @@
                 const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-500' : (c.balance < 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-white');
                 const lastTx = this.getLastTransaction(c);
                 
-                // MODIFICA: Card cliente standardizzata con header e divisore
                 return `
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-pointer hover:shadow-md transition-shadow btn-manage-client overflow-hidden" data-id="${c.id}">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
