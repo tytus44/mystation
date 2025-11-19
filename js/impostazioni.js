@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Button Color Fix
+   MODULO: Impostazioni (js/impostazioni.js) - Fix Missing confirmClearData
    ========================================================================== */
 (function() {
     'use strict';
@@ -133,7 +133,7 @@
                         <div id="settings-col-1" class="flex flex-col gap-8 h-full">
                             <div id="card-theme" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
-                                    <div class="flex items-center justify-center w-10 h-10 bg-primary-600 text-white rounded-full shadow-sm mr-4">
+                                    <div class="flex items-center justify-center w-10 h-10 bg-[#0066cc] text-white rounded-full shadow-sm mr-4">
                                         <i data-lucide="palette" class="w-5 h-5"></i>
                                     </div>
                                     <div><h3 class="text-lg font-bold text-gray-900 dark:text-white">Aspetto</h3><p class="text-sm text-gray-500 dark:text-gray-400">Personalizza l'interfaccia</p></div>
@@ -176,25 +176,14 @@
                                         <div><label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Conferma PIN</label><div class="flex items-center gap-3"><div class="flex gap-2" data-pin-group="confirm">${pinInputHTML}</div><button type="button" class="btn-toggle-pin p-2.5 text-gray-400 hover:text-gray-600 rounded-md dark:hover:text-white" data-target="confirm"><i data-lucide="eye" class="w-5 h-5"></i></button></div></div>
                                     </div>
                                     <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                        <button id="btn-save-pin" class="text-white bg-primary-600 hover:bg-primary-700 px-5 py-2.5 rounded-md font-semibold shadow-sm transition-none">Salva PIN</button>
-                                        <button id="btn-logout" class="ml-auto px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center shadow-sm transition-none" title="Blocca applicazione"><i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i> Esci</button>
+                                        <button id="btn-save-pin" class="text-white bg-[#0066cc] hover:bg-[#0052a3] px-5 py-2.5 rounded-md font-semibold shadow-sm transition-all">Salva PIN</button>
+                                        <button id="btn-logout" class="ml-auto px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center shadow-sm transition-all" title="Blocca applicazione"><i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i> Esci</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div id="settings-col-2" class="flex flex-col gap-8 h-full">
-                            <div id="card-backup" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                                <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
-                                    <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full shadow-sm mr-4">
-                                        <i data-lucide="database" class="w-5 h-5"></i>
-                                    </div>
-                                    <div><h3 class="text-lg font-bold text-gray-900 dark:text-white">Dati e Backup</h3><p class="text-sm text-gray-500 dark:text-gray-400">Esporta o importa i tuoi dati</p></div>
-                                </div>
-                                <div class="p-6 flex flex-wrap gap-4">
-                                    <button id="btn-settings-export" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-none"><i data-lucide="download" class="w-4 h-4 mr-2 text-gray-500"></i> Esporta Backup</button>
-                                    <button id="btn-settings-import" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-none"><i data-lucide="upload" class="w-4 h-4 mr-2 text-gray-500"></i> Importa Backup</button>
-                                </div>
-                            </div>
+                            
                             <div id="card-forms" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
                                     <div class="flex items-center justify-center w-10 h-10 bg-orange-500 text-white rounded-full shadow-sm mr-4">
@@ -203,10 +192,24 @@
                                     <div><h3 class="text-lg font-bold text-gray-900 dark:text-white">Modulistica</h3><p class="text-sm text-gray-500 dark:text-gray-400">Download fogli cartacei</p></div>
                                 </div>
                                 <div class="p-6 flex flex-wrap gap-4">
-                                    <a href="pdf/inizio.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center no-underline transition-none dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"><i data-lucide="sun" class="w-4 h-4 mr-2 text-orange-500"></i> Inizio Giornata</a>
-                                    <a href="pdf/fine.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center no-underline transition-none dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"><i data-lucide="moon" class="w-4 h-4 mr-2 text-blue-500"></i> Fine Giornata</a>
+                                    <a href="pdf/inizio.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center no-underline transition-all dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"><i data-lucide="sun" class="w-4 h-4 mr-2 text-orange-500"></i> Inizio Giornata</a>
+                                    <a href="pdf/fine.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center no-underline transition-all dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"><i data-lucide="moon" class="w-4 h-4 mr-2 text-blue-500"></i> Fine Giornata</a>
                                 </div>
                             </div>
+
+                            <div id="card-backup" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full shadow-sm mr-4">
+                                        <i data-lucide="database" class="w-5 h-5"></i>
+                                    </div>
+                                    <div><h3 class="text-lg font-bold text-gray-900 dark:text-white">Dati e Backup</h3><p class="text-sm text-gray-500 dark:text-gray-400">Esporta o importa i tuoi dati</p></div>
+                                </div>
+                                <div class="p-6 flex flex-wrap gap-4">
+                                    <button id="btn-settings-export" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all"><i data-lucide="download" class="w-4 h-4 mr-2 text-gray-500"></i> Esporta Backup</button>
+                                    <button id="btn-settings-import" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all"><i data-lucide="upload" class="w-4 h-4 mr-2 text-gray-500"></i> Importa Backup</button>
+                                </div>
+                            </div>
+                            
                             <div id="card-danger" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
                                     <div class="flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-full shadow-sm mr-4">
@@ -216,12 +219,20 @@
                                 </div>
                                 <div class="p-6">
                                     <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">L'azione è <strong>irreversibile</strong>. Elimina tutti i dati salvati nel browser.</p>
-                                    <button id="btn-clear-data" class="w-full text-white bg-red-600 border border-transparent hover:bg-red-700 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center shadow-sm transition-none"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Tutti i Dati</button>
+                                    <button id="btn-clear-data" class="w-full text-white bg-red-600 border border-transparent hover:bg-red-700 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center shadow-sm transition-all"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Elimina Tutti i Dati</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>`;
+        },
+        
+        // FIX: REINSERITO confirmClearData
+        confirmClearData() {
+            const html = `<div class="text-center p-6 flex flex-col items-center"><div class="p-3 bg-red-50 dark:bg-red-900/30 rounded-full mb-4"><i data-lucide="alert-triangle" class="w-10 h-10 text-red-600 dark:text-red-500"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Sei sicuro?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Questa azione eliminerà <b>TUTTI</b> i dati locali.</p></div>`;
+            const footer = `<div class="flex justify-center gap-3 w-full"><button onclick="App.closeModal()" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 transition-all">Annulla</button><button id="btn-confirm-clear" class="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 shadow-sm transition-all">Sì, elimina dati</button></div>`;
+            App.showModal('', html, footer, 'max-w-md');
+            document.getElementById('btn-confirm-clear').onclick = () => App.clearData();
         },
 
         setupPinInputs(groupName) {
