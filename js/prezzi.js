@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Prezzi (js/prezzi.js) - No Hover Fix
+   MODULO: Gestione Prezzi (js/prezzi.js) - Fixed Stat Cards Style
    ========================================================================== */
 (function() {
     'use strict';
@@ -49,7 +49,7 @@
             
             container.innerHTML = `
                 <div class="flex flex-col gap-6 animate-fade-in">
-                    <div class="flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-800 dark:text-white">Gestione Prezzi Carburante</h2></div>
+                    <div class="flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Gestione Prezzi Carburante</h2></div>
                     
                     <div id="prezzi-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-start">
                         ${this.renderStatCard('stat-benzina', 'Benzina', p.benzina, 'bg-green-500', 'droplets')}
@@ -61,17 +61,17 @@
 
                     <div id="prezzi-main-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                         
-                        <div id="card-grafico" class="lg:col-span-3 flex flex-col bg-white border border-gray-200 shadow-none rounded-lg dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                        <div id="card-grafico" class="lg:col-span-3 flex flex-col bg-white border border-gray-200 shadow-none rounded-lg dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Andamento Prezzi (Anno Corrente)</h3>
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Andamento Prezzi (Anno Corrente)</h3>
                             </div>
                             <div class="p-6 h-96"><canvas id="prezzi-chart-canvas"></canvas></div>
                         </div>
                         
-                        <div id="card-storico" class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-none rounded-lg dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                        <div id="card-storico" class="lg:col-span-2 flex flex-col bg-white border border-gray-200 shadow-none rounded-lg dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Storico Listini Base</h3>
-                                <button id="btn-new-listino" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Nuovo Listino">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Storico Listini Base</h3>
+                                <button id="btn-new-listino" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-md border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-all shadow-sm" title="Nuovo Listino">
                                     <i data-lucide="plus" class="size-4 sm:mr-2"></i>
                                     <span class="hidden sm:inline">Nuovo</span>
                                 </button>
@@ -85,10 +85,10 @@
                             ${this.renderPagination(totalPages)}
                         </div>
 
-                        <div id="card-concorrenza" class="lg:col-span-1 flex flex-col bg-white border border-gray-200 shadow-none rounded-lg dark:bg-gray-800 dark:border-gray-700 draggable-card">
+                        <div id="card-concorrenza" class="lg:col-span-1 flex flex-col bg-white border border-gray-200 shadow-none rounded-lg dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                             <div class="px-6 py-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Concorrenza</h3>
-                                <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-colors" title="Aggiorna Concorrenza">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Concorrenza</h3>
+                                <button id="btn-upd-concorrenza" class="py-2 px-3 inline-flex items-center text-sm font-semibold rounded-md border border-transparent bg-primary-600 text-white hover:bg-primary-700 transition-all shadow-sm" title="Aggiorna Concorrenza">
                                     <i data-lucide="refresh-cw" class="size-4 sm:mr-2"></i>
                                 </button>
                             </div>
@@ -163,11 +163,20 @@
         renderStatCard(id, t, p, bg, i) {
             const showServed = p.self > 0 && p.served !== p.self;
             const priceToShow = (t === 'AdBlue') ? p.listino : p.self;
-            // EOS Style: solid circular icon
-            return `<div id="${id}" class="p-4 ${bg} rounded-lg text-white shadow-none flex justify-between items-center draggable-card cursor-move">
-                <div><h4 class="text-sm font-medium opacity-90">${t}</h4><p class="text-2xl font-bold mt-1">${App.formatPrice(priceToShow)}</p>${showServed?`<p class="text-xs opacity-80 mt-1">Servito: ${App.formatPrice(p.served)}</p>`:''}</div>
-                <div class="flex items-center justify-center w-10 h-10 bg-white/20 rounded-full"><i data-lucide="${i}" class="w-5 h-5"></i></div>
-            </div>`;
+            // FIX: EOS Style (White card, dark text, colored icon circle)
+            return `
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden transition-colors">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header">
+                        <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300">${t}</h3>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full ${bg} text-white shadow-sm">
+                            <i data-lucide="${i}" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">${App.formatPrice(priceToShow)}</div>
+                        ${showServed ? `<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Servito: <span class="font-medium">${App.formatPrice(p.served)}</span></p>` : ''}
+                    </div>
+                </div>`;
         },
 
         renderListiniRows(all) {
@@ -175,19 +184,19 @@
             const start = (this.localState.currentPage - 1) * this.localState.itemsPerPage;
             return all.slice(start, start + this.localState.itemsPerPage).map(i => `
                 <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium dark:text-gray-200">${App.formatDate(i.date)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-200">${App.formatPrice(i.benzina)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-200">${App.formatPrice(i.gasolio)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-200">${App.formatPrice(i.dieselPlus)||'-'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-200">${App.formatPrice(i.hvolution)||'-'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"><button class="btn-edit-listino text-primary-600 hover:underline dark:text-primary-500" data-id="${i.id}">Modifica</button></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${App.formatDate(i.date)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">${App.formatPrice(i.benzina)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">${App.formatPrice(i.gasolio)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">${App.formatPrice(i.dieselPlus)||'-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">${App.formatPrice(i.hvolution)||'-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"><button class="btn-edit-listino text-primary-600 hover:underline dark:text-primary-400" data-id="${i.id}">Modifica</button></td>
                 </tr>`).join('');
         },
 
         renderPagination(totalPages) {
             if (totalPages <= 1) return '';
             const curr = this.localState.currentPage;
-            return `<div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-t border-gray-100 dark:border-gray-700"><div class="text-sm text-gray-600 dark:text-gray-400">Pagina <span class="font-semibold text-gray-900 dark:text-white">${curr}</span> di <span class="font-semibold text-gray-900 dark:text-white">${totalPages}</span></div><div class="inline-flex rounded-md shadow-sm"><button id="p-prev-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-50 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===1?'disabled':''}><i data-lucide="chevron-left" class="w-4 h-4 mr-2"></i> Prec</button><button id="p-next-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-e-lg hover:bg-gray-50 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===totalPages?'disabled':''}>Succ <i data-lucide="chevron-right" class="w-4 h-4 ml-2"></i></button></div></div>`;
+            return `<div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-t border-gray-100 dark:border-gray-700"><div class="text-sm text-gray-600 dark:text-gray-400">Pagina <span class="font-semibold text-gray-900 dark:text-white">${curr}</span> di <span class="font-semibold text-gray-900 dark:text-white">${totalPages}</span></div><div class="inline-flex rounded-md shadow-sm"><button id="p-prev-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-e-0 border-gray-300 rounded-s-md hover:bg-gray-50 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===1?'disabled':''}><i data-lucide="chevron-left" class="w-4 h-4 mr-2"></i> Prec</button><button id="p-next-page" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 rounded-e-md hover:bg-gray-50 hover:text-primary-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50" ${curr===totalPages?'disabled':''}>Succ <i data-lucide="chevron-right" class="w-4 h-4 ml-2"></i></button></div></div>`;
         },
 
         renderConcorrenzaBody(my) {
@@ -250,22 +259,22 @@
             const h = App.state.data.priceHistory;
             const latest = h.length ? [...h].sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
             const d = new Date().toISOString().split('T')[0];
-            const cls = "h-11 py-3 px-4 block w-full border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 shadow-sm text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
+            const cls = "h-11 py-3 px-4 block w-full border-gray-300 rounded-md text-sm focus:border-primary-500 focus:ring-primary-500 shadow-sm text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
             
             const priceInputHTML = (groupName) => {
                 return `
                 <div class="price-input-group" data-price-group="${groupName}">
-                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 </div>`;
             };
             
             const notesVal = i ? (i.notes || '') : '';
             const form = `<form id="form-listino" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium mb-2 dark:text-white">Data Listino</label><input type="date" name="date" value="${i?i.date.split('T')[0]:d}" class="${cls}" required></div><div><label class="block text-sm font-medium mb-2 dark:text-white">Annotazioni</label><input type="text" name="notes" value="${notesVal}" class="${cls}" placeholder="Opzionale..."></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5"><div><label class="block text-sm font-medium mb-2 text-green-600 dark:text-green-500">Benzina *</label>${priceInputHTML('benzina')}</div><div><label class="block text-sm font-medium mb-2 text-orange-600 dark:text-orange-500">Gasolio *</label>${priceInputHTML('gasolio')}</div><div><label class="block text-sm font-medium mb-2 text-rose-600 dark:text-rose-500">Diesel+ *</label>${priceInputHTML('dieselPlus')}</div><div><label class="block text-sm font-medium mb-2 text-cyan-600 dark:text-cyan-500">Hvolution *</label>${priceInputHTML('hvolution')}</div><div><label class="block text-sm font-medium mb-2 text-blue-600 dark:text-blue-500">AdBlue (€/L)</label>${priceInputHTML('adblue')}</div></div></form>`;
             
-            App.showModal(id?'Modifica Listino':'Nuovo Listino Base', form, '<button id="btn-save-listino" class="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">Salva</button>', 'max-w-xl');
+            App.showModal(id?'Modifica Listino':'Nuovo Listino Base', form, '<button id="btn-save-listino" class="py-2 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-semibold shadow-sm transition-all">Salva</button>', 'max-w-xl');
             
             const item = i || latest;
             this.setPriceToInputs('benzina', item?.benzina);
@@ -310,10 +319,10 @@
             const h = App.state.data.competitorPrices;
             const l = h.length ? [...h].sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : {};
             const d = new Date().toISOString().split('T')[0];
-            const cls = "h-11 px-4 block w-full border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 shadow-sm text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
-            const priceInputHTML = (groupName) => { return `<div class="price-input-group" data-price-group="${groupName}"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>`; };
+            const cls = "h-11 px-4 block w-full border-gray-300 rounded-md text-sm focus:border-primary-500 focus:ring-primary-500 shadow-sm text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
+            const priceInputHTML = (groupName) => { return `<div class="price-input-group" data-price-group="${groupName}"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><input type="text" inputmode="numeric" maxlength="1" class="price-square bg-white border border-gray-300 text-gray-900 rounded-md focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>`; };
             const form = `<form id="form-concorrenza" class="space-y-6"><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium mb-2 dark:text-white">Data Rilevazione</label><input type="date" name="date" value="${d}" class="${cls}" required></div><div><label class="block text-sm font-medium mb-2 dark:text-white">Annotazioni</label><input type="text" name="notes" class="${cls}" placeholder="..."></div></div><div class="grid gap-6 items-center" style="grid-template-columns: 80px 1fr 1fr;"><div></div><label class="text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Benzina</label><label class="text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Gasolio</label><div class="font-bold text-gray-800 dark:text-white text-sm">MyOil</div>${priceInputHTML('myoil_benzina')}${priceInputHTML('myoil_gasolio')}<div class="font-bold text-gray-800 dark:text-white text-sm">Esso</div>${priceInputHTML('esso_benzina')}${priceInputHTML('esso_gasolio')}<div class="font-bold text-gray-800 dark:text-white text-sm">Q8</div>${priceInputHTML('q8_benzina')}${priceInputHTML('q8_gasolio')}</div></form>`;
-            App.showModal('Aggiorna Concorrenza', form, '<button id="btn-save-concorrenza" class="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">Salva</button>', 'max-w-2xl');
+            App.showModal('Aggiorna Concorrenza', form, '<button id="btn-save-concorrenza" class="py-2 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-semibold shadow-sm transition-all">Salva</button>', 'max-w-2xl');
             this.setPriceToInputs('myoil_benzina', l.myoil?.benzina); this.setPriceToInputs('myoil_gasolio', l.myoil?.gasolio);
             this.setPriceToInputs('esso_benzina', l.esso?.benzina); this.setPriceToInputs('esso_gasolio', l.esso?.gasolio);
             this.setPriceToInputs('q8_benzina', l.q8?.benzina); this.setPriceToInputs('q8_gasolio', l.q8?.gasolio);
