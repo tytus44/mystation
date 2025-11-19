@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Fix Red Button Style
+   MODULO: Impostazioni (js/impostazioni.js) - Fixed Missing Forms Card
    ========================================================================== */
 (function() {
     'use strict';
@@ -167,6 +167,18 @@
                             </div>
                         </div>
                         <div id="settings-col-2" class="flex flex-col gap-8 h-full">
+                            
+                            <div id="card-forms" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-md mr-4 text-orange-600 dark:text-orange-400"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                    <div><h3 class="text-lg font-bold text-gray-900 dark:text-white">Modulistica</h3><p class="text-sm text-gray-500 dark:text-gray-400">Download fogli cartacei</p></div>
+                                </div>
+                                <div class="p-6 flex flex-wrap gap-4">
+                                    <a href="pdf/inizio.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center no-underline transition-all"><i data-lucide="sun" class="w-4 h-4 mr-2 text-orange-500"></i> Inizio Giornata</a>
+                                    <a href="pdf/fine.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center no-underline transition-all"><i data-lucide="moon" class="w-4 h-4 mr-2 text-blue-500"></i> Fine Giornata</a>
+                                </div>
+                            </div>
+
                             <div id="card-backup" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
                                     <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-md mr-4 text-green-600 dark:text-green-400"><i data-lucide="database" class="w-5 h-5"></i></div>
@@ -177,6 +189,7 @@
                                     <button id="btn-settings-import" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-5 py-3 flex items-center justify-center"><i data-lucide="upload" class="w-4 h-4 mr-2 text-gray-500"></i> Importa Backup</button>
                                 </div>
                             </div>
+                            
                             <div id="card-danger" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
                                     <div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-md mr-4 text-red-600 dark:text-red-400"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
