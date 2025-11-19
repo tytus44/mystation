@@ -27,7 +27,10 @@
                         },
                         gray: {
                             "50": "#f8fafc", "100": "#f1f5f9", "200": "#e2e8f0", "300": "#cbd5e1",
-                            "400": "#94a3b8", "500": "#64748b", "600": "#475569", "700": "#334155",
+                            "400": "#94a3b8", 
+                            "500": "#64748b", 
+                            "600": "#475569",
+                            "700": "#334155", 
                             "800": "#1e293b", "900": "#0f172a",
                         }
                     },
@@ -51,13 +54,10 @@
             height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
             padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
             box-shadow: none !important; transition: border-color 0.2s ease;
-            /* Nota: padding-left/right gestiti dalle classi utility o override specifici sotto */
         }
         
-        /* FIX: Forza il padding sinistro per gli input con icona (classe .ps-10) per evitare sovrapposizione */
-        input.ps-10 {
-            padding-left: 2.5rem !important; /* 40px */
-        }
+        /* FIX: Padding sinistro per icone di ricerca */
+        input.ps-10 { padding-left: 2.5rem !important; }
 
         textarea { height: auto !important; }
         .dark input:not([type="checkbox"]):not([type="radio"]), .dark select, .dark textarea {
@@ -68,8 +68,10 @@
         }
         button, .btn {
             border-radius: 4px !important; text-transform: none; font-weight: 600 !important;
-            transition: background-color 0.2s ease !important; box-shadow: none !important;
+            transition: all 0.2s ease !important; box-shadow: none !important;
         }
+        
+        /* Colors Override */
         .bg-primary-600 { background-color: #0066cc !important; }
         .hover\:bg-primary-700:hover { background-color: #0052a3 !important; }
         .bg-white.border { border-color: #cbd5e1 !important; }
@@ -109,7 +111,7 @@
             background-color: #f0f9ff !important; 
             color: #0066cc !important; 
             border-right: 3px solid #0066cc; 
-            font-weight: 600; 
+            font-weight: 600 !important; 
         }
         .dark aside .active-nav-item { 
             background-color: rgba(0, 102, 204, 0.15) !important; 
@@ -119,10 +121,19 @@
         aside .active-nav-item i { color: #0066cc !important; }
         .dark aside .active-nav-item i { color: #7ccafd !important; }
 
-        .nav-item-inactive { color: #475569 !important; font-weight: 500 !important; }
+        /* INACTIVE STATE */
+        .nav-item-inactive { 
+            color: #475569 !important; 
+            font-weight: 500 !important; 
+        }
         .nav-item-inactive i { color: #475569 !important; }
-        .nav-item-inactive:hover { background-color: #f1f5f9 !important; color: #0066cc !important; }
+
+        .nav-item-inactive:hover { 
+            background-color: #f1f5f9 !important; 
+            color: #0066cc !important; 
+        }
         .nav-item-inactive:hover i { color: #0066cc !important; }
+
         .dark .nav-item-inactive { color: #94a3b8 !important; }
         .dark .nav-item-inactive i { color: #94a3b8 !important; }
         .dark .nav-item-inactive:hover { background-color: #1e293b !important; color: white !important; }
@@ -168,7 +179,7 @@
             </ul>
         </div>
 
-        <div class="flex-none py-4 px-3 border-t border-gray-100 dark:border-gray-800 space-y-1" id="sidebar-footer">
+        <div class="flex-none py-4 px-0 border-t border-gray-100 dark:border-gray-800 space-y-1" id="sidebar-footer">
             <a href="#impostazioni" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200" id="link-impostazioni">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
                 <span class="sidebar-text">Impostazioni</span>
