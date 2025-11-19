@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Spese (js/spese.js) - EOS Icon Sizes
+   MODULO: Gestione Spese (js/spese.js) - EOS Style & Solid Buttons
    ========================================================================== */
 (function() {
     'use strict';
@@ -82,11 +82,11 @@
             return `
                 <div id="spese-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Gestione Spese</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Gestione Spese</h2>
                         <div class="flex flex-wrap items-center gap-3">
-                            <div class="relative"><div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div><input type="search" id="spese-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca spesa..."></div>
+                            <div class="relative"><div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div><input type="search" id="spese-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-white focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca spesa..."></div>
                             <div class="flex gap-2">${this.renderDropdown('filter-month', 'Tutti i mesi')}${this.renderDropdown('filter-year', 'Tutti gli anni')}${this.renderDropdown('filter-label', 'Tutte')}</div>
-                            <button id="btn-new-spesa" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuova Spesa">
+                            <button id="btn-new-spesa" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-4 py-2.5 flex items-center shadow-sm transition-all" title="Nuova Spesa">
                                 <i data-lucide="plus" class="size-4 sm:mr-2"></i>
                                 <span class="hidden sm:inline">Nuova Spesa</span>
                             </button>
@@ -94,22 +94,26 @@
                     </div>
 
                     <div id="spese-sections" class="flex flex-col gap-6">
+                        
                         <div id="sec-spese-stats" class="group">
                             <div id="spese-stats-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start"></div>
                         </div>
+
                         <div id="sec-spese-table" class="group">
-                            <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
-                                <div class="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move section-handle hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" title="Sposta sezione">
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Elenco Movimenti</h3>
+                            <div class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move section-handle transition-colors" title="Sposta sezione">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Elenco Movimenti</h3>
                                 </div>
-                                <div class="p-6" id="spese-table-container"></div>
+                                <div class="p-6" id="spese-table-container">
+                                    </div>
                             </div>
                         </div>
+
                     </div>
                 </div>`;
         },
 
-        renderDropdown(id, defaultText) { return `<div class="relative"><button id="${id}-btn" data-dropdown-toggle="${id}-dropdown" class="flex items-center justify-between w-full p-2.5 text-sm font-medium text-gray-900 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-primary-800" type="button"><span id="${id}-text" class="truncate mr-2">${defaultText}</span><svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="${id}-dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 max-h-64 overflow-y-auto"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="${id}-btn" id="${id}-list"></ul></div></div>`; },
+        renderDropdown(id, defaultText) { return `<div class="relative"><button id="${id}-btn" data-dropdown-toggle="${id}-dropdown" class="flex items-center justify-between w-full p-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700" type="button"><span id="${id}-text" class="truncate mr-2">${defaultText}</span><svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="${id}-dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 max-h-64 overflow-y-auto"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="${id}-btn" id="${id}-list"></ul></div></div>`; },
         updateFilterDropdowns() {
             const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
             const years = [...new Set(App.state.data.spese.map(s => new Date(s.date).getFullYear()))].sort((a,b)=>b-a);
@@ -137,6 +141,7 @@
                 document.getElementById('val-count').textContent = spese.length;
                 document.getElementById('val-max').textContent = App.formatCurrency(max);
             } else {
+                // FIX: Icone circolari e solide
                 container.innerHTML = `
                     ${this.renderStatCard('stat-total', 'Totale (Filtrato)', 'val-total', App.formatCurrency(total), 'bg-red-600', 'trending-down')}
                     ${this.renderStatCard('stat-count', 'Numero Transazioni', 'val-count', spese.length, 'bg-orange-500', 'list')}
@@ -145,17 +150,18 @@
                 lucide.createIcons();
             }
         },
+        
         renderStatCard(id, title, valId, value, iconBg, iconName) {
             return `
-                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
-                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full shadow-sm">
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden transition-colors">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header">
+                        <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300">${title}</h3>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full ${iconBg} text-white shadow-sm">
                             <i data-lucide="${iconName}" class="w-5 h-5"></i>
                         </div>
                     </div>
                     <div class="p-6">
-                        <div class="text-2xl font-bold text-gray-900 dark:text-white" id="${valId}">${value}</div>
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight" id="${valId}">${value}</div>
                     </div>
                 </div>`;
         },
@@ -164,8 +170,10 @@
             const spese = this.getFilteredSpese();
             const content = document.getElementById('spese-table-container');
             if (!content) return;
+
             if (!spese.length) { content.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">Nessuna spesa trovata.</div>'; return; }
             const labels = App.state.data.speseEtichette.reduce((acc, l) => { acc[l.id] = l; return acc; }, {});
+            
             content.innerHTML = `
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -174,7 +182,7 @@
                             ${spese.map(s => { 
                                 const l = labels[s.labelId] || labels['default'] || { name: 'Non trovata', color: '#9ca3af' }; 
                                 const badgeStyle = `background-color: ${l.color}20; color: ${l.color}; border: 1px solid ${l.color}60;`; 
-                                return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="btn-edit-spesa font-medium text-primary-600 dark:text-primary-500 hover:underline" data-id="${s.id}">Modifica</button></td></tr>`; 
+                                return `<tr class="border-b dark:border-gray-700 transition-colors"><td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">${App.formatDate(s.date)}</td><td class="px-4 py-3">${s.description}</td><td class="px-4 py-3">${s.fornitore || '-'}</td><td class="px-4 py-3"><span class="text-xs font-medium px-2.5 py-0.5 rounded" style="${badgeStyle}">${l.name}</span></td><td class="px-4 py-3 font-bold text-red-600 dark:text-red-500">${App.formatCurrency(s.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="font-medium text-primary-600 dark:text-primary-400 hover:underline btn-edit-spesa" data-id="${s.id}">Modifica</button></td></tr>`; 
                             }).join('')}
                         </tbody>
                     </table>
@@ -191,21 +199,33 @@
             return spese.sort((a,b) => new Date(b.date) - new Date(a.date));
         },
 
+        // --- MODALS ---
         openSpesaModal(id=null) {
             this.localState.editingSpesaId = id;
             const s = id ? App.state.data.spese.find(x=>x.id===id) : null;
             const dISO = s ? s.date.split('T')[0] : new Date().toISOString().split('T')[0];
-            const cls = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
+            const cls = "bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
+            
             let curLabelId = s?.labelId;
             let labelObj = App.state.data.speseEtichette.find(l => l.id === curLabelId);
-            if (!labelObj) { labelObj = App.state.data.speseEtichette.find(l => l.id === 'default') || App.state.data.speseEtichette[0]; curLabelId = labelObj ? labelObj.id : ''; }
+            if (!labelObj) {
+                labelObj = App.state.data.speseEtichette.find(l => l.id === 'default') || App.state.data.speseEtichette[0];
+                curLabelId = labelObj ? labelObj.id : '';
+            }
             const curLabelName = labelObj ? labelObj.name : 'Seleziona...';
-            const form = `<form id="form-spesa" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Importo (€)</label><input type="number" step="0.01" name="amount" value="${s?.amount||''}" class="${cls}" placeholder="0.00" required></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="description" value="${s?.description||''}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fornitore (opzionale)</label><input type="text" name="fornitore" value="${s?.fornitore||''}" class="${cls}"></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Etichetta</label><div class="flex gap-2"><div class="relative flex-1">${this.renderDropdown('spesa-label', curLabelName)}<input type="hidden" name="labelId" id="spesa-label-input" value="${curLabelId}"></div><button type="button" id="btn-manage-labels" class="px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 flex items-center" title="Gestisci Etichette"><i data-lucide="tags" class="w-5 h-5 sm:mr-2"></i><span class="hidden sm:inline">Gestisci etichette</span></button></div></div></form>`;
-            const deleteBtn = id ? `<button id="btn-delete-spesa" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
-            App.showModal(id?'Modifica Spesa':'Nuova Spesa', form, `${deleteBtn}<button id="btn-save-spesa" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5">Salva</button>`, 'max-w-md');
+
+            const form = `<form id="form-spesa" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Importo (€)</label><input type="number" step="0.01" name="amount" value="${s?.amount||''}" class="${cls}" placeholder="0.00" required></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="description" value="${s?.description||''}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fornitore (opzionale)</label><input type="text" name="fornitore" value="${s?.fornitore||''}" class="${cls}"></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Etichetta</label><div class="flex gap-2"><div class="relative flex-1">${this.renderDropdown('spesa-label', curLabelName)}<input type="hidden" name="labelId" id="spesa-label-input" value="${curLabelId}"></div><button type="button" id="btn-manage-labels" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-600 flex items-center" title="Gestisci Etichette"><i data-lucide="tags" class="w-5 h-5 sm:mr-2"></i><span class="hidden sm:inline">Gestisci etichette</span></button></div></div></form>`;
+            
+            // FIX: Pulsante "Elimina" rosso solido
+            const deleteBtn = id ? `<button id="btn-delete-spesa" class="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-md text-sm px-5 py-2.5 text-center mr-auto shadow-sm transition-all">Elimina</button>` : '';
+            
+            // FIX: Pulsante "Salva" blu EOS
+            App.showModal(id?'Modifica Spesa':'Nuova Spesa', form, `${deleteBtn}<button id="btn-save-spesa" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-5 py-2.5 transition-all shadow-sm">Salva</button>`, 'max-w-md');
+            
             lucide.createIcons(); initFlowbite(); 
             this.populateDropdown('spesa-label', App.state.data.speseEtichette.map(l => ({ val: l.id, text: l.name })), curLabelId);
             document.querySelectorAll('.spesa-label-opt').forEach(opt => { opt.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('spesa-label-input').value = e.target.dataset.val; document.getElementById('spesa-label-text').textContent = e.target.textContent; const d = document.getElementById('spesa-label-dropdown'); if(d && typeof Flowbite !== 'undefined') { const di = Flowbite.instances.getInstance('Dropdown', d.id); if(di) di.hide(); else d.classList.add('hidden'); } }); });
+
             document.getElementById('btn-save-spesa').onclick = () => this.saveSpesa();
             if(id) document.getElementById('btn-delete-spesa').onclick = () => this.deleteSpesa(id);
             document.getElementById('btn-manage-labels').onclick = () => this.openLabelsModal();
@@ -219,11 +239,12 @@
         },
 
         showDeleteModal(title, message, onConfirm) {
-            const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${title}</h3><p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p></div>`;
-            const footer = `<div class="flex justify-center gap-4 w-full"><button id="btn-cancel-del" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
+            const body = `<div class="text-center p-6 flex flex-col items-center"><div class="p-3 bg-red-50 dark:bg-red-900/30 rounded-full mb-4"><i data-lucide="alert-triangle" class="w-10 h-10 text-red-600 dark:text-red-500"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">${title}</h3><p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p></div>`;
+            const footer = `<div class="flex justify-center gap-4 w-full"><button id="btn-cancel-del" class="py-2.5 px-5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-all">Annulla</button><button id="btn-confirm-del" class="py-2.5 px-5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 shadow-sm transition-all">Elimina</button></div>`;
             App.showModal('', body, footer, 'max-w-md');
             document.getElementById('btn-cancel-del').onclick = () => { if(this.localState.editingSpesaId) this.openSpesaModal(this.localState.editingSpesaId); else if(document.getElementById('new-label-name')) this.openLabelsModal(); else App.closeModal(); };
             document.getElementById('btn-confirm-del').onclick = onConfirm;
+            lucide.createIcons();
         },
         deleteSpesa(id) {
             this.showDeleteModal('Eliminare spesa?', 'Questa azione è irreversibile.', () => {
@@ -244,8 +265,9 @@
             const labels = App.state.data.speseEtichette;
             this.localState.newLabelColor = LABEL_COLORS[0].value; 
             const colorButtons = LABEL_COLORS.map(c => `<button type="button" class="w-8 h-8 rounded-full border-2 transition-all color-swatch" style="background-color: ${c.value}; border-color: ${c.value === this.localState.newLabelColor ? 'var(--color-primary-600)' : 'transparent'}" data-color="${c.value}" title="${c.name}"></button>`).join('');
-            const body = `<div class="space-y-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nuova Etichetta</label><div class="flex gap-2 mb-2"><input type="text" id="new-label-name" class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Nome etichetta"><button id="btn-add-label" class="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700">Aggiungi</button></div><div class="flex gap-2" id="color-swatches">${colorButtons}</div></div><div class="max-h-64 overflow-y-auto border border-gray-200 rounded-lg dark:border-gray-700"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><tbody>${labels.map(l => `<tr class="border-b last:border-0 dark:border-gray-700"><td class="px-4 py-3"><span class="w-3 h-3 inline-block rounded-full mr-2" style="background-color: ${l.color}"></span> ${l.name}</td><td class="px-4 py-3 text-right">${l.id!=='default' ? `<button class="text-red-600 hover:underline btn-del-label" data-id="${l.id}">Elimina</button>` : '<span class="text-xs text-gray-400">Default</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
-            App.showModal('Gestisci Etichette', body, '<button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600" onclick="App.closeModal()">Chiudi</button>', 'max-w-md');
+            const body = `<div class="space-y-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nuova Etichetta</label><div class="flex gap-2 mb-2"><input type="text" id="new-label-name" class="flex-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-md p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Nome etichetta"><button id="btn-add-label" class="px-4 py-2 text-white bg-primary-600 rounded-md hover:bg-primary-700 shadow-sm transition-all">Aggiungi</button></div><div class="flex gap-2" id="color-swatches">${colorButtons}</div></div><div class="max-h-64 overflow-y-auto border border-gray-200 rounded-md dark:border-gray-700"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><tbody>${labels.map(l => `<tr class="border-b last:border-0 dark:border-gray-700"><td class="px-4 py-3"><span class="w-3 h-3 inline-block rounded-full mr-2" style="background-color: ${l.color}"></span> ${l.name}</td><td class="px-4 py-3 text-right">${l.id!=='default' ? `<button class="text-red-600 hover:underline btn-del-label" data-id="${l.id}">Elimina</button>` : '<span class="text-xs text-gray-400">Default</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+            App.showModal('Gestisci Etichette', body, '<button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-all" onclick="App.closeModal()">Chiudi</button>', 'max-w-md');
+
             document.querySelectorAll('.color-swatch').forEach(btn => { btn.onclick = () => { this.localState.newLabelColor = btn.dataset.color; document.querySelectorAll('.color-swatch').forEach(b => b.style.borderColor = 'transparent'); btn.style.borderColor = '#2563eb'; }; });
             document.getElementById('btn-add-label').onclick = () => { const name = document.getElementById('new-label-name').value.trim(); if(name) { App.state.data.speseEtichette.push({ id: App.generateId('lbl'), name, color: this.localState.newLabelColor }); App.saveToStorage(); this.openLabelsModal(); this.updateView(); } };
             document.querySelectorAll('.btn-del-label').forEach(b => b.onclick = () => this.deleteLabel(b.dataset.id));

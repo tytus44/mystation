@@ -46,16 +46,7 @@
         body { background-color: #f8fafc; color: #334155; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
         html.dark body { background-color: #0f172a; color: #cbd5e1; }
 
-        /* --- ACCESSIBILITY FIX: KEYBOARD NAVIGATION --- */
-        *:focus-visible {
-            outline: 2px solid #0066cc !important;
-            outline-offset: 2px !important;
-        }
-        .dark *:focus-visible {
-            outline-color: #7ccafd !important;
-        }
-
-        /* INPUTS */
+        /* --- INPUTS --- */
         input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], input[type="search"], select, textarea {
             height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
             padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
@@ -63,6 +54,12 @@
         }
         input.ps-10 { padding-left: 2.5rem !important; }
         textarea { height: auto !important; }
+        
+        /* HIDE SPINNERS */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
+        input[type="number"] { -moz-appearance: textfield !important; appearance: textfield !important; }
+
         .dark input:not([type="checkbox"]):not([type="radio"]), .dark select, .dark textarea {
             background-color: #1e293b !important; border-color: #475569 !important; color: white !important; color-scheme: dark;
         }
@@ -70,53 +67,35 @@
             border-color: #0066cc !important; outline: none !important; box-shadow: 0 0 0 1px #0066cc !important;
         }
 
-        /* BUTTONS - NO HOVER */
+        /* BUTTONS */
         button, .btn {
             border-radius: 4px !important; text-transform: none; font-weight: 600 !important;
-            transition: none !important; box-shadow: none !important;
+            transition: background-color 0.2s ease !important; box-shadow: none !important;
         }
-        .bg-primary-600:hover { background-color: #0066cc !important; } 
+        .bg-primary-600 { background-color: #0066cc !important; }
+        .bg-primary-600:hover, .hover\:bg-primary-700:hover { background-color: #0052a3 !important; }
+        .bg-red-600 { background-color: #dc2626 !important; }
+        .bg-red-600:hover, .hover\:bg-red-700:hover { background-color: #b91c1c !important; }
         
         .bg-white.border { border-color: #cbd5e1 !important; }
         .bg-white.border:hover { background-color: #ffffff !important; border-color: #cbd5e1 !important; color: inherit !important; }
         
         .dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; border-color: #475569 !important; }
-        .dark .bg-white:hover { background-color: #1e293b !important; color: #e2e8f0 !important; }
+        .dark .bg-white:hover { background-color: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
 
-        /* CARDS - NO HOVER */
+        /* CARDS */
         .draggable-card, .card { 
-            border-radius: 6px !important; 
-            border: 1px solid #e2e8f0 !important; 
-            box-shadow: none !important; 
-            background-color: #ffffff !important;
-            transition: none !important;
+            border-radius: 6px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background-color: #ffffff !important; transition: none !important;
         }
-        .dark .draggable-card, .dark .card { 
-            border-color: #334155 !important; 
-            background-color: #1e293b !important;
-        }
-        .draggable-card:hover, .card:hover {
-            border-color: #e2e8f0 !important;
-            box-shadow: none !important;
-            transform: none !important;
-        }
-        .dark .draggable-card:hover, .dark .card:hover {
-            border-color: #334155 !important;
-            background-color: #1e293b !important;
-        }
-
+        .dark .draggable-card, .dark .card { border-color: #334155 !important; background-color: #1e293b !important; }
+        .draggable-card:hover, .card:hover { border-color: #e2e8f0 !important; box-shadow: none !important; transform: none !important; }
+        .dark .draggable-card:hover, .dark .card:hover { border-color: #334155 !important; background-color: #1e293b !important; }
         .card-header { background-color: transparent !important; border-bottom: 1px solid #f1f5f9 !important; padding: 1rem 1.5rem !important; }
         .dark .card-header { border-bottom-color: #334155 !important; }
 
-        /* MODALS FIXED BORDER */
-        html.dark #generic-modal .relative.bg-white {
-            background-color: #1e293b !important;
-            border: 1px solid #334155 !important;
-        }
-        html.dark #generic-modal .border-b,
-        html.dark #generic-modal .border-t {
-            border-color: #334155 !important;
-        }
+        /* MODALS */
+        html.dark #generic-modal .relative.bg-white { background-color: #1e293b !important; border: 1px solid #334155 !important; }
+        html.dark #generic-modal .border-b, html.dark #generic-modal .border-t { border-color: #334155 !important; }
 
         /* UTILS */
         input[type="radio"], input[type="checkbox"] { color: #0066cc !important; border-color: #cbd5e1 !important; }
@@ -136,7 +115,7 @@
         .pin-square-small { width: 2.5rem !important; height: 2.5rem !important; text-align: center; padding: 0 !important; font-size: 1.125rem; }
         .price-square { width: 2.5rem !important; height: 2.75rem !important; padding: 0 !important; text-align: center; }
 
-        /* SIDEBAR - STRICT NO HOVER */
+        /* SIDEBAR */
         aside { border-right: 1px solid #e2e8f0 !important; }
         .dark aside { border-right: 1px solid #334155 !important; }
         
@@ -235,6 +214,17 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
-    <script src="js/app.js"></script><script src="js/home.js"></script><script src="js/virtualstation.js"></script><script src="js/amministrazione.js"></script><script src="js/registro.js"></script><script src="js/prezzi.js"></script><script src="js/anagrafica.js"></script><script src="js/spese.js"></script><script src="js/applicazioni.js"></script><script src="js/informazioni.js"></script><script src="js/impostazioni.js"></script>
+    
+    <script src="js/app.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/virtualstation.js"></script>
+    <script src="js/amministrazione.js"></script>
+    <script src="js/registro.js"></script>
+    <script src="js/prezzi.js"></script>
+    <script src="js/anagrafica.js"></script>
+    <script src="js/spese.js"></script>
+    <script src="js/applicazioni.js"></script>
+    <script src="js/informazioni.js"></script>
+    <script src="js/impostazioni.js"></script>
 </body>
 </html>

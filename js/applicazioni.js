@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - No Hover Fix
+   MODULO: Applicazioni (js/applicazioni.js) - Scorporo IVA Redesign
    ========================================================================== */
 (function() {
     'use strict';
@@ -67,8 +67,8 @@
                 const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
                 const layout = { 
                     top: getIds('apps-top-grid'), 
-                    col1: getIds('apps-col-1'),
-                    col2: getIds('apps-col-2'),
+                    col1: getIds('apps-col-1'), 
+                    col2: getIds('apps-col-2'), 
                     col3: getIds('apps-col-3')
                 };
                 localStorage.setItem('mystation_apps_layout_v1', JSON.stringify(layout));
@@ -94,6 +94,7 @@
 
         getLayoutHTML() {
             const fuelProducts = [ { key: 'benzina', label: 'Benzina' }, { key: 'gasolio', label: 'Gasolio' }, { key: 'dieselplus', label: 'Diesel+' }, { key: 'hvolution', label: 'Hvo' } ];
+            
             const simpleCardStart = (id, title, icon, iconBg) => `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
@@ -121,9 +122,9 @@
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Calendario</h3>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button id="cal-prev" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-left" class="size-5"></i></button>
-                                    <button id="cal-today" class="px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 dark:bg-gray-700 dark:text-primary-400">Oggi</button>
-                                    <button id="cal-next" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-right" class="size-5"></i></button>
+                                    <button id="cal-prev" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-md dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-left" class="size-5"></i></button>
+                                    <button id="cal-today" class="px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-md hover:bg-primary-100 dark:bg-gray-700 dark:text-primary-400">Oggi</button>
+                                    <button id="cal-next" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-md dark:text-gray-400 dark:hover:bg-gray-700"><i data-lucide="chevron-right" class="size-5"></i></button>
                                 </div>
                             </div>
                             <div class="p-6">
@@ -141,7 +142,7 @@
                                     <div class="flex items-center justify-center w-10 h-10 bg-purple-600 text-white rounded-full shadow-sm mr-3"><i data-lucide="list-todo" class="size-5"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Eventi</h3>
                                 </div>
-                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-3 py-2 flex items-center transition-colors" title="Nuovo Evento">
+                                <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-md text-sm px-3 py-2 flex items-center transition-all shadow-sm" title="Nuovo Evento">
                                     <i data-lucide="plus" class="size-4 sm:mr-1.5"></i><span class="hidden sm:inline">Nuovo</span>
                                 </button>
                             </div>
@@ -157,30 +158,40 @@
                             ${simpleCardStart('app-card-fuel', 'Ordine Carburante', 'truck', 'bg-cyan-600')}
                                 <div class="mb-5">
                                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Consegna</label>
-                                    <input type="date" id="fuel-order-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="${this.localState.fuelOrder.date}">
+                                    <input type="date" id="fuel-order-date" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="${this.localState.fuelOrder.date}">
                                 </div>
                                 <div class="space-y-4" id="fuel-order-form">
                                     ${fuelProducts.map(p => `
                                         <div class="flex items-center justify-between gap-4">
                                             <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p.label}</label>
-                                            <div class="flex items-center">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.key}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button>
-                                                <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.key}" value="0">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.key}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button>
+                                            <div class="flex items-center join-group">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-imp border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec join-item" data-p="${p.key}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button>
+                                                <input type="text" readonly class="h-10 w-24 text-center bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white rounded-none-imp join-item -ml-px" id="fuel-${p.key}" value="0">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-imp border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc join-item -ml-px" data-p="${p.key}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button>
                                             </div>
                                         </div>`).join('')}
                                 </div>
                                 <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <div class="flex justify-between items-center mb-4"><span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Stimato:</span><span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span></div>
-                                    <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine"><i data-lucide="save" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Salva Ordine</span></button>
+                                    <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-md text-sm px-5 py-2.5 text-center flex items-center justify-center transition-all shadow-sm" title="Salva Ordine"><i data-lucide="save" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Salva Ordine</span></button>
                                 </div>
                             ${simpleCardEnd} 
-                            ${simpleCardStart('app-card-iva', 'Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
-                                <div class="space-y-4 mb-6">
-                                    <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label><input type="number" id="iva-lordo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
-                                    <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Imponibile (Netto)</label><input type="number" id="iva-netto" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
+                            
+                            ${simpleCardStart('app-card-iva', 'Scorporo IVA (22%)', 'percent', 'bg-orange-500')}
+                                <div class="mb-6">
+                                    <label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label>
+                                    <input type="number" id="iva-lordo" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00">
                                 </div>
-                                <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center"><span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valore IVA:</span><span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span></div>
+                                <div class="space-y-3">
+                                    <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Imponibile:</span>
+                                        <span id="iva-imponibile" class="text-xl font-bold text-gray-900 dark:text-white">€ 0,00</span>
+                                    </div>
+                                    <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valore IVA:</span>
+                                        <span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span>
+                                    </div>
+                                </div>
                             ${simpleCardEnd} 
                         </div>
 
@@ -213,7 +224,7 @@
                                     <div class="overflow-hidden"><div class="text-xs text-gray-500 dark:text-gray-400">In Riproduzione:</div><div id="radio-now-playing" class="text-sm font-medium text-gray-900 dark:text-white truncate">Nessuna radio</div></div>
                                 </div>
                                 <audio id="radio-player" preload="none"></audio>
-                                <div><input type="text" id="radio-search-input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Cerca stazione..."></div>
+                                <div><input type="text" id="radio-search-input" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Cerca stazione..."></div>
                                 <div id="radio-station-list" class="mt-4 h-64 overflow-y-auto space-y-2 pr-2"></div>
                             ${simpleCardEnd}
                         </div>
@@ -224,10 +235,10 @@
                                     ${[500,200,100,50,20,10,5].map(t => `
                                         <div class="flex items-center justify-between gap-2">
                                             <span class="text-sm font-medium w-12 text-gray-900 dark:text-white">€ ${t}</span>
-                                            <div class="flex items-center">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button>
-                                                <input type="text" readonly class="w-16 h-10 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white" id="money-q-${t}" value="0">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button>
+                                            <div class="flex items-center join-group">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-imp border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec join-item" data-t="${t}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button>
+                                                <input type="text" readonly class="w-16 h-10 text-center bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white rounded-none-imp join-item -ml-px" id="money-q-${t}" value="0">
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-imp border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc join-item -ml-px" data-t="${t}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button>
                                             </div>
                                             <span class="text-sm font-bold w-20 text-right text-gray-900 dark:text-white" id="money-tot-${t}">€ 0</span>
                                         </div>`).join('')}
@@ -238,7 +249,7 @@
                                 </div>
                             ${simpleCardEnd} 
                             ${simpleCardStart('app-card-notes', 'Note Rapide', 'clipboard-list', 'bg-yellow-500')}
-                                <textarea id="app-notes-textarea" class="w-full h-64 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-primary-500 focus:border-primary-500" placeholder="Scrivi qui le tue note..."></textarea>
+                                <textarea id="app-notes-textarea" class="w-full h-64 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-primary-500 focus:border-primary-500" placeholder="Scrivi qui le tue note..."></textarea>
                             ${simpleCardEnd} 
                         </div>
                     </div> 
@@ -302,13 +313,15 @@
             let evt = null; if(id) evt = (type==='app' ? App.state.data.appuntamenti : App.state.data.todos).find(e=>e.id===id);
             const modalType = type || (evt?.type === 'app' ? 'app' : 'todo');
             const isApp = modalType === 'app';
-            const renderDropdown = (eid, label, opts, sel) => `<div class="relative"><button id="${eid}Btn" data-dropdown-toggle="${eid}Drop" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 flex justify-between items-center dark:bg-gray-700 dark:border-gray-600 dark:text-white" type="button"><span id="${eid}Sel">${opts.find(o=>o.v===sel)?.t||label}</span><svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="${eid}Drop" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-full absolute dark:bg-gray-700"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="${eid}Btn">${opts.map(o=>`<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white ${eid}-opt" data-v="${o.v}">${o.t}</a></li>`).join('')}</ul></div><input type="hidden" id="${eid}Inp" value="${sel}"></div>`;
+            const renderDropdown = (eid, label, opts, sel) => `<div class="relative"><button id="${eid}Btn" data-dropdown-toggle="${eid}Drop" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 flex justify-between items-center dark:bg-gray-700 dark:border-gray-600 dark:text-white" type="button"><span id="${eid}Sel">${opts.find(o=>o.v===sel)?.t||label}</span><svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="${eid}Drop" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-full absolute dark:bg-gray-700"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="${eid}Btn">${opts.map(o=>`<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white ${eid}-opt" data-v="${o.v}">${o.t}</a></li>`).join('')}</ul></div><input type="hidden" id="${eid}Inp" value="${sel}"></div>`;
             const typeOpts = [{v:'app',t:'Appuntamento'},{v:'todo',t:'To-Do'}];
             const durOpts = [{v:'30 min',t:'30 minuti'},{v:'1 ora',t:'1 ora'},{v:'2 ore',t:'2 ore'}];
             const prioOpts = [{v:'standard',t:'Standard'},{v:'priority',t:'Importante'},{v:'urgent',t:'Urgente'}];
-            const form = `<form id="form-event" class="space-y-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Evento</label>${renderDropdown('evType','Tipo',typeOpts,modalType)}</div><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${evt?(evt.date||evt.dueDate):d}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required></div><div id="time-fld" class="${isApp?'':'hidden'}"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ora</label><input type="time" name="time" value="${evt?.oraInizio||'09:00'}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="desc" value="${evt?(evt.descrizione||evt.text):''}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required></div><div id="app-ext" class="${isApp?'':'hidden'}"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Durata</label>${renderDropdown('evDur','Durata',durOpts,evt?.durata||'30 min')}</div><div id="todo-ext" class="${!isApp?'':'hidden'}"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Priorità</label>${renderDropdown('evPrio','Priorità',prioOpts,evt?.priorita||'standard')}</div></form>`;
-            const delBtn = id ? `<button id="btn-del-event" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 mr-auto">Elimina</button>` : '';
-            App.showModal(id?'Modifica Evento':'Nuovo Evento', form, `${delBtn}<button id="btn-save-event" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva</button>`, 'max-w-md');
+            const form = `<form id="form-event" class="space-y-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo Evento</label>${renderDropdown('evType','Tipo',typeOpts,modalType)}</div><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${evt?(evt.date||evt.dueDate):d}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required></div><div id="time-fld" class="${isApp?'':'hidden'}"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ora</label><input type="time" name="time" value="${evt?.oraInizio||'09:00'}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="desc" value="${evt?(evt.descrizione||evt.text):''}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required></div><div id="app-ext" class="${isApp?'':'hidden'}"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Durata</label>${renderDropdown('evDur','Durata',durOpts,evt?.durata||'30 min')}</div><div id="todo-ext" class="${!isApp?'':'hidden'}"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Priorità</label>${renderDropdown('evPrio','Priorità',prioOpts,evt?.priorita||'standard')}</div></form>`;
+            
+            const delBtn = id ? `<button id="btn-del-event" class="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-md text-sm px-5 py-2.5 mr-auto shadow-sm transition-all">Elimina</button>` : '';
+            
+            App.showModal(id?'Modifica Evento':'Nuovo Evento', form, `${delBtn}<button id="btn-save-event" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-5 py-2.5 ml-auto shadow-sm transition-all">Salva</button>`, 'max-w-md');
             initFlowbite();
             ['evType','evDur','evPrio'].forEach(id => { document.querySelectorAll(`.${id}-opt`).forEach(o => o.onclick = (e) => { e.preventDefault(); document.getElementById(`${id}Sel`).textContent = o.textContent; document.getElementById(`${id}Inp`).value = o.dataset.v; document.getElementById(`${id}Drop`).classList.add('hidden'); if(id==='evType') { const isA = o.dataset.v==='app'; document.getElementById('time-fld').style.display=isA?'block':'none'; document.getElementById('app-ext').style.display=isA?'block':'none'; document.getElementById('todo-ext').style.display=!isA?'block':'none'; } }); });
             document.getElementById('btn-save-event').onclick = () => this.saveEvent();
@@ -328,7 +341,7 @@
         },
         deleteEvent(id, type) {
             const body = `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare evento?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Questa azione è irreversibile.</p></div>`;
-            const footer = `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-del-evt" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800">Elimina</button></div>`;
+            const footer = `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-all">Annulla</button><button id="btn-confirm-del-evt" class="py-2.5 px-5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 shadow-sm transition-all">Elimina</button></div>`;
             App.showModal('', body, footer, 'max-w-md');
             document.getElementById('btn-confirm-del-evt').onclick = () => {
                 if(type==='app') App.state.data.appuntamenti = App.state.data.appuntamenti.filter(e=>e.id!==id); else App.state.data.todos = App.state.data.todos.filter(e=>e.id!==id);
@@ -338,10 +351,11 @@
 
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         updateIva(source) {
-            const l = parseFloat(document.getElementById('iva-lordo').value), n = parseFloat(document.getElementById('iva-netto').value);
-            let val = 0; if(source==='lordo' && !isNaN(l)) { val = l - (l / 1.22); document.getElementById('iva-netto').value = (l - val).toFixed(2); }
-            else if(source==='netto' && !isNaN(n)) { val = n * 0.22; document.getElementById('iva-lordo').value = (n + val).toFixed(2); }
-            document.getElementById('iva-value').textContent = App.formatCurrency(val);
+            const l = parseFloat(document.getElementById('iva-lordo').value);
+            let netto = 0, iva = 0;
+            if (source==='lordo' && !isNaN(l)) { netto = l / 1.22; iva = l - netto; }
+            document.getElementById('iva-imponibile').textContent = App.formatCurrency(netto);
+            document.getElementById('iva-value').textContent = App.formatCurrency(iva);
         },
         updateBanconote(t, inc) {
             this.localState.banconote[t] = Math.max(0, this.localState.banconote[t] + (inc ? 1 : -1));
@@ -442,7 +456,7 @@
             document.getElementById('cal-next').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()+1); this.renderCalendar(); };
             document.getElementById('cal-today').onclick = () => { this.localState.currentDate = new Date(); this.localState.selectedDateISO = App.toLocalISOString(new Date()); this.renderCalendar(); this.renderEventsList(); };
             document.getElementById('btn-add-event').onclick = () => this.openEventModal();
-            document.getElementById('iva-lordo').oninput = () => this.updateIva('lordo'); document.getElementById('iva-netto').oninput = () => this.updateIva('netto');
+            document.getElementById('iva-lordo').oninput = () => this.updateIva('lordo');
             document.querySelectorAll('.btn-money-inc').forEach(b => b.onclick = () => this.updateBanconote(b.dataset.t, true));
             document.querySelectorAll('.btn-money-dec').forEach(b => b.onclick = () => this.updateBanconote(b.dataset.t, false));
             document.querySelectorAll('.btn-fuel-inc').forEach(b => b.onclick = () => this.updateFuelOrder(b.dataset.p, true));

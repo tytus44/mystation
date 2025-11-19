@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - No Hover Fix
+   MODULO: Anagrafica (js/anagrafica.js) - Primary Buttons Fix
    ========================================================================== */
 (function() {
     'use strict';
@@ -59,21 +59,21 @@
             return `
                 <div id="anagrafica-layout" class="flex flex-col gap-6 animate-fade-in">
                     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Anagrafica</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Anagrafica</h2>
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="relative">
                                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
-                                <input type="search" id="anag-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca contatto..." value="${this.localState.searchQuery}">
+                                <input type="search" id="anag-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-white focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca contatto..." value="${this.localState.searchQuery}">
                             </div>
                             <div class="flex gap-2">
-                                <button id="btn-new-contatto" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Contatto">
+                                <button id="btn-new-contatto" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-4 py-2.5 flex items-center shadow-sm transition-all" title="Nuovo Contatto">
                                     <i data-lucide="user-plus" class="size-4 sm:mr-2"></i>
                                     <span class="hidden sm:inline">Nuovo</span>
                                 </button>
-                                <button id="btn-import-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
-                                <button id="btn-export-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
-                                <button id="btn-print-anag" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
-                                <button id="btn-del-all-contatti" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
+                                <button id="btn-import-csv" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
+                                <button id="btn-export-csv" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
+                                <button id="btn-print-anag" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
+                                <button id="btn-del-all-contatti" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-md text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700 transition-all" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
                             </div>
                         </div>
                     </div>
@@ -106,16 +106,16 @@
             }
             
             content.innerHTML = `<div id="anag-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">${contatti.map(c => `
-                <div class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move relative group draggable-card overflow-hidden" data-id="${c.id}">
+                <div class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move relative group draggable-card overflow-hidden transition-colors" data-id="${c.id}">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg flex-shrink-0">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
+                            <div class="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg flex-shrink-0 shadow-sm">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
                             <div class="truncate">
                                 <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight truncate" title="${c.cognome} ${c.nome}">${c.cognome} ${c.nome}</h3>
                                 ${c.azienda ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate" title="${c.azienda}">${c.azienda}</p>` : ''}
                             </div>
                         </div>
-                        <button class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-500 btn-edit-contatto p-1 ml-2 flex-shrink-0" data-id="${c.id}" title="Modifica">
+                        <button class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-500 btn-edit-contatto p-1 ml-2 flex-shrink-0 transition-colors" data-id="${c.id}" title="Modifica">
                             <i data-lucide="pencil" class="size-4"></i>
                         </button>
                     </div>
@@ -144,7 +144,7 @@
         openContattoModal(id=null) {
             this.localState.editingId = id;
             const c = id ? App.state.data.contatti.find(x=>x.id===id) : null;
-            const cls = "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
+            const cls = "bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
             
             const form = `
                 <form id="form-contatto" class="space-y-4">
@@ -160,8 +160,11 @@
                     <div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Note</label><textarea name="note" rows="3" class="${cls}">${c?.note||''}</textarea></div>
                 </form>`;
 
-            const delBtn = id ? `<button id="btn-del-contatto" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 mr-auto">Elimina</button>` : '';
-            App.showModal(id?'Modifica Contatto':'Nuovo Contatto', form, `${delBtn}<button id="btn-save-contatto" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva</button>`);
+            // FIX: Pulsante Elimina solido (Red)
+            const delBtn = id ? `<button id="btn-del-contatto" class="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-md text-sm px-5 py-2.5 mr-auto shadow-sm transition-all">Elimina</button>` : '';
+            
+            // FIX: Pulsante Salva Primario (Blue 600)
+            App.showModal(id?'Modifica Contatto':'Nuovo Contatto', form, `${delBtn}<button id="btn-save-contatto" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-5 py-2.5 ml-auto shadow-sm transition-all">Salva</button>`);
 
             document.getElementById('btn-save-contatto').onclick = () => this.saveContatto();
             if(id) document.getElementById('btn-del-contatto').onclick = () => this.deleteContatto(id);

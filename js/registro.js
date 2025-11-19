@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Registro di Carico (js/registro.js) - EOS Icon Sizes
+   MODULO: Registro di Carico (js/registro.js) - Button Color Fix
    ========================================================================== */
 (function() {
     'use strict';
@@ -85,7 +85,7 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="relative">
                                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
-                                <input type="search" id="reg-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca autista..." value="${this.localState.searchQuery}">
+                                <input type="search" id="reg-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca autista..." value="${this.localState.searchQuery}">
                             </div>
                             <button id="btn-new-carico" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Carico">
                                 <i data-lucide="truck" class="size-4 sm:mr-2"></i>
@@ -189,7 +189,7 @@
             const prev = App.state.data.previousYearStock[key] || 0;
             const chiusura = (data.carico || 0) + prev + (data.diff_pos || 0) + (data.diff_neg || 0);
             const inputClass = "prev-year-input w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white";
-            return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${label}</td><td class="px-4 py-3">${App.formatInt(data.carico)}</td><td class="px-4 py-3 text-green-600">${App.formatInt(data.diff_pos)}</td><td class="px-4 py-3 text-red-600">${App.formatInt(data.diff_neg)}</td><td class="px-4 py-3"><input type="number" class="${inputClass}" data-key="${key}" value="${prev}"></td><td class="px-4 py-3 font-bold">${App.formatInt(chiusura)}</td></tr>`;
+            return `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${label}</td><td class="px-4 py-3">${App.formatInt(data.carico)}</td><td class="px-4 py-3 text-green-600 dark:text-green-400">${App.formatInt(data.diff_pos)}</td><td class="px-4 py-3 text-red-600 dark:text-red-400">${App.formatInt(data.diff_neg)}</td><td class="px-4 py-3"><input type="number" class="${inputClass}" data-key="${key}" value="${prev}"></td><td class="px-4 py-3 font-bold">${App.formatInt(chiusura)}</td></tr>`;
         },
 
         renderTable() {
@@ -259,7 +259,7 @@
         fmtCell(p) {
             if(!p || (!p.carico && !p.differenza)) return '-';
             const diff = p.differenza || 0;
-            const diffHtml = diff !== 0 ? `<span class="${diff>0?'text-green-600':'text-red-600'} text-xs ml-1">(${diff>0?'+':''}${App.formatInt(diff)})</span>` : '';
+            const diffHtml = diff !== 0 ? `<span class="${diff>0?'text-green-600 dark:text-green-400':'text-red-600 dark:text-red-400'} text-xs ml-1">(${diff>0?'+':''}${App.formatInt(diff)})</span>` : '';
             return `<div><span class="font-medium">${App.formatInt(p.carico)}</span>${diffHtml}</div>`;
         },
 
@@ -315,7 +315,8 @@
             const numInput = (p, f) => `<div class="flex items-center justify-center"><button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-dec" data-t="${p}_${f}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button><input type="number" id="${p}_${f}" value="${c?.[p]?.[f]||0}" class="flex-shrink-0 h-10 ${f==='carico'?'w-16':'w-14'} bg-gray-50 border-y border-x-0 border-gray-300 dark:border-gray-600 text-center text-gray-900 text-sm focus:ring-primary-500 focus:border-primary-500 block dark:bg-gray-800 dark:text-white" required><button type="button" class="flex-shrink-0 flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-inc" data-t="${p}_${f}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button></div>`;
             const form = `<form id="form-carico" class="space-y-6"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Operazione</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Autista</label><input type="text" name="autista" value="${c?.autistaName||''}" class="${cls}" placeholder="Cognome Nome" required></div></div><div class="space-y-4"><div class="grid grid-cols-3 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>Carico</div><div>Differenza</div></div>${['Benzina','Gasolio','DieselPlus','Hvolution'].map(p => { const k = p==='DieselPlus'?'dieselPlus':p.toLowerCase(); return `<div class="grid grid-cols-3 gap-4 items-center"><div class="text-gray-900 dark:text-white font-medium">${p}</div><div>${numInput(k,'carico')}</div><div>${numInput(k,'differenza')}</div></div>`; }).join('')}</div></form>`;
             const deleteBtn = id ? `<button id="btn-delete-carico" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
-            App.showModal(id?'Modifica Carico':'Nuovo Carico', form, `${deleteBtn}<button id="btn-save-carico" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva Carico</button>`, 'max-w-lg');
+            // FIX: bg-primary-600
+            App.showModal(id?'Modifica Carico':'Nuovo Carico', form, `${deleteBtn}<button id="btn-save-carico" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva Carico</button>`, 'max-w-lg');
             document.getElementById('btn-save-carico').onclick = () => this.saveCarico();
             if(id) document.getElementById('btn-delete-carico').onclick = () => this.deleteCarico(id);
             lucide.createIcons();

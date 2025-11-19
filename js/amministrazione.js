@@ -1,8 +1,9 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - No Hover Clean
+   MODULO: Amministrazione (js/amministrazione.js) - Joined Buttons Fix
    ========================================================================== */
 (function() {
     'use strict';
+
     const AdminModule = {
         localState: { sort: { column: 'name', direction: 'asc' }, searchQuery: '', currentView: 'list', editingClientId: null },
         init() { if (!App.state.data.clients) App.state.data.clients = []; this.localState.currentView = localStorage.getItem('admin_view_mode') || 'list'; },
@@ -19,8 +20,8 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="relative"><div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div><input type="search" id="admin-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-white focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca cliente..." value="${this.localState.searchQuery}"></div>
                             <div class="inline-flex rounded-md shadow-sm" role="group">
-                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-s-md focus:z-10 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white view-btn" data-view="list" title="Vista Elenco"><i data-lucide="list" class="w-4 h-4"></i></button>
-                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-e-md focus:z-10 focus:ring-2 focus:ring-primary-500 -ml-px dark:bg-gray-800 dark:border-gray-600 dark:text-white view-btn" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-s-imp focus:z-10 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 view-btn join-item" data-view="list" title="Vista Elenco"><i data-lucide="list" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-e-imp focus:z-10 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 view-btn join-item" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
                             </div>
                             <button id="btn-new-client" class="text-white bg-primary-600 font-semibold rounded-md text-sm px-4 py-2.5 flex items-center shadow-sm transition-none" title="Nuovo Cliente"><i data-lucide="user-plus" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Nuovo Cliente</span></button>
                             <button id="btn-print-list" class="text-gray-700 bg-white border border-gray-300 font-medium rounded-md text-sm px-4 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-none" title="Stampa Lista"><i data-lucide="printer" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Stampa Lista</span></button>
@@ -50,8 +51,9 @@
         updateViewButtons() {
             document.querySelectorAll('.view-btn').forEach(btn => {
                 const isActive = btn.dataset.view === this.localState.currentView;
-                let classes = "px-4 py-2.5 text-sm font-medium border view-btn transition-all focus:z-10 focus:ring-2 focus:ring-primary-500 ";
-                if (btn.dataset.view === 'list') { classes += "rounded-s-md "; } else { classes += "rounded-e-md -ml-px "; }
+                // Fix: usa le classi .rounded-s-imp e .rounded-e-imp e .join-item
+                let classes = "px-4 py-2.5 text-sm font-medium border view-btn transition-all focus:z-10 focus:ring-2 focus:ring-primary-500 join-item ";
+                if (btn.dataset.view === 'list') { classes += "rounded-s-imp "; } else { classes += "rounded-e-imp "; }
                 if (isActive) { classes += "z-10 text-white bg-primary-600 border-primary-600"; } else { classes += "text-gray-700 bg-white border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"; }
                 btn.className = classes;
             });
