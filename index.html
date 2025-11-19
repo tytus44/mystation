@@ -46,99 +46,112 @@
         body { background-color: #f8fafc; color: #334155; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
         html.dark body { background-color: #0f172a; color: #cbd5e1; }
 
-        /* INPUTS & CONTROLS */
+        /* --- ACCESSIBILITY FIX: KEYBOARD NAVIGATION --- */
+        *:focus-visible {
+            outline: 2px solid #0066cc !important;
+            outline-offset: 2px !important;
+        }
+        .dark *:focus-visible {
+            outline-color: #7ccafd !important;
+        }
+
+        /* INPUTS */
         input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], input[type="search"], select, textarea {
             height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
             padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
-            box-shadow: none !important; transition: border-color 0.2s ease;
+            box-shadow: none !important; transition: none !important;
         }
-        
         input.ps-10 { padding-left: 2.5rem !important; }
-
         textarea { height: auto !important; }
         .dark input:not([type="checkbox"]):not([type="radio"]), .dark select, .dark textarea {
-            background-color: #1e293b !important; border-color: #475569 !important; color: white !important;
+            background-color: #1e293b !important; border-color: #475569 !important; color: white !important; color-scheme: dark;
         }
         input:focus, select:focus, textarea:focus {
             border-color: #0066cc !important; outline: none !important; box-shadow: 0 0 0 1px #0066cc !important;
         }
+
+        /* BUTTONS - NO HOVER */
         button, .btn {
             border-radius: 4px !important; text-transform: none; font-weight: 600 !important;
-            transition: background-color 0.2s ease !important; box-shadow: none !important;
+            transition: none !important; box-shadow: none !important;
         }
-        .bg-primary-600 { background-color: #0066cc !important; }
-        .hover\:bg-primary-700:hover { background-color: #0052a3 !important; }
+        .bg-primary-600:hover { background-color: #0066cc !important; } 
+        
         .bg-white.border { border-color: #cbd5e1 !important; }
-        .bg-white.border:hover { background-color: #f1f5f9 !important; border-color: #94a3b8 !important; color: #0066cc !important; }
+        .bg-white.border:hover { background-color: #ffffff !important; border-color: #cbd5e1 !important; color: inherit !important; }
+        
+        .dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+        .dark .bg-white:hover { background-color: #1e293b !important; color: #e2e8f0 !important; }
 
-        /* CARDS */
-        .draggable-card, .card { border-radius: 6px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; transition: border-color 0.2s ease; }
-        .dark .draggable-card { border-color: #334155 !important; }
-        .draggable-card:hover { box-shadow: none !important; transform: none !important; border-color: #94a3b8 !important; }
-        .dark .draggable-card:hover { border-color: #64748b !important; }
+        /* CARDS - NO HOVER */
+        .draggable-card, .card { 
+            border-radius: 6px !important; 
+            border: 1px solid #e2e8f0 !important; 
+            box-shadow: none !important; 
+            background-color: #ffffff !important;
+            transition: none !important;
+        }
+        .dark .draggable-card, .dark .card { 
+            border-color: #334155 !important; 
+            background-color: #1e293b !important;
+        }
+        .draggable-card:hover, .card:hover {
+            border-color: #e2e8f0 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .dark .draggable-card:hover, .dark .card:hover {
+            border-color: #334155 !important;
+            background-color: #1e293b !important;
+        }
+
         .card-header { background-color: transparent !important; border-bottom: 1px solid #f1f5f9 !important; padding: 1rem 1.5rem !important; }
-        .dark .card-header { border-bottom-color: #1e293b !important; }
+        .dark .card-header { border-bottom-color: #334155 !important; }
+
+        /* MODALS FIXED BORDER */
+        html.dark #generic-modal .relative.bg-white {
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+        }
+        html.dark #generic-modal .border-b,
+        html.dark #generic-modal .border-t {
+            border-color: #334155 !important;
+        }
 
         /* UTILS */
         input[type="radio"], input[type="checkbox"] { color: #0066cc !important; border-color: #cbd5e1 !important; }
         input[type="radio"]:checked, input[type="checkbox"]:checked { background-color: #0066cc !important; border-color: #0066cc !important; box-shadow: none !important; }
-        input[type="radio"]:focus, input[type="checkbox"]:focus { box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2) !important; }
         .datepicker { z-index: 99999 !important; }
         .hidden-section { display: none !important; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background-color: #475569; }
-        ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
         .sortable-ghost { opacity: 0.5; background-color: #f0f9ff !important; border: 1px dashed #0066cc !important; }
 
-        /* BANNER */
         #home-banner { background-image: url('img/banner_day.png'); background-size: cover; background-position: center; border: 1px solid #e2e8f0; border-radius: 6px !important; }
         .dark #home-banner { background-image: url('img/banner_night.png'); border: 1px solid #334155; }
 
-        /* PIN SQUARES - RIDOTTE DIMENSIONI */
-        .pin-square { 
-            width: 3rem !important; /* 48px */
-            height: 3rem !important; 
-            text-align: center;
-            font-size: 1.5rem;
-            padding: 0 !important;
-        }
-        .pin-square-small { 
-            width: 2.5rem !important; /* 40px */
-            height: 2.5rem !important;
-            text-align: center;
-            font-size: 1.125rem;
-            padding: 0 !important;
-        }
-        .price-square { height: auto !important; }
+        .pin-square { width: 3rem !important; height: 3rem !important; text-align: center; padding: 0 !important; font-size: 1.5rem; }
+        .pin-square-small { width: 2.5rem !important; height: 2.5rem !important; text-align: center; padding: 0 !important; font-size: 1.125rem; }
+        .price-square { width: 2.5rem !important; height: 2.75rem !important; padding: 0 !important; text-align: center; }
 
-        /* SIDEBAR STYLES */
+        /* SIDEBAR - STRICT NO HOVER */
         aside { border-right: 1px solid #e2e8f0 !important; }
         .dark aside { border-right: 1px solid #334155 !important; }
         
-        aside .active-nav-item { 
-            background-color: #f0f9ff !important; 
-            color: #0066cc !important; 
-            border-right: 3px solid #0066cc; 
-            font-weight: 600; 
-        }
-        .dark aside .active-nav-item { 
-            background-color: rgba(0, 102, 204, 0.15) !important; 
-            color: #7ccafd !important; 
-            border-right: 3px solid #7ccafd; 
-        }
+        aside .active-nav-item { background-color: #f0f9ff !important; color: #0066cc !important; border-right: 3px solid #0066cc; font-weight: 600; }
+        .dark aside .active-nav-item { background-color: rgba(0, 102, 204, 0.15) !important; color: #7ccafd !important; border-right: 3px solid #7ccafd; }
         aside .active-nav-item i { color: #0066cc !important; }
         .dark aside .active-nav-item i { color: #7ccafd !important; }
 
-        .nav-item-inactive { color: #475569 !important; font-weight: 500 !important; }
-        .nav-item-inactive i { color: #475569 !important; }
-        .nav-item-inactive:hover { background-color: #f1f5f9 !important; color: #0066cc !important; }
-        .nav-item-inactive:hover i { color: #0066cc !important; }
+        .nav-item-inactive { color: #475569 !important; font-weight: 500 !important; background-color: transparent !important; }
+        .nav-item-inactive:hover { background-color: transparent !important; color: #475569 !important; }
+        .nav-item-inactive:hover i { color: #475569 !important; }
+        
         .dark .nav-item-inactive { color: #94a3b8 !important; }
-        .dark .nav-item-inactive i { color: #94a3b8 !important; }
-        .dark .nav-item-inactive:hover { background-color: #1e293b !important; color: white !important; }
-        .dark .nav-item-inactive:hover i { color: white !important; }
+        .dark .nav-item-inactive:hover { background-color: transparent !important; color: #94a3b8 !important; }
+        .dark .nav-item-inactive:hover i { color: #94a3b8 !important; }
     </style>
 </head>
 <body class="antialiased text-sm text-gray-700 dark:text-gray-300 font-sans">
@@ -168,28 +181,28 @@
         
         <div class="flex-1 overflow-y-auto py-4 px-0">
             <ul class="space-y-0.5" id="sidebar-nav">
-                <li><a href="#home" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Dashboard</span></a></li>
-                <li><a href="#virtualstation" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="monitor" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Virtualstation</span></a></li>
-                <li><a href="#amministrazione" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Amministrazione</span></a></li>
-                <li><a href="#registro" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="clipboard-list" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Registro Carico</span></a></li>
-                <li><a href="#prezzi" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="tag" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Prezzi</span></a></li>
-                <li><a href="#anagrafica" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="users" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Anagrafica</span></a></li>
-                <li><a href="#spese" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="receipt" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Spese</span></a></li>
-                <li><a href="#applicazioni" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="grid" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Applicazioni</span></a></li>
-                <li><a href="#informazioni" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="info" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Informazioni</span></a></li>
+                <li><a href="#home" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Dashboard</span></a></li>
+                <li><a href="#virtualstation" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="monitor" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Virtualstation</span></a></li>
+                <li><a href="#amministrazione" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Amministrazione</span></a></li>
+                <li><a href="#registro" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="clipboard-list" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Registro Carico</span></a></li>
+                <li><a href="#prezzi" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="tag" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Prezzi</span></a></li>
+                <li><a href="#anagrafica" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="users" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Anagrafica</span></a></li>
+                <li><a href="#spese" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="receipt" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Spese</span></a></li>
+                <li><a href="#applicazioni" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="grid" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Applicazioni</span></a></li>
+                <li><a href="#informazioni" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="info" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Informazioni</span></a></li>
             </ul>
         </div>
 
         <div class="flex-none py-4 px-0 border-t border-gray-100 dark:border-gray-800 space-y-1" id="sidebar-footer">
-            <a href="#impostazioni" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200" id="link-impostazioni">
+            <a href="#impostazioni" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm group transition-none" id="link-impostazioni">
                 <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
                 <span class="sidebar-text">Impostazioni</span>
             </a>
-            <button id="fullscreen-toggle" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200">
+            <button id="fullscreen-toggle" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm group transition-none">
                 <i data-lucide="maximize" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
                 <span class="sidebar-text">Schermo intero</span>
             </button>
-            <button id="sidebar-collapse-toggle" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200 hidden lg:flex">
+            <button id="sidebar-collapse-toggle" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm group transition-none hidden lg:flex">
                 <i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
                 <span class="sidebar-text">Riduci menu</span>
             </button>
@@ -213,41 +226,15 @@
         <div class="relative p-4 w-full max-w-2xl max-h-full"><div class="relative bg-white rounded-lg shadow-xl dark:bg-gray-800 border border-gray-200 dark:border-gray-700"><div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 rounded-t-lg"><h3 class="text-lg font-bold text-gray-900 dark:text-white tracking-tight" id="generic-modal-title"></h3><button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-md text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white" onclick="App.closeModal()"><svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div><div class="p-6 space-y-6" id="generic-modal-body"></div><div class="flex items-center justify-end p-5 border-t border-gray-100 dark:border-gray-700 gap-3 bg-gray-50/50 dark:bg-gray-800 rounded-b-lg" id="generic-modal-footer"></div></div></div>
     </div>
     <div id="global-toast" class="hidden fixed top-6 right-6 z-[70] flex items-center w-full max-w-xs p-4 mb-4 text-gray-600 bg-white rounded-md shadow-lg border border-gray-200 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700 transition-all transform translate-y-0" role="alert"><div id="toast-icon-container" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-md"><i id="toast-icon" class="w-5 h-5"></i></div><div class="ms-3 text-sm font-semibold" id="toast-message"></div><button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-md focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" onclick="document.getElementById('global-toast').classList.add('hidden')"><svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div>
+    
     <input type="file" id="import-file-input" accept=".json" class="hidden">
     <input type="file" id="import-anagrafica-input" accept=".csv" class="hidden">
     <input type="file" id="import-stazioni-input" accept=".csv" class="hidden">
     
-    <div id="pin-lockscreen" class="fixed inset-0 z-[9999] flex justify-center items-center bg-gray-100/90 dark:bg-gray-950/90 backdrop-blur-md" style="display: none;">
-        <div class="w-full max-w-sm p-8 bg-white rounded-lg shadow-xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800" id="pin-modal-content">
-            <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-50 dark:bg-primary-900/30 rounded-full mb-6 text-primary-600"><img src="img/logo.svg" alt="Logo" class="w-10 h-10"></div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Bentornato</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Inserisci il PIN per accedere</p>
-                <div id="pin-inputs-container" class="mb-6 justify-center gap-3">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-1" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-2" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-3" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-4" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                </div>
-                <p id="pin-error-msg" class="text-sm text-red-600 mt-2 mb-4 hidden font-medium bg-red-50 p-2 rounded">PIN non valido</p>
-                <button id="pin-unlock-btn" class="w-full text-white bg-[#0066cc] hover:bg-[#0052a3] font-semibold rounded-md text-base px-5 py-3 transition-all shadow-sm">Sblocca Accesso</button>
-            </div>
-        </div>
-    </div>
+    <div id="pin-lockscreen" class="fixed inset-0 z-[9999] flex justify-center items-center bg-gray-100/90 dark:bg-gray-950/90 backdrop-blur-md" style="display: none;"><div class="w-full max-w-sm p-8 bg-white rounded-lg shadow-xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800" id="pin-modal-content"><div class="text-center"><div class="inline-flex items-center justify-center w-16 h-16 bg-primary-50 dark:bg-primary-900/30 rounded-full mb-6 text-primary-600"><img src="img/logo.svg" alt="Logo" class="w-10 h-10"></div><h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Bentornato</h2><p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Inserisci il PIN per accedere</p><div id="pin-inputs-container" class="mb-6 justify-center gap-3"><input type="password" inputmode="numeric" maxlength="1" id="pin-1" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"><input type="password" inputmode="numeric" maxlength="1" id="pin-2" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"><input type="password" inputmode="numeric" maxlength="1" id="pin-3" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"><input type="password" inputmode="numeric" maxlength="1" id="pin-4" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"></div><p id="pin-error-msg" class="text-sm text-red-600 mt-2 mb-4 hidden font-medium bg-red-50 p-2 rounded">PIN non valido</p><button id="pin-unlock-btn" class="w-full text-white bg-[#0066cc] hover:bg-[#0052a3] font-semibold rounded-md text-base px-5 py-3 transition-all shadow-sm">Sblocca Accesso</button></div></div></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
-    
-    <script src="js/app.js"></script>
-    <script src="js/home.js"></script>
-    <script src="js/virtualstation.js"></script>
-    <script src="js/amministrazione.js"></script>
-    <script src="js/registro.js"></script>
-    <script src="js/prezzi.js"></script>
-    <script src="js/anagrafica.js"></script>
-    <script src="js/spese.js"></script>
-    <script src="js/applicazioni.js"></script>
-    <script src="js/informazioni.js"></script>
-    <script src="js/impostazioni.js"></script>
+    <script src="js/app.js"></script><script src="js/home.js"></script><script src="js/virtualstation.js"></script><script src="js/amministrazione.js"></script><script src="js/registro.js"></script><script src="js/prezzi.js"></script><script src="js/anagrafica.js"></script><script src="js/spese.js"></script><script src="js/applicazioni.js"></script><script src="js/informazioni.js"></script><script src="js/impostazioni.js"></script>
 </body>
 </html>

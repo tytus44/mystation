@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Anagrafica (js/anagrafica.js) - Search includes Notes
+   MODULO: Anagrafica (js/anagrafica.js) - No Hover Fix
    ========================================================================== */
 (function() {
     'use strict';
@@ -24,7 +24,6 @@
                 this.attachListeners();
             }
             this.updateView();
-            // Ripristina e inizializza Drag & Drop
             this.restoreLayout();
             this.initDragAndDrop();
         },
@@ -39,7 +38,7 @@
                 new Sortable(grid, {
                     animation: 150,
                     ghostClass: 'sortable-ghost',
-                    handle: '.card-header', // Trascina dall'intestazione standardizzata
+                    handle: '.card-header', 
                     onSort: () => this.saveLayout()
                 });
             }
@@ -53,7 +52,7 @@
         },
 
         restoreLayout() {
-            // Il ripristino avviene direttamente in renderGrid per l'anagrafica
+            // Restoration happens in renderGrid
         },
 
         getLayoutHTML() {
@@ -64,16 +63,16 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="relative">
                                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div>
-                                <input type="search" id="anag-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca contatto..." value="${this.localState.searchQuery}">
+                                <input type="search" id="anag-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca contatto..." value="${this.localState.searchQuery}">
                             </div>
                             <div class="flex gap-2">
                                 <button id="btn-new-contatto" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-4 py-2.5 flex items-center" title="Nuovo Contatto">
                                     <i data-lucide="user-plus" class="size-4 sm:mr-2"></i>
                                     <span class="hidden sm:inline">Nuovo</span>
                                 </button>
-                                <button id="btn-import-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
-                                <button id="btn-export-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
-                                <button id="btn-print-anag" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
+                                <button id="btn-import-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Importa CSV"><i data-lucide="upload" class="size-4"></i></button>
+                                <button id="btn-export-csv" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Esporta CSV"><i data-lucide="download" class="size-4"></i></button>
+                                <button id="btn-print-anag" class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" title="Stampa"><i data-lucide="printer" class="size-4"></i></button>
                                 <button id="btn-del-all-contatti" class="text-red-600 bg-white border border-red-200 hover:bg-red-50 font-medium rounded-lg text-sm px-3 py-2.5 dark:bg-gray-800 dark:text-red-500 dark:border-red-900 dark:hover:bg-gray-700" title="Elimina Tutto"><i data-lucide="trash-2" class="size-4"></i></button>
                             </div>
                         </div>
@@ -107,10 +106,10 @@
             }
             
             content.innerHTML = `<div id="anag-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">${contatti.map(c => `
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move hover:shadow-md transition-shadow relative group draggable-card overflow-hidden" data-id="${c.id}">
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
+                <div class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 flex flex-col cursor-move relative group draggable-card overflow-hidden" data-id="${c.id}">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg flex-shrink-0">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
+                            <div class="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-lg flex-shrink-0">${(c.cognome?.[0]||c.nome?.[0]||'?').toUpperCase()}</div>
                             <div class="truncate">
                                 <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight truncate" title="${c.cognome} ${c.nome}">${c.cognome} ${c.nome}</h3>
                                 ${c.azienda ? `<p class="text-xs text-gray-500 dark:text-gray-400 truncate" title="${c.azienda}">${c.azienda}</p>` : ''}
@@ -135,20 +134,17 @@
         getFilteredContatti() {
             let c = [...App.state.data.contatti];
             const q = this.localState.searchQuery.toLowerCase();
-            // MODIFICA: Aggiunto controllo anche sul campo 'note'
             if(q) c = c.filter(x => (x.nome||'').toLowerCase().includes(q) || (x.cognome||'').toLowerCase().includes(q) || (x.azienda||'').toLowerCase().includes(q) || (x.note||'').toLowerCase().includes(q));
-            
             if (q || !localStorage.getItem('mystation_anagrafica_layout')) {
                  return c.sort((a,b) => (a.cognome||'').localeCompare(b.cognome||''));
             }
             return c;
         },
 
-        // --- MODALS ---
         openContattoModal(id=null) {
             this.localState.editingId = id;
             const c = id ? App.state.data.contatti.find(x=>x.id===id) : null;
-            const cls = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
+            const cls = "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
             
             const form = `
                 <form id="form-contatto" class="space-y-4">
@@ -181,7 +177,6 @@
         deleteContatto(id) { if(confirm('Eliminare contatto?')) { App.state.data.contatti = App.state.data.contatti.filter(c=>c.id!==id); App.saveToStorage(); App.closeModal(); this.updateView(); } },
         deleteAll() { if(confirm('SEI SICURO? Questa azione eliminerà TUTTI i contatti.')) { App.state.data.contatti = []; App.saveToStorage(); this.updateView(); } },
 
-        // --- IMPORT/EXPORT/PRINT ---
         exportCSV() {
             const c = App.state.data.contatti; if(!c.length) return alert('Nessun contatto.');
             const csv = ['Nome,Cognome,Azienda,Telefono,Email,Note', ...c.map(x => `"${x.nome}","${x.cognome}","${x.azienda}","${x.telefono1}","${x.email}","${x.note}"`)].join('\n');

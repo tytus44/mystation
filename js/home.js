@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - EOS Icon Sizes
+   MODULO: Home Dashboard (js/home.js) - No Hover Fix
    ========================================================================== */
 (function() {
     'use strict';
@@ -244,7 +244,7 @@
                     else if (e.priorita === 'urgent') { borderClass = 'border-red-200 dark:border-red-800'; bgClass = 'bg-red-50 dark:bg-red-900/20'; iconColor = 'text-red-600 dark:text-red-400'; labelColor = 'text-red-700 dark:text-red-300'; labelText = 'Urgente'; }
                     else if (e.priorita === 'priority') { borderClass = 'border-yellow-200 dark:border-yellow-800'; bgClass = 'bg-yellow-50 dark:bg-yellow-900/20'; iconColor = 'text-yellow-600 dark:text-yellow-400'; labelColor = 'text-yellow-700 dark:text-yellow-300'; labelText = 'Importante'; }
                     else { borderClass = 'border-green-200 dark:border-green-800'; bgClass = 'bg-green-50 dark:bg-green-900/20'; iconColor = 'text-green-600 dark:text-green-400'; labelColor = 'text-green-700 dark:text-green-300'; labelText = 'Standard'; }
-                    return `<div class="p-3 border ${borderClass} ${bgClass} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow home-event-item" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${iconColor}"></i><div class="truncate"><div class="text-xs font-semibold ${labelColor}">${labelText}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
+                    return `<div class="p-3 border ${borderClass} ${bgClass} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-none transition-none home-event-item" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type==='app'?'clock':'check-circle'}" class="size-5 flex-shrink-0 ${iconColor}"></i><div class="truncate"><div class="text-xs font-semibold ${labelColor}">${labelText}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type==='app'?e.descrizione:e.text}</div></div></div></div>`;
                 }).join('');
             }
             

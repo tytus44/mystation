@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Applicazioni (js/applicazioni.js) - Add Fuel Order to Calendar (as To-Do)
+   MODULO: Applicazioni (js/applicazioni.js) - No Hover Fix
    ========================================================================== */
 (function() {
     'use strict';
@@ -13,8 +13,8 @@
             fuelOrder: { date: App.toLocalISOString(new Date()), benzina:0, gasolio:0, dieselplus:0, hvolution:0 },
             editingEventId: null,
             eventModal: { type: 'app', date: '', time: '09:00', desc: '', duration: '30 min', priority: 'standard' },
-            calculatorInput: '', // Stato per la calcolatrice
-            radioStations: [], // Stato per la radio
+            calculatorInput: '',
+            radioStations: [],
             currentStation: null,
             audioPlayer: null
         },
@@ -44,30 +44,20 @@
             this.renderEventsList();
             this.updateFuelTotal();
             this.updateBanconoteTotal();
-            this.loadNotes(); // Carica le note
-            this.initRadio(); // Inizializza la radio
+            this.loadNotes();
+            this.initRadio();
         },
 
-        /* INIZIO MODIFICA DRAG & DROP */
         initDragAndDrop() {
             const save = () => this.saveLayout();
-            // Griglia TOP
             const topGrid = document.getElementById('apps-top-grid');
             if (topGrid && !topGrid._sortable) {
                 topGrid._sortable = new Sortable(topGrid, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
             }
-            
-            // Griglia BOTTOM (colonne separate)
             ['apps-col-1', 'apps-col-2', 'apps-col-3'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && !el._sortable) {
-                    el._sortable = new Sortable(el, { 
-                        group: 'shared-apps-bottom', // Gruppo per drag tra colonne
-                        animation: 150, 
-                        ghostClass: 'sortable-ghost', 
-                        handle: '.card-header', 
-                        onSort: save 
-                    });
+                    el._sortable = new Sortable(el, { group: 'shared-apps-bottom', animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
                 }
             });
         },
@@ -92,7 +82,7 @@
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
                     const container = document.getElementById(cid);
-                    if (!container || !Array.isArray(ids)) return; // Aggiunto Array.isArray
+                    if (!container || !Array.isArray(ids)) return;
                     ids.forEach(id => { const el = document.getElementById(id); if (el) container.appendChild(el); });
                 };
                 restore('apps-top-grid', layout.top);
@@ -101,42 +91,21 @@
                 restore('apps-col-3', layout.col3);
             } catch (e) { console.error("Errore ripristino layout app:", e); }
         },
-        /* FINE MODIFICA DRAG & DROP */
 
         getLayoutHTML() {
             const fuelProducts = [ { key: 'benzina', label: 'Benzina' }, { key: 'gasolio', label: 'Gasolio' }, { key: 'dieselplus', label: 'Diesel+' }, { key: 'hvolution', label: 'Hvo' } ];
-
             const simpleCardStart = (id, title, icon, iconBg) => `
-                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${title}</h3>
-                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full">
+                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full shadow-sm">
                             <i data-lucide="${icon}" class="size-5"></i>
                         </div>
                     </div>
                     <div class="p-6">`;
             
             const simpleCardEnd = `</div></div>`;
-
-            /* INIZIO STILI EQUALIZZATORE RADIO */
-            const radioEqStyles = `
-                <style>
-                    .radio-eq-anim { display: none; width: 16px; height: 16px; margin-left: 8px; }
-                    .radio-eq-anim span {
-                        display: inline-block; width: 2px; height: 100%; background-color: #10b981; /* Colore Tema (verde) */
-                        margin-left: 1px; animation: radio-bounce 1s infinite ease-in-out;
-                    }
-                    .dark .radio-eq-anim span { background-color: #34d399; }
-                    .radio-eq-anim span:nth-child(2) { animation-delay: -0.8s; }
-                    .radio-eq-anim span:nth-child(3) { animation-delay: -0.6s; }
-                    .radio-eq-anim span:nth-child(4) { animation-delay: -0.4s; }
-                    @keyframes radio-bounce {
-                        0%, 40%, 100% { transform: scaleY(0.4); }
-                        20% { transform: scaleY(1.0); }
-                    }
-                </style>
-            `;
-            /* FINE STILI EQUALIZZATORE RADIO */
+            const radioEqStyles = `<style>.radio-eq-anim { display: none; width: 16px; height: 16px; margin-left: 8px; } .radio-eq-anim span { display: inline-block; width: 2px; height: 100%; background-color: #10b981; margin-left: 1px; animation: radio-bounce 1s infinite ease-in-out; } .dark .radio-eq-anim span { background-color: #34d399; } .radio-eq-anim span:nth-child(2) { animation-delay: -0.8s; } .radio-eq-anim span:nth-child(3) { animation-delay: -0.6s; } .radio-eq-anim span:nth-child(4) { animation-delay: -0.4s; } @keyframes radio-bounce { 0%, 40%, 100% { transform: scaleY(0.4); } 20% { transform: scaleY(1.0); } }</style>`;
 
             return `
                 ${radioEqStyles}
@@ -144,12 +113,11 @@
                     <div class="flex justify-between items-center">
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Applicazioni & Utility</h2>
                     </div>
-
                     <div id="apps-top-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                        <div id="app-card-calendar" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                        <div id="app-card-calendar" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <div class="flex items-center">
-                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full mr-3"><i data-lucide="calendar" class="size-5"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full shadow-sm mr-3"><i data-lucide="calendar" class="size-5"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Calendario</h3>
                                 </div>
                                 <div class="flex gap-2">
@@ -167,10 +135,10 @@
                             </div>
                         </div>
 
-                        <div id="app-card-events" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col draggable-card overflow-hidden">
+                        <div id="app-card-events" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 flex flex-col draggable-card overflow-hidden">
                             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                 <div class="flex items-center">
-                                    <div class="flex items-center justify-center w-10 h-10 bg-purple-600 text-white rounded-full mr-3"><i data-lucide="list-todo" class="size-5"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-purple-600 text-white rounded-full shadow-sm mr-3"><i data-lucide="list-todo" class="size-5"></i></div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Eventi</h3>
                                 </div>
                                 <button id="btn-add-event" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-lg text-sm px-3 py-2 flex items-center transition-colors" title="Nuovo Evento">
@@ -185,7 +153,6 @@
                     </div>
 
                     <div id="apps-bottom-grid-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        
                         <div id="apps-col-1" class="flex flex-col gap-6 min-h-[200px]">
                             ${simpleCardStart('app-card-fuel', 'Ordine Carburante', 'truck', 'bg-cyan-600')}
                                 <div class="mb-5">
@@ -197,83 +164,59 @@
                                         <div class="flex items-center justify-between gap-4">
                                             <label class="text-sm font-medium text-gray-900 dark:text-white w-24">${p.label}</label>
                                             <div class="flex items-center">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.key}">
-                                                    <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
-                                                </button>
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-dec" data-p="${p.key}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button>
                                                 <input type="text" readonly class="h-10 w-24 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-gray-900 text-sm dark:text-white" id="fuel-${p.key}" value="0">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.key}">
-                                                    <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
-                                                </button>
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-fuel-inc" data-p="${p.key}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button>
                                             </div>
                                         </div>`).join('')}
                                 </div>
                                 <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Stimato:</span>
-                                        <span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span>
-                                    </div>
-                                    <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine">
-                                        <i data-lucide="save" class="size-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Salva Ordine</span>
-                                    </button>
+                                    <div class="flex justify-between items-center mb-4"><span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Stimato:</span><span id="fuel-order-total" class="text-lg font-bold text-gray-900 dark:text-white">€ 0,00</span></div>
+                                    <button id="btn-save-order" class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center transition-colors" title="Salva Ordine"><i data-lucide="save" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Salva Ordine</span></button>
                                 </div>
-                            ${simpleCardEnd} ${simpleCardStart('app-card-iva', 'Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
+                            ${simpleCardEnd} 
+                            ${simpleCardStart('app-card-iva', 'Calcolo IVA (22%)', 'percent', 'bg-orange-500')}
                                 <div class="space-y-4 mb-6">
                                     <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Importo Lordo</label><input type="number" id="iva-lordo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
                                     <div><label class="block mb-2 text-xs font-medium text-gray-500 uppercase">Imponibile (Netto)</label><input type="number" id="iva-netto" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0.00"></div>
                                 </div>
-                                <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valore IVA:</span>
-                                    <span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span>
-                                </div>
-                            ${simpleCardEnd} </div>
+                                <div class="p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex justify-between items-center"><span class="text-sm font-medium text-gray-700 dark:text-gray-300">Valore IVA:</span><span id="iva-value" class="text-xl font-bold text-primary-600 dark:text-primary-400">€ 0,00</span></div>
+                            ${simpleCardEnd} 
+                        </div>
 
                         <div id="apps-col-2" class="flex flex-col gap-6 min-h-[200px]">
-${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indigo-600')}
-                                <div class="mb-4">
-                                    <input type="text" id="calc-display" readonly class="w-full bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-lg text-right text-2xl font-bold p-4 text-gray-900 dark:text-white" value="0">
-                                </div>
+                            ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indigo-600')}
+                                <div class="mb-4"><input type="text" id="calc-display" readonly class="w-full bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-lg text-right text-2xl font-bold p-4 text-gray-900 dark:text-white" value="0"></div>
                                 <div id="calc-buttons" class="grid grid-cols-4 gap-2">
                                     <button class="calc-btn p-3 bg-red-200 dark:bg-red-800 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-red-300 dark:hover:bg-red-700" data-val="C">C</button>
                                     <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="/">/</button>
                                     <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="*">*</button>
                                     <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-val="-">-</button>
-                                    
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="7">7</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="8">8</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="9">9</button>
                                     <button class="calc-btn p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 row-span-2" data-val="+">+</button>
-
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="4">4</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="5">5</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="6">6</button>
-
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="1">1</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="2">2</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val="3">3</button>
                                     <button class="calc-btn p-3 bg-primary-600 text-white rounded-lg text-lg font-medium hover:bg-primary-700 row-span-2" data-val="=">=</button>
-
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500 col-span-2" data-val="0">0</button>
                                     <button class="calc-btn p-3 bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-500" data-val=".">.</button>
                                 </div>
-                            ${simpleCardEnd} ${simpleCardStart('app-card-radio', 'Radio Stream', 'radio', 'bg-pink-600')}
+                            ${simpleCardEnd} 
+                            ${simpleCardStart('app-card-radio', 'Radio Stream', 'radio', 'bg-pink-600')}
                                 <div class="flex items-center gap-4 mb-4">
-                                    <button id="radio-toggle-play" class="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-colors">
-                                        <i data-lucide="play" class="size-6"></i>
-                                    </button>
-                                    <div class="overflow-hidden">
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">In Riproduzione:</div>
-                                        <div id="radio-now-playing" class="text-sm font-medium text-gray-900 dark:text-white truncate">Nessuna radio</div>
-                                    </div>
+                                    <button id="radio-toggle-play" class="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-colors"><i data-lucide="play" class="size-6"></i></button>
+                                    <div class="overflow-hidden"><div class="text-xs text-gray-500 dark:text-gray-400">In Riproduzione:</div><div id="radio-now-playing" class="text-sm font-medium text-gray-900 dark:text-white truncate">Nessuna radio</div></div>
                                 </div>
                                 <audio id="radio-player" preload="none"></audio>
-                                <div>
-                                    <input type="text" id="radio-search-input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Cerca stazione...">
-                                </div>
-                                <div id="radio-station-list" class="mt-4 h-64 overflow-y-auto space-y-2 pr-2">
-                                    </div>
+                                <div><input type="text" id="radio-search-input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Cerca stazione..."></div>
+                                <div id="radio-station-list" class="mt-4 h-64 overflow-y-auto space-y-2 pr-2"></div>
                             ${simpleCardEnd}
-                            </div>
+                        </div>
                         
                         <div id="apps-col-3" class="flex flex-col gap-6 min-h-[200px]">
                             ${simpleCardStart('app-card-money', 'Conta Banconote', 'banknote', 'bg-green-600')}
@@ -282,35 +225,26 @@ ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indig
                                         <div class="flex items-center justify-between gap-2">
                                             <span class="text-sm font-medium w-12 text-gray-900 dark:text-white">€ ${t}</span>
                                             <div class="flex items-center">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}">
-                                                    <i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i>
-                                                </button>
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-s-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-dec" data-t="${t}"><i data-lucide="minus" class="size-5 text-gray-900 dark:text-white"></i></button>
                                                 <input type="text" readonly class="w-16 h-10 text-center bg-gray-50 border-y border-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm text-gray-900 dark:text-white" id="money-q-${t}" value="0">
-                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}">
-                                                    <i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i>
-                                                </button>
+                                                <button class="flex items-center justify-center h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-e-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 focus:outline-none btn-money-inc" data-t="${t}"><i data-lucide="plus" class="size-5 text-gray-900 dark:text-white"></i></button>
                                             </div>
                                             <span class="text-sm font-bold w-20 text-right text-gray-900 dark:text-white" id="money-tot-${t}">€ 0</span>
                                         </div>`).join('')}
                                 </div>
                                 <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Pezzi:</span>
-                                        <span id="money-count-total" class="text-base font-semibold text-gray-900 dark:text-white">0</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-lg font-bold text-gray-900 dark:text-white">Totale Valore</span>
-                                        <span id="money-grand-total" class="text-xl font-bold text-green-600 dark:text-green-500">€ 0,00</span>
-                                    </div>
+                                    <div class="flex justify-between items-center mb-2"><span class="text-sm font-medium text-gray-500 dark:text-gray-400">Totale Pezzi:</span><span id="money-count-total" class="text-base font-semibold text-gray-900 dark:text-white">0</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-lg font-bold text-gray-900 dark:text-white">Totale Valore</span><span id="money-grand-total" class="text-xl font-bold text-green-600 dark:text-green-500">€ 0,00</span></div>
                                 </div>
-                            ${simpleCardEnd} ${simpleCardStart('app-card-notes', 'Note Rapide', 'clipboard-list', 'bg-yellow-500')}
+                            ${simpleCardEnd} 
+                            ${simpleCardStart('app-card-notes', 'Note Rapide', 'clipboard-list', 'bg-yellow-500')}
                                 <textarea id="app-notes-textarea" class="w-full h-64 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-primary-500 focus:border-primary-500" placeholder="Scrivi qui le tue note..."></textarea>
-                            ${simpleCardEnd} </div>
-
-                    </div> </div>`; // Chiusura di apps-layout
+                            ${simpleCardEnd} 
+                        </div>
+                    </div> 
+                </div>`;
         },
 
-        // --- CALENDAR & EVENTS ---
         renderCalendar() {
             const grid = document.getElementById('cal-grid');
             const title = document.getElementById('cal-month-year');
@@ -327,26 +261,14 @@ ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indig
                 const dStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const isSel = dStr === this.localState.selectedDateISO;
                 const isToday = dStr === todayISO;
-                
                 const apps = App.state.data.appuntamenti.filter(a => a.date === dStr).map(() => 'app');
                 const todos = App.state.data.todos.filter(t => t.dueDate === dStr).map(t => t.priorita);
-                const dots = [...apps, ...todos].sort((a, b) => {
-                    const o = { 'urgent': 0, 'priority': 1, 'app': 2, 'standard': 3 };
-                    return (o[a] ?? 3) - (o[b] ?? 3);
-                }).slice(0, 3);
+                const dots = [...apps, ...todos].sort((a, b) => { const o = { 'urgent': 0, 'priority': 1, 'app': 2, 'standard': 3 }; return (o[a] ?? 3) - (o[b] ?? 3); }).slice(0, 3);
 
-                html += `
-                    <button class="h-10 rounded-lg flex flex-col items-center justify-center relative border ${isSel ? 'border-primary-600 bg-primary-600 text-white font-bold' : (isToday ? 'border-primary-600 text-primary-600 font-bold' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white')}" data-date="${dStr}">
-                        <span>${i}</span>
-                        <div class="calendar-dots">${dots.map(t => `<span class="cal-dot dot-${t}"></span>`).join('')}</div>
-                    </button>`;
+                html += `<button class="h-10 rounded-lg flex flex-col items-center justify-center relative border ${isSel ? 'border-primary-600 bg-primary-600 text-white font-bold' : (isToday ? 'border-primary-600 text-primary-600 font-bold' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white')}" data-date="${dStr}"><span>${i}</span><div class="calendar-dots">${dots.map(t => `<span class="cal-dot dot-${t}"></span>`).join('')}</div></button>`;
             }
             grid.innerHTML = html;
-            grid.querySelectorAll('button[data-date]').forEach(b => b.onclick = () => {
-                this.localState.selectedDateISO = b.dataset.date;
-                this.renderCalendar();
-                this.renderEventsList();
-            });
+            grid.querySelectorAll('button[data-date]').forEach(b => b.onclick = () => { this.localState.selectedDateISO = b.dataset.date; this.renderCalendar(); this.renderEventsList(); });
         },
 
         renderEventsList() {
@@ -355,31 +277,19 @@ ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indig
             if (!list || !title) return;
             const selDate = this.localState.selectedDateISO;
             title.textContent = `Eventi del ${App.formatDate(selDate)}`;
-            
             const apps = App.state.data.appuntamenti.filter(a => a.date === selDate).map(a => ({ ...a, type: 'app' }));
             const todos = App.state.data.todos.filter(t => t.dueDate === selDate).map(t => ({ ...t, type: 'todo' }));
             const events = [...apps, ...todos].sort((a, b) => (a.oraInizio || '').localeCompare(b.oraInizio || ''));
 
-            if (!events.length) {
-                list.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400 flex flex-col items-center"><i data-lucide="calendar-x" class="size-8 mb-2 opacity-50"></i><p>Nessun evento.</p></div>';
-            } else {
+            if (!events.length) { list.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400 flex flex-col items-center"><i data-lucide="calendar-x" class="size-8 mb-2 opacity-50"></i><p>Nessun evento.</p></div>'; } 
+            else {
                 list.innerHTML = events.map(e => {
                     let bc = 'border-gray-200 dark:border-gray-700', bg = 'bg-white dark:bg-gray-700', ic = 'text-gray-500 dark:text-gray-400', lc = 'text-gray-700 dark:text-gray-300', lbl = 'Standard';
                     if (e.type === 'app') { bc = 'border-blue-200 dark:border-blue-800'; bg = 'bg-blue-50 dark:bg-blue-900/20'; ic = 'text-blue-600 dark:text-blue-400'; lc = 'text-blue-700 dark:text-blue-300'; lbl = e.oraInizio; }
                     else if (e.priorita === 'urgent') { bc = 'border-red-200 dark:border-red-800'; bg = 'bg-red-50 dark:bg-red-900/20'; ic = 'text-red-600 dark:text-red-400'; lc = 'text-red-700 dark:text-red-300'; lbl = 'Urgente'; }
                     else if (e.priorita === 'priority') { bc = 'border-yellow-200 dark:border-yellow-800'; bg = 'bg-yellow-50 dark:bg-yellow-900/20'; ic = 'text-yellow-600 dark:text-yellow-400'; lc = 'text-yellow-700 dark:text-yellow-300'; lbl = 'Importante'; }
                     else { bc = 'border-green-200 dark:border-green-800'; bg = 'bg-green-50 dark:bg-green-900/20'; ic = 'text-green-600 dark:text-green-400'; lc = 'text-green-700 dark:text-green-300'; }
-                    
-                    return `
-                    <div class="p-3 border ${bc} ${bg} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-sm transition-shadow btn-edit-event" data-id="${e.id}" data-type="${e.type}">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <i data-lucide="${e.type === 'app' ? 'clock' : 'check-circle'}" class="size-5 flex-shrink-0 ${ic}"></i>
-                            <div class="overflow-hidden">
-                                <div class="text-xs font-semibold ${lc}">${lbl}</div>
-                                <div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type === 'app' ? e.descrizione : e.text}</div>
-                            </div>
-                        </div>
-                    </div>`;
+                    return `<div class="p-3 border ${bc} ${bg} rounded-lg flex justify-between items-center cursor-pointer hover:shadow-none transition-none btn-edit-event" data-id="${e.id}" data-type="${e.type}"><div class="flex items-center gap-3 overflow-hidden"><i data-lucide="${e.type === 'app' ? 'clock' : 'check-circle'}" class="size-5 flex-shrink-0 ${ic}"></i><div class="overflow-hidden"><div class="text-xs font-semibold ${lc}">${lbl}</div><div class="text-sm font-medium text-gray-900 dark:text-white truncate">${e.type === 'app' ? e.descrizione : e.text}</div></div></div></div>`;
                 }).join('');
             }
             lucide.createIcons();
@@ -426,7 +336,6 @@ ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indig
             };
         },
 
-        // --- UTILITIES ---
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         updateIva(source) {
             const l = parseFloat(document.getElementById('iva-lordo').value), n = parseFloat(document.getElementById('iva-netto').value);
@@ -450,214 +359,83 @@ ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indig
         updateFuelTotal() { const prices = this.getLatestPrices(); let total = 0; ['benzina','gasolio','dieselplus','hvolution'].forEach(p => { total += (this.localState.fuelOrder[p]||0) * (prices[p==='dieselplus'?'dieselPlus':p]||0); }); document.getElementById('fuel-order-total').textContent = App.formatCurrency(total); },
         getLatestPrices() { if(!App.state.data.priceHistory?.length) return {}; return [...App.state.data.priceHistory].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]; },
         
-        // MODIFICA: Aggiunto To-Do 'urgente' al salvataggio
         saveFuelOrder() {
             const d = document.getElementById('fuel-order-date').value; if (!d) return alert('Seleziona data');
             const p = {...this.localState.fuelOrder}; delete p.date; if(Object.values(p).every(v => v === 0)) return alert('Inserire quantità.');
-            
-            // 1. Salva l'ordine carburante
             App.state.data.fuelOrders.push({ id: App.generateId('ord'), date: d, products: p, status: 'pending' }); 
-            
-            // 2. Crea il To-Do 'urgente'
             const pMap = { benzina: 'Bz', gasolio: 'Gs', dieselplus: 'D+', hvolution: 'Hvo' };
             const details = Object.entries(p).filter(([k,v]) => v > 0).map(([k,v]) => `${pMap[k]||k}: ${App.formatNumber(v)}`).join(', ');
             const totalL = Object.values(p).reduce((a,b)=>a+b,0);
             const todoText = `Consegna Carburante (${App.formatNumber(totalL)} L): ${details}`;
-            
-            App.state.data.todos.push({
-                id: App.generateId('todo'),
-                dueDate: d,
-                text: todoText,
-                priorita: 'urgent', // Come richiesto
-                completed: false
-            });
-            
-            // 3. Salva tutto e resetta
-            App.saveToStorage(); 
-            App.showToast('Ordine salvato e aggiunto al calendario!', 'success');
-            
+            App.state.data.todos.push({ id: App.generateId('todo'), dueDate: d, text: todoText, priorita: 'urgent', completed: false });
+            App.saveToStorage(); App.showToast('Ordine salvato e aggiunto al calendario!', 'success');
             this.localState.fuelOrder = { date: App.toLocalISOString(new Date()), benzina:0, gasolio:0, dieselplus:0, hvolution:0 }; 
             this.render();
         },
 
-        /* INIZIO LOGICA CALCOLATRICE */
         handleCalculatorInput(value) {
             const display = document.getElementById('calc-display');
             let current = this.localState.calculatorInput || '';
-
             try {
-                if (value === 'C') {
-                    current = '';
-                } else if (value === '=') {
-                    if (current) {
-                        // Sanificazione di base per new Function
-                        let safeCalc = String(current).replace(/[^-()\d/*+.]/g, '');
-                        if (safeCalc) {
-                            let result = new Function('return ' + safeCalc)();
-                            current = String(result);
-                        } else {
-                            current = '0';
-                        }
-                    }
+                if (value === 'C') { current = ''; } else if (value === '=') {
+                    if (current) { let safeCalc = String(current).replace(/[^-()\d/*+.]/g, ''); if (safeCalc) { let result = new Function('return ' + safeCalc)(); current = String(result); } else { current = '0'; } }
                 } else {
-                    if (current === '' && ['/', '*', '+', '.'].includes(value)) {
-                         // Non iniziare con questi
-                    } 
-                    else if (['/', '*', '+', '-'].includes(current.slice(-1)) && ['/', '*', '+', '-'].includes(value)) {
-                        current = current.slice(0, -1) + value;
-                    } 
-                    else if (value === '.' && current.split(/[-/*+]/).pop().includes('.')) {
-                        // Non fare nulla (evita doppi punti)
-                    }
-                    else {
-                        current += value;
-                    }
+                    if (current === '' && ['/', '*', '+', '.'].includes(value)) {} 
+                    else if (['/', '*', '+', '-'].includes(current.slice(-1)) && ['/', '*', '+', '-'].includes(value)) { current = current.slice(0, -1) + value; } 
+                    else if (value === '.' && current.split(/[-/*+]/).pop().includes('.')) {}
+                    else { current += value; }
                 }
-                
-                display.value = current || '0'; // Mostra 0 se vuoto
-                this.localState.calculatorInput = current;
-            } catch (e) {
-                display.value = 'Errore';
-                this.localState.calculatorInput = '';
-            }
+                display.value = current || '0'; this.localState.calculatorInput = current;
+            } catch (e) { display.value = 'Errore'; this.localState.calculatorInput = ''; }
         },
-        /* FINE LOGICA CALCOLATRICE */
 
-        /* INIZIO GESTIONE NOTE */
-        saveNotes() {
-            try {
-                const notes = document.getElementById('app-notes-textarea').value;
-                localStorage.setItem('mystation_apps_notes_v1', notes);
-            } catch (e) { console.warn('Salvataggio note bloccato:', e); }
-        },
-        loadNotes() {
-            try {
-                const notes = localStorage.getItem('mystation_apps_notes_v1');
-                const textarea = document.getElementById('app-notes-textarea');
-                if (textarea && notes) {
-                    textarea.value = notes;
-                }
-            } catch (e) { console.warn('Caricamento note fallito:', e); }
-        },
-        /* FINE GESTIONE NOTE */
+        saveNotes() { try { const notes = document.getElementById('app-notes-textarea').value; localStorage.setItem('mystation_apps_notes_v1', notes); } catch (e) { console.warn('Salvataggio note bloccato:', e); } },
+        loadNotes() { try { const notes = localStorage.getItem('mystation_apps_notes_v1'); const textarea = document.getElementById('app-notes-textarea'); if (textarea && notes) { textarea.value = notes; } } catch (e) { console.warn('Caricamento note fallito:', e); } },
 
-        /* INIZIO GESTIONE RADIO */
         initRadio() {
             if (!this.localState.audioPlayer) {
                 this.localState.audioPlayer = document.getElementById('radio-player');
                 const toggleBtn = document.getElementById('radio-toggle-play'); 
-                
-                /* INIZIO MODIFICA: Aggiorna UI su play/pause */
-                this.localState.audioPlayer.onplay = () => {
-                    if (toggleBtn) toggleBtn.innerHTML = '<i data-lucide="pause" class="size-6"></i>'; // Imposta su Pausa
-                    lucide.createIcons();
-                    this.renderRadioList(); 
-                };
-                this.localState.audioPlayer.onpause = () => {
-                    if (toggleBtn) toggleBtn.innerHTML = '<i data-lucide="play" class="size-6"></i>'; // Imposta su Play
-                    lucide.createIcons();
-                    this.renderRadioList(); 
-                };
-                /* FINE MODIFICA */
+                this.localState.audioPlayer.onplay = () => { if (toggleBtn) toggleBtn.innerHTML = '<i data-lucide="pause" class="size-6"></i>'; lucide.createIcons(); this.renderRadioList(); };
+                this.localState.audioPlayer.onpause = () => { if (toggleBtn) toggleBtn.innerHTML = '<i data-lucide="play" class="size-6"></i>'; lucide.createIcons(); this.renderRadioList(); };
             }
-            if (this.localState.radioStations.length === 0) {
-                this.fetchRadioStations();
-            } else {
-                this.renderRadioList();
-            }
+            if (this.localState.radioStations.length === 0) { this.fetchRadioStations(); } else { this.renderRadioList(); }
         },
 
         fetchRadioStations() {
             const list = document.getElementById('radio-station-list');
             if(list) list.innerHTML = `<div class="text-sm text-gray-500 dark:text-gray-400">Caricamento stazioni...</div>`;
-            
-            const API_URL = 'https://de1.api.radio-browser.info/json/stations/search?countrycode=IT&codec=MP3&limit=50&order=votes&reverse=true';
-
-            fetch(API_URL)
+            fetch('https://de1.api.radio-browser.info/json/stations/search?countrycode=IT&codec=MP3&limit=50&order=votes&reverse=true')
                 .then(response => response.json())
-                .then(data => {
-                    this.localState.radioStations = data.filter(s => s.url_resolved);
-                    this.renderRadioList();
-                })
-                .catch(error => {
-                    console.error("Errore fetch radio:", error);
-                    if(list) list.innerHTML = `<div class="text-sm text-red-500">Errore nel caricare le stazioni.</div>`;
-                });
+                .then(data => { this.localState.radioStations = data.filter(s => s.url_resolved); this.renderRadioList(); })
+                .catch(error => { console.error("Errore fetch radio:", error); if(list) list.innerHTML = `<div class="text-sm text-red-500">Errore nel caricare le stazioni.</div>`; });
         },
 
-        /* INIZIO CORREZIONE: Layout lista radio e fix typo */
         renderRadioList() {
             const list = document.getElementById('radio-station-list');
             if (!list) return;
-
             const searchTerm = document.getElementById('radio-search-input').value.toLowerCase();
-            const stations = this.localState.radioStations.filter(s => 
-                s.name.toLowerCase().includes(searchTerm)
-            );
-
-            if (stations.length === 0) {
-                list.innerHTML = `<div class="text-sm text-gray-500 dark:text-gray-400">Nessuna stazione trovata.</div>`;
-                return;
-            }
-
+            const stations = this.localState.radioStations.filter(s => s.name.toLowerCase().includes(searchTerm));
+            if (stations.length === 0) { list.innerHTML = `<div class="text-sm text-gray-500 dark:text-gray-400">Nessuna stazione trovata.</div>`; return; }
             list.innerHTML = stations.map(station => {
                 const isCurrent = this.localState.currentStation?.url === station.url_resolved;
                 const isPlaying = isCurrent && !this.localState.audioPlayer.paused;
-                
                 const icon = isPlaying ? 'pause-circle' : 'play-circle';
                 const eqDisplay = isPlaying ? 'inline-flex' : 'none';
-
-                // CORREZIONE: `class="` invece di `class.`
-                return `
-                <div class="p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700">
-                    
-                    <span class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">${station.name}</span>
-                    
-                    <div class="flex items-center flex-shrink-0">
-                        <button class="btn-play-station p-1.5 text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg" data-url="${station.url_resolved}" data-name="${station.name}">
-                            <i data-lucide="${icon}" class="size-5"></i>
-                        </button>
-                        <div class="radio-eq-anim items-baseline" style="display: ${eqDisplay};">
-                            <span></span><span></span><span></span><span></span>
-                        </div>
-                    </div>
-                </div>`;
+                return `<div class="p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700"><span class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">${station.name}</span><div class="flex items-center flex-shrink-0"><button class="btn-play-station p-1.5 text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg" data-url="${station.url_resolved}" data-name="${station.name}"><i data-lucide="${icon}" class="size-5"></i></button><div class="radio-eq-anim items-baseline" style="display: ${eqDisplay};"><span></span><span></span><span></span><span></span></div></div></div>`;
             }).join('');
-            /* FINE CORREZIONE */
-
             lucide.createIcons();
-            
-            list.querySelectorAll('.btn-play-station').forEach(btn => {
-                btn.onclick = () => {
-                    this.playRadioStation(btn.dataset.url, btn.dataset.name);
-                };
-            });
+            list.querySelectorAll('.btn-play-station').forEach(btn => { btn.onclick = () => { this.playRadioStation(btn.dataset.url, btn.dataset.name); }; });
         },
 
         playRadioStation(url, name) {
             const player = this.localState.audioPlayer;
-            if (player.src === url) {
-                if (player.paused) player.play();
-                else player.pause();
-            } else {
-                player.src = url;
-                player.play();
-                document.getElementById('radio-now-playing').textContent = name;
-                this.localState.currentStation = { url, name };
-            }
-            // Aggiorna la lista immediatamente al click
+            if (player.src === url) { if (player.paused) player.play(); else player.pause(); } 
+            else { player.src = url; player.play(); document.getElementById('radio-now-playing').textContent = name; this.localState.currentStation = { url, name }; }
             this.renderRadioList();
         },
 
-        togglePlayPauseRadio() {
-            const player = this.localState.audioPlayer;
-            if (player.paused) {
-                if (player.src) player.play();
-            } else {
-                player.pause();
-            }
-        },
-        /* FINE GESTIONE RADIO */
+        togglePlayPauseRadio() { const player = this.localState.audioPlayer; if (player.paused) { if (player.src) player.play(); } else { player.pause(); } },
 
         attachListeners() {
             document.getElementById('cal-prev').onclick = () => { this.localState.currentDate.setMonth(this.localState.currentDate.getMonth()-1); this.renderCalendar(); };
@@ -671,24 +449,11 @@ ${simpleCardStart('app-card-calculator', 'Calcolatrice', 'calculator', 'bg-indig
             document.querySelectorAll('.btn-fuel-dec').forEach(b => b.onclick = () => this.updateFuelOrder(b.dataset.p, false));
             document.getElementById('btn-save-order').onclick = () => this.saveFuelOrder();
             document.getElementById('fuel-order-date').onchange = (e) => this.localState.fuelOrder.date = e.target.value;
-
-            /* INIZIO LISTENER CALCOLATRICE */
-            document.querySelectorAll('#calc-buttons .calc-btn').forEach(b => {
-                b.onclick = () => this.handleCalculatorInput(b.dataset.val);
-            });
-            /* FINE LISTENER CALCOLATRICE */
-
-            /* INIZIO LISTENER NOTE */
-            const notesTextarea = document.getElementById('app-notes-textarea');
-            if(notesTextarea) notesTextarea.onkeyup = () => this.saveNotes();
-            /* FINE LISTENER NOTE */
-
-            /* INIZIO LISTENER RADIO */
-            const radioSearch = document.getElementById('radio-search-input');
-            const radioToggle = document.getElementById('radio-toggle-play');
+            document.querySelectorAll('#calc-buttons .calc-btn').forEach(b => { b.onclick = () => this.handleCalculatorInput(b.dataset.val); });
+            const notesTextarea = document.getElementById('app-notes-textarea'); if(notesTextarea) notesTextarea.onkeyup = () => this.saveNotes();
+            const radioSearch = document.getElementById('radio-search-input'); const radioToggle = document.getElementById('radio-toggle-play');
             if(radioSearch) radioSearch.oninput = () => this.renderRadioList();
             if(radioToggle) radioToggle.onclick = () => this.togglePlayPauseRadio();
-            /* FINE LISTENER RADIO */
         }
     };
     if(window.App) App.registerModule('applicazioni', AppsModule); else document.addEventListener('app:ready', () => App.registerModule('applicazioni', AppsModule));
