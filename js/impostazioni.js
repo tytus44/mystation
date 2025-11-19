@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Impostazioni (js/impostazioni.js) - Design Solido & PIN
+   MODULO: Impostazioni (js/impostazioni.js) - EOS Clean Layout
    ========================================================================== */
 (function() {
     'use strict';
@@ -30,10 +30,10 @@
                 const el = document.getElementById(id);
                 if (el) {
                     new Sortable(el, {
-                        group: 'shared-settings', // Permette lo scambio tra colonne
+                        group: 'shared-settings',
                         animation: 150,
                         ghostClass: 'sortable-ghost',
-                        handle: '.card-header', // Trascina dall'intestazione
+                        handle: '.card-header',
                         onSort: save
                     });
                 }
@@ -68,29 +68,21 @@
         },
 
         updateThemeUI(activeTheme) {
-            // Rimuovi la classe 'attiva' (bordo) da tutti i pulsanti
-            document.querySelectorAll('.theme-swatch').forEach(el => {
-                el.classList.remove('ring-2');
-                el.style.borderColor = ''; // Resetta il colore del bordo
+            // Rimuovi bordi attivi precedenti
+            document.querySelectorAll('.theme-card').forEach(el => {
+                el.classList.remove('ring-2', 'ring-primary-500', 'border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+                el.classList.add('border-gray-200', 'dark:border-gray-700');
             });
 
-            // Aggiungi la classe 'attiva' solo a quello selezionato
-            let themeToSelect = activeTheme || 'light';
-            const activeEl = document.querySelector(`.theme-swatch[data-theme="${themeToSelect}"]`);
-            if (activeEl) {
-                activeEl.classList.add('ring-2');
-                // Applica un colore di bordo solido e visibile per l'indicatore
-                let ringColor = '#3b82f6'; // Default (primary-500)
-                
-                // Mappatura per i nuovi temi solidi
-                if (themeToSelect === 'notte') ringColor = '#60a5fa';
-                if (themeToSelect === 'indigo') ringColor = '#4f46e5';
-                if (themeToSelect === 'pink') ringColor = '#db2777';
-                if (themeToSelect === 'cyan') ringColor = '#0891b2';
-                if (themeToSelect === 'yellow') ringColor = '#d97706';
-                if (themeToSelect === 'dark') ringColor = '#60a5fa'; 
-                
-                activeEl.style.borderColor = ringColor;
+            let themeToSelect = activeTheme === 'dark' ? 'dark' : 'light';
+            const activeBtn = document.getElementById(`btn-theme-${themeToSelect}`);
+            
+            if (activeBtn) {
+                const card = activeBtn.closest('.theme-card');
+                if(card) {
+                    card.classList.remove('border-gray-200', 'dark:border-gray-700');
+                    card.classList.add('ring-2', 'ring-primary-500', 'border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+                }
             }
         },
 
@@ -102,14 +94,13 @@
             if (!pinStatus || !currentPinWrapper) return;
             
             if (App.state.pin) {
-                pinStatus.textContent = "PIN impostato. Inserisci il PIN attuale per modificarlo o rimuoverlo.";
-                pinStatus.className = "text-sm text-green-600 dark:text-green-400";
+                pinStatus.innerHTML = `<div class="flex items-center text-green-600 dark:text-green-400 font-medium"><i data-lucide="check-circle" class="w-4 h-4 mr-2"></i> PIN attivo</div><div class="text-sm text-gray-500 mt-1">Inserisci il PIN attuale per modificarlo.</div>`;
                 currentPinWrapper.classList.remove('hidden'); 
             } else {
-                pinStatus.textContent = "Nessun PIN impostato. L'app è sbloccata all'avvio. Compila i campi per crearne uno.";
-                pinStatus.className = "text-sm text-gray-500 dark:text-gray-400";
+                pinStatus.innerHTML = `<div class="flex items-center text-gray-500 dark:text-gray-400"><i data-lucide="unlock" class="w-4 h-4 mr-2"></i> Nessun PIN impostato</div><div class="text-sm text-gray-500 mt-1">L'app è sbloccata. Crea un PIN per proteggerla.</div>`;
                 currentPinWrapper.classList.add('hidden');
             }
+            lucide.createIcons();
         },
         
         getPinFromInputs(groupName) {
@@ -165,9 +156,9 @@
              App.showModal(
                 'Esci dall\'account', 
                 `<p class="text-gray-500 dark:text-gray-400">Vuoi davvero uscire? L'applicazione verrà bloccata e sarà necessario inserire il PIN per il prossimo accesso.</p>`, 
-                `<div class="flex justify-end gap-4 w-full">
-                     <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
-                     <button id="btn-confirm-logout" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800">Sì, esci</button>
+                `<div class="flex justify-end gap-3 w-full">
+                     <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
+                     <button id="btn-confirm-logout" class="py-2.5 px-5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-md shadow-red-600/20">Sì, esci</button>
                  </div>`,
                 'max-w-md'
              );
@@ -180,205 +171,185 @@
 
         getLayoutHTML() {
             const pinInputHTML = `
-                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all">
+                <input type="password" inputmode="numeric" maxlength="1" class="pin-square-small pin-input bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all">
             `;
             
             return `
-                <div id="impostazioni-layout" class="flex flex-col gap-6 animate-fade-in">
+                <div id="impostazioni-layout" class="flex flex-col gap-8 animate-fade-in pb-10">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Impostazioni</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Impostazioni</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                        <div id="settings-col-1" class="flex flex-col gap-6 h-full">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        <div id="settings-col-1" class="flex flex-col gap-8 h-full">
                             
-                            <div id="card-theme" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mr-3">
-                                        <i data-lucide="palette" class="w-6 h-6 text-yellow-600 dark:text-yellow-500"></i>
+                            <div id="card-theme" class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg mr-4 text-primary-600 dark:text-primary-400">
+                                        <i data-lucide="palette" class="w-5 h-5"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Seleziona Tema</h3>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Aspetto</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Personalizza l'interfaccia</p>
+                                    </div>
                                 </div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Scegli l'aspetto dell'interfaccia.</p>
                                 
-                                <div class="flex flex-wrap gap-4">
-                                    
-                                    <button id="btn-theme-light" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="light" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full bg-gray-200"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #2563eb;"></div>
+                                <div class="p-6 grid grid-cols-2 gap-4">
+                                    <button id="btn-theme-light" class="theme-card group relative flex flex-col items-center p-4 border rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200">
+                                        <div class="w-full aspect-video bg-gray-100 rounded-lg mb-3 border border-gray-200 overflow-hidden flex flex-col shadow-sm">
+                                             <div class="h-3 bg-white border-b border-gray-200 w-full"></div>
+                                             <div class="flex flex-1">
+                                                <div class="w-1/4 bg-gray-50 border-r border-gray-200 h-full"></div>
+                                                <div class="flex-1 bg-white h-full"></div>
+                                             </div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Chiaro</span>
+                                        <span class="font-medium text-gray-900 dark:text-white">Modalità Chiara</span>
                                     </button>
                                     
-                                    <button id="btn-theme-dark" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="dark" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full bg-gray-700"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #2563eb;"></div>
+                                    <button id="btn-theme-dark" class="theme-card group relative flex flex-col items-center p-4 border rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200">
+                                        <div class="w-full aspect-video bg-gray-800 rounded-lg mb-3 border border-gray-700 overflow-hidden flex flex-col shadow-sm">
+                                             <div class="h-3 bg-gray-900 border-b border-gray-700 w-full"></div>
+                                             <div class="flex flex-1">
+                                                <div class="w-1/4 bg-gray-800 border-r border-gray-700 h-full"></div>
+                                                <div class="flex-1 bg-gray-900 h-full"></div>
+                                             </div>
                                         </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Scuro</span>
+                                        <span class="font-medium text-gray-900 dark:text-white">Modalità Scura</span>
                                     </button>
-                                    
-                                    <button id="btn-theme-notte" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="notte" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #1e1e1e;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #9ca3af;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Night</span>
-                                    </button>
-                                    
-                                    <button id="btn-theme-indigo" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="indigo" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #c5cae9;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #3f51b5;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Indigo</span>
-                                    </button>
-
-                                    <button id="btn-theme-pink" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="pink" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #f8bbd0;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #e91e63;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Pink</span>
-                                    </button>
-
-                                    <button id="btn-theme-cyan" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="cyan" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #b2ebf2;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #00bcd4;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Cyan</span>
-                                    </button>
-
-                                    <button id="btn-theme-yellow" class="text-gray-900 dark:text-gray-400 hover:text-primary-700 dark:hover:text-white group focus:outline-none">
-                                        <div data-theme="yellow" class="theme-swatch w-16 h-10 rounded-lg flex overflow-hidden border-2 border-gray-300 dark:border-gray-600 group-hover:border-primary-500 dark:group-hover:border-primary-400 transition-all">
-                                            <div class="w-1/2 h-full" style="background-color: #fff9c4;"></div>
-                                            <div class="w-1/2 h-full" style="background-color: #fdd835;"></div>
-                                        </div>
-                                        <span class="text-sm font-medium mt-2 block text-center">Yellow</span>
-                                    </button>
-                                    
                                 </div>
                             </div>
                             
-                            <div id="card-pin" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full mr-3">
-                                        <i data-lucide="lock" class="w-6 h-6 text-blue-600 dark:text-blue-500"></i>
+                            <div id="card-pin" class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg mr-4 text-purple-600 dark:text-purple-400">
+                                        <i data-lucide="shield-check" class="w-5 h-5"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Sicurezza e PIN</h3>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sicurezza</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Gestione accesso e PIN</p>
+                                    </div>
                                 </div>
-                                <p id="pin-status" class="text-sm text-gray-500 dark:text-gray-400 mb-6">Caricamento stato PIN...</p>
                                 
-                                <div id="pin-current-wrapper" class="mb-4 hidden">
-                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PIN Attuale (4 cifre)</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex gap-2" data-pin-group="current">
-                                            ${pinInputHTML}
+                                <div class="p-6 space-y-6">
+                                    <div id="pin-status" class="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-100 dark:border-gray-700">
                                         </div>
-                                        <button type="button" class="btn-toggle-pin p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-target="current">
-                                            <i data-lucide="eye" class="w-5 h-5"></i>
+                                    
+                                    <div id="pin-current-wrapper" class="hidden">
+                                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">PIN Attuale</label>
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex gap-2" data-pin-group="current">
+                                                ${pinInputHTML}
+                                            </div>
+                                            <button type="button" class="btn-toggle-pin p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-lg transition-colors" data-target="current">
+                                                <i data-lucide="eye" class="w-5 h-5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 gap-6">
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nuovo PIN (4 cifre)</label>
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex gap-2" data-pin-group="new">
+                                                    ${pinInputHTML}
+                                                </div>
+                                                <button type="button" class="btn-toggle-pin p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-lg transition-colors" data-target="new">
+                                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Conferma PIN</label>
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex gap-2" data-pin-group="confirm">
+                                                    ${pinInputHTML}
+                                                </div>
+                                                <button type="button" class="btn-toggle-pin p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-lg transition-colors" data-target="confirm">
+                                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                        <button id="btn-save-pin" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-100 font-semibold rounded-lg text-sm px-5 py-2.5 flex items-center shadow-lg shadow-primary-600/20 transition-all">
+                                            Salva PIN
+                                        </button>
+                                        <button id="btn-logout" class="ml-auto py-2.5 px-5 text-sm font-medium text-red-600 bg-red-50 rounded-lg border border-transparent hover:bg-red-100 focus:z-10 focus:ring-4 focus:ring-red-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 flex items-center transition-all" title="Blocca applicazione">
+                                            <i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i>
+                                            <span class="hidden sm:inline">Esci</span>
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <div class="grid grid-cols-1 gap-4">
-                                    <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nuovo PIN (4 cifre)</label>
-                                        <div class="flex items-center gap-2">
-                                            <div class="flex gap-2" data-pin-group="new">
-                                                ${pinInputHTML}
-                                            </div>
-                                            <button type="button" class="btn-toggle-pin p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-target="new">
-                                                <i data-lucide="eye" class="w-5 h-5"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Conferma PIN</label>
-                                        <div class="flex items-center gap-2">
-                                            <div class="flex gap-2" data-pin-group="confirm">
-                                                ${pinInputHTML}
-                                            </div>
-                                            <button type="button" class="btn-toggle-pin p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-target="confirm">
-                                                <i data-lucide="eye" class="w-5 h-5"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-wrap gap-4 mt-5">
-                                    <button id="btn-save-pin" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                                        Salva PIN
-                                    </button>
-                                    <button id="btn-logout" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center" title="Blocca applicazione">
-                                        <i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Esci</span>
-                                    </button>
-                                </div>
                             </div>
-                            
-                            <div id="card-backup" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-full mr-3">
-                                        <i data-lucide="database" class="w-6 h-6 text-primary-600 dark:text-primary-500"></i>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Backup e Ripristino</h3>
-                                </div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Esporta i tuoi dati per sicurezza o importali su un altro dispositivo.</p>
-                                <div class="flex flex-wrap gap-4">
-                                    <button id="btn-settings-export" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" title="Esporta Backup">
-                                        <i data-lucide="download" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Esporta Backup</span>
-                                    </button>
-                                    <button id="btn-settings-import" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center" title="Importa Backup">
-                                        <i data-lucide="upload" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Importa Backup</span>
-                                    </button>
-                                </div>
-                            </div>
-
                         </div>
 
-                        <div id="settings-col-2" class="flex flex-col gap-6 h-full">
+                        <div id="settings-col-2" class="flex flex-col gap-8 h-full">
                             
-                            <div id="card-forms" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-full mr-3">
-                                        <i data-lucide="file-text" class="w-6 h-6 text-green-600 dark:text-green-500"></i>
+                            <div id="card-backup" class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg mr-4 text-green-600 dark:text-green-400">
+                                        <i data-lucide="database" class="w-5 h-5"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Modulistica Giornaliera</h3>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Dati e Backup</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Esporta o importa i tuoi dati</p>
+                                    </div>
                                 </div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Stampa i fogli per la gestione manuale dei turni.</p>
-                                <div class="flex flex-wrap gap-4">
-                                    <a href="pdf/inizio.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline" title="Foglio Inizio Giornata">
-                                        <i data-lucide="sun" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Inizio Giornata</span>
+                                <div class="p-6 flex flex-wrap gap-4">
+                                    <button id="btn-settings-export" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-3 flex items-center justify-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all">
+                                        <i data-lucide="download" class="w-4 h-4 mr-2 text-gray-500"></i>
+                                        Esporta Backup
+                                    </button>
+                                    <button id="btn-settings-import" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-3 flex items-center justify-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all">
+                                        <i data-lucide="upload" class="w-4 h-4 mr-2 text-gray-500"></i>
+                                        Importa Backup
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="card-forms" class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg mr-4 text-orange-600 dark:text-orange-400">
+                                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Modulistica</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Download fogli cartacei</p>
+                                    </div>
+                                </div>
+                                <div class="p-6 flex flex-wrap gap-4">
+                                    <a href="pdf/inizio.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-3 flex items-center justify-center no-underline dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all">
+                                        <i data-lucide="sun" class="w-4 h-4 mr-2 text-orange-500"></i>
+                                        Inizio Giornata
                                     </a>
-                                    <a href="pdf/fine.pdf" target="_blank" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 flex items-center no-underline" title="Foglio Fine Giornata">
-                                        <i data-lucide="moon" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Fine Giornata</span>
+                                    <a href="pdf/fine.pdf" target="_blank" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-3 flex items-center justify-center no-underline dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-all">
+                                        <i data-lucide="moon" class="w-4 h-4 mr-2 text-blue-500"></i>
+                                        Fine Giornata
                                     </a>
                                 </div>
                             </div>
                             
-                            <div id="card-danger" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card">
-                                <div class="flex items-center mb-4 card-header cursor-move">
-                                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full mr-3">
-                                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600 dark:text-red-500"></i>
+                            <div id="card-danger" class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                                <div class="flex items-center px-6 py-5 border-b border-gray-100 dark:border-gray-700 card-header cursor-move">
+                                    <div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg mr-4 text-red-600 dark:text-red-400">
+                                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                                     </div>
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Zona Pericolo</h3>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Zona Pericolo</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Reset totale applicazione</p>
+                                    </div>
                                 </div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                                    L'azione in questa sezione è <strong>irreversibile</strong>. Assicurati di avere un backup dei tuoi dati prima di procedere.
-                                </p>
-                                <div class="flex flex-wrap gap-4">
-                                    <button id="btn-clear-data" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 flex items-center" title="Elimina TUTTI i dati">
-                                        <i data-lucide="trash-2" class="w-4 h-4 sm:mr-2"></i>
-                                        <span class="hidden sm:inline">Elimina Dati</span>
+                                <div class="p-6">
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                                        L'azione è <strong>irreversibile</strong>. Elimina tutti i dati salvati nel browser (prezzi, anagrafica, ecc.).
+                                    </p>
+                                    <button id="btn-clear-data" class="w-full text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 focus:ring-4 focus:ring-red-100 font-medium rounded-lg text-sm px-5 py-3 flex items-center justify-center dark:bg-red-900/20 dark:text-red-400 dark:border-red-900 dark:hover:bg-red-900/30 transition-all">
+                                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                                        Elimina Tutti i Dati
                                     </button>
                                 </div>
                             </div>
@@ -390,17 +361,19 @@
         confirmClearData() {
             const html = `
                 <div class="text-center p-6 flex flex-col items-center">
-                    <i data-lucide="alert-circle" class="w-16 h-16 text-red-600 mb-4"></i>
+                    <div class="p-4 bg-red-50 rounded-full mb-4 dark:bg-red-900/30">
+                        <i data-lucide="alert-circle" class="w-12 h-12 text-red-600 dark:text-red-500"></i>
+                    </div>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Sei assolutamente sicuro?</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mb-6">
-                        Questa azione eliminerà <b>TUTTI</b> i dati salvati nel browser (prezzi, registri, anagrafiche, spese, turni).<br>
-                        Questa azione <b>NON</b> eliminerà il tuo PIN.
+                    <p class="text-gray-500 dark:text-gray-400 mb-6 text-center leading-relaxed">
+                        Questa azione eliminerà <b>TUTTI</b> i dati locali salvati.<br>
+                        Non potrai recuperare nulla se non hai un backup.
                     </p>
                 </div>`;
             const footer = `
-                <div class="flex justify-center gap-4 w-full">
-                    <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
-                    <button id="btn-confirm-clear" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800">Sì, elimina dati</button>
+                <div class="flex justify-center gap-3 w-full">
+                    <button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Annulla</button>
+                    <button id="btn-confirm-clear" class="py-2.5 px-5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-lg shadow-red-600/20">Sì, elimina dati</button>
                 </div>`;
             
             App.showModal('', html, footer, 'max-w-md');
@@ -486,11 +459,6 @@
             
             document.getElementById('btn-theme-light').onclick = () => App.setTheme('light');
             document.getElementById('btn-theme-dark').onclick = () => App.setTheme('dark');
-            document.getElementById('btn-theme-notte').onclick = () => App.setTheme('notte');
-            document.getElementById('btn-theme-indigo').onclick = () => App.setTheme('indigo');
-            document.getElementById('btn-theme-pink').onclick = () => App.setTheme('pink');
-            document.getElementById('btn-theme-cyan').onclick = () => App.setTheme('cyan');
-            document.getElementById('btn-theme-yellow').onclick = () => App.setTheme('yellow');
         }
     };
 

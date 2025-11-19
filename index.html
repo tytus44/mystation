@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="it" class="dark">
+<html lang="it" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyStation Admin V11</title>
+    <title>MyStation Admin - EOS System</title>
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
@@ -18,8 +18,21 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
-                    colors: { primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a","950":"#172554"} }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 
+                        primary: {
+                            "50":"#f0f8ff", "100":"#e0f0fe", "200":"#bae2fe", "300":"#7ccafd",
+                            "400":"#36b1fa", "500":"#0c96eb", "600":"#0066cc", "700":"#0052a3",
+                            "800":"#004588", "900":"#063a6b", "950":"#042445"
+                        },
+                        gray: {
+                            "50": "#f8fafc", "100": "#f1f5f9", "200": "#e2e8f0", "300": "#cbd5e1",
+                            "400": "#94a3b8", "500": "#64748b", "600": "#475569", "700": "#334155",
+                            "800": "#1e293b", "900": "#0f172a",
+                        }
+                    },
+                    boxShadow: { 'none': 'none', 'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)' },
+                    borderRadius: { 'eos': '4px' }
                 }
             }
         }
@@ -30,200 +43,148 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <style>
-        /* --- GLOBAL RESET & UTILS --- */
-        .datepicker { z-index: 99999 !important; }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
-        input[type="number"] { -moz-appearance: textfield !important; appearance: textfield !important; }
-        .hidden-section { display: none !important; }
-        .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        body { background-color: #f8fafc; color: #334155; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+        html.dark body { background-color: #0f172a; color: #cbd5e1; }
+
+        /* INPUTS & CONTROLS */
+        input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], input[type="search"], select, textarea {
+            height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
+            padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
+            box-shadow: none !important; transition: border-color 0.2s ease;
+            /* Nota: padding-left/right gestiti dalle classi utility o override specifici sotto */
+        }
         
-        /* Custom Scrollbar */
+        /* FIX: Forza il padding sinistro per gli input con icona (classe .ps-10) per evitare sovrapposizione */
+        input.ps-10 {
+            padding-left: 2.5rem !important; /* 40px */
+        }
+
+        textarea { height: auto !important; }
+        .dark input:not([type="checkbox"]):not([type="radio"]), .dark select, .dark textarea {
+            background-color: #1e293b !important; border-color: #475569 !important; color: white !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #0066cc !important; outline: none !important; box-shadow: 0 0 0 1px #0066cc !important;
+        }
+        button, .btn {
+            border-radius: 4px !important; text-transform: none; font-weight: 600 !important;
+            transition: background-color 0.2s ease !important; box-shadow: none !important;
+        }
+        .bg-primary-600 { background-color: #0066cc !important; }
+        .hover\:bg-primary-700:hover { background-color: #0052a3 !important; }
+        .bg-white.border { border-color: #cbd5e1 !important; }
+        .bg-white.border:hover { background-color: #f1f5f9 !important; border-color: #94a3b8 !important; color: #0066cc !important; }
+
+        /* CARDS */
+        .draggable-card, .card { border-radius: 6px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; transition: border-color 0.2s ease; }
+        .dark .draggable-card { border-color: #334155 !important; }
+        .draggable-card:hover { box-shadow: none !important; transform: none !important; border-color: #94a3b8 !important; }
+        .dark .draggable-card:hover { border-color: #64748b !important; }
+        .card-header { background-color: transparent !important; border-bottom: 1px solid #f1f5f9 !important; padding: 1rem 1.5rem !important; }
+        .dark .card-header { border-bottom-color: #1e293b !important; }
+
+        /* UTILS */
+        input[type="radio"], input[type="checkbox"] { color: #0066cc !important; border-color: #cbd5e1 !important; }
+        input[type="radio"]:checked, input[type="checkbox"]:checked { background-color: #0066cc !important; border-color: #0066cc !important; box-shadow: none !important; }
+        input[type="radio"]:focus, input[type="checkbox"]:focus { box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2) !important; }
+        .datepicker { z-index: 99999 !important; }
+        .hidden-section { display: none !important; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 20px; }
-        ::-webkit-scrollbar-thumb:hover { background-color: #2563eb; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+        .sortable-ghost { opacity: 0.5; background-color: #f0f9ff !important; border: 1px dashed #0066cc !important; }
+
+        /* BANNER & PIN */
+        #home-banner { background-image: url('img/banner_day.png'); background-size: cover; background-position: center; border: 1px solid #e2e8f0; border-radius: 6px !important; }
+        .dark #home-banner { background-image: url('img/banner_night.png'); border: 1px solid #334155; }
+        .pin-square, .pin-square-small, .price-square { height: auto !important; }
+
+        /* SIDEBAR STYLES */
+        aside { border-right: 1px solid #e2e8f0 !important; }
+        .dark aside { border-right: 1px solid #334155 !important; }
         
-        /* Animation Utilities */
-        .animate-shake { animation: shake 0.3s ease-in-out; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
-
-        /* --- INPUT STYLES --- */
-        #pin-inputs-container { display: flex; justify-content: center; gap: 0.75rem; }
-        .pin-square { width: 3.5rem; height: 3.5rem; text-align: center; font-size: 1.875rem; font-weight: 600; border-radius: 0.5rem; border-width: 1px; -moz-appearance: textfield; appearance: textfield; }
-        .pin-square::-webkit-outer-spin-button, .pin-square::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .pin-square-small { width: 2.5rem; height: 2.5rem; text-align: center; font-size: 1.25rem; border-radius: 0.375rem; border-width: 1px; -moz-appearance: textfield; appearance: textfield; }
-        .pin-square-small::-webkit-outer-spin-button, .pin-square-small::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .price-input-group { display: flex; gap: 0.25rem; align-items: center; }
-        .price-square { width: 2rem; height: 2.25rem; text-align: center; font-size: 1.125rem; border-radius: 0.375rem; border-width: 1px; padding: 0; -moz-appearance: textfield; appearance: textfield; }
-        .price-square::-webkit-outer-spin-button, .price-square::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-        .sortable-ghost { opacity: 0.4; border: 2px dashed #3b82f6 !important; }
-        .draggable-card { cursor: grab; }
-        .draggable-card:active { cursor: grabbing; }
-
-        /* --- BANNER BORDERS --- */
-        #home-banner { background-image: url('img/image1.png'); background-size: cover; background-position: center 60%; border: 1px solid #e5e7eb; }
-        .dark #home-banner { border-color: #374151; background-image: url('img/image2.png'); }
-        html.dark.notte #home-banner { border-color: #333333 !important; }
-        html.indigo #home-banner { border-color: #a5b4fc !important; }
-        html.pink #home-banner { border-color: #f9a8d4 !important; }
-        html.cyan #home-banner { border-color: #67e8f9 !important; }
-        html.yellow #home-banner { border-color: #fde047 !important; }
-
-        /* ==========================================================================
-           SOLID THEME SYSTEM (NO GLASS, NO ANIMATION)
-           ========================================================================== */
-        
-        body { background-color: transparent !important; }
-        .backdrop-filter { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-
-        /* 1. DEFAULT LIGHT (Gray Scale) */
-        html { background-color: #f3f4f6; background-image: none !important; }
-        html .bg-white, html .sticky.bg-white { 
-            background-color: #ffffff !important; 
-            border-color: #e5e7eb !important; 
-            color: #111827;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        aside .active-nav-item { 
+            background-color: #f0f9ff !important; 
+            color: #0066cc !important; 
+            border-right: 3px solid #0066cc; 
+            font-weight: 600; 
         }
-        html #application-sidebar { background-color: #ffffff !important; border-right-color: #e5e7eb !important; }
-        html #sidebar-footer { background-color: #f9fafb !important; border-top-color: #e5e7eb !important; }
-        
-        /* 2. DARK (Blue-Gray Scale) */
-        html.dark { background-color: #111827; background-image: none !important; }
-        html.dark .dark\:bg-gray-800 { 
-            background-color: #1f2937 !important; 
-            border-color: #374151 !important; 
-            color: #ffffff;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+        .dark aside .active-nav-item { 
+            background-color: rgba(0, 102, 204, 0.15) !important; 
+            color: #7ccafd !important; 
+            border-right: 3px solid #7ccafd; 
         }
-        html.dark .dark\:bg-gray-700 { background-color: #374151 !important; border-color: #4b5563 !important; }
-        html.dark #application-sidebar { background-color: #1f2937 !important; border-right-color: #374151 !important; }
-        html.dark #sidebar-footer { background-color: #111827 !important; border-top-color: #374151 !important; }
+        aside .active-nav-item i { color: #0066cc !important; }
+        .dark aside .active-nav-item i { color: #7ccafd !important; }
 
-        /* 3. NOTTE (OLED Black) */
-        html.dark.notte { background-color: #000000 !important; }
-        html.dark.notte .dark\:bg-gray-800 { 
-            background-color: #171717 !important; 
-            border-color: #262626 !important; 
-            box-shadow: none !important;
-        }
-        html.dark.notte .dark\:bg-gray-700 { background-color: #262626 !important; border-color: #404040 !important; }
-        html.dark.notte #application-sidebar { background-color: #171717 !important; border-right-color: #262626 !important; }
-        html.dark.notte #sidebar-footer { background-color: #0a0a0a !important; border-top-color: #262626 !important; }
-
-        /* --- COLORED SOLID THEMES (Scuriti per leggibilità) --- */
-
-        /* 4. INDIGO THEME */
-        html.indigo { background-color: #c7d2fe !important; } /* Indigo 200 */
-        html.indigo body { color: #312e81 !important; } /* Text Indigo 900 */
-        
-        html.indigo .bg-white, html.indigo .sticky.bg-white { 
-            background-color: #eef2ff !important; /* Card Indigo 50 */
-            border-color: #a5b4fc !important; /* Border Indigo 300 */
-            color: #312e81 !important;
-        }
-        html.indigo #application-sidebar { background-color: #eef2ff !important; border-right-color: #a5b4fc !important; }
-        html.indigo #sidebar-footer { background-color: #e0e7ff !important; border-top-color: #a5b4fc !important; }
-        html.indigo .text-gray-500 { color: #6366f1 !important; } /* Icons */
-        html.indigo .text-gray-900 { color: #312e81 !important; }
-
-        /* 5. PINK THEME */
-        html.pink { background-color: #fbcfe8 !important; } /* Pink 200 */
-        html.pink body { color: #831843 !important; } /* Text Pink 900 */
-        
-        html.pink .bg-white, html.pink .sticky.bg-white { 
-            background-color: #fdf2f8 !important; /* Card Pink 50 */
-            border-color: #f9a8d4 !important; 
-            color: #831843 !important;
-        }
-        html.pink #application-sidebar { background-color: #fdf2f8 !important; border-right-color: #f9a8d4 !important; }
-        html.pink #sidebar-footer { background-color: #fce7f3 !important; border-top-color: #f9a8d4 !important; }
-        html.pink .text-gray-500 { color: #ec4899 !important; }
-        html.pink .text-gray-900 { color: #831843 !important; }
-
-        /* 6. CYAN THEME */
-        html.cyan { background-color: #a5f3fc !important; } /* Cyan 200 */
-        html.cyan body { color: #164e63 !important; } /* Text Cyan 900 */
-        
-        html.cyan .bg-white, html.cyan .sticky.bg-white { 
-            background-color: #ecfeff !important; /* Card Cyan 50 */
-            border-color: #67e8f9 !important; 
-            color: #164e63 !important;
-        }
-        html.cyan #application-sidebar { background-color: #ecfeff !important; border-right-color: #67e8f9 !important; }
-        html.cyan #sidebar-footer { background-color: #cffafe !important; border-top-color: #67e8f9 !important; }
-        html.cyan .text-gray-500 { color: #06b6d4 !important; }
-        html.cyan .text-gray-900 { color: #164e63 !important; }
-
-        /* 7. YELLOW THEME */
-        html.yellow { background-color: #fde68a !important; } /* Yellow 200 */
-        html.yellow body { color: #713f12 !important; } /* Text Yellow 900 */
-        
-        html.yellow .bg-white, html.yellow .sticky.bg-white { 
-            background-color: #fffbeb !important; /* Card Yellow 50 */
-            border-color: #fcd34d !important; 
-            color: #713f12 !important;
-        }
-        html.yellow #application-sidebar { background-color: #fffbeb !important; border-right-color: #fcd34d !important; }
-        html.yellow #sidebar-footer { background-color: #fef3c7 !important; border-top-color: #fcd34d !important; }
-        html.yellow .text-gray-500 { color: #d97706 !important; }
-        html.yellow .text-gray-900 { color: #713f12 !important; }
-
+        .nav-item-inactive { color: #475569 !important; font-weight: 500 !important; }
+        .nav-item-inactive i { color: #475569 !important; }
+        .nav-item-inactive:hover { background-color: #f1f5f9 !important; color: #0066cc !important; }
+        .nav-item-inactive:hover i { color: #0066cc !important; }
+        .dark .nav-item-inactive { color: #94a3b8 !important; }
+        .dark .nav-item-inactive i { color: #94a3b8 !important; }
+        .dark .nav-item-inactive:hover { background-color: #1e293b !important; color: white !important; }
+        .dark .nav-item-inactive:hover i { color: white !important; }
     </style>
 </head>
-<body class="antialiased text-sm text-gray-900 dark:text-white transition-colors duration-300">
+<body class="antialiased text-sm text-gray-700 dark:text-gray-300 font-sans">
 
-    <div class="sticky top-0 inset-x-0 z-40 bg-white border-b border-gray-200 px-4 py-3 lg:hidden dark:bg-gray-800 dark:border-gray-700">
+    <div class="sticky top-0 inset-x-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200 px-4 py-3 lg:hidden dark:bg-gray-900/90 dark:border-gray-800">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
-                <button id="btn-sidebar-mobile" type="button" class="mr-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300">
+                <button id="btn-sidebar-mobile" type="button" class="mr-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-white transition-colors">
                     <span class="sr-only">Open sidebar</span>
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
-                <a href="#" class="flex items-center text-xl font-semibold dark:text-white">
-                    <img src="img/logo.svg" alt="Logo" class="h-8 mr-3">
+                <a href="#" class="flex items-center text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+                    <img src="img/logo.svg" alt="Logo" class="h-7 mr-3">
                     MyStation
                 </a>
             </div>
         </div>
     </div>
 
-    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-56 h-screen transition-all duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
-        <div class="flex-none h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-700" id="sidebar-header">
-            <a class="flex-none text-xl font-semibold dark:text-white flex items-center truncate" href="#">
-                <img src="img/logo.svg" alt="Logo" class="h-8 flex-shrink-0">
-                <span class="ml-3 sidebar-text transition-opacity duration-300">MyStation</span>
+    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-64 h-screen transition-transform duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-800 flex flex-col">
+        <div class="flex-none h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800" id="sidebar-header">
+            <a class="flex-none text-xl font-bold text-gray-900 dark:text-white flex items-center truncate tracking-tight" href="#">
+                <img src="img/logo.svg" alt="Logo" class="h-7 flex-shrink-0">
+                <span class="ml-3 sidebar-text text-[#0066cc] dark:text-[#7ccafd]">MyStation</span>
             </a>
         </div>
-        <div class="flex-1 overflow-y-auto py-3">
-            <ul class="space-y-1" id="sidebar-nav">
-                <li><a href="#home" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="home" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Dashboard</span></a></li>
-                <li><a href="#virtualstation" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="monitor" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Virtualstation</span></a></li>
-                <li><a href="#amministrazione" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Amministrazione</span></a></li>
-                <li><a href="#registro" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="clipboard-list" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Registro di Carico</span></a></li>
-                <li><a href="#prezzi" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="tag" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Gestione Prezzi</span></a></li>
-                <li><a href="#anagrafica" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="users" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Anagrafica</span></a></li>
-                <li><a href="#spese" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="receipt" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Gestione Spese</span></a></li>
-                <li><a href="#applicazioni" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="grid" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Applicazioni</span></a></li>
-                <li><a href="#informazioni" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150"><i data-lucide="info" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i><span class="ml-3 sidebar-text truncate">Informazioni</span></a></li>
+        
+        <div class="flex-1 overflow-y-auto py-4 px-0">
+            <ul class="space-y-0.5" id="sidebar-nav">
+                <li><a href="#home" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Dashboard</span></a></li>
+                <li><a href="#virtualstation" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="monitor" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Virtualstation</span></a></li>
+                <li><a href="#amministrazione" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="briefcase" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Amministrazione</span></a></li>
+                <li><a href="#registro" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="clipboard-list" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Registro Carico</span></a></li>
+                <li><a href="#prezzi" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="tag" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Prezzi</span></a></li>
+                <li><a href="#anagrafica" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="users" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Anagrafica</span></a></li>
+                <li><a href="#spese" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="receipt" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Spese</span></a></li>
+                <li><a href="#applicazioni" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="grid" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Applicazioni</span></a></li>
+                <li><a href="#informazioni" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-all duration-200"><i data-lucide="info" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Informazioni</span></a></li>
             </ul>
         </div>
-        <div class="flex-none py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-1" id="sidebar-footer">
-            <a href="#impostazioni" class="flex items-center py-2 px-6 text-sm font-medium group border-l-4 border-transparent transition-colors duration-150" id="link-impostazioni">
-                <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 transition-colors duration-150"></i>
-                <span class="ml-3 sidebar-text truncate">Impostazioni</span>
+
+        <div class="flex-none py-4 px-3 border-t border-gray-100 dark:border-gray-800 space-y-1" id="sidebar-footer">
+            <a href="#impostazioni" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200" id="link-impostazioni">
+                <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
+                <span class="sidebar-text">Impostazioni</span>
             </a>
-            <ul class="space-y-1 pt-1">
-                <li><button id="fullscreen-toggle" class="w-full flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent"><i data-lucide="maximize" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Schermo intero</span></button></li>
-                <li class="hidden lg:block"><button id="sidebar-collapse-toggle" class="w-full flex items-center py-2 px-6 text-sm font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group border-l-4 border-transparent"><i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0"></i><span class="ml-3 sidebar-text truncate">Riduci menu</span></button></li>
-            </ul>
+            <button id="fullscreen-toggle" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200">
+                <i data-lucide="maximize" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
+                <span class="sidebar-text">Schermo intero</span>
+            </button>
+            <button id="sidebar-collapse-toggle" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm rounded-md group transition-all duration-200 hidden lg:flex">
+                <i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
+                <span class="sidebar-text">Riduci menu</span>
+            </button>
         </div>
     </aside>
 
-    <main class="p-4 lg:ml-56 lg:pt-6 mt-14 lg:mt-0 h-auto min-h-screen">
+    <main class="p-6 lg:ml-64 mt-14 lg:mt-0 h-auto min-h-screen transition-all duration-300">
         <section id="home" class="hidden-section"><div id="home-container"></div></section>
         <section id="virtualstation" class="hidden-section"><div id="virtual-container"></div></section>
         <section id="amministrazione" class="hidden-section"><div id="amministrazione-container"></div></section>
@@ -236,58 +197,14 @@
         <section id="impostazioni" class="hidden-section"><div id="impostazioni-container"></div></section>
     </main>
 
-    <div id="generic-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-[60] justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="generic-modal-title"></h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onclick="App.closeModal()">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4" id="generic-modal-body"></div>
-                <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600" id="generic-modal-footer"></div>
-            </div>
-        </div>
+    <div id="generic-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-[60] justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur-sm bg-gray-900/40">
+        <div class="relative p-4 w-full max-w-2xl max-h-full"><div class="relative bg-white rounded-lg shadow-xl dark:bg-gray-800 border border-gray-200 dark:border-gray-700"><div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 rounded-t-lg"><h3 class="text-lg font-bold text-gray-900 dark:text-white tracking-tight" id="generic-modal-title"></h3><button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-md text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white" onclick="App.closeModal()"><svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div><div class="p-6 space-y-6" id="generic-modal-body"></div><div class="flex items-center justify-end p-5 border-t border-gray-100 dark:border-gray-700 gap-3 bg-gray-50/50 dark:bg-gray-800 rounded-b-lg" id="generic-modal-footer"></div></div></div>
     </div>
-
-    <div id="global-toast" class="hidden fixed top-5 right-5 z-[70] flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-        <div id="toast-icon-container" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">
-            <i id="toast-icon" class="w-5 h-5"></i>
-        </div>
-        <div class="ms-3 text-sm font-normal" id="toast-message"></div>
-        <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" onclick="document.getElementById('global-toast').classList.add('hidden')">
-            <span class="sr-only">Close</span>
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-        </button>
-    </div>
-
+    <div id="global-toast" class="hidden fixed top-6 right-6 z-[70] flex items-center w-full max-w-xs p-4 mb-4 text-gray-600 bg-white rounded-md shadow-lg border border-gray-200 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700 transition-all transform translate-y-0" role="alert"><div id="toast-icon-container" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-md"><i id="toast-icon" class="w-5 h-5"></i></div><div class="ms-3 text-sm font-semibold" id="toast-message"></div><button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-md focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" onclick="document.getElementById('global-toast').classList.add('hidden')"><svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div>
     <input type="file" id="import-file-input" accept=".json" class="hidden">
     <input type="file" id="import-anagrafica-input" accept=".csv" class="hidden">
     <input type="file" id="import-stazioni-input" accept=".csv" class="hidden">
-
-    <div id="pin-lockscreen" class="fixed inset-0 z-[9999] flex justify-center items-center bg-gray-900/50 dark:bg-gray-900/80 backdrop-blur-sm" style="display: none;">
-        <div class="w-full max-w-sm p-6 bg-white rounded-lg shadow-xl dark:bg-gray-800" id="pin-modal-content">
-            <div class="text-center">
-                <img src="img/logo.svg" alt="Logo" class="w-12 h-12 mx-auto mb-4">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Inserisci PIN</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-6">Inserisci il tuo PIN di 4 cifre per sbloccare.</p>
-                
-                <div id="pin-inputs-container" class="mb-4 justify-center">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-1" class="pin-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-2" class="pin-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-3" class="pin-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-4" class="pin-square bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                </div>
-                
-                <p id="pin-error-msg" class="text-sm text-red-500 mt-2" style="display: none;">PIN errato. Riprova.</p>
-                <button id="pin-unlock-btn" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 mt-6">
-                    Sblocca
-                </button>
-            </div>
-        </div>
-    </div>
+    <div id="pin-lockscreen" class="fixed inset-0 z-[9999] flex justify-center items-center bg-gray-100/90 dark:bg-gray-950/90 backdrop-blur-md" style="display: none;"><div class="w-full max-w-sm p-8 bg-white rounded-lg shadow-xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800" id="pin-modal-content"><div class="text-center"><div class="inline-flex items-center justify-center w-16 h-16 bg-primary-50 dark:bg-primary-900/30 rounded-full mb-6 text-primary-600"><img src="img/logo.svg" alt="Logo" class="w-10 h-10"></div><h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Bentornato</h2><p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Inserisci il PIN per accedere</p><div id="pin-inputs-container" class="mb-6 justify-center gap-3"><input type="password" inputmode="numeric" maxlength="1" id="pin-1" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"><input type="password" inputmode="numeric" maxlength="1" id="pin-2" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"><input type="password" inputmode="numeric" maxlength="1" id="pin-3" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"><input type="password" inputmode="numeric" maxlength="1" id="pin-4" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"></div><p id="pin-error-msg" class="text-sm text-red-600 mt-2 mb-4 hidden font-medium bg-red-50 p-2 rounded">PIN non valido</p><button id="pin-unlock-btn" class="w-full text-white bg-[#0066cc] hover:bg-[#0052a3] font-semibold rounded-md text-base px-5 py-3 transition-all shadow-sm">Sblocca Accesso</button></div></div></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
