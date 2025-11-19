@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - Print 4 Cols Layout
+   MODULO: Amministrazione (js/amministrazione.js) - Solid Circular Icons
    ========================================================================== */
 (function() {
     'use strict';
@@ -40,34 +40,19 @@
 
         initDragAndDrop() {
             const save = () => this.saveLayout();
-
-            // 1. Ordinamento Macro-Sezioni (Verticale)
             const sections = document.getElementById('admin-sections');
             if (sections) {
-                new Sortable(sections, {
-                    animation: 150,
-                    handle: '.section-handle', // Trascina dall'intestazione
-                    ghostClass: 'sortable-ghost',
-                    onSort: save
-                });
+                new Sortable(sections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
             }
-
-            // 2. Ordinamento Card Statistiche (Orizzontale/Griglia)
             const stats = document.getElementById('admin-stats');
             if (stats) {
-                new Sortable(stats, {
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
-                    handle: '.draggable-card',
-                    onSort: save
-                });
+                new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
             }
         },
 
         saveLayout() {
             const sections = Array.from(document.getElementById('admin-sections')?.children || []).map(el => el.id).filter(id => id);
             const stats = Array.from(document.getElementById('admin-stats')?.children || []).map(el => el.id).filter(id => id);
-            
             const layout = { sections, stats };
             localStorage.setItem('mystation_admin_layout_v2', JSON.stringify(layout));
         },
@@ -77,24 +62,14 @@
             if (!saved) return;
             try {
                 const layout = JSON.parse(saved);
-                
-                // Ripristino Sezioni
                 const secContainer = document.getElementById('admin-sections');
                 if (secContainer && layout.sections) {
-                    layout.sections.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) secContainer.appendChild(el);
-                    });
+                    layout.sections.forEach(id => { const el = document.getElementById(id); if (el) secContainer.appendChild(el); });
                 }
-
-                // Ripristino Stats
                 const statsContainer = document.getElementById('admin-stats');
                 if (statsContainer && layout.stats) {
                     if (statsContainer.children.length === 0) this.renderStats(true);
-                    layout.stats.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) statsContainer.appendChild(el);
-                    });
+                    layout.stats.forEach(id => { const el = document.getElementById(id); if (el) statsContainer.appendChild(el); });
                 }
             } catch (e) { console.error("Errore ripristino layout admin:", e); }
         },
@@ -125,11 +100,9 @@
                     </div>
 
                     <div id="admin-sections" class="flex flex-col gap-6">
-                        
                         <div id="sec-stats" class="group">
                             <div id="admin-stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start"></div>
                         </div>
-                        
                         <div id="card-clients" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 overflow-hidden draggable-card group">
                             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header cursor-move section-handle hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                 <h3 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight" id="admin-view-title">Gestione Clienti</h3>
@@ -137,7 +110,6 @@
                             </div>
                             <div class="p-6" id="admin-content-area"></div>
                         </div>
-
                     </div>
                 </div>`;
         },
@@ -154,22 +126,23 @@
                  document.getElementById('val-stat-credit').textContent = App.formatCurrency(totalCredit).replace('€','');
                  document.getElementById('val-stat-debit').textContent = App.formatCurrency(Math.abs(totalDebit)).replace('€','');
             } else {
+                // FIX: Icone circolari e colori pieni
                 container.innerHTML = `
-                    ${this.renderStatCard('stat-clients', 'Clienti Attivi', 'val-stat-clients', clients.length, 'bg-blue-50 dark:bg-blue-900/20 text-primary-600 dark:text-primary-400', 'users')}
-                    ${this.renderStatCard('stat-credit', 'Totale Credito', 'val-stat-credit', App.formatCurrency(totalCredit).replace('€',''), 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400', 'trending-up')}
-                    ${this.renderStatCard('stat-debit', 'Totale Debito', 'val-stat-debit', App.formatCurrency(Math.abs(totalDebit)).replace('€',''), 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400', 'trending-down')}
+                    ${this.renderStatCard('stat-clients', 'Clienti Attivi', 'val-stat-clients', clients.length, 'bg-blue-600', 'users')}
+                    ${this.renderStatCard('stat-credit', 'Totale Credito', 'val-stat-credit', App.formatCurrency(totalCredit).replace('€',''), 'bg-green-600', 'trending-up')}
+                    ${this.renderStatCard('stat-debit', 'Totale Debito', 'val-stat-debit', App.formatCurrency(Math.abs(totalDebit)).replace('€',''), 'bg-red-600', 'trending-down')}
                 `;
                 lucide.createIcons();
             }
         },
 
-        renderStatCard(id, title, valId, value, iconClass, iconName) {
+        renderStatCard(id, title, valId, value, iconBg, iconName) {
             return `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden hover:border-primary-500 dark:hover:border-primary-500 transition-colors">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header">
                         <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-300">${title}</h3>
-                        <div class="flex items-center justify-center w-8 h-8 rounded-md ${iconClass}">
-                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full ${iconBg} text-white shadow-sm">
+                            <i data-lucide="${iconName}" class="w-5 h-5"></i>
                         </div>
                     </div>
                     <div class="p-6">
@@ -385,71 +358,19 @@
             const clients = this.getFilteredClients();
             const w = window.open('', '_blank');
             
-            // Generazione righe accoppiate (Layout a 4 colonne: C1 | S1 | C2 | S2)
             let rows = '';
             for (let i = 0; i < clients.length; i += 2) {
                 const c1 = clients[i];
-                const c2 = clients[i+1]; // Potrebbe essere undefined
-                
+                const c2 = clients[i+1]; 
                 const renderCell = (c) => {
                     if (!c) return '<td></td><td></td>';
                     const colorClass = c.balance > 0 ? 'text-green' : (c.balance < 0 ? 'text-red' : '');
-                    return `
-                        <td class="name-cell">${c.name}</td>
-                        <td class="text-right ${colorClass}">${App.formatCurrency(c.balance)}</td>
-                    `;
+                    return `<td class="name-cell">${c.name}</td><td class="text-right ${colorClass}">${App.formatCurrency(c.balance)}</td>`;
                 };
-
-                rows += `<tr>
-                    ${renderCell(c1)}
-                    <td class="separator"></td>
-                    ${renderCell(c2)}
-                </tr>`;
+                rows += `<tr>${renderCell(c1)}<td class="separator"></td>${renderCell(c2)}</tr>`;
             }
 
-            w.document.write(`
-                <html>
-                <head>
-                    <title>Lista Clienti</title>
-                    <style>
-                        body { font-family: sans-serif; padding: 10px; font-size: 12px; }
-                        h2 { margin-bottom: 5px; text-align: center; font-size: 16px; }
-                        p { text-align: center; margin-top: 0; color: #666; font-size: 10px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                        th { background-color: #f2f2f2; padding: 6px; text-align: left; border-bottom: 2px solid #ccc; font-size: 11px; }
-                        td { border-bottom: 1px solid #eee; padding: 6px; vertical-align: top; }
-                        .text-right { text-align: right; white-space: nowrap; }
-                        .text-red { color: #dc2626; }
-                        .text-green { color: #16a34a; }
-                        .name-cell { font-weight: bold; color: #333; width: 35%; }
-                        .separator { width: 2%; border: none; background: #fff; }
-                        
-                        @media print {
-                            @page { margin: 0.5cm; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h2>Lista Clienti</h2>
-                    <p>Generato il: ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th class="text-right">Saldo</th>
-                                <th class="separator"></th>
-                                <th>Cliente</th>
-                                <th class="text-right">Saldo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows}
-                        </tbody>
-                    </table>
-                    <script>window.onload = function() { window.print(); window.close(); }</script>
-                </body>
-                </html>
-            `);
+            w.document.write(`<html><head><title>Lista Clienti</title><style>body{font-family:sans-serif;padding:10px;font-size:12px}h2{margin-bottom:5px;text-align:center;font-size:16px}p{text-align:center;margin-top:0;color:#666;font-size:10px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background-color:#f2f2f2;padding:6px;text-align:left;border-bottom:2px solid #ccc;font-size:11px}td{border-bottom:1px solid #eee;padding:6px;vertical-align:top}.text-right{text-align:right;white-space:nowrap}.text-red{color:#dc2626}.text-green{color:#16a34a}.name-cell{font-weight:bold;color:#333;width:35%}.separator{width:2%;border:none;background:#fff}@media print{@page{margin:0.5cm}}</style></head><body><h2>Lista Clienti</h2><p>Generato il: ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}</p><table><thead><tr><th>Cliente</th><th class="text-right">Saldo</th><th class="separator"></th><th>Cliente</th><th class="text-right">Saldo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=function(){window.print();window.close();}</script></body></html>`);
             w.document.close();
         },
 
