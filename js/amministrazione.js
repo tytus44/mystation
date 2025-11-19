@@ -1,17 +1,79 @@
 /* ==========================================================================
-   MODULO: Amministrazione (js/amministrazione.js) - Joined Buttons Fix
+   MODULO: Amministrazione (js/amministrazione.js) - Standardized Modal Buttons
    ========================================================================== */
 (function() {
     'use strict';
 
     const AdminModule = {
-        localState: { sort: { column: 'name', direction: 'asc' }, searchQuery: '', currentView: 'list', editingClientId: null },
-        init() { if (!App.state.data.clients) App.state.data.clients = []; this.localState.currentView = localStorage.getItem('admin_view_mode') || 'list'; },
-        render() { const container = document.getElementById('amministrazione-container'); if (!container) return; if (!document.getElementById('admin-layout')) { container.innerHTML = this.getLayoutHTML(); lucide.createIcons(); this.attachListeners(); } this.updateView(); this.restoreLayout(); this.initDragAndDrop(); },
-        updateView() { this.renderStats(); this.updateViewButtons(); if (this.localState.currentView === 'list') this.renderTable(); else this.renderGrid(); },
-        initDragAndDrop() { const save = () => this.saveLayout(); const sections = document.getElementById('admin-sections'); if (sections) { new Sortable(sections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save }); } const stats = document.getElementById('admin-stats'); if (stats) { new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save }); } },
-        saveLayout() { const sections = Array.from(document.getElementById('admin-sections')?.children || []).map(el => el.id).filter(id => id); const stats = Array.from(document.getElementById('admin-stats')?.children || []).map(el => el.id).filter(id => id); const layout = { sections, stats }; localStorage.setItem('mystation_admin_layout_v2', JSON.stringify(layout)); },
-        restoreLayout() { const saved = localStorage.getItem('mystation_admin_layout_v2'); if (!saved) return; try { const layout = JSON.parse(saved); const secContainer = document.getElementById('admin-sections'); if (secContainer && layout.sections) { layout.sections.forEach(id => { const el = document.getElementById(id); if (el) secContainer.appendChild(el); }); } const statsContainer = document.getElementById('admin-stats'); if (statsContainer && layout.stats) { if (statsContainer.children.length === 0) this.renderStats(true); layout.stats.forEach(id => { const el = document.getElementById(id); if (el) statsContainer.appendChild(el); }); } } catch (e) { console.error("Errore ripristino layout admin:", e); } },
+        localState: {
+            sort: { column: 'name', direction: 'asc' },
+            searchQuery: '',
+            currentView: 'list',
+            editingClientId: null
+        },
+
+        init() {
+            if (!App.state.data.clients) App.state.data.clients = [];
+            this.localState.currentView = localStorage.getItem('admin_view_mode') || 'list';
+        },
+
+        render() {
+            const container = document.getElementById('amministrazione-container');
+            if (!container) return;
+
+            if (!document.getElementById('admin-layout')) {
+                container.innerHTML = this.getLayoutHTML();
+                lucide.createIcons();
+                this.attachListeners();
+            }
+            this.updateView();
+            this.restoreLayout();
+            this.initDragAndDrop();
+        },
+
+        updateView() {
+            this.renderStats();
+            this.updateViewButtons();
+            if (this.localState.currentView === 'list') this.renderTable();
+            else this.renderGrid();
+        },
+
+        initDragAndDrop() {
+            const save = () => this.saveLayout();
+            const sections = document.getElementById('admin-sections');
+            if (sections) {
+                new Sortable(sections, { animation: 150, handle: '.section-handle', ghostClass: 'sortable-ghost', onSort: save });
+            }
+            const stats = document.getElementById('admin-stats');
+            if (stats) {
+                new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
+            }
+        },
+
+        saveLayout() {
+            const sections = Array.from(document.getElementById('admin-sections')?.children || []).map(el => el.id).filter(id => id);
+            const stats = Array.from(document.getElementById('admin-stats')?.children || []).map(el => el.id).filter(id => id);
+            const layout = { sections, stats };
+            localStorage.setItem('mystation_admin_layout_v2', JSON.stringify(layout));
+        },
+
+        restoreLayout() {
+            const saved = localStorage.getItem('mystation_admin_layout_v2');
+            if (!saved) return;
+            try {
+                const layout = JSON.parse(saved);
+                const secContainer = document.getElementById('admin-sections');
+                if (secContainer && layout.sections) {
+                    layout.sections.forEach(id => { const el = document.getElementById(id); if (el) secContainer.appendChild(el); });
+                }
+                const statsContainer = document.getElementById('admin-stats');
+                if (statsContainer && layout.stats) {
+                    if (statsContainer.children.length === 0) this.renderStats(true);
+                    layout.stats.forEach(id => { const el = document.getElementById(id); if (el) statsContainer.appendChild(el); });
+                }
+            } catch (e) { console.error("Errore ripristino layout admin:", e); }
+        },
+
         getLayoutHTML() {
             return `
                 <div id="admin-layout" class="flex flex-col gap-6 animate-fade-in">
@@ -21,10 +83,10 @@
                             <div class="relative"><div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"><i data-lucide="search" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i></div><input type="search" id="admin-search" class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-white focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Cerca cliente..." value="${this.localState.searchQuery}"></div>
                             <div class="inline-flex rounded-md shadow-sm" role="group">
                                 <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-s-imp focus:z-10 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 view-btn join-item" data-view="list" title="Vista Elenco"><i data-lucide="list" class="w-4 h-4"></i></button>
-                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-e-imp focus:z-10 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 view-btn join-item" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
+                                <button type="button" class="px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-e-imp focus:z-10 focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 view-btn join-item -ml-px" data-view="grid" title="Vista Griglia"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
                             </div>
-                            <button id="btn-new-client" class="text-white bg-primary-600 font-semibold rounded-md text-sm px-4 py-2.5 flex items-center shadow-sm transition-none" title="Nuovo Cliente"><i data-lucide="user-plus" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Nuovo Cliente</span></button>
-                            <button id="btn-print-list" class="text-gray-700 bg-white border border-gray-300 font-medium rounded-md text-sm px-4 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-none" title="Stampa Lista"><i data-lucide="printer" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Stampa Lista</span></button>
+                            <button id="btn-new-client" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-4 py-2.5 flex items-center shadow-sm transition-none" title="Nuovo Cliente"><i data-lucide="user-plus" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Nuovo Cliente</span></button>
+                            <button id="btn-print-list" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-md text-sm px-4 py-2.5 flex items-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 transition-none" title="Stampa Lista"><i data-lucide="printer" class="size-4 sm:mr-2"></i><span class="hidden sm:inline">Stampa Lista</span></button>
                         </div>
                     </div>
                     <div id="admin-sections" class="flex flex-col gap-6">
@@ -51,9 +113,8 @@
         updateViewButtons() {
             document.querySelectorAll('.view-btn').forEach(btn => {
                 const isActive = btn.dataset.view === this.localState.currentView;
-                // Fix: usa le classi .rounded-s-imp e .rounded-e-imp e .join-item
                 let classes = "px-4 py-2.5 text-sm font-medium border view-btn transition-all focus:z-10 focus:ring-2 focus:ring-primary-500 join-item ";
-                if (btn.dataset.view === 'list') { classes += "rounded-s-imp "; } else { classes += "rounded-e-imp "; }
+                if (btn.dataset.view === 'list') { classes += "rounded-s-imp "; } else { classes += "rounded-e-imp -ml-px "; }
                 if (isActive) { classes += "z-10 text-white bg-primary-600 border-primary-600"; } else { classes += "text-gray-700 bg-white border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"; }
                 btn.className = classes;
             });
@@ -71,6 +132,7 @@
         },
         getFilteredClients() { let clients = [...App.state.data.clients]; const q = this.localState.searchQuery.toLowerCase(); if(q) clients = clients.filter(c => c.name.toLowerCase().includes(q)); return clients.sort((a,b) => a.name.localeCompare(b.name)); },
         getLastTransaction(c) { if (!c.transactions?.length) return null; return [...c.transactions].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; },
+        
         openClientModal(id=null) {
             if(!id) {
                 const form = `<form id="form-client"><div class="mb-4"><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome Cliente</label><input type="text" name="name" id="client-name-input" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required></div></form>`;
@@ -81,9 +143,25 @@
         saveNewClient() { const fd = new FormData(document.getElementById('form-client')); if(!fd.get('name').trim()) return alert('Inserire il nome.'); App.state.data.clients.push({ id: App.generateId('cl'), name: fd.get('name').trim(), balance: 0, transactions: [] }); App.saveToStorage(); App.closeModal(); this.updateView(); },
         renderClientModal(id) {
             const c = App.state.data.clients.find(x=>x.id===id); if(!c) return; const balClass = c.balance > 0 ? 'text-green-600 dark:text-green-400' : (c.balance < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'); const txs = [...c.transactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
-            const body = `<div class="space-y-6"><div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-gray-600"><div><span class="text-sm text-gray-500 dark:text-gray-400 block">Saldo Attuale</span><span class="text-2xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span></div><div class="flex flex-wrap gap-2"><button class="btn-quick-tx px-3 py-2 text-xs font-semibold text-white bg-red-600 rounded-md shadow-sm transition-none" data-type="debit">Addebito (-)</button><button class="btn-quick-tx px-3 py-2 text-xs font-semibold text-white bg-green-600 rounded-md shadow-sm transition-none" data-type="credit">Acconto (+)</button><button id="btn-settle" class="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-none"><i data-lucide="check-circle" class="w-3 h-3 inline mr-1"></i> Salda</button><button id="btn-print-stmt" class="px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-none"><i data-lucide="printer" class="w-3 h-3"></i></button></div></div><div id="tx-form" class="hidden p-4 border border-gray-200 rounded-lg dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800"><h5 class="mb-3 text-sm font-bold text-gray-900 dark:text-white" id="tx-form-title">Nuova Transazione</h5><div class="flex flex-col sm:flex-row gap-3"><input type="text" id="tx-desc" class="flex-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-md p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Descrizione"><input type="number" id="tx-amount" step="0.01" class="sm:w-32 bg-white border border-gray-300 text-gray-900 text-sm rounded-md p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="€ 0.00"><button id="btn-confirm-tx" class="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-md shadow-sm transition-none">Conferma</button></div></div><div class="overflow-hidden border border-gray-200 rounded-lg dark:border-gray-700"><div class="max-h-[300px] overflow-y-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 relative"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 shadow-sm"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3 text-right">Importo</th><th class="px-4 py-3 w-10"></th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">${txs.length ? txs.map(t => `<tr><td class="px-4 py-3 whitespace-nowrap">${App.formatDate(t.date)}</td><td class="px-4 py-3 truncate max-w-[150px]" title="${t.description}">${t.description}</td><td class="px-4 py-3 text-right font-medium ${t.amount>0?'text-green-600 dark:text-green-400':'text-red-600 dark:text-red-400'}">${App.formatCurrency(t.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="text-gray-400 btn-del-tx" data-txid="${t.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('') : '<tr><td colspan="4" class="p-6 text-center text-gray-500 dark:text-gray-400">Nessuna transazione registrata.</td></tr>'}</tbody></table></div></div></div>`;
-            const delBtn = `<button id="btn-delete-client-modal" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-600 font-medium rounded-md text-sm px-5 py-2.5 text-center mr-auto transition-none">Elimina Cliente</button>`;
+            const body = `
+                <div class="space-y-6">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-4 border border-gray-200 dark:border-gray-600">
+                        <div><span class="text-sm text-gray-500 dark:text-gray-400 block">Saldo Attuale</span><span class="text-2xl font-bold ${balClass}">${App.formatCurrency(c.balance)}</span></div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="btn-quick-tx px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-none shadow-sm" data-type="debit">Addebito (-)</button>
+                            <button class="btn-quick-tx px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-none shadow-sm" data-type="credit">Acconto (+)</button>
+                            
+                            <button id="btn-settle" class="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 shadow-sm transition-none"><i data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i> Salda</button>
+                            
+                            <button id="btn-print-stmt" class="px-3 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-none"><i data-lucide="printer" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div id="tx-form" class="hidden p-4 border border-gray-200 rounded-lg dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800"><h5 class="mb-3 text-sm font-bold text-gray-900 dark:text-white" id="tx-form-title">Nuova Transazione</h5><div class="flex flex-col sm:flex-row gap-3"><input type="text" id="tx-desc" class="flex-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-md p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Descrizione"><input type="number" id="tx-amount" step="0.01" class="sm:w-32 bg-white border border-gray-300 text-gray-900 text-sm rounded-md p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="€ 0.00"><button id="btn-confirm-tx" class="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-md shadow-sm transition-none">Conferma</button></div></div><div class="overflow-hidden border border-gray-200 rounded-lg dark:border-gray-700"><div class="max-h-[300px] overflow-y-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 relative"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 shadow-sm"><tr><th class="px-4 py-3">Data</th><th class="px-4 py-3">Descrizione</th><th class="px-4 py-3 text-right">Importo</th><th class="px-4 py-3 w-10"></th></tr></thead><tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">${txs.length ? txs.map(t => `<tr><td class="px-4 py-3 whitespace-nowrap">${App.formatDate(t.date)}</td><td class="px-4 py-3 truncate max-w-[150px]" title="${t.description}">${t.description}</td><td class="px-4 py-3 text-right font-medium ${t.amount>0?'text-green-600 dark:text-green-400':'text-red-600 dark:text-red-400'}">${App.formatCurrency(t.amount).replace('€','')}</td><td class="px-4 py-3 text-right"><button class="text-gray-400 btn-del-tx" data-txid="${t.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('') : '<tr><td colspan="4" class="p-6 text-center text-gray-500 dark:text-gray-400">Nessuna transazione registrata.</td></tr>'}</tbody></table></div></div></div>`;
+            
+            // FIX: Elimina Solido Rosso
+            const delBtn = `<button id="btn-delete-client-modal" class="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-md text-sm px-5 py-2.5 text-center mr-auto transition-none shadow-sm">Elimina Cliente</button>`;
             App.showModal(c.name, body, `${delBtn}<button class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-none" onclick="App.closeModal()">Chiudi</button>`);
+            
             let currentTxType = 'debit';
             document.querySelectorAll('.btn-quick-tx').forEach(b => b.onclick = () => { currentTxType = b.dataset.type; document.getElementById('tx-form-title').textContent = currentTxType === 'debit' ? 'Nuovo Addebito' : 'Nuovo Acconto'; document.getElementById('tx-desc').value = currentTxType === 'debit' ? 'Carburante' : 'Acconto'; document.getElementById('tx-form').classList.remove('hidden'); document.getElementById('tx-amount').focus(); });
             document.getElementById('btn-confirm-tx').onclick = () => { const amt = parseFloat(document.getElementById('tx-amount').value); if(!amt || amt <= 0) return alert('Inserire un importo valido'); const finalAmt = currentTxType === 'debit' ? -amt : amt; c.transactions.push({ id: App.generateId('tx'), date: new Date().toISOString(), description: document.getElementById('tx-desc').value.trim(), amount: finalAmt }); c.balance += finalAmt; App.saveToStorage(); this.renderClientModal(id); this.updateView(); };
@@ -95,7 +173,7 @@
         },
         showDeleteModal(title, message, onConfirm) {
             const body = `<div class="text-center p-6 flex flex-col items-center"><div class="p-3 bg-red-50 dark:bg-red-900/30 rounded-full mb-4"><i data-lucide="alert-triangle" class="w-10 h-10 text-red-600 dark:text-red-500"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">${title}</h3><p class="text-gray-500 dark:text-gray-400 mb-6">${message}</p></div>`;
-            const footer = `<div class="flex justify-center gap-4 w-full"><button id="btn-cancel-delete" class="py-2.5 px-5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-none">Annulla</button><button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-semibold text-white bg-red-600 rounded-md shadow-sm transition-none">Elimina</button></div>`;
+            const footer = `<div class="flex justify-center gap-4 w-full"><button id="btn-cancel-delete" class="py-2.5 px-5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-none">Annulla</button><button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 shadow-sm transition-none">Elimina</button></div>`;
             App.showModal('', body, footer, 'max-w-md');
             document.getElementById('btn-cancel-delete').onclick = () => { if(this.localState.editingClientId) this.renderClientModal(this.localState.editingClientId); else App.closeModal(); };
             document.getElementById('btn-confirm-delete').onclick = onConfirm;
@@ -109,5 +187,7 @@
         attachListeners() { document.getElementById('admin-search').oninput = (e) => { this.localState.searchQuery = e.target.value; this.updateView(); }; document.querySelectorAll('.view-btn').forEach(b => b.onclick = () => { this.localState.currentView = b.dataset.view; localStorage.setItem('admin_view_mode', b.dataset.view); this.updateView(); }); document.getElementById('btn-new-client').onclick = () => this.openClientModal(); document.getElementById('btn-print-list').onclick = () => this.printList(); },
         attachDynamicListeners() { document.querySelectorAll('.btn-manage-client').forEach(b => b.onclick = () => this.openClientModal(b.dataset.id)); }
     };
-    if(window.App) App.registerModule('amministrazione', AdminModule); else document.addEventListener('app:ready', () => App.registerModule('amministrazione', AdminModule));
+
+    if(window.App) App.registerModule('amministrazione', AdminModule); 
+    else document.addEventListener('app:ready', () => App.registerModule('amministrazione', AdminModule));
 })();
