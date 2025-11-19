@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Filtri mensili (v3)
+   MODULO: VirtualStation (js/virtualstation.js) - EOS Icon Sizes
    ========================================================================== */
 (function() {
     'use strict';
@@ -17,7 +17,6 @@
         init() {
             try {
                 this.localState.filterMode = localStorage.getItem('virtual_filter_mode') || 'today';
-                // Salvaguardia: se è rimasto il vecchio "month", resetta a "today"
                 if (this.localState.filterMode === 'month') {
                     this.localState.filterMode = 'today';
                     localStorage.setItem('virtual_filter_mode', 'today');
@@ -45,7 +44,7 @@
             VirtualModule.updateStats();
             VirtualModule.updateFilterLabel();
             VirtualModule.renderTable();
-            VirtualModule.updateCharts(); // Animazione grafici ad ogni update
+            VirtualModule.updateCharts();
         },
 
         initDragAndDrop() {
@@ -93,12 +92,10 @@
         },
 
         getLayoutHTML() {
-            // --- MODIFICA: Genera i link per i 12 mesi ---
             const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
             const monthLinks = months.map((monthName, index) => {
                 return `<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white btn-filter-opt" data-mode="month-${index}">${monthName}</a></li>`;
             }).join('');
-            // --- FINE MODIFICA ---
 
             return `
                 <div id="virtual-layout" class="flex flex-col gap-6 animate-fade-in">
@@ -125,11 +122,9 @@
                     </div>
 
                     <div id="virtual-sections-container" class="flex flex-col gap-8">
-                        
                         <div id="sec-stats" class="group">
                             <div id="v-stats-container" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start"></div>
                         </div>
-
                         <div id="sec-charts" class="group">
                             <div id="v-charts-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                                 <div id="v-card-service" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
@@ -152,7 +147,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div id="sec-table" class="group">
                              <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden">
                                  <div class="flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 section-handle cursor-move hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" title="Sposta sezione">
@@ -165,7 +159,6 @@
                                  </div>
                             </div>
                         </div>
-
                     </div>
                 </div>`;
         },
@@ -191,8 +184,8 @@
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
                         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
-                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
-                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full shadow-sm">
+                            <i data-lucide="${iconName}" class="w-5 h-5"></i>
                         </div>
                     </div>
                     <div class="p-6">
@@ -201,12 +194,10 @@
                 </div>`;
         },
         
-        // --- MODIFICA: Aggiorna label per i mesi ---
         updateFilterLabel() {
             const mode = this.localState.filterMode;
             let label = 'Oggi';
             const year = new Date().getFullYear();
-            
             if (mode === 'year') {
                 label = `Anno ${year}`;
             } else if (mode.startsWith('month-')) {
@@ -214,10 +205,8 @@
                 const monthIndex = parseInt(mode.split('-')[1], 10);
                 label = months[monthIndex];
             }
-            // if mode is 'today', label is already 'Oggi'
             document.getElementById('filter-label').textContent = label;
         },
-        // --- FINE MODIFICA ---
 
         renderTable() {
             const tbody = document.getElementById('v-table-body');
@@ -247,29 +236,23 @@
             document.querySelectorAll('.btn-edit-turno').forEach(b => b.onclick = () => VirtualModule.openTurnoModal(b.dataset.id));
         },
 
-        // --- HELPER FUNCTIONS ---
         fmtProd(t, p) { const tot = (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); return tot > 0 ? App.formatNumber(tot) : '-'; },
         
-        // --- MODIFICA: Logica di filtro aggiornata ---
         getFilteredTurni() {
             const mode = this.localState.filterMode; 
             const now = new Date(); 
             const start = new Date(); 
             start.setHours(0,0,0,0);
-            
             const allTurni = App.state.data.turni.sort((a,b) => new Date(b.date) - new Date(a.date));
 
             if (mode === 'today') {
                 return allTurni.filter(t => { const d = new Date(t.date); return d >= start && d <= now; });
             }
-            
             const currentYear = now.getFullYear();
-
             if (mode === 'year') {
-                start.setMonth(0, 1); // 1 Gennaio
+                start.setMonth(0, 1); 
                 return allTurni.filter(t => new Date(t.date).getFullYear() === currentYear);
             }
-            
             if (mode.startsWith('month-')) {
                 const monthIndex = parseInt(mode.split('-')[1], 10);
                 return allTurni.filter(t => {
@@ -277,11 +260,8 @@
                     return d.getFullYear() === currentYear && d.getMonth() === monthIndex;
                 });
             }
-            
-            // Fallback a 'today' se il filtro non è riconosciuto
             return allTurni.filter(t => { const d = new Date(t.date); return d >= start && d <= now; });
         },
-        // --- FINE MODIFICA ---
 
         getTurnoTotalLitri(t) { return this.sumObj(t.prepay) + this.sumObj(t.servito) + this.sumObj(t.fdt); },
         sumObj(o) { return Object.values(o||{}).reduce((a,b)=>a+(parseFloat(b)||0),0); },
@@ -312,11 +292,7 @@
             });
             return { liters, revenue: rev, servitoPerc: liters > 0 ? Math.round((serv / liters) * 100) : 0 };
         },
-        getLatestPrices() { 
-            if(!App.state.data.priceHistory?.length) return {}; 
-            return [...App.state.data.priceHistory].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]; 
-        },
-
+        getLatestPrices() { if(!App.state.data.priceHistory?.length) return {}; return [...App.state.data.priceHistory].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]; },
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         
         updateCharts() {
@@ -325,12 +301,10 @@
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
             if (!ctxP || !ctxS || !ctxT) return; 
 
-            // Distrugge i grafici esistenti per forzare la ri-animazione
             if(VirtualModule.localState.chartInstances.p) VirtualModule.localState.chartInstances.p.destroy();
             if(VirtualModule.localState.chartInstances.s) VirtualModule.localState.chartInstances.s.destroy();
             if(VirtualModule.localState.chartInstances.t) VirtualModule.localState.chartInstances.t.destroy();
 
-            // Calcola i nuovi dati
             const turni = VirtualModule.getFilteredTurni();
             const pData = [0,0,0,0,0]; let fdt=0, prepay=0, servito=0;
             turni.forEach(t => {
@@ -354,49 +328,24 @@
             lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
             lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
-            // --- FIX ANIMAZIONE GRAFICI ---
-            // Ritarda la creazione (aumentato a 50ms)
             setTimeout(() => {
                 if (!document.getElementById('v-products-chart')) return;
-
                 VirtualModule.localState.chartInstances.p = new Chart(ctxP, { 
                     type: 'doughnut', 
-                    data: { 
-                        labels: pLabels,
-                        datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] 
-                    }, 
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: { 
-                            legend: { display: false }
-                        } 
-                    } 
+                    data: { labels: pLabels, datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, 
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
                 });
-                
-                // REGOLA 1: Ordine FaiDaTe, Servito, Prepay
                 VirtualModule.localState.chartInstances.s = new Chart(ctxS, { 
                     type: 'bar', 
-                    data: { 
-                        labels: ['Totale'], 
-                        datasets: [ 
-                            { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, 
-                            { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 },
-                            { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 }
-                        ] 
-                    }, 
+                    data: { labels: ['Totale'], datasets: [ { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 }, { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 } ] }, 
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } 
                 });
-                
                 VirtualModule.localState.chartInstances.t = new Chart(ctxT, { 
                     type: 'line', 
-                    data: { 
-                        labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], 
-                        datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] 
-                    }, 
+                    data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] }, 
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } 
                 });
-            }, 50); // Ritardo di 50ms per assicurare l'animazione
+            }, 50);
         },
         getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
 
@@ -404,25 +353,10 @@
             const ppInputs = document.querySelectorAll('#form-turno .pp-input');
             const svInputs = document.querySelectorAll('#form-turno .sv-input');
             const fdInputs = document.querySelectorAll('#form-turno .fd-input');
-
-            // Default: disabilita tutto
-            ppInputs.forEach(i => i.disabled = true);
-            svInputs.forEach(i => i.disabled = true);
-            fdInputs.forEach(i => i.disabled = true);
-
-            if (['Notte', 'Pausa', 'Weekend'].includes(turno)) {
-                // REGOLA 1: Solo Prepay
-                ppInputs.forEach(i => i.disabled = false);
-            } else if (['Mattina', 'Pomeriggio'].includes(turno)) {
-                // REGOLA 1: Solo FaiDaTe e Servito
-                svInputs.forEach(i => i.disabled = false);
-                fdInputs.forEach(i => i.disabled = false);
-            } else if (turno === 'Riepilogo Mensile') {
-                // Riepilogo abilita tutto
-                ppInputs.forEach(i => i.disabled = false);
-                svInputs.forEach(i => i.disabled = false);
-                fdInputs.forEach(i => i.disabled = false);
-            }
+            ppInputs.forEach(i => i.disabled = true); svInputs.forEach(i => i.disabled = true); fdInputs.forEach(i => i.disabled = true);
+            if (['Notte', 'Pausa', 'Weekend'].includes(turno)) { ppInputs.forEach(i => i.disabled = false); } 
+            else if (['Mattina', 'Pomeriggio'].includes(turno)) { svInputs.forEach(i => i.disabled = false); fdInputs.forEach(i => i.disabled = false); } 
+            else if (turno === 'Riepilogo Mensile') { ppInputs.forEach(i => i.disabled = false); svInputs.forEach(i => i.disabled = false); fdInputs.forEach(i => i.disabled = false); }
         },
 
         openTurnoModal(id=null) {
@@ -432,51 +366,14 @@
             const cls = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white";
             const turnoOpts = ['Mattina','Pomeriggio','Notte','Pausa','Weekend','Riepilogo Mensile'];
             const curTurno = t?.turno || 'Mattina';
-            
             const dropdownHtml = `<div class="relative"><button id="turnoDropdownBtn" data-dropdown-toggle="turnoDropdown" class="${cls} flex justify-between items-center w-full" type="button"><span id="selectedTurno">${curTurno}</span><svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg></button><div id="turnoDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-full absolute dark:bg-gray-700"><ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="turnoDropdownBtn">${turnoOpts.map(o => `<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white turno-opt" data-val="${o}">${o}</a></li>`).join('')}</ul></div></div><input type="hidden" name="turno" id="turnoInput" value="${curTurno}">`;
-            
-            /* INIZIO MODIFICA */
-            const products = [
-                {label: 'Gasolio', key: 'gasolio'},
-                {label: 'Diesel+', key: 'dieselplus'},
-                {label: 'AdBlue', key: 'adblue'},
-                {label: 'Benzina', key: 'benzina'},
-                {label: 'Hvolution', key: 'hvolution'}
-            ];
-            /* FINE MODIFICA */
-
-            // REGOLA 1: Ordine FaiDaTe, Servito, Prepay
-            const form = `<form id="form-turno" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls} ps-10" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>${dropdownHtml}</div></div><div class="space-y-4"><h4 class="font-medium text-gray-900 dark:text-white border-b pb-2 dark:border-gray-700">Erogato (Litri)</h4><div class="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>FaiDaTe</div><div>Servito</div><div>Prepay</div></div>
-            ${products.map(p => {
-                const k = p.key;
-                const isAdBlue = (k === 'adblue');
-                const ppInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="pp_${k}" value="${t?.prepay?.[k]||''}" class="${cls} pp-input" placeholder="0">`;
-                const svInput = `<input type="number" step="1" name="sv_${k}" value="${t?.servito?.[k]||''}" class="${cls} sv-input" placeholder="0">`;
-                const fdInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="fd_${k}" value="${t?.fdt?.[k]||''}" class="${cls} fd-input" placeholder="0">`;
-                
-                return `<div class="grid grid-cols-4 gap-4 items-center">
-                    <div class="text-gray-900 dark:text-white">${p.label}</div>
-                    ${fdInput}
-                    ${svInput}
-                    ${ppInput}
-                </div>`;
-            }).join('')}
-            </div></form>`;
-            
+            const products = [{label: 'Gasolio', key: 'gasolio'}, {label: 'Diesel+', key: 'dieselplus'}, {label: 'AdBlue', key: 'adblue'}, {label: 'Benzina', key: 'benzina'}, {label: 'Hvolution', key: 'hvolution'}];
+            const form = `<form id="form-turno" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls} ps-10" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>${dropdownHtml}</div></div><div class="space-y-4"><h4 class="font-medium text-gray-900 dark:text-white border-b pb-2 dark:border-gray-700">Erogato (Litri)</h4><div class="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>FaiDaTe</div><div>Servito</div><div>Prepay</div></div>${products.map(p => { const k = p.key; const isAdBlue = (k === 'adblue'); const ppInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="pp_${k}" value="${t?.prepay?.[k]||''}" class="${cls} pp-input" placeholder="0">`; const svInput = `<input type="number" step="1" name="sv_${k}" value="${t?.servito?.[k]||''}" class="${cls} sv-input" placeholder="0">`; const fdInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="fd_${k}" value="${t?.fdt?.[k]||''}" class="${cls} fd-input" placeholder="0">`; return `<div class="grid grid-cols-4 gap-4 items-center"><div class="text-gray-900 dark:text-white">${p.label}</div>${fdInput}${svInput}${ppInput}</div>`; }).join('')}</div></form>`;
             const deleteBtn = id ? `<button id="btn-delete-turno" class="text-red-600 hover:text-white border border-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-auto">Elimina</button>` : '';
             App.showModal(id?'Modifica Turno':'Nuovo Turno', form, `${deleteBtn}<button id="btn-save-turno" class="text-white bg-primary-700 hover:bg-primary-800 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto">Salva Turno</button>`);
             initFlowbite(); 
-            
             VirtualModule.updateModalFields(curTurno);
-            document.querySelectorAll('.turno-opt').forEach(o => o.onclick = (e) => { 
-                e.preventDefault(); 
-                const val = o.dataset.val; 
-                document.getElementById('selectedTurno').textContent = val; 
-                document.getElementById('turnoInput').value = val; 
-                document.getElementById('turnoDropdown').classList.add('hidden'); 
-                VirtualModule.updateModalFields(val);
-            });
-
+            document.querySelectorAll('.turno-opt').forEach(o => o.onclick = (e) => { e.preventDefault(); const val = o.dataset.val; document.getElementById('selectedTurno').textContent = val; document.getElementById('turnoInput').value = val; document.getElementById('turnoDropdown').classList.add('hidden'); VirtualModule.updateModalFields(val); });
             document.getElementById('btn-save-turno').onclick = () => this.saveTurno();
             if(id) document.getElementById('btn-delete-turno').onclick = () => this.deleteTurno(id);
         },

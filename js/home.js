@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Meteo Card 2-Col Span
+   MODULO: Home Dashboard (js/home.js) - EOS Icon Sizes
    ========================================================================== */
 (function() {
     'use strict';
@@ -30,14 +30,12 @@
             if (statsContainer) {
                 new Sortable(statsContainer, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-card', onSort: save });
             }
-            // Zona 1: Card principali
             ['home-col-1', 'home-col-2', 'home-col-3'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     new Sortable(el, { group: 'shared-home', animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
                 }
             });
-            // Zona 2: Widget inferiori
             const bottomGrid = document.getElementById('home-bottom-grid');
             if (bottomGrid) {
                  new Sortable(bottomGrid, { animation: 150, ghostClass: 'sortable-ghost', handle: '.card-header', onSort: save });
@@ -52,7 +50,7 @@
                     col1: getIds('home-col-1'), 
                     col2: getIds('home-col-2'), 
                     col3: getIds('home-col-3'),
-                    bottom: getIds('home-bottom-grid') // Salva ordine widget
+                    bottom: getIds('home-bottom-grid')
                 };
                 localStorage.setItem('mystation_home_layout_v12', JSON.stringify(layout));
             } catch(e) { console.warn('Salvataggio layout home bloccato', e); }
@@ -72,7 +70,7 @@
                 restoreContainer('home-col-1', layout.col1);
                 restoreContainer('home-col-2', layout.col2);
                 restoreContainer('home-col-3', layout.col3);
-                restoreContainer('home-bottom-grid', layout.bottom); // Ripristina ordine widget
+                restoreContainer('home-bottom-grid', layout.bottom);
             } catch (e) { console.warn("Errore nel ripristino del layout:", e); }
         },
 
@@ -89,26 +87,23 @@
                 <div id="home-layout" class="flex flex-col gap-6 animate-fade-in">
                     
                     <div id="home-banner" class="w-full h-64 rounded-lg shadow-sm overflow-hidden relative p-6 flex flex-col md:flex-row justify-between items-start">
-                        
                         <div>
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Dashboard</h1>
-<p class="text-gray-700 dark:text-gray-200">Benvenuto in MyStation</p>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Dashboard</h1>
+                            <p class="text-gray-700 dark:text-gray-200">Benvenuto in MyStation</p>
                         </div>
-                        
                         <div class="mt-4 md:mt-0 text-right">
-<div id="live-time" class="text-3xl font-bold text-gray-900 dark:text-white">--:--</div>
-<div id="live-date" class="text-sm font-medium text-gray-600 dark:text-gray-300">---</div>
+                            <div id="live-time" class="text-3xl font-bold text-gray-900 dark:text-white">--:--</div>
+                            <div id="live-date" class="text-sm font-medium text-gray-600 dark:text-gray-300">---</div>
                         </div>
-                        
                     </div>
                     <div id="home-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start min-h-[100px]"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                         <div id="home-col-1" class="flex flex-col gap-6 min-h-[200px]">
-                            <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                            <div id="card-erogato" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Erogato Oggi</h3>
-                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full"><i data-lucide="fuel" class="w-5 h-5"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full shadow-sm"><i data-lucide="fuel" class="w-5 h-5"></i></div>
                                 </div>
                                 <div class="p-6 h-80 relative">
                                     <canvas id="home-liters-chart"></canvas>
@@ -116,23 +111,23 @@
                             </div>
                         </div>
                         <div id="home-col-2" class="flex flex-col gap-6 min-h-[200px]">
-                            <div id="card-turni" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                            <div id="card-turni" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Turni di oggi</h3>
-                                    <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full"><i data-lucide="list-checks" class="w-5 h-5"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full shadow-sm"><i data-lucide="list-checks" class="w-5 h-5"></i></div>
                                 </div>
                                 <div id="todays-shifts-info" class="p-6"></div>
                             </div>
-                            <div id="card-consegne" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
+                            <div id="card-consegne" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Consegne Carburante</h3>
-                                    <div class="flex items-center justify-center w-10 h-10 bg-cyan-600 text-white rounded-full"><i data-lucide="truck" class="w-5 h-5"></i></div>
+                                    <div class="flex items-center justify-center w-10 h-10 bg-cyan-600 text-white rounded-full shadow-sm"><i data-lucide="truck" class="w-5 h-5"></i></div>
                                 </div>
                                 <div id="home-fuel-orders" class="p-6"></div>
                             </div>
                         </div>
                         <div id="home-col-3" class="flex flex-col gap-6 min-h-[200px]">
-                            <div id="card-attivita" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 min-h-[300px] flex flex-col draggable-card overflow-hidden">
+                            <div id="card-attivita" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 min-h-[300px] flex flex-col draggable-card overflow-hidden">
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header cursor-move">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Attività di Oggi</h3>
                                     <button id="btn-go-apps" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700 dark:text-gray-400" title="Vai ad Applicazioni"><i data-lucide="external-link" class="w-5 h-5"></i></button>
@@ -142,20 +137,19 @@
                         </div>
                     </div>
 
-                    <div id="home-bottom-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                        </div>
-                    </div>`;
+                    <div id="home-bottom-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"></div>
+                </div>`;
         },
         renderStats() {
             const s = this.getTodayStats();
             const c1 = document.getElementById('home-stats-container');
             
             const renderStatHTML = (id, title, iconBg, iconName, valueId, value, footerHTML) => `
-                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
+                <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
                         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
-                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
-                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full shadow-sm">
+                            <i data-lucide="${iconName}" class="w-5 h-5"></i>
                         </div>
                     </div>
                     <div class="p-6">

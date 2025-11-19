@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Registro di Carico (js/registro.js) - Standardized Card Headers
+   MODULO: Registro di Carico (js/registro.js) - EOS Icon Sizes
    ========================================================================== */
 (function() {
     'use strict';
@@ -40,13 +40,10 @@
 
         initDragAndDrop() {
             const save = () => this.saveLayout();
-
-            // 1. Statistiche
             const stats = document.getElementById('reg-stats-container');
             if (stats) {
                 new Sortable(stats, { animation: 150, ghostClass: 'sortable-ghost', onSort: save });
             }
-            // 2. Sezioni Principali
             const mainGrid = document.getElementById('reg-main-grid');
             if (mainGrid) {
                 new Sortable(mainGrid, { animation: 150, handle: '.card-header', ghostClass: 'sortable-ghost', onSort: save });
@@ -145,7 +142,6 @@
                 document.getElementById('val-top-prod').textContent = stats.topProduct;
                 document.getElementById('val-top-driver').textContent = stats.topDriver;
             } else {
-                // MODIFICA: Utilizzo del nuovo stile renderStatCard con icone circolari
                 container.innerHTML = `
                     ${this.renderStatCard('stat-total-liters', 'Totale Litri', 'val-total-liters', App.formatInt(stats.totalLiters), 'bg-purple-600', 'droplets')}
                     ${this.renderStatCard('stat-top-prod', 'Top Prodotto', 'val-top-prod', stats.topProduct, 'bg-green-600', 'tag')}
@@ -155,14 +151,13 @@
             }
         },
 
-        // MODIFICA: Stile card statistica standardizzato
         renderStatCard(id, title, valId, value, iconBg, iconName) {
             return `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 card-header">
                         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">${title}</h3>
-                        <div class="flex items-center justify-center w-8 h-8 ${iconBg} text-white rounded-full">
-                            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                        <div class="flex items-center justify-center w-10 h-10 ${iconBg} text-white rounded-full shadow-sm">
+                            <i data-lucide="${iconName}" class="w-5 h-5"></i>
                         </div>
                     </div>
                     <div class="p-6">
@@ -268,7 +263,6 @@
             return `<div><span class="font-medium">${App.formatInt(p.carico)}</span>${diffHtml}</div>`;
         },
 
-        // --- DATA LOGIC ---
         getFilteredEntries() {
             let entries = [...App.state.data.registryEntries];
             const q = this.localState.searchQuery.toLowerCase();
@@ -313,7 +307,6 @@
         },
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
 
-        // --- MODALS ---
         openCaricoModal(id=null) {
             this.localState.editingId = id;
             const c = id ? App.state.data.registryEntries.find(x=>x.id===id) : null;
