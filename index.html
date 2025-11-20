@@ -39,7 +39,30 @@
     </script>
     
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Questo blocco viene eseguito immediatamente dopo il caricamento di Chart.js
+        // e PRIMA che vengano caricati gli script a fondo pagina (js/home.js, ecc.)
+        if (typeof Chart !== 'undefined') {
+            console.log("Pyron.Pro: Forcing Chart animations...");
+            
+            // Impostazione diretta per v3/v4
+            Chart.defaults.animation = {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            };
+
+            // Sovrascrive impostazioni specifiche di transizione che potrebbero ereditare il "reduce motion"
+            Chart.defaults.transitions.active = {
+                animation: {
+                    duration: 1000
+                }
+            };
+        }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <style>
@@ -279,15 +302,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof Chart !== 'undefined') {
-                Chart.defaults.animation.duration = 1000;
-                Chart.defaults.responsiveAnimationDuration = 1000;
-            }
-        });
-    </script>
     
     <script src="js/app.js"></script>
     <script src="js/home.js"></script>
