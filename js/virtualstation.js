@@ -71,13 +71,13 @@
                     stats: getIds('v-stats-container'),
                     charts: getIds('v-charts-container')
                 };
-                localStorage.setItem('mystation_virtual_layout_v4', JSON.stringify(layout));
+                localStorage.setItem('Pylon.Pro_virtual_layout_v4', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_virtual_layout_v4');
+                const saved = localStorage.getItem('Pylon.Pro_virtual_layout_v4');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {

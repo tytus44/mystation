@@ -52,13 +52,13 @@
                     col3: getIds('home-col-3'),
                     bottom: getIds('home-bottom-grid')
                 };
-                localStorage.setItem('mystation_home_layout_v12', JSON.stringify(layout));
+                localStorage.setItem('Pylon.Pro_home_layout_v12', JSON.stringify(layout));
             } catch(e) { console.warn('Salvataggio layout home bloccato', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_home_layout_v12');
+                const saved = localStorage.getItem('Pylon.Pro_home_layout_v12');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restoreContainer = (containerId, itemIds) => {
@@ -89,7 +89,7 @@
                     <div id="home-banner" class="w-full h-64 rounded-lg shadow-sm overflow-hidden relative p-6 flex flex-col md:flex-row justify-between items-start">
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Dashboard</h1>
-                            <p class="text-gray-700 dark:text-gray-200">Benvenuto in MyStation</p>
+                            <p class="text-gray-700 dark:text-gray-200">Benvenuto in Pylon.Pro</p>
                         </div>
                         <div class="mt-4 md:mt-0 text-right">
                             <div id="live-time" class="text-3xl font-bold text-gray-900 dark:text-white">--:--</div>

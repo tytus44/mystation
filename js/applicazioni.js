@@ -71,13 +71,13 @@
                     col2: getIds('apps-col-2'), 
                     col3: getIds('apps-col-3')
                 };
-                localStorage.setItem('mystation_apps_layout_v1', JSON.stringify(layout));
+                localStorage.setItem('Pylon.Pro_apps_layout_v1', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout app bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_apps_layout_v1');
+                const saved = localStorage.getItem('Pylon.Pro_apps_layout_v1');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
@@ -403,8 +403,8 @@
             } catch (e) { display.value = 'Errore'; this.localState.calculatorInput = ''; }
         },
 
-        saveNotes() { try { const notes = document.getElementById('app-notes-textarea').value; localStorage.setItem('mystation_apps_notes_v1', notes); } catch (e) { console.warn('Salvataggio note bloccato:', e); } },
-        loadNotes() { try { const notes = localStorage.getItem('mystation_apps_notes_v1'); const textarea = document.getElementById('app-notes-textarea'); if (textarea && notes) { textarea.value = notes; } } catch (e) { console.warn('Caricamento note fallito:', e); } },
+        saveNotes() { try { const notes = document.getElementById('app-notes-textarea').value; localStorage.setItem('Pylon.Pro_apps_notes_v1', notes); } catch (e) { console.warn('Salvataggio note bloccato:', e); } },
+        loadNotes() { try { const notes = localStorage.getItem('Pylon.Pro_apps_notes_v1'); const textarea = document.getElementById('app-notes-textarea'); if (textarea && notes) { textarea.value = notes; } } catch (e) { console.warn('Caricamento note fallito:', e); } },
 
         initRadio() {
             if (!this.localState.audioPlayer) {

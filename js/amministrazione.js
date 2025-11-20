@@ -54,11 +54,11 @@
             const sections = Array.from(document.getElementById('admin-sections')?.children || []).map(el => el.id).filter(id => id);
             const stats = Array.from(document.getElementById('admin-stats')?.children || []).map(el => el.id).filter(id => id);
             const layout = { sections, stats };
-            localStorage.setItem('mystation_admin_layout_v2', JSON.stringify(layout));
+            localStorage.setItem('Pylon.Pro_admin_layout_v2', JSON.stringify(layout));
         },
 
         restoreLayout() {
-            const saved = localStorage.getItem('mystation_admin_layout_v2');
+            const saved = localStorage.getItem('Pylon.Pro_admin_layout_v2');
             if (!saved) return;
             try {
                 const layout = JSON.parse(saved);

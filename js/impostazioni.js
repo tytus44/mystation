@@ -36,11 +36,11 @@
         saveLayout() {
             const getIds = (cid) => Array.from(document.getElementById(cid)?.children || []).map(el => el.id).filter(id => id);
             const layout = { col1: getIds('settings-col-1'), col2: getIds('settings-col-2') };
-            localStorage.setItem('mystation_settings_layout', JSON.stringify(layout));
+            localStorage.setItem('Pylon.Pro_settings_layout', JSON.stringify(layout));
         },
 
         restoreLayout() {
-            const saved = localStorage.getItem('mystation_settings_layout');
+            const saved = localStorage.getItem('Pylon.Pro_settings_layout');
             if (!saved) return;
             try {
                 const layout = JSON.parse(saved);

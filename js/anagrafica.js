@@ -48,7 +48,7 @@
             const grid = document.getElementById('anag-cards-grid');
             if (!grid) return;
             const order = Array.from(grid.children).map(el => el.dataset.id).filter(id => id);
-            localStorage.setItem('mystation_anagrafica_layout', JSON.stringify(order));
+            localStorage.setItem('Pylon.Pro_anagrafica_layout', JSON.stringify(order));
         },
 
         restoreLayout() {
@@ -92,7 +92,7 @@
             }
 
             if (!this.localState.searchQuery) {
-                const savedOrder = JSON.parse(localStorage.getItem('mystation_anagrafica_layout') || '[]');
+                const savedOrder = JSON.parse(localStorage.getItem('Pylon.Pro_anagrafica_layout') || '[]');
                 if (savedOrder.length > 0) {
                     contatti.sort((a, b) => {
                         const idxA = savedOrder.indexOf(a.id);
@@ -135,7 +135,7 @@
             let c = [...App.state.data.contatti];
             const q = this.localState.searchQuery.toLowerCase();
             if(q) c = c.filter(x => (x.nome||'').toLowerCase().includes(q) || (x.cognome||'').toLowerCase().includes(q) || (x.azienda||'').toLowerCase().includes(q) || (x.note||'').toLowerCase().includes(q));
-            if (q || !localStorage.getItem('mystation_anagrafica_layout')) {
+            if (q || !localStorage.getItem('Pylon.Pro_anagrafica_layout')) {
                  return c.sort((a,b) => (a.cognome||'').localeCompare(b.cognome||''));
             }
             return c;

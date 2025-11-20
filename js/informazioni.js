@@ -252,13 +252,13 @@
                 };
                 // La nuova card 'sec-sdi' è dentro 'info-sections-container',
                 // quindi viene salvata automaticamente da questa logica.
-                localStorage.setItem('mystation_info_layout_v2', JSON.stringify(layout));
+                localStorage.setItem('Pylon.Pro_info_layout_v2', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout info bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_info_layout_v2');
+                const saved = localStorage.getItem('Pylon.Pro_info_layout_v2');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {

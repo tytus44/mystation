@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MyStation Admin - CORE (js/app.js) - Unified Sidebar Styles
+   Pylon.Pro Admin - CORE (js/app.js) - Unified Sidebar Styles
    ========================================================================== */
 'use strict';
 
@@ -16,7 +16,7 @@ const App = {
         this.loadTheme();
         this.loadFromStorage(); 
 
-        const sessionActive = sessionStorage.getItem('mystation_session') === 'active';
+        const sessionActive = sessionStorage.getItem('Pylon.Pro_session') === 'active';
 
         if (sessionActive || !this.state.pin) {
             this.initApp();
@@ -79,16 +79,16 @@ const App = {
         }
     },
     unlockApp() {
-        sessionStorage.setItem('mystation_session', 'active');
+        sessionStorage.setItem('Pylon.Pro_session', 'active');
         document.getElementById('pin-lockscreen').style.display = 'none';
         document.querySelectorAll('.pin-square').forEach(input => input.value = '');
         document.getElementById('pin-error-msg').classList.add('hidden');
         this.initApp();
     },
-    lockApp() { sessionStorage.removeItem('mystation_session'); window.location.reload(); },
+    lockApp() { sessionStorage.removeItem('Pylon.Pro_session'); window.location.reload(); },
     setPin(newPin) {
-        if (newPin) { localStorage.setItem('mystation_pin', newPin); this.state.pin = newPin; App.showToast('Nuovo PIN impostato!', 'success'); } 
-        else { localStorage.removeItem('mystation_pin'); this.state.pin = null; App.showToast('PIN rimosso.', 'success'); }
+        if (newPin) { localStorage.setItem('Pylon.Pro_pin', newPin); this.state.pin = newPin; App.showToast('Nuovo PIN impostato!', 'success'); } 
+        else { localStorage.removeItem('Pylon.Pro_pin'); this.state.pin = null; App.showToast('PIN rimosso.', 'success'); }
     },
 
     // --- THEME LOGIC ---
@@ -111,12 +111,12 @@ const App = {
 
     registerModule(name, module) { this.modules[name] = module; if (typeof module.init === 'function') module.init(); },
     loadFromStorage() {
-        const saved = localStorage.getItem('mystation_data_v11');
+        const saved = localStorage.getItem('Pylon.Pro_data_v11');
         if (saved) try { this.state.data = Object.assign({}, this.state.data, JSON.parse(saved)); } catch (e) { console.error(e); }
-        this.state.pin = localStorage.getItem('mystation_pin') || null;
+        this.state.pin = localStorage.getItem('Pylon.Pro_pin') || null;
     },
-    saveToStorage() { localStorage.setItem('mystation_data_v11', JSON.stringify(this.state.data)); },
-    clearData() { localStorage.removeItem('mystation_data_v11'); window.location.reload(); },
+    saveToStorage() { localStorage.setItem('Pylon.Pro_data_v11', JSON.stringify(this.state.data)); },
+    clearData() { localStorage.removeItem('Pylon.Pro_data_v11'); window.location.reload(); },
     setupNavigation() { window.addEventListener('hashchange', () => this.handleRoute()); },
     
     handleRoute() {
@@ -255,7 +255,7 @@ const App = {
         });
         document.getElementById('import-file-input')?.addEventListener('change', (e) => this.importData(e));
     },
-    exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state.data, null, 2)], { type: 'application/json' })); a.download = `mystation_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); },
+    exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state.data, null, 2)], { type: 'application/json' })); a.download = `Pylon.Pro_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); },
     importData(e) { 
         const f = e.target.files[0]; if (!f) return; 
         const r = new FileReader(); r.onload = (ev) => { try { const d = JSON.parse(ev.target.result); if (d) { this.state.data = d; this.saveToStorage(); this.showToast('Backup importato con successo!', 'success'); setTimeout(() => window.location.reload(), 1500); } else this.showToast('File di backup non valido.', 'error'); } catch (err) { this.showToast('Errore durante la lettura del file.', 'error'); } }; r.readAsText(f); 

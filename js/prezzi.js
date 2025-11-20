@@ -133,13 +133,13 @@
                     stats: getIds('prezzi-stats-container'),
                     main: getIds('prezzi-main-grid')
                 };
-                localStorage.setItem('mystation_prezzi_layout_v1', JSON.stringify(layout));
+                localStorage.setItem('Pylon.Pro_prezzi_layout_v1', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout prezzi bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('mystation_prezzi_layout_v1');
+                const saved = localStorage.getItem('Pylon.Pro_prezzi_layout_v1');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
