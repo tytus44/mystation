@@ -40,14 +40,6 @@
     
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script>
-        if (typeof Chart !== 'undefined') {
-            Chart.defaults.animation.duration = 1000; // Forza 1 secondo di animazione
-            Chart.defaults.responsiveAnimationDuration = 1000;
-        }
-    </script>
-
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <style>
@@ -55,12 +47,14 @@
         html.dark body { background-color: #0f172a; color: #cbd5e1; }
 
         /* --- SIDEBAR OVERRIDES --- */
+        /* Manteniamo w-64 nell'HTML per il JS, ma stringiamo a 14rem (w-56) col CSS */
         aside.w-64 { width: 14rem !important; }
         
         @media (min-width: 1024px) {
             main.lg\:ml-64 { margin-left: 14rem !important; }
         }
 
+        /* Nasconde i tooltip quando la sidebar è espansa (classe w-64 presente) */
         aside.w-64 .tooltip { display: none !important; }
 
         /* --- INPUTS --- */
@@ -285,6 +279,15 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof Chart !== 'undefined') {
+                Chart.defaults.animation.duration = 1000;
+                Chart.defaults.responsiveAnimationDuration = 1000;
+            }
+        });
+    </script>
     
     <script src="js/app.js"></script>
     <script src="js/home.js"></script>
