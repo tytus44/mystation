@@ -46,8 +46,17 @@
         body { background-color: #f8fafc; color: #334155; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
         html.dark body { background-color: #0f172a; color: #cbd5e1; }
 
-        /* --- TOOLTIP LOGIC --- */
-        /* Nasconde i tooltip quando la sidebar è espansa (classe w-64 presente) */
+        /* --- SIDEBAR OVERRIDES --- */
+        /* Ripristiniamo w-64 nell'HTML per compatibilità JS, ma forziamo
+           visivamente la larghezza a 14rem (ovvero w-56) via CSS.
+        */
+        aside.w-64 { width: 14rem !important; }
+        
+        @media (min-width: 1024px) {
+            main.lg\:ml-64 { margin-left: 14rem !important; }
+        }
+
+        /* TOOLTIPS: Nascosti se la sidebar ha la classe w-64 (ovvero è espansa) */
         aside.w-64 .tooltip { display: none !important; }
 
         /* --- INPUTS --- */
