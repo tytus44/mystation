@@ -1,4 +1,4 @@
-Pylon.Pro Admin è un pannello di amministrazione privato, local-first, progettato per la gestione completa di una stazione di servizio (predefinito Enilive, ma facilmente modificabile).
+Polaris Admin è un pannello di amministrazione privato, local-first, progettato per la gestione completa di una stazione di servizio (predefinito Enilive, ma facilmente modificabile).
 
 Si tratta di una Single Page Application (SPA) che non richiede un backend: tutti i dati vengono salvati e letti direttamente dal localStorage del browser. Questo la rende veloce, portatile e completamente offline.
 
@@ -20,13 +20,13 @@ Sortable.js: Per la funzionalità di drag-and-drop e la personalizzazione dei la
 🏛️ Architettura
 L'applicazione si basa su un'architettura modulare costruita attorno a un file core (app.js).
 
-Core (app.js): Gestisce lo stato globale (App.state.data), la persistenza dei dati su localStorage (sotto la chiave Pylon.Pro_data_v11), la navigazione (routing basato su hash), e fornisce utility globali (modali, toast, formattazione).
+Core (app.js): Gestisce lo stato globale (App.state.data), la persistenza dei dati su localStorage (sotto la chiave Polaris_data_v11), la navigazione (routing basato su hash), e fornisce utility globali (modali, toast, formattazione).
 
 Moduli: Ogni sezione (es. home.js, prezzi.js) è un modulo che si registra con il core. Ogni modulo gestisce il proprio stato locale, il rendering della sua sezione e i propri listener.
 
 Persistenza: Tutti i dati inseriti (turni, prezzi, clienti, spese, ecc.) vengono salvati in un unico oggetto JSON nel localStorage del browser.
 
-Layout Personalizzabile: Molte sezioni utilizzano Sortable.js per permettere all'utente di riordinare le card e i pannelli. La disposizione viene salvata nel localStorage (es. Pylon.Pro_home_layout_v12).
+Layout Personalizzabile: Molte sezioni utilizzano Sortable.js per permettere all'utente di riordinare le card e i pannelli. La disposizione viene salvata nel localStorage (es. Polaris_home_layout_v12).
 
 📋 Funzionalità per Modulo
 Il pannello è suddiviso nelle seguenti sezioni principali:
