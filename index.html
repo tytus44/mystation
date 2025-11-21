@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pylon.Pro</title>
+    <title>Pyron.Pro</title>
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +18,7 @@
             darkMode: 'class',
             theme: {
                 extend: {
+                    // Font Poppins impostato in Tailwind
                     fontFamily: { sans: ['Poppins', 'sans-serif'] },
                     colors: { 
                         primary: {
@@ -39,46 +40,12 @@
     </script>
     
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script>
-        // Questo blocco viene eseguito immediatamente dopo il caricamento di Chart.js
-        // e PRIMA che vengano caricati gli script a fondo pagina (js/home.js, ecc.)
-        if (typeof Chart !== 'undefined') {
-            console.log("Pylon.Pro: Forcing Chart animations...");
-            
-            // Impostazione diretta per v3/v4
-            Chart.defaults.animation = {
-                duration: 1000,
-                easing: 'easeOutQuart'
-            };
-
-            // Sovrascrive impostazioni specifiche di transizione che potrebbero ereditare il "reduce motion"
-            Chart.defaults.transitions.active = {
-                animation: {
-                    duration: 1000
-                }
-            };
-        }
-    </script>
-
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <style>
         body { background-color: #f8fafc; color: #334155; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
         html.dark body { background-color: #0f172a; color: #cbd5e1; }
-
-        /* --- SIDEBAR OVERRIDES --- */
-        /* Manteniamo w-64 nell'HTML per il JS, ma stringiamo a 14rem (w-56) col CSS */
-        aside.w-64 { width: 14rem !important; }
-        
-        @media (min-width: 1024px) {
-            main.lg\:ml-64 { margin-left: 14rem !important; }
-        }
-
-        /* Nasconde i tooltip quando la sidebar è espansa (classe w-64 presente) */
-        aside.w-64 .tooltip { display: none !important; }
 
         /* --- INPUTS --- */
         input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], input[type="search"], select, textarea {
@@ -316,4 +283,3 @@
     <script src="js/impostazioni.js"></script>
 </body>
 </html>
-
