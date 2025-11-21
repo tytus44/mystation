@@ -370,15 +370,20 @@
             const products = [{label: 'Gasolio', key: 'gasolio'}, {label: 'Diesel+', key: 'dieselplus'}, {label: 'AdBlue', key: 'adblue'}, {label: 'Benzina', key: 'benzina'}, {label: 'Hvolution', key: 'hvolution'}];
             const form = `<form id="form-turno" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls} ps-10" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Turno</label>${dropdownHtml}</div></div><div class="space-y-4"><h4 class="font-medium text-gray-900 dark:text-white border-b pb-2 dark:border-gray-700">Erogato (Litri)</h4><div class="grid grid-cols-4 gap-4 items-center text-sm font-medium text-gray-500 dark:text-gray-400 text-center"><div class="text-left">Prodotto</div><div>FaiDaTe</div><div>Servito</div><div>Prepay</div></div>${products.map(p => { const k = p.key; const isAdBlue = (k === 'adblue'); const ppInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="pp_${k}" value="${t?.prepay?.[k]||''}" class="${cls} pp-input" placeholder="0">`; const svInput = `<input type="number" step="1" name="sv_${k}" value="${t?.servito?.[k]||''}" class="${cls} sv-input" placeholder="0">`; const fdInput = isAdBlue ? `<div></div>` : `<input type="number" step="1" name="fd_${k}" value="${t?.fdt?.[k]||''}" class="${cls} fd-input" placeholder="0">`; return `<div class="grid grid-cols-4 gap-4 items-center"><div class="text-gray-900 dark:text-white">${p.label}</div>${fdInput}${svInput}${ppInput}</div>`; }).join('')}</div></form>`;
             
-            // FIX: Eliminazione tasto 'outline' -> 'solid red'
             const deleteBtn = id ? `<button id="btn-delete-turno" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-md text-sm px-5 py-2.5 text-center mr-auto shadow-sm transition-all">Elimina</button>` : '';
             
-            // FIX: Salvataggio tasto 'primary-700' -> 'primary-600'
             App.showModal(id?'Modifica Turno':'Nuovo Turno', form, `${deleteBtn}<button id="btn-save-turno" class="text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-md text-sm px-5 py-2.5 ml-auto shadow-sm transition-all">Salva Turno</button>`);
             
             initFlowbite(); 
             VirtualModule.updateModalFields(curTurno);
-            document.querySelectorAll('.turno-opt').forEach(o => o.onclick = (e) => { e.preventDefault(); const val = o.dataset.val; document.getElementById('selectedTurno').textContent = val; document.getElementById('turnoInput').value = val; document.getElementById('turnoDropdown').classList.add('hidden'); VirtualModule.updateModalFields(val); });
+            document.querySelectorAll('.turno-opt').forEach(o => o.onclick = (e) => { 
+                e.preventDefault(); 
+                const val = o.dataset.val; 
+                document.getElementById('selectedTurno').textContent = val; 
+                document.getElementById('turnoInput').value = val; 
+                document.getElementById('turnoDropdown').classList.add('hidden'); // CHIUSURA DROPDOWN MODALE
+                VirtualModule.updateModalFields(val); 
+            });
             document.getElementById('btn-save-turno').onclick = () => this.saveTurno();
             if(id) document.getElementById('btn-delete-turno').onclick = () => this.deleteTurno(id);
         },
@@ -394,12 +399,21 @@
         },
         deleteTurno(id) {
             const t = App.state.data.turni.find(x=>x.id===id);
-            // FIX: Modale eliminazione con tasti 'solid' e rounded-md
             App.showModal('', `<div class="text-center p-6 flex flex-col items-center"><i data-lucide="alert-triangle" class="w-16 h-16 text-red-600 mb-4"></i><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Eliminare questo turno?</h3><p class="text-gray-500 dark:text-gray-400 mb-6">Stai per eliminare il turno del <b>${App.formatDate(t?.date)} (${t?.turno})</b>.<br>Questa azione non può essere annullata.</p></div>`, `<div class="flex justify-center gap-4 w-full"><button onclick="App.closeModal()" class="py-2.5 px-5 text-sm font-medium text-gray-900 bg-white rounded-md border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600">Annulla</button><button id="btn-confirm-delete" class="py-2.5 px-5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 shadow-sm transition-all">Elimina</button></div>`, 'max-w-md');
             setTimeout(() => { document.getElementById('btn-confirm-delete').onclick = () => { App.state.data.turni = App.state.data.turni.filter(t => t.id !== id); App.saveToStorage(); App.closeModal(); this.render(); }; }, 50);
         },
         attachListeners() {
-            document.querySelectorAll('.btn-filter-opt').forEach(b => b.onclick = (e) => { e.preventDefault(); this.localState.filterMode = b.dataset.mode; try { localStorage.setItem('virtual_filter_mode', b.dataset.mode); } catch(e){} this.render(); });
+            document.querySelectorAll('.btn-filter-opt').forEach(b => b.onclick = (e) => { 
+                e.preventDefault(); 
+                this.localState.filterMode = b.dataset.mode; 
+                try { localStorage.setItem('virtual_filter_mode', b.dataset.mode); } catch(e){} 
+                
+                // FIX: CHIUSURA DROPDOWN FILTRO
+                const d = document.getElementById('dropdownFilter');
+                if(d) d.classList.add('hidden');
+
+                this.render(); 
+            });
             document.getElementById('btn-new-turno').onclick = () => this.openTurnoModal();
             document.querySelectorAll('.btn-edit-turno').forEach(b => b.onclick = () => this.openTurnoModal(b.dataset.id));
         }

@@ -126,7 +126,26 @@
             const list = document.getElementById(`${id}-list`); const btnText = document.getElementById(`${id}-text`); if (!list || !btnText) return;
             list.innerHTML = options.map(o => `<li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white ${id}-opt" data-val="${o.val}">${o.text}</a></li>`).join('');
             const selected = options.find(o => o.val === currentVal); if (selected) btnText.textContent = selected.text;
-            list.querySelectorAll(`.${id}-opt`).forEach(opt => { opt.onclick = (e) => { e.preventDefault(); const val = e.target.dataset.val; if (id === 'filter-month') this.localState.filters.month = val; if (id === 'filter-year') this.localState.filters.year = val; if (id === 'filter-label') this.localState.filters.labelId = val; this.updateView(); const d = document.getElementById(`${id}-dropdown`); if(d && typeof Flowbite !== 'undefined') { const di = Flowbite.instances.getInstance('Dropdown', d.id); if(di) di.hide(); else d.classList.add('hidden'); } }; });
+            list.querySelectorAll(`.${id}-opt`).forEach(opt => { 
+                opt.onclick = (e) => { 
+                    e.preventDefault(); 
+                    const val = e.target.dataset.val; 
+                    if (id === 'filter-month') this.localState.filters.month = val; 
+                    if (id === 'filter-year') this.localState.filters.year = val; 
+                    if (id === 'filter-label') this.localState.filters.labelId = val; 
+                    this.updateView(); 
+                    
+                    // CHIUSURA DROPDOWN AGGIUNTA QUI
+                    const d = document.getElementById(`${id}-dropdown`); 
+                    if(d) {
+                        d.classList.add('hidden');
+                        if(typeof Flowbite !== 'undefined') {
+                            const instance = Flowbite.instances?.getInstance('Dropdown', `${id}-dropdown`);
+                            if(instance) instance.hide();
+                        }
+                    }
+                }; 
+            });
         },
 
         renderStats(forceRender = false) {
@@ -141,7 +160,6 @@
                 document.getElementById('val-count').textContent = spese.length;
                 document.getElementById('val-max').textContent = App.formatCurrency(max);
             } else {
-                // FIX: Icone circolari e solide
                 container.innerHTML = `
                     ${this.renderStatCard('stat-total', 'Totale (Filtrato)', 'val-total', App.formatCurrency(total), 'bg-red-600', 'trending-down')}
                     ${this.renderStatCard('stat-count', 'Numero Transazioni', 'val-count', spese.length, 'bg-orange-500', 'list')}
@@ -216,15 +234,23 @@
 
             const form = `<form id="form-spesa" class="space-y-4"><div class="grid grid-cols-2 gap-4"><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data</label><input type="date" name="date" value="${dISO}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Importo (€)</label><input type="number" step="0.01" name="amount" value="${s?.amount||''}" class="${cls}" placeholder="0.00" required></div></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrizione</label><input type="text" name="description" value="${s?.description||''}" class="${cls}" required></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fornitore (opzionale)</label><input type="text" name="fornitore" value="${s?.fornitore||''}" class="${cls}"></div><div><label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Etichetta</label><div class="flex gap-2"><div class="relative flex-1">${this.renderDropdown('spesa-label', curLabelName)}<input type="hidden" name="labelId" id="spesa-label-input" value="${curLabelId}"></div><button type="button" id="btn-manage-labels" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-600 flex items-center" title="Gestisci Etichette"><i data-lucide="tags" class="w-5 h-5 sm:mr-2"></i><span class="hidden sm:inline">Gestisci etichette</span></button></div></div></form>`;
             
-            // FIX: Pulsante "Elimina" rosso solido
             const deleteBtn = id ? `<button id="btn-delete-spesa" class="text-white bg-red-600 hover:bg-red-700 font-semibold rounded-md text-sm px-5 py-2.5 text-center mr-auto shadow-sm transition-all">Elimina</button>` : '';
             
-            // FIX: Pulsante "Salva" blu EOS
             App.showModal(id?'Modifica Spesa':'Nuova Spesa', form, `${deleteBtn}<button id="btn-save-spesa" class="text-white bg-primary-600 hover:bg-primary-700 font-semibold rounded-md text-sm px-5 py-2.5 transition-all shadow-sm">Salva</button>`, 'max-w-md');
             
             lucide.createIcons(); initFlowbite(); 
             this.populateDropdown('spesa-label', App.state.data.speseEtichette.map(l => ({ val: l.id, text: l.name })), curLabelId);
-            document.querySelectorAll('.spesa-label-opt').forEach(opt => { opt.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('spesa-label-input').value = e.target.dataset.val; document.getElementById('spesa-label-text').textContent = e.target.textContent; const d = document.getElementById('spesa-label-dropdown'); if(d && typeof Flowbite !== 'undefined') { const di = Flowbite.instances.getInstance('Dropdown', d.id); if(di) di.hide(); else d.classList.add('hidden'); } }); });
+            document.querySelectorAll('.spesa-label-opt').forEach(opt => { 
+                opt.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    document.getElementById('spesa-label-input').value = e.target.dataset.val; 
+                    document.getElementById('spesa-label-text').textContent = e.target.textContent; 
+                    
+                    // CHIUSURA DROPDOWN MODALE AGGIUNTA QUI
+                    const d = document.getElementById('spesa-label-dropdown'); 
+                    if(d) d.classList.add('hidden');
+                }); 
+            });
 
             document.getElementById('btn-save-spesa').onclick = () => this.saveSpesa();
             if(id) document.getElementById('btn-delete-spesa').onclick = () => this.deleteSpesa(id);
