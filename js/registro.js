@@ -57,13 +57,13 @@
                     stats: getIds('reg-stats-container'),
                     main: getIds('reg-main-grid')
                 };
-                localStorage.setItem('Pylon.Pro_registro_layout_v2', JSON.stringify(layout));
+                localStorage.setItem('Polaris_registro_layout_v2', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout registro bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('Pylon.Pro_registro_layout_v2');
+                const saved = localStorage.getItem('Polaris_registro_layout_v2');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {

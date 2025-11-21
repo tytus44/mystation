@@ -58,13 +58,13 @@
                     sections: getIds('spese-sections'),
                     stats: getIds('spese-stats-grid')
                 };
-                localStorage.setItem('Pylon.Pro_spese_layout_v1', JSON.stringify(layout));
+                localStorage.setItem('Polaris_spese_layout_v1', JSON.stringify(layout));
             } catch (e) { console.warn('Salvataggio layout spese bloccato:', e); }
         },
 
         restoreLayout() {
             try {
-                const saved = localStorage.getItem('Pylon.Pro_spese_layout_v1');
+                const saved = localStorage.getItem('Polaris_spese_layout_v1');
                 if (!saved) return;
                 const layout = JSON.parse(saved);
                 const restore = (cid, ids) => {
