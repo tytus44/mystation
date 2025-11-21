@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - No Hover Fix
+   MODULO: Home Dashboard (js/home.js) - Chart Animations Fixed
    ========================================================================== */
 (function() {
     'use strict';
@@ -185,7 +185,15 @@
         renderLitersChart() {
             const s = this.getTodayStats();
             const ctx = document.getElementById('home-liters-chart')?.getContext('2d');
+            
+            // 1. Cleanup aggressivo dell'istanza precedente
+            if (this.localState.litersChart) {
+                this.localState.litersChart.destroy();
+                this.localState.litersChart = null;
+            }
+
             if (!ctx) return;
+
             const prods = [
                 {k:'benzina',l:'Benzina',c:'rgba(34, 197, 94, 0.8)'}, {k:'gasolio',l:'Gasolio',c:'rgba(249, 115, 22, 0.8)'}, {k:'dieselplus',l:'Diesel+',c:'rgba(225, 29, 72, 0.8)'},
                 {k:'hvolution',l:'Hvolution',c:'rgba(6, 182, 212, 0.8)'}, {k:'adblue',l:'AdBlue',c:'rgba(59, 130, 246, 0.8)'}
@@ -196,40 +204,48 @@
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
             const tickColor = isDark ? '#9ca3af' : '#4b5563';
 
-            if (this.localState.litersChart) this.localState.litersChart.destroy();
-            this.localState.litersChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: chartLabels, datasets: [{ label: 'Litri Erogati', data: chartData, backgroundColor: chartColors, borderColor: chartColors.map(c => c.replace('0.8', '1')), borderWidth: 1 }] },
-                options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { display: false }, 
-                        tooltip: { enabled: true } 
-                    },
-                    scales: { 
-                        x: { 
-                            display: true, 
-                            stacked: true,
-                            grid: { 
+            // 2. Timeout aumentato per garantire che il DOM sia pronto
+            setTimeout(() => {
+                if (!document.getElementById('home-liters-chart')) return;
+
+                this.localState.litersChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: chartLabels, datasets: [{ label: 'Litri Erogati', data: chartData, backgroundColor: chartColors, borderColor: chartColors.map(c => c.replace('0.8', '1')), borderWidth: 1 }] },
+                    options: {
+                        indexAxis: 'y', 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        // 3. Animazione forzata
+                        animation: { duration: 1000, easing: 'easeOutQuart' },
+                        plugins: { 
+                            legend: { display: false }, 
+                            tooltip: { enabled: true } 
+                        },
+                        scales: { 
+                            x: { 
                                 display: true, 
-                                color: gridColor 
-                            },
-                            ticks: { 
-                                color: tickColor 
-                            }
-                        }, 
-                        y: { 
-                            display: true, 
-                            stacked: true, 
-                            grid: { 
-                                display: true, 
-                                color: gridColor 
+                                stacked: true,
+                                grid: { 
+                                    display: true, 
+                                    color: gridColor 
+                                },
+                                ticks: { 
+                                    color: tickColor 
+                                }
                             }, 
-                            ticks: { color: tickColor } 
-                        } 
+                            y: { 
+                                display: true, 
+                                stacked: true, 
+                                grid: { 
+                                    display: true, 
+                                    color: gridColor 
+                                }, 
+                                ticks: { color: tickColor } 
+                            } 
+                        }
                     }
-                }
-            });
+                });
+            }, 100);
         },
 
         renderActivitiesAndOrders() {

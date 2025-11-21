@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Fixed Danger Button
+   MODULO: VirtualStation (js/virtualstation.js) - Fixed Danger Button & Chart Animations
    ========================================================================== */
 (function() {
     'use strict';
@@ -10,7 +10,7 @@
             currentPage: 1,
             itemsPerPage: 5,
             editingId: null,
-            chartInstances: {},
+            chartInstances: { p: null, s: null, t: null }, // Inizializzato esplicitamente
             datepicker: null
         },
 
@@ -44,6 +44,7 @@
             VirtualModule.updateStats();
             VirtualModule.updateFilterLabel();
             VirtualModule.renderTable();
+            // Chiamiamo updateCharts ogni volta che la view viene aggiornata per forzare l'animazione
             VirtualModule.updateCharts();
         },
 
@@ -296,14 +297,23 @@
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         
         updateCharts() {
+            // Verifica che i contesti Canvas esistano
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
             const ctxS = document.getElementById('v-service-chart')?.getContext('2d');
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
-            if (!ctxP || !ctxS || !ctxT) return; 
 
-            if(VirtualModule.localState.chartInstances.p) VirtualModule.localState.chartInstances.p.destroy();
-            if(VirtualModule.localState.chartInstances.s) VirtualModule.localState.chartInstances.s.destroy();
-            if(VirtualModule.localState.chartInstances.t) VirtualModule.localState.chartInstances.t.destroy();
+            // DISTRUZIONE ESPLICITA DELLE ISTANZE PRECEDENTI
+            // Questo è fondamentale per riavviare l'animazione
+            const keys = ['p', 's', 't'];
+            keys.forEach(k => {
+                if (VirtualModule.localState.chartInstances[k]) {
+                    VirtualModule.localState.chartInstances[k].destroy();
+                    VirtualModule.localState.chartInstances[k] = null;
+                }
+            });
+
+            // Se non siamo nella vista corretta (i canvas non esistono), usciamo
+            if (!ctxP || !ctxS || !ctxT) return; 
 
             const turni = VirtualModule.getFilteredTurni();
             const pData = [0,0,0,0,0]; let fdt=0, prepay=0, servito=0;
@@ -328,24 +338,45 @@
             lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
             lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
+            // TIMEOUT AUMENTATO a 100ms
+            // Assicura che il DOM sia visibile prima del render
             setTimeout(() => {
+                // Doppio controllo di sicurezza
                 if (!document.getElementById('v-products-chart')) return;
+
                 VirtualModule.localState.chartInstances.p = new Chart(ctxP, { 
                     type: 'doughnut', 
                     data: { labels: pLabels, datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, 
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        animation: { animateScale: true, animateRotate: true }, // Animazione forzata
+                        plugins: { legend: { display: false } } 
+                    } 
                 });
                 VirtualModule.localState.chartInstances.s = new Chart(ctxS, { 
                     type: 'bar', 
                     data: { labels: ['Totale'], datasets: [ { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 }, { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 } ] }, 
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } } 
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        animation: { duration: 1000, easing: 'easeOutQuart' }, // Animazione forzata
+                        plugins: { legend: { display: false } }, 
+                        scales: { x: { stacked: false }, y: { beginAtZero: true } } 
+                    } 
                 });
                 VirtualModule.localState.chartInstances.t = new Chart(ctxT, { 
                     type: 'line', 
                     data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] }, 
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } 
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        animation: { duration: 1000, easing: 'easeOutQuart' }, // Animazione forzata
+                        plugins: { legend: { display: false } }, 
+                        scales: { y: { beginAtZero: true } } 
+                    } 
                 });
-            }, 50);
+            }, 100);
         },
         getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
 

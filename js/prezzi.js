@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Prezzi (js/prezzi.js) - Fixed Stat Cards Style
+   MODULO: Gestione Prezzi (js/prezzi.js) - Chart Animations Fixed
    ========================================================================== */
 (function() {
     'use strict';
@@ -163,7 +163,6 @@
         renderStatCard(id, t, p, bg, i) {
             const showServed = p.self > 0 && p.served !== p.self;
             const priceToShow = (t === 'AdBlue') ? p.listino : p.self;
-            // FIX: EOS Style (White card, dark text, colored icon circle)
             return `
                 <div id="${id}" class="bg-white border border-gray-200 rounded-lg shadow-none dark:bg-gray-800 dark:border-gray-700 draggable-card cursor-move overflow-hidden transition-colors">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 card-header">
@@ -208,9 +207,12 @@
         },
 
         renderChart() {
-            const ctx = document.getElementById('prezzi-chart-canvas')?.getContext('2d');
-            if (!ctx) return;
-            
+            // 1. Pulizia istanza precedente
+            if (this.localState.chart) {
+                this.localState.chart.destroy();
+                this.localState.chart = null;
+            }
+
             const isDark = document.documentElement.classList.contains('dark');
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
             const tickColor = isDark ? '#9ca3af' : '#4b5563';
@@ -240,17 +242,26 @@
                 { label: 'Hvolution', data: calculateAverage(monthlySums.hvolution, monthlyCounts.hvolution), borderColor: '#06b6d4', backgroundColor: '#06b6d4', borderWidth: 3, borderDash: [5, 5], pointRadius: 5, tension: 0.1, fill: false }
             ];
 
-            if (this.localState.chart) this.localState.chart.destroy();
-            this.localState.chart = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: true, labels: { color: tickColor } }, tooltip: { mode: 'index', intersect: false } },
-                    scales: { y: { beginAtZero: false, ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { color: gridColor } } },
-                    elements: { line: { tension: 0.4 }, point: { radius: 4, hitRadius: 10, hoverRadius: 6 } }
-                }
-            });
+            // 2. Rendering con timeout per stabilità DOM
+            setTimeout(() => {
+                const canvas = document.getElementById('prezzi-chart-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+
+                this.localState.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        // 3. Animazione esplicita
+                        animation: { duration: 1000, easing: 'easeOutQuart' },
+                        plugins: { legend: { display: true, labels: { color: tickColor } }, tooltip: { mode: 'index', intersect: false } },
+                        scales: { y: { beginAtZero: false, ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { color: gridColor } } },
+                        elements: { line: { tension: 0.4 }, point: { radius: 4, hitRadius: 10, hoverRadius: 6 } }
+                    }
+                });
+            }, 100);
         },
         
         openListinoModal(id=null) {
