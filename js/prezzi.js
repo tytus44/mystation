@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Gestione Prezzi (js/prezzi.js) - Chart Animations Fixed
+   MODULO: Gestione Prezzi (js/prezzi.js) - Chart Animations Fixed (Online)
    ========================================================================== */
 (function() {
     'use strict';
@@ -207,7 +207,7 @@
         },
 
         renderChart() {
-            // 1. Pulizia istanza precedente
+            // 1. Cleanup istanza precedente
             if (this.localState.chart) {
                 this.localState.chart.destroy();
                 this.localState.chart = null;
@@ -242,26 +242,32 @@
                 { label: 'Hvolution', data: calculateAverage(monthlySums.hvolution, monthlyCounts.hvolution), borderColor: '#06b6d4', backgroundColor: '#06b6d4', borderWidth: 3, borderDash: [5, 5], pointRadius: 5, tension: 0.1, fill: false }
             ];
 
-            // 2. Rendering con timeout per stabilità DOM
-            setTimeout(() => {
-                const canvas = document.getElementById('prezzi-chart-canvas');
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
+            // 2. RequestAnimationFrame per sync browser + Timeout 
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    const canvas = document.getElementById('prezzi-chart-canvas');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
 
-                this.localState.chart = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels, datasets },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        // 3. Animazione esplicita
-                        animation: { duration: 1000, easing: 'easeOutQuart' },
-                        plugins: { legend: { display: true, labels: { color: tickColor } }, tooltip: { mode: 'index', intersect: false } },
-                        scales: { y: { beginAtZero: false, ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { color: gridColor } } },
-                        elements: { line: { tension: 0.4 }, point: { radius: 4, hitRadius: 10, hoverRadius: 6 } }
-                    }
-                });
-            }, 100);
+                    this.localState.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels, datasets },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            // 3. FIX PRINCIPALE: Delay per aspettare il CSS fade-in
+                            animation: { 
+                                duration: 1000, 
+                                easing: 'easeOutQuart',
+                                delay: 300 
+                            },
+                            plugins: { legend: { display: true, labels: { color: tickColor } }, tooltip: { mode: 'index', intersect: false } },
+                            scales: { y: { beginAtZero: false, ticks: { color: tickColor }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { color: gridColor } } },
+                            elements: { line: { tension: 0.4 }, point: { radius: 4, hitRadius: 10, hoverRadius: 6 } }
+                        }
+                    });
+                }, 50);
+            });
         },
         
         openListinoModal(id=null) {

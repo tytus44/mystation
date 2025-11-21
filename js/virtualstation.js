@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: VirtualStation (js/virtualstation.js) - Fixed Danger Button & Chart Animations
+   MODULO: VirtualStation (js/virtualstation.js) - Chart Animations Fixed (Online)
    ========================================================================== */
 (function() {
     'use strict';
@@ -44,7 +44,6 @@
             VirtualModule.updateStats();
             VirtualModule.updateFilterLabel();
             VirtualModule.renderTable();
-            // Chiamiamo updateCharts ogni volta che la view viene aggiornata per forzare l'animazione
             VirtualModule.updateCharts();
         },
 
@@ -297,13 +296,11 @@
         capitalize(s) { return s && s[0].toUpperCase() + s.slice(1); },
         
         updateCharts() {
-            // Verifica che i contesti Canvas esistano
             const ctxP = document.getElementById('v-products-chart')?.getContext('2d');
             const ctxS = document.getElementById('v-service-chart')?.getContext('2d');
             const ctxT = document.getElementById('v-trend-chart')?.getContext('2d');
 
-            // DISTRUZIONE ESPLICITA DELLE ISTANZE PRECEDENTI
-            // Questo è fondamentale per riavviare l'animazione
+            // 1. Pulizia istanze precedenti
             const keys = ['p', 's', 't'];
             keys.forEach(k => {
                 if (VirtualModule.localState.chartInstances[k]) {
@@ -312,7 +309,6 @@
                 }
             });
 
-            // Se non siamo nella vista corretta (i canvas non esistono), usciamo
             if (!ctxP || !ctxS || !ctxT) return; 
 
             const turni = VirtualModule.getFilteredTurni();
@@ -338,45 +334,48 @@
             lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
             lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
-            // TIMEOUT AUMENTATO a 100ms
-            // Assicura che il DOM sia visibile prima del render
-            setTimeout(() => {
-                // Doppio controllo di sicurezza
-                if (!document.getElementById('v-products-chart')) return;
+            // 2. Uso di requestAnimationFrame + Delay 
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    if (!document.getElementById('v-products-chart')) return;
 
-                VirtualModule.localState.chartInstances.p = new Chart(ctxP, { 
-                    type: 'doughnut', 
-                    data: { labels: pLabels, datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, 
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        animation: { animateScale: true, animateRotate: true }, // Animazione forzata
-                        plugins: { legend: { display: false } } 
-                    } 
-                });
-                VirtualModule.localState.chartInstances.s = new Chart(ctxS, { 
-                    type: 'bar', 
-                    data: { labels: ['Totale'], datasets: [ { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 }, { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 } ] }, 
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        animation: { duration: 1000, easing: 'easeOutQuart' }, // Animazione forzata
-                        plugins: { legend: { display: false } }, 
-                        scales: { x: { stacked: false }, y: { beginAtZero: true } } 
-                    } 
-                });
-                VirtualModule.localState.chartInstances.t = new Chart(ctxT, { 
-                    type: 'line', 
-                    data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] }, 
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        animation: { duration: 1000, easing: 'easeOutQuart' }, // Animazione forzata
-                        plugins: { legend: { display: false } }, 
-                        scales: { y: { beginAtZero: true } } 
-                    } 
-                });
-            }, 100);
+                    VirtualModule.localState.chartInstances.p = new Chart(ctxP, { 
+                        type: 'doughnut', 
+                        data: { labels: pLabels, datasets: [{ data: pData, backgroundColor: ['#22c55e','#f97316','#e11d48','#06b6d4','#3b82f6'], borderWidth: 0 }] }, 
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            // FIX: Delay per aspettare CSS fade-in
+                            animation: { animateScale: true, animateRotate: true, delay: 300 },
+                            plugins: { legend: { display: false } } 
+                        } 
+                    });
+                    VirtualModule.localState.chartInstances.s = new Chart(ctxS, { 
+                        type: 'bar', 
+                        data: { labels: ['Totale'], datasets: [ { label: 'FaiDaTe', data: [fdt], backgroundColor: 'rgba(225, 29, 72, 0.6)', borderColor: '#e11d48', borderWidth: 1 }, { label: 'Servito', data: [servito], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: '#22c55e', borderWidth: 1 }, { label: 'Prepay', data: [prepay], backgroundColor: 'rgba(6, 182, 212, 0.6)', borderColor: '#06b6d4', borderWidth: 1 } ] }, 
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            // FIX: Delay
+                            animation: { duration: 1000, easing: 'easeOutQuart', delay: 300 },
+                            plugins: { legend: { display: false } }, 
+                            scales: { x: { stacked: false }, y: { beginAtZero: true } } 
+                        } 
+                    });
+                    VirtualModule.localState.chartInstances.t = new Chart(ctxT, { 
+                        type: 'line', 
+                        data: { labels: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], datasets: [{ label: 'Litri', data: monthlyData, borderColor: '#10b981', tension: 0.3, fill: true, backgroundColor: lineGradient }] }, 
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            // FIX: Delay
+                            animation: { duration: 1000, easing: 'easeOutQuart', delay: 300 },
+                            plugins: { legend: { display: false } }, 
+                            scales: { y: { beginAtZero: true } } 
+                        } 
+                    });
+                }, 50);
+            });
         },
         getProdTotal(t, p) { return (parseFloat(t.prepay?.[p])||0) + (parseFloat(t.servito?.[p])||0) + (parseFloat(t.fdt?.[p])||0); },
 
@@ -412,7 +411,7 @@
                 const val = o.dataset.val; 
                 document.getElementById('selectedTurno').textContent = val; 
                 document.getElementById('turnoInput').value = val; 
-                document.getElementById('turnoDropdown').classList.add('hidden'); // CHIUSURA DROPDOWN MODALE
+                document.getElementById('turnoDropdown').classList.add('hidden'); 
                 VirtualModule.updateModalFields(val); 
             });
             document.getElementById('btn-save-turno').onclick = () => this.saveTurno();
@@ -439,7 +438,6 @@
                 this.localState.filterMode = b.dataset.mode; 
                 try { localStorage.setItem('virtual_filter_mode', b.dataset.mode); } catch(e){} 
                 
-                // FIX: CHIUSURA DROPDOWN FILTRO
                 const d = document.getElementById('dropdownFilter');
                 if(d) d.classList.add('hidden');
 

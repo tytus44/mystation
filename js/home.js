@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Chart Animations Fixed
+   MODULO: Home Dashboard (js/home.js) - Chart Animations Fixed (Online)
    ========================================================================== */
 (function() {
     'use strict';
@@ -186,7 +186,7 @@
             const s = this.getTodayStats();
             const ctx = document.getElementById('home-liters-chart')?.getContext('2d');
             
-            // 1. Cleanup aggressivo dell'istanza precedente
+            // 1. Cleanup aggressivo
             if (this.localState.litersChart) {
                 this.localState.litersChart.destroy();
                 this.localState.litersChart = null;
@@ -204,48 +204,34 @@
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
             const tickColor = isDark ? '#9ca3af' : '#4b5563';
 
-            // 2. Timeout aumentato per garantire che il DOM sia pronto
-            setTimeout(() => {
-                if (!document.getElementById('home-liters-chart')) return;
+            // 2. Usa requestAnimationFrame per sincronizzarsi con il rendering del browser
+            requestAnimationFrame(() => {
+                // 3. Timeout per sicurezza (attende che il CSS fade-in inizi)
+                setTimeout(() => {
+                    if (!document.getElementById('home-liters-chart')) return;
 
-                this.localState.litersChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: { labels: chartLabels, datasets: [{ label: 'Litri Erogati', data: chartData, backgroundColor: chartColors, borderColor: chartColors.map(c => c.replace('0.8', '1')), borderWidth: 1 }] },
-                    options: {
-                        indexAxis: 'y', 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        // 3. Animazione forzata
-                        animation: { duration: 1000, easing: 'easeOutQuart' },
-                        plugins: { 
-                            legend: { display: false }, 
-                            tooltip: { enabled: true } 
-                        },
-                        scales: { 
-                            x: { 
-                                display: true, 
-                                stacked: true,
-                                grid: { 
-                                    display: true, 
-                                    color: gridColor 
-                                },
-                                ticks: { 
-                                    color: tickColor 
-                                }
-                            }, 
-                            y: { 
-                                display: true, 
-                                stacked: true, 
-                                grid: { 
-                                    display: true, 
-                                    color: gridColor 
-                                }, 
-                                ticks: { color: tickColor } 
-                            } 
+                    this.localState.litersChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: { labels: chartLabels, datasets: [{ label: 'Litri Erogati', data: chartData, backgroundColor: chartColors, borderColor: chartColors.map(c => c.replace('0.8', '1')), borderWidth: 1 }] },
+                        options: {
+                            indexAxis: 'y', 
+                            responsive: true, 
+                            maintainAspectRatio: false,
+                            // 4. FIX PRINCIPALE: DELAY animazione
+                            animation: { 
+                                duration: 1000, 
+                                easing: 'easeOutQuart',
+                                delay: 300 // Aspetta che il CSS fade-in sia visibile
+                            },
+                            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                            scales: { 
+                                x: { display: true, stacked: true, grid: { display: true, color: gridColor }, ticks: { color: tickColor } }, 
+                                y: { display: true, stacked: true, grid: { display: true, color: gridColor }, ticks: { color: tickColor } } 
+                            }
                         }
-                    }
-                });
-            }, 100);
+                    });
+                }, 50);
+            });
         },
 
         renderActivitiesAndOrders() {
