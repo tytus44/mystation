@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Polaris Admin - CORE (js/app.js) - Unified Sidebar Styles
+   Polaris Admin - CORE (js/app.js) - Fix Modal Backdrop Static
    ========================================================================== */
 'use strict';
 
@@ -30,14 +30,21 @@ const App = {
         if (typeof Chart !== 'undefined') {
             Chart.defaults.font.family = "'Montserrat', sans-serif";
             Chart.defaults.font.weight = 300;
-            // Opzionale: Aggiorna colori base se necessario per contrasto
             const isDark = document.documentElement.classList.contains('dark');
             Chart.defaults.color = isDark ? '#cbd5e1' : '#334155';
             Chart.defaults.scale.grid.color = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
         }
         // ---------------------------------------
 
-        this.modal = new Modal(document.getElementById('generic-modal'));
+        // --- CONFIGURAZIONE MODALE CENTRALIZZATA ---
+        // L'opzione backdrop: 'static' impedisce la chiusura cliccando fuori
+        const modalOptions = {
+            backdrop: 'static',
+            closable: true
+        };
+        this.modal = new Modal(document.getElementById('generic-modal'), modalOptions);
+        // -------------------------------------------
+
         this.setupGlobalListeners();
         this.setupNavigation();
         document.dispatchEvent(new CustomEvent('app:ready'));
@@ -118,7 +125,6 @@ const App = {
             this.modules.impostazioni.updateThemeUI(theme);
         }
         
-        // Aggiorna i colori Chart.js al cambio tema
         if (typeof Chart !== 'undefined') {
             Chart.defaults.color = theme === 'dark' ? '#cbd5e1' : '#334155';
             Chart.defaults.scale.grid.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
@@ -146,12 +152,10 @@ const App = {
             const icon = link.querySelector('svg') || link.querySelector('i');
             const isActive = link.getAttribute('href') === `#${hash}`;
 
-            // Reset to Inactive State (Gray-600)
             link.classList.remove('active-nav-item');
-            link.classList.add('nav-item-inactive'); // Use CSS class
+            link.classList.add('nav-item-inactive'); 
             
             if (isActive) {
-                // Apply Active State
                 link.classList.remove('nav-item-inactive');
                 link.classList.add('active-nav-item'); 
             }
@@ -229,7 +233,6 @@ const App = {
         const iconElems = document.querySelectorAll('.icon-elem');
 
         if (isCompact) {
-            // MODIFICATO: w-56 invece di w-64
             sidebar.classList.replace('w-56', 'w-20'); 
             main.classList.replace('lg:ml-56', 'lg:ml-20');
             header.classList.replace('px-6', 'px-4'); 
@@ -245,7 +248,6 @@ const App = {
 
             if(icon) icon.setAttribute('data-lucide', 'panel-left-open');
         } else {
-            // MODIFICATO: w-56 invece di w-64
             sidebar.classList.replace('w-20', 'w-56'); 
             main.classList.replace('lg:ml-20', 'lg:ml-56');
             header.classList.replace('px-4', 'px-6'); 
@@ -286,9 +288,8 @@ const App = {
                     this.saveToStorage(); 
                     this.showToast('Backup importato con successo!', 'success'); 
                     
-                    // MODIFICA: Reindirizza immediatamente alla home senza reload
                     window.location.hash = '#home';
-                    this.handleRoute(); // Forza l'aggiornamento della vista con i nuovi dati
+                    this.handleRoute(); 
                 } else this.showToast('File di backup non valido.', 'error'); 
             } catch (err) { this.showToast('Errore durante la lettura del file.', 'error'); } 
         }; r.readAsText(f); 
