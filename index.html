@@ -8,7 +8,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
@@ -21,7 +21,8 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    // MODIFICATO: Font family impostata su Montserrat
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
                     colors: { 
                         primary: {
                             "50":"#f0f8ff", "100":"#e0f0fe", "200":"#bae2fe", "300":"#00d0ff",
@@ -42,7 +43,14 @@
     </script>
 
     <style>
-        body { background-color: #f8fafc; color: #334155; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+        /* MODIFICATO: Aggiunto font-family esplicito e font-weight: 300 (Light) */
+        body { 
+            background-color: #f8fafc; 
+            color: #334155; 
+            font-family: 'Montserrat', sans-serif; 
+            font-weight: 300; 
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11"; 
+        }
         html.dark body { background-color: #0f172a; color: #cbd5e1; }
 
         /* INPUTS & FORMS */
@@ -50,6 +58,7 @@
             height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
             padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
             box-shadow: none !important; transition: none !important;
+            font-weight: 300 !important; /* Assicura che anche gli input siano light */
         }
         input.ps-10 { padding-left: 2.5rem !important; }
         textarea { height: auto !important; }
@@ -108,9 +117,9 @@
         #home-banner { background-image: url('img/banner_day.png'); background-size: cover; background-position: center; border: 1px solid #e2e8f0; border-radius: 6px !important; }
         .dark #home-banner { background-image: url('img/banner_night.png'); border: 1px solid #334155; }
 
-        .pin-square { width: 3rem !important; height: 3rem !important; text-align: center; padding: 0 !important; font-size: 1.5rem; }
-        .pin-square-small { width: 2.5rem !important; height: 2.5rem !important; text-align: center; padding: 0 !important; font-size: 1.125rem; }
-        .price-square { width: 2.5rem !important; height: 2.75rem !important; padding: 0 !important; text-align: center; }
+        .pin-square { width: 3rem !important; height: 3rem !important; text-align: center; padding: 0 !important; font-size: 1.5rem; font-weight: 300 !important; }
+        .pin-square-small { width: 2.5rem !important; height: 2.5rem !important; text-align: center; padding: 0 !important; font-size: 1.125rem; font-weight: 300 !important; }
+        .price-square { width: 2.5rem !important; height: 2.75rem !important; padding: 0 !important; text-align: center; font-weight: 300 !important; }
 
         /* SIDEBAR */
         aside { border-right: 1px solid #e2e8f0 !important; }
