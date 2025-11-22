@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Polaris Admin - CORE (js/app.js) - Fix Modal Backdrop Static
+   Polaris Admin - CORE (js/app.js) - Fix Modal Backdrop Static & Tooltips
    ========================================================================== */
 'use strict';
 
@@ -49,7 +49,10 @@ const App = {
         this.setupNavigation();
         document.dispatchEvent(new CustomEvent('app:ready'));
         this.handleRoute();
-        if (localStorage.getItem('sidebar-collapsed') === 'true') this.setSidebarCompact(true);
+        
+        // MODIFICATO: Inizializzazione esplicita dello stato della sidebar e tooltip
+        const isCompact = localStorage.getItem('sidebar-collapsed') === 'true';
+        this.setSidebarCompact(isCompact);
         
         const lockscreen = document.getElementById('pin-lockscreen');
         if (lockscreen) lockscreen.style.display = 'none';
@@ -231,8 +234,11 @@ const App = {
         
         const navItems = document.querySelectorAll('#sidebar-nav a, #sidebar-footer a, #sidebar-footer button');
         const iconElems = document.querySelectorAll('.icon-elem');
+        // MODIFICATO: Seleziona tutti i tooltip
+        const tooltips = document.querySelectorAll('[role="tooltip"]');
 
         if (isCompact) {
+            // Sidebar Compatta (w-20)
             sidebar.classList.replace('w-56', 'w-20'); 
             main.classList.replace('lg:ml-56', 'lg:ml-20');
             header.classList.replace('px-6', 'px-4'); 
@@ -247,7 +253,12 @@ const App = {
             iconElems.forEach(i => i.classList.remove('mr-3'));
 
             if(icon) icon.setAttribute('data-lucide', 'panel-left-open');
+            
+            // MODIFICATO: Riattiva i tooltip rimuovendo la classe che li nasconde
+            tooltips.forEach(t => t.classList.remove('disable-tooltip'));
+
         } else {
+            // Sidebar Espansa (w-56)
             sidebar.classList.replace('w-20', 'w-56'); 
             main.classList.replace('lg:ml-20', 'lg:ml-56');
             header.classList.replace('px-4', 'px-6'); 
@@ -262,6 +273,9 @@ const App = {
             iconElems.forEach(i => i.classList.add('mr-3'));
 
             if(icon) icon.setAttribute('data-lucide', 'panel-left-close');
+            
+            // MODIFICATO: Disattiva i tooltip aggiungendo la classe che li nasconde
+            tooltips.forEach(t => t.classList.add('disable-tooltip'));
         }
         localStorage.setItem('sidebar-collapsed', isCompact);
         lucide.createIcons();
