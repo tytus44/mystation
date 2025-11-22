@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MODULO: Home Dashboard (js/home.js) - Chart Animations Fixed (Online)
+   MODULO: Home Dashboard (js/home.js) - Fix "Canvas already in use" & Montserrat
    ========================================================================== */
 (function() {
     'use strict';
@@ -184,15 +184,9 @@
 
         renderLitersChart() {
             const s = this.getTodayStats();
-            const ctx = document.getElementById('home-liters-chart')?.getContext('2d');
-            
-            // 1. Cleanup aggressivo
-            if (this.localState.litersChart) {
-                this.localState.litersChart.destroy();
-                this.localState.litersChart = null;
-            }
-
-            if (!ctx) return;
+            const canvas = document.getElementById('home-liters-chart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
 
             const prods = [
                 {k:'benzina',l:'Benzina',c:'rgba(34, 197, 94, 0.8)'}, {k:'gasolio',l:'Gasolio',c:'rgba(249, 115, 22, 0.8)'}, {k:'dieselplus',l:'Diesel+',c:'rgba(225, 29, 72, 0.8)'},
@@ -204,11 +198,21 @@
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
             const tickColor = isDark ? '#9ca3af' : '#4b5563';
 
-            // 2. Usa requestAnimationFrame per sincronizzarsi con il rendering del browser
             requestAnimationFrame(() => {
-                // 3. Timeout per sicurezza (attende che il CSS fade-in inizi)
                 setTimeout(() => {
                     if (!document.getElementById('home-liters-chart')) return;
+
+                    // --- FIX: Controllo rigoroso per "Canvas is already in use" ---
+                    const existingChart = Chart.getChart(canvas);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                    
+                    if (this.localState.litersChart) {
+                        try { this.localState.litersChart.destroy(); } catch(e) {}
+                        this.localState.litersChart = null;
+                    }
+                    // ---------------------------------------------------------
 
                     this.localState.litersChart = new Chart(ctx, {
                         type: 'bar',
@@ -217,11 +221,10 @@
                             indexAxis: 'y', 
                             responsive: true, 
                             maintainAspectRatio: false,
-                            // 4. FIX PRINCIPALE: DELAY animazione
                             animation: { 
                                 duration: 1000, 
                                 easing: 'easeOutQuart',
-                                delay: 300 // Aspetta che il CSS fade-in sia visibile
+                                delay: 300 
                             },
                             plugins: { legend: { display: false }, tooltip: { enabled: true } },
                             scales: { 

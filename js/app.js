@@ -26,6 +26,17 @@ const App = {
     },
 
     initApp() {
+        // --- MODIFICA FONT CHART.JS GLOBALE ---
+        if (typeof Chart !== 'undefined') {
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            Chart.defaults.font.weight = 300;
+            // Opzionale: Aggiorna colori base se necessario per contrasto
+            const isDark = document.documentElement.classList.contains('dark');
+            Chart.defaults.color = isDark ? '#cbd5e1' : '#334155';
+            Chart.defaults.scale.grid.color = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        }
+        // ---------------------------------------
+
         this.modal = new Modal(document.getElementById('generic-modal'));
         this.setupGlobalListeners();
         this.setupNavigation();
@@ -106,6 +117,13 @@ const App = {
         if (this.modules.impostazioni && typeof this.modules.impostazioni.updateThemeUI === 'function') {
             this.modules.impostazioni.updateThemeUI(theme);
         }
+        
+        // Aggiorna i colori Chart.js al cambio tema
+        if (typeof Chart !== 'undefined') {
+            Chart.defaults.color = theme === 'dark' ? '#cbd5e1' : '#334155';
+            Chart.defaults.scale.grid.color = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        }
+
         this.handleRoute();
     },
 
@@ -258,7 +276,20 @@ const App = {
     exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state.data, null, 2)], { type: 'application/json' })); a.download = `Polaris_backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); },
     importData(e) { 
         const f = e.target.files[0]; if (!f) return; 
-        const r = new FileReader(); r.onload = (ev) => { try { const d = JSON.parse(ev.target.result); if (d) { this.state.data = d; this.saveToStorage(); this.showToast('Backup importato con successo!', 'success'); setTimeout(() => window.location.reload(), 1500); } else this.showToast('File di backup non valido.', 'error'); } catch (err) { this.showToast('Errore durante la lettura del file.', 'error'); } }; r.readAsText(f); 
+        const r = new FileReader(); r.onload = (ev) => { 
+            try { 
+                const d = JSON.parse(ev.target.result); 
+                if (d) { 
+                    this.state.data = d; 
+                    this.saveToStorage(); 
+                    this.showToast('Backup importato con successo!', 'success'); 
+                    
+                    // MODIFICA: Reindirizza immediatamente alla home senza reload
+                    window.location.hash = '#home';
+                    this.handleRoute(); // Forza l'aggiornamento della vista con i nuovi dati
+                } else this.showToast('File di backup non valido.', 'error'); 
+            } catch (err) { this.showToast('Errore durante la lettura del file.', 'error'); } 
+        }; r.readAsText(f); 
     }
 };
 document.addEventListener('DOMContentLoaded', () => App.init());

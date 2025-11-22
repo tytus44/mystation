@@ -196,8 +196,10 @@
                 App.saveToStorage(); this.updateView(); alert(`${lines.length} contatti importati.`);
             }; r.readAsText(f); e.target.value = '';
         },
+        
+        // --- MODIFICA PRINT: INSERITO MONTSERRAT ---
         printList() {
-            const w = window.open('','_blank'); w.document.write(`<html><head><title>Rubrica</title><style>body{font-family:sans-serif}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2}</style></head><body><h2>Rubrica Contatti</h2><table><thead><tr><th>Nome</th><th>Azienda</th><th>Telefono</th><th>Email</th></tr></thead><tbody>${this.getFilteredContatti().map(c=>`<tr><td>${c.cognome} ${c.nome}</td><td>${c.azienda}</td><td>${c.telefono1}</td><td>${c.email}</td></tr>`).join('')}</tbody></table></body></html>`); w.document.close(); w.print();
+            const w = window.open('','_blank'); w.document.write(`<html><head><title>Rubrica</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"><style>body{font-family:'Montserrat',sans-serif;font-weight:300}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2;font-weight:600}h2{font-weight:600}</style></head><body><h2>Rubrica Contatti</h2><table><thead><tr><th>Nome</th><th>Azienda</th><th>Telefono</th><th>Email</th></tr></thead><tbody>${this.getFilteredContatti().map(c=>`<tr><td>${c.cognome} ${c.nome}</td><td>${c.azienda}</td><td>${c.telefono1}</td><td>${c.email}</td></tr>`).join('')}</tbody></table></body></html>`); w.document.close(); w.print();
         },
 
         attachListeners() {
