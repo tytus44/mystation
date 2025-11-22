@@ -21,7 +21,6 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    // MODIFICATO: Font family impostata su Montserrat
                     fontFamily: { sans: ['Montserrat', 'sans-serif'] },
                     colors: { 
                         primary: {
@@ -43,7 +42,6 @@
     </script>
 
     <style>
-        /* MODIFICATO: Aggiunto font-family esplicito e font-weight: 300 (Light) */
         body { 
             background-color: #f8fafc; 
             color: #334155; 
@@ -58,7 +56,7 @@
             height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
             padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
             box-shadow: none !important; transition: none !important;
-            font-weight: 300 !important; /* Assicura che anche gli input siano light */
+            font-weight: 300 !important;
         }
         input.ps-10 { padding-left: 2.5rem !important; }
         textarea { height: auto !important; }
@@ -155,7 +153,7 @@
         </div>
     </div>
 
-    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-64 h-screen transition-transform duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-800 flex flex-col">
+    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-56 h-screen transition-transform duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-800 flex flex-col">
         <div class="flex-none h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800" id="sidebar-header">
             <a class="flex-none text-xl font-bold flex items-center truncate tracking-tight" href="#">
                 <img src="img/logo.png" alt="Logo" class="h-10 flex-shrink-0">
@@ -229,7 +227,7 @@
         </div>
     </aside>
 
-    <main class="p-6 lg:ml-64 mt-14 lg:mt-0 h-auto min-h-screen transition-all duration-300">
+    <main class="p-6 lg:ml-56 mt-14 lg:mt-0 h-auto min-h-screen transition-all duration-300">
         <section id="home" class="hidden-section"><div id="home-container"></div></section>
         <section id="virtualstation" class="hidden-section"><div id="virtual-container"></div></section>
         <section id="amministrazione" class="hidden-section"><div id="amministrazione-container"></div></section>

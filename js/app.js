@@ -229,8 +229,9 @@ const App = {
         const iconElems = document.querySelectorAll('.icon-elem');
 
         if (isCompact) {
-            sidebar.classList.replace('w-64', 'w-20'); 
-            main.classList.replace('lg:ml-64', 'lg:ml-20');
+            // MODIFICATO: w-56 invece di w-64
+            sidebar.classList.replace('w-56', 'w-20'); 
+            main.classList.replace('lg:ml-56', 'lg:ml-20');
             header.classList.replace('px-6', 'px-4'); 
             header.classList.add('justify-center');
             
@@ -244,8 +245,9 @@ const App = {
 
             if(icon) icon.setAttribute('data-lucide', 'panel-left-open');
         } else {
-            sidebar.classList.replace('w-20', 'w-64'); 
-            main.classList.replace('lg:ml-20', 'lg:ml-64');
+            // MODIFICATO: w-56 invece di w-64
+            sidebar.classList.replace('w-20', 'w-56'); 
+            main.classList.replace('lg:ml-20', 'lg:ml-56');
             header.classList.replace('px-4', 'px-6'); 
             header.classList.remove('justify-center');
             
