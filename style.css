@@ -193,7 +193,7 @@ header {
     border-color: transparent;
 }
 
-/* Icon Buttons (Header) - Hover Acido */
+/* Icon Buttons (Tabelle/Header) - Hover Acido */
 .icon-btn {
     background: var(--bg-card); border: 1px solid var(--border-color);
     cursor: pointer; color: var(--text-secondary);
@@ -250,7 +250,7 @@ body.dark-mode .card-header i { background-color: rgba(117, 81, 255, 0.2); color
     font-size: 1.3rem; font-weight: 700;
     border: 1px solid var(--border-color); border-radius: var(--radius-input);
     background-color: var(--bg-app); 
-    color: var(--text-main);
+    color: var(--text-main); /* Adattivo al tema */
     transition: all 0.2s;
 }
 .price-square:focus { border-color: var(--primary-color); background-color: var(--bg-card); box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.1); transform: translateY(-2px); }
@@ -347,7 +347,12 @@ input[type="date"].no-icon::-webkit-calendar-picker-indicator {
     color: #ffffff; 
 }
 
-.dropdown-item.active { background-color: var(--primary-gradient); color: #fff; }
+/* MODIFICA: Elemento Attivo - Stile "uguale agli altri" ma grassetto */
+.dropdown-item.active { 
+    font-weight: 700;
+    background: transparent;
+    color: var(--text-main);
+}
 
 .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 6px 0; }
 
@@ -509,11 +514,11 @@ input[type=number] { -moz-appearance: textfield; }
 .step-btn:hover { background-color: var(--primary-light-bg); color: var(--primary-color); }
 .step-btn:active { background-color: rgba(67, 24, 255, 0.1); }
 
-/* MODIFICA: Testo nero per input */
+/* MODIFICA: Testo che si adatta al tema */
 .stepper-input {
     flex: 1; border: none; background: transparent; text-align: center;
     font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600;
-    color: var(--text-main); 
+    color: var(--text-main); /* Adattivo */
     padding: 0; width: 100%; height: 100%;
 }
 .stepper-input:focus { outline: none; }
