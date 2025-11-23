@@ -32,7 +32,7 @@ const StrumentiModule = {
                 <div class="app-card" onclick="StrumentiModule.loadApp('vat')">
                     <div class="app-icon bg-purple-100 text-purple-600"><i data-lucide="percent"></i></div>
                     <div class="app-title">Scorporo IVA</div>
-                    <div class="app-desc">Netto e Lordo</div>
+                    <div class="app-desc">Corrispettivi</div>
                 </div>
             </div>
         `;
