@@ -1,308 +1,94 @@
 <!DOCTYPE html>
-<html lang="it" class="light">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polaris</title>
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <title>Polaris - Gestione Stazione</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com/css2">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
-                    colors: { 
-                        primary: {
-                            "50":"#f0f8ff", "100":"#e0f0fe", "200":"#bae2fe", "300":"#00d0ff",
-                            "400":"#36b1fa", "500":"#0c96eb", "600":"#0066cc", "700":"#0052a3",
-                            "800":"#004588", "900":"#063a6b", "950":"#042445"
-                        },
-                        gray: {
-                            "50": "#f8fafc", "100": "#f1f5f9", "200": "#e2e8f0", "300": "#cbd5e1",
-                            "400": "#94a3b8", "500": "#64748b", "600": "#475569", "700": "#334155",
-                            "800": "#1e293b", "900": "#0f172a",
-                        }
-                    },
-                    boxShadow: { 'none': 'none', 'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)' },
-                    borderRadius: { 'eos': '4px' }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body { 
-            background-color: #f8fafc; 
-            color: #334155; 
-            font-family: 'Montserrat', sans-serif; 
-            font-weight: 300; 
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11"; 
-        }
-        html.dark body { background-color: #0f172a; color: #cbd5e1; }
-
-        /* INPUTS & FORMS */
-        input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], input[type="search"], select, textarea {
-            height: 40px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important;
-            padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 0.875rem !important;
-            box-shadow: none !important; transition: none !important;
-            font-weight: 300 !important;
-        }
-        input.ps-10 { padding-left: 2.5rem !important; }
-        textarea { height: auto !important; }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
-        input[type="number"] { -moz-appearance: textfield !important; appearance: textfield !important; }
-
-        .dark input:not([type="checkbox"]):not([type="radio"]), .dark select, .dark textarea {
-            background-color: #1e293b !important; border-color: #475569 !important; color: white !important; color-scheme: dark;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: #0066cc !important; outline: none !important; box-shadow: 0 0 0 1px #0066cc !important;
-        }
-        input[type="radio"], input[type="checkbox"] { color: #0066cc !important; border-color: #cbd5e1 !important; }
-        input[type="radio"]:checked, input[type="checkbox"]:checked { background-color: #0066cc !important; border-color: #0066cc !important; box-shadow: none !important; }
-
-        /* BUTTONS */
-        button, .btn {
-            border-radius: 4px !important; text-transform: none; font-weight: 600 !important;
-            transition: background-color 0.2s ease !important; box-shadow: none !important;
-        }
-        .bg-primary-600 { background-color: #0066cc !important; }
-        .bg-primary-600:hover, .hover\:bg-primary-700:hover { background-color: #0052a3 !important; }
-        .bg-red-600 { background-color: #dc2626 !important; }
-        .bg-red-600:hover, .hover\:bg-red-700:hover { background-color: #b91c1c !important; }
-        
-        .bg-white.border { border-color: #cbd5e1 !important; }
-        .bg-white.border:hover { background-color: #ffffff !important; border-color: #cbd5e1 !important; color: inherit !important; }
-        
-        .dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; border-color: #475569 !important; }
-        .dark .bg-white:hover { background-color: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
-
-        /* CARDS */
-        .draggable-card, .card { 
-            border-radius: 6px !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; background-color: #ffffff !important; transition: none !important;
-        }
-        .dark .draggable-card, .dark .card { border-color: #334155 !important; background-color: #1e293b !important; }
-        .draggable-card:hover, .card:hover { border-color: #e2e8f0 !important; box-shadow: none !important; transform: none !important; }
-        .dark .draggable-card:hover, .dark .card:hover { border-color: #334155 !important; background-color: #1e293b !important; }
-        .card-header { background-color: transparent !important; border-bottom: 1px solid #f1f5f9 !important; padding: 1rem 1.5rem !important; }
-        .dark .card-header { border-bottom-color: #334155 !important; }
-
-        /* MODALS */
-        html.dark #generic-modal .relative.bg-white { background-color: #1e293b !important; border: 1px solid #334155 !important; }
-        html.dark #generic-modal .border-b, html.dark #generic-modal .border-t { border-color: #334155 !important; }
-
-        /* UTILS */
-        /* MODIFICATO: Classe per nascondere i tooltip quando la sidebar è espansa */
-        .disable-tooltip { display: none !important; }
-
-        .datepicker { z-index: 99999 !important; }
-        .hidden-section { display: none !important; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .dark ::-webkit-scrollbar-thumb { background-color: #475569; }
-        .sortable-ghost { opacity: 0.5; background-color: #f0f9ff !important; border: 1px dashed #0066cc !important; }
-
-        #home-banner { background-image: url('img/banner_day.png'); background-size: cover; background-position: center; border: 1px solid #e2e8f0; border-radius: 6px !important; }
-        .dark #home-banner { background-image: url('img/banner_night.png'); border: 1px solid #334155; }
-
-        .pin-square { width: 3rem !important; height: 3rem !important; text-align: center; padding: 0 !important; font-size: 1.5rem; font-weight: 300 !important; }
-        .pin-square-small { width: 2.5rem !important; height: 2.5rem !important; text-align: center; padding: 0 !important; font-size: 1.125rem; font-weight: 300 !important; }
-        .price-square { width: 2.5rem !important; height: 2.75rem !important; padding: 0 !important; text-align: center; font-weight: 300 !important; }
-
-        /* SIDEBAR */
-        aside { border-right: 1px solid #e2e8f0 !important; }
-        .dark aside { border-right: 1px solid #334155 !important; }
-        
-        aside .active-nav-item { background-color: #f0f9ff !important; color: #0066cc !important; border-right: 3px solid #0066cc; font-weight: 600; }
-        .dark aside .active-nav-item { background-color: rgba(0, 102, 204, 0.15) !important; color: #00d0ff !important; border-right: 3px solid #00d0ff; }
-        aside .active-nav-item i { color: #0066cc !important; }
-        .dark aside .active-nav-item i { color: #00d0ff !important; }
-
-        .nav-item-inactive { color: #475569 !important; font-weight: 500 !important; background-color: transparent !important; }
-        .nav-item-inactive:hover { background-color: transparent !important; color: #475569 !important; }
-        .nav-item-inactive:hover i { color: #475569 !important; }
-        .dark .nav-item-inactive { color: #94a3b8 !important; }
-        .dark .nav-item-inactive:hover { background-color: transparent !important; color: #94a3b8 !important; }
-        .dark .nav-item-inactive:hover i { color: #94a3b8 !important; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="antialiased text-sm text-gray-700 dark:text-gray-300 font-sans">
+<body>
 
-    <div class="sticky top-0 inset-x-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200 px-4 py-3 lg:hidden dark:bg-gray-900/90 dark:border-gray-800">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <button id="btn-sidebar-mobile" type="button" class="mr-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-white transition-colors">
-                    <span class="sr-only">Open sidebar</span>
-                    <i data-lucide="menu" class="w-6 h-6"></i>
+    <header>
+        <div class="header-left">
+            <img src="img/logo.png" alt="Logo Polaris" class="logo-img">
+            <span class="app-title">Polaris</span>
+        </div>
+
+        <nav class="header-center">
+            <button class="nav-link active" data-section="home">Home</button>
+            <button class="nav-link" data-section="virtualstation">VirtualStation</button>
+            <button class="nav-link" data-section="carico">Carico</button>
+            <button class="nav-link" data-section="prezzi">Prezzi</button>
+            <button class="nav-link" data-section="amministrazione">Amministrazione</button>
+        </nav>
+
+        <div class="header-right">
+            <button class="icon-btn" id="btn-apps" title="Applicazioni">
+                <i data-lucide="grid"></i>
+            </button>
+
+            <button class="icon-btn" id="btn-theme" title="Cambia Tema">
+                <i data-lucide="moon"></i>
+            </button>
+
+            <button class="icon-btn" id="btn-fullscreen" title="Schermo Intero">
+                <i data-lucide="maximize"></i>
+            </button>
+
+            <div class="dropdown">
+                <button class="btn-system" id="btn-settings-trigger">
+                    Sistema <i data-lucide="chevron-down" style="width:14px;"></i>
                 </button>
-                <a href="#" class="flex items-center text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                    <img src="img/logo.png" alt="Logo" class="h-7 mr-3">
-                    Polaris
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <aside id="application-sidebar" class="fixed top-0 left-0 z-50 w-56 h-screen transition-transform duration-300 -translate-x-full lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-800 flex flex-col">
-        <div class="flex-none h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800" id="sidebar-header">
-            <a class="flex-none text-xl font-bold flex items-center truncate tracking-tight" href="#">
-                <img src="img/logo.png" alt="Logo" class="h-10 flex-shrink-0">
-                <span class="ml-3 sidebar-text text-[#02042b] dark:text-[#00d0ff]">Polaris</span>
-            </a>
-        </div>
-        
-        <div class="flex-1 overflow-y-auto py-4 px-0">
-            <ul class="space-y-0.5" id="sidebar-nav">
-                <li>
-                    <a href="#home" data-tooltip-target="tooltip-dashboard" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="blocks" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Dashboard</span></a>
-                    <div id="tooltip-dashboard" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Dashboard<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#virtualstation" data-tooltip-target="tooltip-virtual" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="monitor-dot" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Virtualstation</span></a>
-                    <div id="tooltip-virtual" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Virtualstation<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#amministrazione" data-tooltip-target="tooltip-admin" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="handshake" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Amministrazione</span></a>
-                    <div id="tooltip-admin" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Amministrazione<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#registro" data-tooltip-target="tooltip-registro" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="truck" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Registro Carico</span></a>
-                    <div id="tooltip-registro" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Registro Carico<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#prezzi" data-tooltip-target="tooltip-prezzi" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="tag" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Prezzi</span></a>
-                    <div id="tooltip-prezzi" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Gestione Prezzi<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#anagrafica" data-tooltip-target="tooltip-anagrafica" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="users" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Anagrafica</span></a>
-                    <div id="tooltip-anagrafica" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Anagrafica<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#spese" data-tooltip-target="tooltip-spese" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="euro" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Gestione Spese</span></a>
-                    <div id="tooltip-spese" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Gestione Spese<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#applicazioni" data-tooltip-target="tooltip-applicazioni" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="box" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Applicazioni</span></a>
-                    <div id="tooltip-applicazioni" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Applicazioni<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-                <li>
-                    <a href="#informazioni" data-tooltip-target="tooltip-informazioni" data-tooltip-placement="right" class="nav-item-inactive flex items-center py-2 px-6 text-sm group transition-none"><i data-lucide="search-check" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i><span class="sidebar-text">Informazioni</span></a>
-                    <div id="tooltip-informazioni" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Informazioni<div class="tooltip-arrow" data-popper-arrow></div></div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="flex-none py-4 px-0 border-t border-gray-100 dark:border-gray-800 space-y-1" id="sidebar-footer">
-            <div>
-                <a href="#impostazioni" id="link-impostazioni" data-tooltip-target="tooltip-settings" data-tooltip-placement="right" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm group transition-none">
-                    <i data-lucide="settings" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
-                    <span class="sidebar-text">Impostazioni</span>
-                </a>
-                <div id="tooltip-settings" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Impostazioni<div class="tooltip-arrow" data-popper-arrow></div></div>
-            </div>
-            <div>
-                <button id="fullscreen-toggle" data-tooltip-target="tooltip-fullscreen" data-tooltip-placement="right" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm group transition-none">
-                    <i data-lucide="maximize" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
-                    <span class="sidebar-text">Schermo intero</span>
-                </button>
-                <div id="tooltip-fullscreen" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Schermo intero<div class="tooltip-arrow" data-popper-arrow></div></div>
-            </div>
-            <div>
-                <button id="sidebar-collapse-toggle" data-tooltip-target="tooltip-toggle" data-tooltip-placement="right" class="nav-item-inactive w-full flex items-center py-2 px-6 text-sm group transition-none hidden lg:flex">
-                    <i data-lucide="panel-left-close" id="collapse-icon" class="w-5 h-5 flex-shrink-0 mr-3 icon-elem"></i>
-                    <span class="sidebar-text">Riduci menu</span>
-                </button>
-                <div id="tooltip-toggle" role="tooltip" class="absolute z-50 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">Riduci menu<div class="tooltip-arrow" data-popper-arrow></div></div>
-            </div>
-        </div>
-    </aside>
-
-    <main class="p-6 lg:ml-56 mt-14 lg:mt-0 h-auto min-h-screen transition-all duration-300">
-        <section id="home" class="hidden-section"><div id="home-container"></div></section>
-        <section id="virtualstation" class="hidden-section"><div id="virtual-container"></div></section>
-        <section id="amministrazione" class="hidden-section"><div id="amministrazione-container"></div></section>
-        <section id="registro" class="hidden-section"><div id="registro-container"></div></section>
-        <section id="prezzi" class="hidden-section"><div id="prezzi-container"></div></section>
-        <section id="anagrafica" class="hidden-section"><div id="anagrafica-container"></div></section>
-        <section id="spese" class="hidden-section"><div id="spese-container"></div></section>
-        <section id="applicazioni" class="hidden-section"><div id="applicazioni-container"></div></section>
-        <section id="informazioni" class="hidden-section"><div id="informazioni-container"></div></section>
-        <section id="impostazioni" class="hidden-section"><div id="impostazioni-container"></div></section>
-    </main>
-
-    <div id="generic-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-[60] justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur-sm bg-gray-900/40">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow-xl dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 rounded-t-lg">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white tracking-tight" id="generic-modal-title"></h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-md text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white" onclick="App.closeModal()">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-                    </button>
+                
+                <div class="dropdown-content dropdown-right" id="settings-dropdown">
+                    <div class="dropdown-item" id="action-export">
+                        <i data-lucide="download"></i> Esporta Backup
+                    </div>
+                    <div class="dropdown-item" id="action-import">
+                        <i data-lucide="upload"></i> Importa Backup
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" id="action-print-report">
+                        <i data-lucide="printer"></i> Stampa Report
+                    </div>
                 </div>
-                <div class="p-6 space-y-6" id="generic-modal-body"></div>
-                <div class="flex items-center justify-end p-5 border-t border-gray-100 dark:border-gray-700 gap-3 bg-gray-50/50 dark:bg-gray-800 rounded-b-lg" id="generic-modal-footer"></div>
             </div>
         </div>
-    </div>
-
-    <div id="global-toast" class="hidden fixed top-6 right-6 z-[70] flex items-center w-full max-w-xs p-4 mb-4 text-gray-600 bg-white rounded-md shadow-lg border border-gray-200 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700 transition-all transform translate-y-0" role="alert">
-        <div id="toast-icon-container" class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-md"><i id="toast-icon" class="w-5 h-5"></i></div>
-        <div class="ms-3 text-sm font-semibold" id="toast-message"></div>
-        <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-md focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" onclick="document.getElementById('global-toast').classList.add('hidden')">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-        </button>
-    </div>
+    </header>
     
-    <input type="file" id="import-file-input" accept=".json" class="hidden">
-    <input type="file" id="import-anagrafica-input" accept=".csv" class="hidden">
-    <input type="file" id="import-stazioni-input" accept=".csv" class="hidden">
-    
-    <div id="pin-lockscreen" class="fixed inset-0 z-[9999] flex justify-center items-center bg-gray-100/90 dark:bg-gray-950/90 backdrop-blur-md" style="display: none;">
-        <div class="w-full max-w-sm p-8 bg-white rounded-lg shadow-xl dark:bg-gray-900 border border-gray-200 dark:border-gray-800" id="pin-modal-content">
-            <div class="text-center">
-                <div class="flex justify-center mb-6">
-                    <img src="img/logo.png" alt="Logo" class="w-20 h-20">
-                </div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Bentornato</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Inserisci il PIN per accedere</p>
-                <div id="pin-inputs-container" class="flex mb-6 justify-center gap-6">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-1" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-2" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-3" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                    <input type="password" inputmode="numeric" maxlength="1" id="pin-4" class="pin-square bg-white border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
-                </div>
-                <p id="pin-error-msg" class="text-sm text-red-600 mt-2 mb-4 hidden font-medium bg-red-50 p-2 rounded">PIN non valido</p>
-                <button id="pin-unlock-btn" class="w-full text-white bg-[#0066cc] hover:bg-[#0052a3] font-semibold rounded-md text-base px-5 py-3 transition-all shadow-sm">Sblocca Accesso</button>
+    <input type="file" id="input-general-import" style="display: none;" accept=".json">
+    <main id="main-content">
+        </main>
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modal-title">Titolo Modale</h3>
+                <button id="modal-close"><i data-lucide="x"></i></button>
             </div>
-        </div>
+            
+            <div id="modal-body" class="modal-body">
+                </div>
+            
+            </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
-    
-    <script src="js/app.js"></script>
-    <script src="js/home.js"></script>
-    <script src="js/virtualstation.js"></script>
-    <script src="js/amministrazione.js"></script>
-    <script src="js/registro.js"></script>
+    <div class="notification-overlay"></div>
     <script src="js/prezzi.js"></script>
-    <script src="js/anagrafica.js"></script>
-    <script src="js/spese.js"></script>
-    <script src="js/applicazioni.js"></script>
-    <script src="js/informazioni.js"></script>
-    <script src="js/impostazioni.js"></script>
-</body>
+    <script src="js/virtualstation.js"></script>
+    <script src="js/carico.js"></script>
+    <script src="js/amministrazione.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/strumenti.js"></script>
+    
+    <script src="js/applicazione.js"></script>
+    </body>
 </html>
