@@ -122,7 +122,8 @@ const AmministrazioneModule = {
             if (lastTx) { const amtClass = lastTx.amount > 0 ? 'text-success' : 'text-danger'; lastAmount = `<span class="${amtClass}">${lastTx.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</span>`; }
             html += `<tr style="border-bottom: 1px dashed var(--border-color);"><td style="padding: 12px; font-weight: 600; color: var(--text-main);">${c.name}</td><td style="padding: 12px; text-align:right; font-weight:bold;" class="${balClass}">${c.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td><td style="padding: 12px; text-align:right; color: var(--text-secondary);">${lastDate}</td><td style="padding: 12px; text-align:right; font-weight:500;">${lastAmount}</td><td style="padding: 12px; text-align: right;"><button class="icon-btn btn-edit" onclick="AmministrazioneModule.openClientModal('${c.id}')" title="Gestisci"><i data-lucide="pencil" style="width:16px;"></i></button></td></tr>`;
         });
-        html += '</tbody></table>'; return html;
+        html += '</tbody></table>';
+        return html;
     },
     renderPagination: function(totalItems) { if (totalItems <= this.ITEMS_PER_PAGE) return ''; return `<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid var(--border-color);"><span style="font-size: 0.9rem; color: var(--text-secondary);">Pagina ${this.currentPage} di ${Math.ceil(totalItems / this.ITEMS_PER_PAGE)}</span><div style="display: flex; gap: 10px;"><button id="btn-prev" class="icon-btn"><i data-lucide="chevron-left"></i></button><button id="btn-next" class="icon-btn"><i data-lucide="chevron-right"></i></button></div></div>`; },
 
@@ -131,13 +132,13 @@ const AmministrazioneModule = {
         this.editingClientId = idToEdit;
         
         if (!idToEdit) {
-            // NUOVO CLIENTE (450px)
+            // NUOVO CLIENTE
             const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="nav-link" placeholder="Inserisci nome..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input);"></div></form>`;
             const footerHTML = `<div class="btn-group"><button type="button" id="btn-cancel-client" class="action-btn btn-cancel">ANNULLA</button><button type="button" id="btn-save-client" class="action-btn btn-save">SALVA</button></div>`;
             this.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
             setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => this.closeModal()); document.getElementById('inp-name').focus(); }, 0);
         } else {
-            // GESTIONE CLIENTE (800px)
+            // GESTIONE CLIENTE
             const client = this.getClients().find(c => c.id === idToEdit);
             if (!client) return;
 
@@ -156,9 +157,11 @@ const AmministrazioneModule = {
                         <button class="action-btn" onclick="AmministrazioneModule.printStatement('${client.id}')" title="Stampa Estratto" style="width:42px; padding:0; justify-content:center;">
                             <i data-lucide="printer" style="width:18px;"></i>
                         </button>
+                        
                         <button class="action-btn" onclick="AmministrazioneModule.confirmSaldo('${client.id}')" title="Chiudi Conto" style="padding: 0 15px;">
                             SALDO
                         </button>
+                        
                         <button class="action-btn btn-delete" onclick="AmministrazioneModule.deleteClient('${client.id}')" title="Elimina Cliente" style="width:42px; padding:0; justify-content:center;">
                             <i data-lucide="trash-2" style="width:18px;"></i>
                         </button>
@@ -174,26 +177,21 @@ const AmministrazioneModule = {
                     </div>
                     
                     <div style="display:flex; gap:10px; margin-top:10px; font-size:0.8rem;">
-                        <button class="action-btn" style="padding:5px 15px; height:32px; font-size:0.8rem;" onclick="document.getElementById('tx-desc').value='Carburante'; document.getElementById('tx-amount').focus();">Carburante</button>
-                        <button class="action-btn" style="padding:5px 15px; height:32px; font-size:0.8rem;" onclick="document.getElementById('tx-desc').value='Acconto'; document.getElementById('tx-amount').focus();">Acconto</button>
+                        <button class="action-btn" style="padding:5px 15px; height:32px; font-size:0.8rem;" 
+                                onclick="document.getElementById('tx-desc').value='Carburante'; document.getElementById('tx-amount').focus();">
+                            Carburante
+                        </button>
+                        <button class="action-btn" style="padding:5px 15px; height:32px; font-size:0.8rem;" 
+                                onclick="document.getElementById('tx-desc').value='Acconto'; document.getElementById('tx-amount').focus();">
+                            Acconto
+                        </button>
                     </div>
                 </div>
 
                 <div style="max-height:180px; overflow-y:auto; border-top:1px solid var(--border-color);">
                     <table class="table-prices">
                         <thead style="position:sticky; top:0; background:var(--bg-card); z-index:10;"><tr><th>Data</th><th>Descrizione</th><th style="text-align:right;">Importo</th><th style="text-align:right;">Azioni</th></tr></thead>
-                        <tbody>${txs.length ? txs.map(t => `
-                            <tr>
-                                <td style="font-size:0.85rem;">${new Date(t.date).toLocaleDateString()}</td>
-                                <td style="font-size:0.85rem;">${t.description}</td>
-                                <td style="text-align:right; font-weight:bold; font-size:0.85rem;" class="${t.amount > 0 ? 'text-success' : 'text-danger'}">${t.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>
-                                <td style="text-align:right;">
-                                    <button class="icon-btn btn-edit" onclick="AmministrazioneModule.editTransaction('${client.id}', '${t.id}')" title="Modifica" style="width:28px; height:28px;"><i data-lucide="pencil" style="width:14px;"></i></button>
-                                    <button class="icon-btn btn-delete" onclick="AmministrazioneModule.deleteTransaction('${client.id}', '${t.id}')" title="Elimina" style="width:28px; height:28px;"><i data-lucide="trash-2" style="width:14px;"></i></button>
-                                </td>
-                            </tr>`).join('') : '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:20px;">Nessuna transazione registrata.</td></tr>'}
-                        </tbody>
-                    </table>
+                        <tbody>${txs.length ? txs.map(t => `<tr><td style="font-size:0.85rem;">${new Date(t.date).toLocaleDateString()}</td><td style="font-size:0.85rem;">${t.description}</td><td style="text-align:right; font-weight:bold; font-size:0.85rem;" class="${t.amount > 0 ? 'text-success' : 'text-danger'}">${t.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td><td style="text-align:right;"><button class="icon-btn btn-edit" onclick="AmministrazioneModule.editTransaction('${client.id}', '${t.id}')" title="Modifica" style="width:28px; height:28px;"><i data-lucide="pencil" style="width:14px;"></i></button><button class="icon-btn btn-delete" onclick="AmministrazioneModule.deleteTransaction('${client.id}', '${t.id}')" title="Elimina" style="width:28px; height:28px;"><i data-lucide="trash-2" style="width:14px;"></i></button></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:20px;">Nessuna transazione registrata.</td></tr>'}</tbody></table>
                 </div>
             `;
 
@@ -208,21 +206,19 @@ const AmministrazioneModule = {
         }
     },
 
-    // ... (Le altre funzioni confirmSaldo, executeSaldo, saveNewClient, addTransaction, editTransaction, deleteTransaction, deleteClient, printStatement, printList, attachMainListeners, exportData, importData, setupModalListeners, openModal, closeModal rimangono identiche) ...
-    // Ricordati di mantenere tutte le funzioni già presenti nel file precedente per il corretto funzionamento.
-    // Per brevità qui ho messo solo render e openClientModal modificati, ma devi unire tutto.
-    
-    // COPIA LE ALTRE FUNZIONI DAL CODICE PRECEDENTE...
-    
+    // --- MODALE CONFERMA SALDO ---
     confirmSaldo: function(clientId) {
         const client = this.getClients().find(c => c.id === clientId);
         if (!client) return;
-        const bodyHTML = `<div style="text-align:center; padding:10px;"><p style="color:var(--text-main); margin-bottom:10px;">Vuoi saldare il conto di <strong>${client.name}</strong>?</p><p style="font-size:0.9rem; color:var(--col-destructive);">Questa operazione cancellerà tutto lo storico transazioni.</p></div>`;
-        const footerHTML = `<div class="btn-group"><button id="btn-cancel-saldo" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">ANNULLA</button><button id="btn-print-saldo" class="action-btn">STAMPA</button><button id="btn-confirm-saldo" class="action-btn btn-delete">ELIMINA</button></div>`;
-        this.openModal('Saldo Cliente', bodyHTML, footerHTML, '450px');
+        const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-circle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="color:var(--text-main); margin-bottom:5px; font-weight:600;">Vuoi saldare il conto di <strong>${client.name}</strong>?</p><p style="font-size:0.9rem; color:var(--text-secondary);">Questa operazione cancellerà tutto lo storico transazioni.</p></div>`;
+        // CORREZIONE: Rimossa btn-secondary dal tasto Stampa
+        const footerHTML = `<div class="btn-group"><button id="btn-cancel-saldo" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">ANNULLA</button><button id="btn-print-saldo" class="action-btn">STAMPA</button><button id="btn-confirm-saldo" class="action-btn btn-delete">AZZERA TUTTO</button></div>`;
+        this.openModal('Conferma Saldo', bodyHTML, footerHTML, '450px');
         setTimeout(() => { document.getElementById('btn-cancel-saldo').onclick = () => this.openClientModal(clientId); document.getElementById('btn-print-saldo').onclick = () => this.printStatement(clientId); document.getElementById('btn-confirm-saldo').onclick = () => this.executeSaldo(clientId); }, 0);
     },
     executeSaldo: function(clientId) { const clients = this.getClients(); const idx = clients.findIndex(c => c.id === clientId); if (idx !== -1) { clients[idx].balance = 0; clients[idx].transactions = []; localStorage.setItem('polaris_clients', JSON.stringify(clients)); showNotification("Conto saldato e storico azzerato.", 'success'); this.openClientModal(clientId); this.render(); } },
+
+    // --- AZIONI ---
     saveNewClient: function() { const name = document.getElementById('inp-name').value.trim(); if (!name) { showNotification("Inserisci un nome", 'error'); return; } const clients = this.getClients(); clients.push({ id: Date.now().toString(), name: name, balance: 0, transactions: [] }); localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.closeModal(); showNotification("Cliente creato", 'success'); this.render(); },
     addTransaction: function(clientId) { const desc = document.getElementById('tx-desc').value.trim(); const amountStr = document.getElementById('tx-amount').value; const amount = parseFloat(amountStr); if (!desc || isNaN(amount) || amount === 0) { showNotification("Dati non validi", 'error'); return; } const clients = this.getClients(); const clientIdx = clients.findIndex(c => c.id === clientId); if (clientIdx === -1) return; let finalAmount = amount; if (desc.toLowerCase().includes('carburante') && amount > 0) finalAmount = -amount; const tx = { id: Date.now().toString(), date: new Date().toISOString(), description: desc, amount: finalAmount }; clients[clientIdx].transactions.push(tx); clients[clientIdx].balance += finalAmount; localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.openClientModal(clientId); this.render(); },
     editTransaction: function(clientId, txId) { const clients = this.getClients(); const cIdx = clients.findIndex(c => c.id === clientId); if (cIdx === -1) return; const tx = clients[cIdx].transactions.find(t => t.id === txId); if (!tx) return; clients[cIdx].balance -= tx.amount; clients[cIdx].transactions = clients[cIdx].transactions.filter(t => t.id !== txId); localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.openClientModal(clientId); setTimeout(() => { document.getElementById('tx-desc').value = tx.description; document.getElementById('tx-amount').value = Math.abs(tx.amount); document.getElementById('tx-amount').focus(); }, 100); },
