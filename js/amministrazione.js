@@ -19,7 +19,6 @@ const AmministrazioneModule = {
         const clients = this.getFilteredClients();
         const stats = this.calculateStats(clients);
 
-        // MODIFICA: Stile pulsante clear circolare
         const clearBtnHTML = this.currentFilter ? 
             `<button id="btn-clear-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: none; background-color: var(--text-secondary); color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; padding: 0; opacity: 0.8;">
                 <i data-lucide="x" style="width: 14px; height: 14px;"></i>
@@ -135,22 +134,85 @@ const AmministrazioneModule = {
     openClientModal: function(idToEdit = null) {
         this.editingClientId = idToEdit;
         if (!idToEdit) {
+            // Modale NUOVO Cliente
             const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="nav-link" placeholder="Inserisci nome..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input);"></div></form>`;
             const footerHTML = `<div class="btn-group"><button type="button" id="btn-cancel-client" class="action-btn btn-cancel">ANNULLA</button><button type="button" id="btn-save-client" class="action-btn btn-save">SALVA</button></div>`;
             this.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
             setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => this.closeModal()); document.getElementById('inp-name').focus(); }, 0);
         } else {
+            // Modale GESTIONE Cliente (Modificata: pulsanti grandi standard)
             const client = this.getClients().find(c => c.id === idToEdit);
             if (!client) return;
             const balClass = client.balance > 0 ? 'text-success' : (client.balance < 0 ? 'text-danger' : '');
             const txs = (client.transactions || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+            
             const bodyHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:15px; background-color:var(--primary-light-bg); border-radius:var(--radius-input);"><div><span style="font-size:0.85rem; color:var(--text-secondary); display:block;">Saldo Attuale</span><span style="font-size:1.5rem; font-weight:700;" class="${balClass}">${client.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</span></div><div style="display:flex; gap:10px;"><button class="action-btn" onclick="AmministrazioneModule.printStatement('${client.id}')" title="Stampa Estratto" style="width:42px; padding:0; justify-content:center;"><i data-lucide="printer" style="width:18px;"></i></button><button class="action-btn" onclick="AmministrazioneModule.confirmSaldo('${client.id}')" title="Chiudi Conto" style="padding: 0 15px;">SALDO</button><button class="action-btn btn-delete" onclick="AmministrazioneModule.deleteClient('${client.id}')" title="Elimina Cliente" style="width:42px; padding:0; justify-content:center;"><i data-lucide="trash-2" style="width:18px;"></i></button></div></div>
-                <div style="border:1px solid var(--border-color); border-radius:var(--radius-input); padding:15px; margin-bottom:20px; background-color: var(--bg-app);"><h4 style="margin-bottom:10px; font-size:0.9rem; color:var(--text-main); font-weight:600;">Nuova Transazione</h4><div style="display:grid; grid-template-columns: 1fr 150px auto; gap:10px; align-items:center;"><input type="text" id="tx-desc" class="nav-link" placeholder="Descrizione" style="border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card);"><input type="number" step="0.01" id="tx-amount" class="nav-link" placeholder="€ 0.00" style="border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card);"><button id="btn-add-tx" class="action-btn btn-save" style="height: 100%;">AGGIUNGI</button></div><div style="display:flex; gap:10px; margin-top:10px; font-size:0.8rem;"><button class="action-btn" style="padding:5px 15px; height:32px; font-size:0.8rem;" onclick="document.getElementById('tx-desc').value='Carburante'; document.getElementById('tx-amount').focus();">Carburante</button><button class="action-btn" style="padding:5px 15px; height:32px; font-size:0.8rem;" onclick="document.getElementById('tx-desc').value='Acconto'; document.getElementById('tx-amount').focus();">Acconto</button></div></div>
-                <div style="max-height:180px; overflow-y:auto; border-top:1px solid var(--border-color);"><table class="table-prices"><thead style="position:sticky; top:0; background:var(--bg-card); z-index:10;"><tr><th>Data</th><th>Descrizione</th><th style="text-align:right;">Importo</th><th style="text-align:right;">Azioni</th></tr></thead><tbody>${txs.length ? txs.map(t => `<tr><td style="font-size:0.85rem;">${new Date(t.date).toLocaleDateString()}</td><td style="font-size:0.85rem;">${t.description}</td><td style="text-align:right; font-weight:bold; font-size:0.85rem;" class="${t.amount > 0 ? 'text-success' : 'text-danger'}">${t.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td><td style="text-align:right;"><button class="icon-btn btn-edit" onclick="AmministrazioneModule.editTransaction('${client.id}', '${t.id}')" title="Modifica" style="width:28px; height:28px;"><i data-lucide="pencil" style="width:14px;"></i></button><button class="icon-btn btn-delete" onclick="AmministrazioneModule.deleteTransaction('${client.id}', '${t.id}')" title="Elimina" style="width:28px; height:28px;"><i data-lucide="trash-2" style="width:14px;"></i></button></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:20px;">Nessuna transazione registrata.</td></tr>'}</tbody></table></div>`;
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:15px; background-color:var(--primary-light-bg); border-radius:var(--radius-input); flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <span style="font-size:0.85rem; color:var(--text-secondary); display:block;">Saldo Attuale</span>
+                        <span style="font-size:1.5rem; font-weight:700;" class="${balClass}">${client.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</span>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                        <button class="action-btn" onclick="AmministrazioneModule.printStatement('${client.id}')" title="Stampa Estratto">
+                            <i data-lucide="printer" style="width:18px;"></i> STAMPA
+                        </button>
+                        
+                        <button class="action-btn" onclick="document.getElementById('tx-desc').value='Acconto'; document.getElementById('tx-amount').focus();" title="Imposta Acconto">
+                            ACCONTO
+                        </button>
+
+                        <button class="action-btn btn-save" onclick="AmministrazioneModule.confirmSaldo('${client.id}')" title="Chiudi Conto">
+                            SALDO
+                        </button>
+                        
+                        <button class="action-btn btn-delete" onclick="AmministrazioneModule.deleteClient('${client.id}')" title="Elimina Cliente">
+                            <i data-lucide="trash-2" style="width:18px;"></i> ELIMINA
+                        </button>
+                    </div>
+                </div>
+
+                <div style="border:1px solid var(--border-color); border-radius:var(--radius-input); padding:15px; margin-bottom:20px; background-color: var(--bg-app);">
+                    <h4 style="margin-bottom:10px; font-size:0.9rem; color:var(--text-main); font-weight:600;">Nuova Transazione</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 150px auto; gap:10px; align-items:center;">
+                        <input type="text" id="tx-desc" class="nav-link" value="Carburante" placeholder="Descrizione" style="border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card);">
+                        <input type="number" step="0.01" id="tx-amount" class="nav-link" placeholder="€ 0.00" style="border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card);">
+                        <button id="btn-add-tx" class="action-btn btn-save" style="height: 100%;">AGGIUNGI</button>
+                    </div>
+                </div>
+
+                <div style="max-height:180px; overflow-y:auto; border-top:1px solid var(--border-color);">
+                    <table class="table-prices">
+                        <thead style="position:sticky; top:0; background:var(--bg-card); z-index:10;">
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrizione</th>
+                                <th style="text-align:right;">Importo</th>
+                                <th style="text-align:right;">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${txs.length ? txs.map(t => `
+                            <tr>
+                                <td style="font-size:0.85rem;">${new Date(t.date).toLocaleDateString()}</td>
+                                <td style="font-size:0.85rem;">${t.description}</td>
+                                <td style="text-align:right; font-weight:bold; font-size:0.85rem;" class="${t.amount > 0 ? 'text-success' : 'text-danger'}">${t.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>
+                                <td style="text-align:right;">
+                                    <button class="icon-btn btn-edit" onclick="AmministrazioneModule.editTransaction('${client.id}', '${t.id}')" title="Modifica" style="width:28px; height:28px;"><i data-lucide="pencil" style="width:14px;"></i></button>
+                                    <button class="icon-btn btn-delete" onclick="AmministrazioneModule.deleteTransaction('${client.id}', '${t.id}')" title="Elimina" style="width:28px; height:28px;"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                                </td>
+                            </tr>`).join('') : '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:20px;">Nessuna transazione registrata.</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>`;
+            
             const footerHTML = `<button type="button" id="btn-close-modal" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">CHIUDI</button>`;
+            
             this.openModal(client.name, bodyHTML, footerHTML, '800px');
-            setTimeout(() => { document.getElementById('btn-add-tx').addEventListener('click', () => this.addTransaction(client.id)); document.getElementById('btn-close-modal').addEventListener('click', () => this.closeModal()); }, 0);
+            
+            setTimeout(() => { 
+                document.getElementById('btn-add-tx').addEventListener('click', () => this.addTransaction(client.id)); 
+                document.getElementById('btn-close-modal').addEventListener('click', () => this.closeModal()); 
+            }, 0);
         }
     },
 
