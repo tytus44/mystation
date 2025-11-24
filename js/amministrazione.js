@@ -140,7 +140,7 @@ const AmministrazioneModule = {
             this.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
             setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => this.closeModal()); document.getElementById('inp-name').focus(); }, 0);
         } else {
-            // Modale GESTIONE Cliente (Modificata: pulsanti grandi standard)
+            // Modale GESTIONE Cliente
             const client = this.getClients().find(c => c.id === idToEdit);
             if (!client) return;
             const balClass = client.balance > 0 ? 'text-success' : (client.balance < 0 ? 'text-danger' : '');
@@ -229,11 +229,48 @@ const AmministrazioneModule = {
 
     // --- AZIONI ---
     saveNewClient: function() { const name = document.getElementById('inp-name').value.trim(); if (!name) { window.showNotification("Inserisci un nome", 'error'); return; } const clients = this.getClients(); clients.push({ id: Date.now().toString(), name: name, balance: 0, transactions: [] }); localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.closeModal(); window.showNotification("Cliente creato", 'success'); this.render(); },
-    addTransaction: function(clientId) { const desc = document.getElementById('tx-desc').value.trim(); const amountStr = document.getElementById('tx-amount').value; const amount = parseFloat(amountStr); if (!desc || isNaN(amount) || amount === 0) { window.showNotification("Dati non validi", 'error'); return; } const clients = this.getClients(); const clientIdx = clients.findIndex(c => c.id === clientId); if (clientIdx === -1) return; let finalAmount = amount; if (desc.toLowerCase().includes('carburante') && amount > 0) finalAmount = -amount; const tx = { id: Date.now().toString(), date: new Date().toISOString(), description: desc, amount: finalAmount }; clients[clientIdx].transactions.push(tx); clients[clientIdx].balance += finalAmount; localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.openClientModal(clientId); this.render(); },
+    
+    addTransaction: function(clientId) { 
+        const desc = document.getElementById('tx-desc').value.trim(); 
+        const amountStr = document.getElementById('tx-amount').value; 
+        const amount = parseFloat(amountStr); 
+        
+        if (!desc || isNaN(amount) || amount === 0) { 
+            window.showNotification("Dati non validi", 'error'); 
+            return; 
+        } 
+        
+        const clients = this.getClients(); 
+        const clientIdx = clients.findIndex(c => c.id === clientId); 
+        if (clientIdx === -1) return; 
+        
+        // Logica Importo:
+        // Se la descrizione è diversa da "Acconto", l'importo diventa negativo (addebito).
+        // Se è "Acconto", resta positivo.
+        let finalAmount = Math.abs(amount);
+
+        if (desc.toLowerCase() !== 'acconto') {
+            finalAmount = -finalAmount;
+        }
+
+        const tx = { 
+            id: Date.now().toString(), 
+            date: new Date().toISOString(), 
+            description: desc, 
+            amount: finalAmount 
+        }; 
+        
+        clients[clientIdx].transactions.push(tx); 
+        clients[clientIdx].balance += finalAmount; 
+        
+        localStorage.setItem('polaris_clients', JSON.stringify(clients)); 
+        this.openClientModal(clientId); 
+        this.render(); 
+    },
+    
     editTransaction: function(clientId, txId) { const clients = this.getClients(); const cIdx = clients.findIndex(c => c.id === clientId); if (cIdx === -1) return; const tx = clients[cIdx].transactions.find(t => t.id === txId); if (!tx) return; clients[cIdx].balance -= tx.amount; clients[cIdx].transactions = clients[cIdx].transactions.filter(t => t.id !== txId); localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.openClientModal(clientId); setTimeout(() => { document.getElementById('tx-desc').value = tx.description; document.getElementById('tx-amount').value = Math.abs(tx.amount); document.getElementById('tx-amount').focus(); }, 100); },
     
     deleteTransaction: function(clientId, txId) {
-        // MODALE CONFERMA
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="trash-2" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Eliminare questa transazione?</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-del" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-del" class="action-btn btn-delete">ELIMINA</button></div>`;
         this.openModal('Conferma Eliminazione', bodyHTML, footerHTML, '400px');
@@ -272,7 +309,6 @@ const AmministrazioneModule = {
     importData: function(e) {
         const f = e.target.files[0]; if(!f) return; const r = new FileReader();
         r.onload = (ev) => { try { const json = JSON.parse(ev.target.result); 
-            // MODALE CONFERMA IMPORT
             const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-triangle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Sovrascrivere i dati esistenti?</p></div>`;
             const footerHTML = `<div class="btn-group"><button id="btn-cancel-imp" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-imp" class="action-btn btn-delete">IMPORTA</button></div>`;
             this.openModal('Importazione', bodyHTML, footerHTML, '400px');
@@ -288,7 +324,6 @@ const AmministrazioneModule = {
         } catch(err) { window.showNotification("File non valido", 'error'); } }; r.readAsText(f);
     },
 
-    // ... (Resto del codice: printStatement, printList, attachMainListeners, exportData, setupModalListeners, openModal, closeModal INVARIATI)
     printStatement: function(id) { const client = this.getClients().find(c => c.id === id); if (!client) return; const w = window.open('', '_blank'); w.document.write(`<html><head><title>Estratto Conto</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2}.text-right{text-align:right}</style></head><body><h2>Estratto Conto: ${client.name}</h2><p>Data: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Data</th><th>Descrizione</th><th class="text-right">Importo</th></tr></thead><tbody>${client.transactions.map(t=>`<tr><td>${new Date(t.date).toLocaleDateString()}</td><td>${t.description}</td><td class="text-right">${t.amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2" class="text-right">SALDO FINALE</th><th class="text-right">${client.balance.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</th></tr></tfoot></table><script>window.print();</script></body></html>`); w.document.close(); },
     printList: function() { const clients = this.getFilteredClients(); const w = window.open('', '_blank'); let rows = ''; for(let i=0; i<clients.length; i+=2) { const c1 = clients[i]; const c2 = clients[i+1]; const cell1 = c1 ? `<td>${c1.name}</td><td class="text-right">${c1.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; const cell2 = c2 ? `<td>${c2.name}</td><td class="text-right">${c2.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; rows += `<tr>${cell1}${cell2}</tr>`; } w.document.write(`<html><head><title>Lista Clienti</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"><style>body{font-family:'Montserrat',sans-serif;font-size:10pt;padding:20px}h2{text-align:center;margin-bottom:5px;text-transform:uppercase}p{text-align:center;margin-top:0;margin-bottom:20px;font-size:9pt;color:#666}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;font-size:9pt;vertical-align:middle}th{background-color:#f0f0f0;font-weight:600;text-align:left}.text-right{text-align:right}td:nth-child(1),td:nth-child(3){width:35%}td:nth-child(2),td:nth-child(4){width:15%;font-weight:bold}@media print{@page{margin:1cm}}</style></head><body><h2>Riepilogo Clienti a credito</h2><p>Data: ${new Date().toLocaleDateString('it-IT')}</p><table><thead><tr><th>Cliente</th><th class="text-right">Saldo</th><th>Cliente</th><th class="text-right">Saldo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=function(){window.print();window.close();}</script></body></html>`); w.document.close(); },
     attachMainListeners: function() { document.getElementById('search-client').addEventListener('input', (e) => { this.currentFilter = e.target.value; this.currentPage = 1; this.render(); const inp = document.getElementById('search-client'); inp.focus(); const val=inp.value; inp.value=''; inp.value=val; }); const btnClear = document.getElementById('btn-clear-search'); if(btnClear) btnClear.addEventListener('click', () => { this.currentFilter = ''; this.currentPage = 1; this.render(); document.getElementById('search-client').focus(); }); document.getElementById('btn-new-client').addEventListener('click', () => this.openClientModal()); document.getElementById('btn-print-list').addEventListener('click', () => this.printList()); const fi = document.getElementById('import-admin-input'); document.getElementById('btn-admin-import').addEventListener('click', () => fi.click()); fi.addEventListener('change', (e) => this.importData(e)); document.getElementById('btn-admin-export').addEventListener('click', () => this.exportData()); const btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next'); if(btnPrev) btnPrev.addEventListener('click', () => { if(this.currentPage>1) {this.currentPage--; this.render();} }); if(btnNext) btnNext.addEventListener('click', () => { if(this.currentPage*this.ITEMS_PER_PAGE < this.getFilteredClients().length) {this.currentPage++; this.render();} }); },
