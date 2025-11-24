@@ -32,7 +32,7 @@ const StrumentiModule = {
                 <div class="app-card" onclick="StrumentiModule.loadApp('vat')">
                     <div class="app-icon bg-purple-100 text-purple-600"><i data-lucide="percent"></i></div>
                     <div class="app-title">Scorporo IVA</div>
-                    <div class="app-desc">Corrispettivi</div>
+                    <div class="app-desc">Netto e Lordo</div>
                 </div>
             </div>
         `;
@@ -50,7 +50,7 @@ const StrumentiModule = {
                 title = 'Nuovo Ordine Carburante';
                 content = this.getFuelOrderHTML();
                 width = '500px';
-                footer = btnMenu; // AGGIUNTO MENU anche qui
+                footer = btnMenu;
                 break;
             case 'cash':
                 title = 'Versamento Banconote';
@@ -73,6 +73,7 @@ const StrumentiModule = {
         if(appName === 'fuel') this.attachFuelListeners();
     },
 
+    // --- 1. ORDINE CARBURANTI ---
     getFuelOrderHTML: function() {
         let rows = this.products.map(p => `
             <div class="fuel-row">
@@ -93,7 +94,7 @@ const StrumentiModule = {
                     <span style="color:var(--text-secondary); font-size:1rem;">Totale Stimato:</span>
                     <span id="fuel-total-euro" style="font-size:1.5rem; font-weight:700; color:var(--text-main);">0,00 €</span>
                 </div>
-                </div>
+            </div>
         `;
     },
 
@@ -123,6 +124,7 @@ const StrumentiModule = {
         document.querySelectorAll('.fuel-input').forEach(i => i.addEventListener('input', updateEst));
     },
 
+    // --- 2. CONTA BANCONOTE (FIX ALTEZZA) ---
     getCashCounterHTML: function() {
         const bills = [500, 200, 100, 50, 20];
         let rows = bills.map(b => `
@@ -136,12 +138,18 @@ const StrumentiModule = {
                 <div class="cash-total" id="sum-${b}">€ 0</div>
             </div>
         `).join('');
+        
         return `
             <div style="padding: 10px 0;">
-                <div style="margin-bottom: 25px;">${rows}</div>
-                <div class="card" style="padding:20px; text-align:center; border:1px solid var(--border-color); background-color:var(--bg-app); box-shadow:none;">
-                    <span style="font-size:0.8rem; color:var(--text-secondary); text-transform:uppercase; font-weight:600;">Totale Versamento</span>
-                    <div id="cash-total" style="font-size:2.2rem; font-weight:700; color:var(--col-benzina); margin-top:10px; line-height:1;">€ 0</div>
+                <div style="margin-bottom: 20px;">${rows}</div>
+                
+                <div class="card" style="padding: 15px; text-align: center; border: 1px solid var(--border-color); background-color: var(--bg-app); box-shadow: none;">
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 5px;">
+                        Totale Versamento
+                    </span>
+                    <div id="cash-total" style="font-size: 2rem; font-weight: 700; color: var(--col-benzina); line-height: 1;">
+                        € 0
+                    </div>
                 </div>
             </div>
         `;
@@ -163,6 +171,7 @@ const StrumentiModule = {
         this.setupStepper(updateCash);
     },
 
+    // --- 3. SCORPORO IVA ---
     getVatCalculatorHTML: function() {
         return `
             <div style="text-align:center; padding:20px;">
