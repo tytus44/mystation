@@ -208,6 +208,17 @@ header {
     transform: translateY(-2px); 
 }
 
+/* Override per pulsanti "Nuovo..." - Hover Verde Acido */
+#btn-new-turno:hover,
+#btn-new-carico:hover,
+#btn-open-listino:hover,
+#btn-new-client:hover {
+    background: var(--col-positive);
+    color: #ffffff;
+    box-shadow: 0 6px 15px rgba(177, 228, 38, 0.4);
+    border-color: transparent;
+}
+
 /* =========================================
    5. CARD & DASHBOARD
    ========================================= */
