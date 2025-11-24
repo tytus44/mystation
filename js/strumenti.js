@@ -22,17 +22,17 @@ const StrumentiModule = {
                 <div class="app-card" onclick="StrumentiModule.loadApp('fuel')">
                     <div class="app-icon bg-blue-100 text-blue-600"><i data-lucide="fuel"></i></div>
                     <div class="app-title">Ordine Carburanti</div>
-                    <div class="app-desc">Crea nuovo ordine</div>
+                    <div class="app-desc">Calcolo importo ordine</div>
                 </div>
                 <div class="app-card" onclick="StrumentiModule.loadApp('cash')">
                     <div class="app-icon bg-green-100 text-green-600"><i data-lucide="banknote"></i></div>
                     <div class="app-title">Conta Banconote</div>
-                    <div class="app-desc">Totale versamento</div>
+                    <div class="app-desc">Distinta Versamento</div>
                 </div>
                 <div class="app-card" onclick="StrumentiModule.loadApp('vat')">
                     <div class="app-icon bg-purple-100 text-purple-600"><i data-lucide="percent"></i></div>
                     <div class="app-title">Scorporo IVA</div>
-                    <div class="app-desc">Netto e Lordo</div>
+                    <div class="app-desc">Per corrispettivi</div>
                 </div>
             </div>
         `;
