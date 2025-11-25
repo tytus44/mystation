@@ -54,7 +54,7 @@ const CaricoModule = {
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header"><span class="card-title">Top Prodotto</span><i data-lucide="truck"></i></div>
+                    <div class="card-header"><span class="card-title">Top Prodotto</span><i data-lucide="fuel"></i></div>
                     <div class="card-body">
                         <h2 style="color: ${stats.topProductColor}; font-size: 2rem; font-weight: 700;">${stats.topProduct}</h2>
                         <p style="color: var(--text-secondary); font-size: 0.9rem;">Prodotto più scaricato</p>
