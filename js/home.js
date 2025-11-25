@@ -58,7 +58,7 @@ const HomeModule = {
                 <div class="card">
                     <div class="card-header">
                         <span class="card-title">Margine Lordo</span>
-                        <i data-lucide="trending-up"></i>
+                        <i data-lucide="hand-coins"></i>
                     </div>
                     <div class="card-body">
                         <h2 style="color: #f97316; font-size: 2rem; font-weight: 700;">${stats.margin.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</h2>
