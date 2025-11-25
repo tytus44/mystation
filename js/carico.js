@@ -83,7 +83,7 @@ const CaricoModule = {
             </div>
 
             <div class="card">
-                <div class="card-header"><span class="card-title">Registro Carichi</span><i data-lucide="list"></i></div>
+                <div class="card-header"><span class="card-title">Registro Carichi</span><i data-lucide="truck"></i></div>
                 <div class="card-body">
                     <div style="overflow-x: auto;">${this.renderTable(entries)}</div>
                     ${this.renderPagination(entries.length)}
