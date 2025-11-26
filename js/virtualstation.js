@@ -1,7 +1,7 @@
 /* INIZIO MODULO VIRTUAL STATION */
 const VirtualStationModule = {
     ITEMS_PER_PAGE: 10,
-    chartInstances: {},
+    chartInstances: {}, // Qui salviamo i riferimenti ai grafici attivi
     currentPage: 1,
     currentFilter: 'month',
     editingId: null,
@@ -519,8 +519,14 @@ const VirtualStationModule = {
     },
 
     renderCharts: function(turni) {
+        // CHART MODE
         const ctxMode = document.getElementById('chartMode');
         if (ctxMode) {
+            // DESTROY EXISTING INSTANCE
+            if (this.chartInstances.mode) {
+                this.chartInstances.mode.destroy();
+            }
+
             let iperself = 0,
                 servito = 0,
                 fdt = 0,
@@ -534,7 +540,7 @@ const VirtualStationModule = {
             });
             iperself = prepay;
 
-            new Chart(ctxMode, {
+            this.chartInstances.mode = new Chart(ctxMode, {
                 type: 'doughnut',
                 data: {
                     labels: ['Iperself', 'Servito', 'Fai Da Te'],
@@ -563,12 +569,18 @@ const VirtualStationModule = {
             });
         }
 
+        // CHART PRODUCTS
         const ctxProd = document.getElementById('chartProducts');
         if (ctxProd) {
+            // DESTROY EXISTING INSTANCE
+            if (this.chartInstances.products) {
+                this.chartInstances.products.destroy();
+            }
+
             const data = this.products.map(p => turni.reduce((acc, t) => acc + (parseFloat(t.prepay?.[p.id] || 0) + parseFloat(t.servito?.[p.id] || 0) + parseFloat(t.fdt?.[p.id] || 0)), 0));
             const bgColors = ['rgba(255, 104, 0, 0.6)', 'rgba(255, 0, 56, 0.6)', 'rgba(72, 31, 255, 0.6)', 'rgba(34, 197, 94, 0.6)', 'rgba(0, 203, 237, 0.6)'];
 
-            new Chart(ctxProd, {
+            this.chartInstances.products = new Chart(ctxProd, {
                 type: 'bar',
                 data: {
                     labels: this.products.map(p => p.label),
@@ -605,8 +617,14 @@ const VirtualStationModule = {
             });
         }
 
+        // CHART TREND
         const ctxTrend = document.getElementById('chartTrend');
         if (ctxTrend) {
+            // DESTROY EXISTING INSTANCE
+            if (this.chartInstances.trend) {
+                this.chartInstances.trend.destroy();
+            }
+
             const currentYear = new Date().getFullYear();
             const monthly = Array(12).fill(0);
             const allTurni = this.getTurni().filter(t => new Date(t.date).getFullYear() === currentYear);
@@ -620,7 +638,7 @@ const VirtualStationModule = {
                 monthly[m] += tot;
             });
 
-            new Chart(ctxTrend, {
+            this.chartInstances.trend = new Chart(ctxTrend, {
                 type: 'line',
                 data: {
                     labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],

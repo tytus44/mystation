@@ -4,11 +4,22 @@ const mainContent = document.getElementById('main-content');
 
 /* INIZIO INIZIALIZZAZIONE */
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("--> Applicazione: Avvio...");
+    
     initTheme();
     initFullscreen();
     initNavigation();
     initHeaderActions();
     initGlobalModal(); // Gestione chiusura modale
+
+    // INIZIALIZZAZIONE AGENDA
+    // Controlliamo se il modulo è stato caricato e lo avviamo
+    if (typeof window.AgendaModule !== 'undefined') {
+        console.log("--> Applicazione: Avvio AgendaModule...");
+        window.AgendaModule.init();
+    } else {
+        console.warn("--> Applicazione: AgendaModule non trovato.");
+    }
 
     lucide.createIcons();
     loadSection('home');
@@ -113,6 +124,7 @@ function exportGeneralBackup() {
                 priceHistory: JSON.parse(localStorage.getItem('polaris_price_history') || '[]'),
                 lastPrices: JSON.parse(localStorage.getItem('polaris_last_prices') || 'null'),
                 competitors: JSON.parse(localStorage.getItem('polaris_competitors') || 'null'),
+                agenda: JSON.parse(localStorage.getItem('polaris_agenda') || '[]'), // BACKUP AGENDA
                 theme: localStorage.getItem('polaris_theme')
             }
         };
@@ -131,7 +143,6 @@ function importGeneralBackup(e) {
             const json = JSON.parse(ev.target.result);
             if (!json.data) throw new Error("Formato non valido");
 
-            // Modale di conferma custom per il ripristino
             const bodyHTML = `
                 <div style="text-align:center; padding:20px;">
                     <i data-lucide="alert-triangle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:15px;"></i>
@@ -154,11 +165,10 @@ function importGeneralBackup(e) {
                     if(d.priceHistory) localStorage.setItem('polaris_price_history', JSON.stringify(d.priceHistory));
                     if(d.lastPrices) localStorage.setItem('polaris_last_prices', JSON.stringify(d.lastPrices));
                     if(d.competitors) localStorage.setItem('polaris_competitors', JSON.stringify(d.competitors));
+                    if(d.agenda) localStorage.setItem('polaris_agenda', JSON.stringify(d.agenda)); // RIPRISTINO AGENDA
                     if(d.theme) localStorage.setItem('polaris_theme', d.theme);
                     
                     window.closeModal();
-                    // Usiamo un alert nativo rapido o la nuova modale (qui modale)
-                    // Ma dato che ricarichiamo subito, meglio reload diretto
                     location.reload();
                 };
             }, 0);
@@ -312,4 +322,3 @@ window.showNotification = function(message, type = 'info') {
     // Apre modale piccola
     window.openModal('', bodyHTML, footerHTML, '400px');
 };
-/* FINE APPLICAZIONE */
