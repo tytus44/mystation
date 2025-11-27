@@ -14,6 +14,14 @@ const PrezziModule = {
         this.currentPage = 1;
         this.render();
         this.setupModalListeners();
+
+        // Listener globale per chiusura Datepicker
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.datepicker-container')) {
+                const w = document.getElementById('custom-datepicker-prezzi');
+                if (w && w.classList.contains('show')) w.classList.remove('show');
+            }
+        });
     },
 
     // 1. RENDER DASHBOARD
@@ -359,19 +367,49 @@ const PrezziModule = {
 
     // --- MODALI ---
 
-    openNewListinoModal: function(idToEdit = null) {
+openNewListinoModal: function(idToEdit = null) {
         this.editingId = idToEdit;
         let title = idToEdit ? "Modifica Listino" : "Nuovo Listino Prezzi";
         let btnText = idToEdit ? "AGGIORNA" : "SALVA";
         let ex = idToEdit ? this.getPriceHistory().find(h => h.id === idToEdit) : null;
+        
+        // Date default e Note
+        let dateVal = ex ? ex.date.split('T')[0] : new Date().toISOString().split('T')[0];
+        let notesVal = ex ? (ex.notes || '') : '';
 
-        const bodyHTML = `
+const bodyHTML = `
             <form id="form-prezzi">
-                <p class="modal-desc">Inserisci prezzo base (4 cifre).</p>
-                <div class="price-input-grid">
+                <div class="price-input-grid" style="margin-bottom: 20px; align-items: end;">
+                    <div>
+                        <label>Data Listino</label>
+                        <div class="datepicker-container" style="position: relative;">
+                            <input type="date" id="inp-date-listino" value="${dateVal}" class="nav-link no-icon" style="position:absolute; opacity:0; pointer-events:none;">
+                            
+                            <button type="button" id="date-trigger-listino" class="dropdown-trigger" onclick="PrezziModule.toggleDatepicker(event)" 
+                                style="height: 46px; display: flex; align-items: center;">
+                                <span id="date-display-listino">${this.formatDateIT(dateVal)}</span>
+                                <i data-lucide="calendar" style="width:16px;"></i>
+                            </button>
+                            
+                            <div id="custom-datepicker-prezzi" class="datepicker-wrapper"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Annotazioni</label>
+                        <input type="text" id="inp-notes" class="nav-link" value="${notesVal}" placeholder="..." 
+                            style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input); height: 46px;">
+                    </div>
+                </div>
+
+                <p class="modal-desc" style="margin-bottom:15px;">Inserisci prezzo base (4 cifre).</p>
+                
+                <div class="price-input-grid" style="margin-bottom: 20px;">
                     ${this.generateInputHTML('Benzina', 'benzina', 'var(--col-benzina)')}
-                    ${this.generateInputHTML('Gasolio', 'gasolio', 'var(--col-gasolio)')}
                     ${this.generateInputHTML('Diesel+', 'dieselplus', 'var(--col-dieselplus)')}
+                </div>
+
+                <div class="price-input-grid" style="margin-bottom: 20px;">
+                    ${this.generateInputHTML('Gasolio', 'gasolio', 'var(--col-gasolio)')}
                     ${this.generateInputHTML('HVO', 'hvo', 'var(--col-hvolution)')}
                 </div>
                 
@@ -380,7 +418,7 @@ const PrezziModule = {
                 </div>
             </form>
         `;
-
+        
         const footerHTML = `
             <div class="btn-group">
                 <button type="button" id="btn-cancel-modal" class="action-btn btn-cancel">ANNULLA</button>
@@ -388,7 +426,6 @@ const PrezziModule = {
             </div>
         `;
         
-        // Passiamo 450px per una modale più stretta
         this.openModal(title, bodyHTML, footerHTML, '550px');
         this.attachInputListeners();
         
@@ -442,7 +479,6 @@ const PrezziModule = {
             </div>
         `;
 
-        // Passiamo 500px per una modale leggermente più larga
         this.openModal('Rilevazione Concorrenza', bodyHTML, footerHTML, '600px');
         this.attachInputListeners();
         
@@ -507,6 +543,9 @@ const PrezziModule = {
     
     saveListino: function() {
         try {
+            const dateInp = document.getElementById('inp-date-listino').value;
+            if (!dateInp) { showNotification("Inserisci una data valida!", 'error'); return; }
+
             const products = ['benzina', 'gasolio', 'dieselplus', 'hvo', 'adblue'];
             const pricesObj = {};
             let isValid = true;
@@ -517,20 +556,30 @@ const PrezziModule = {
                 let served = self + (prod === 'adblue' ? 0 : this.SURCHARGE_SERVED);
                 pricesObj[prod] = { base: base, self: self.toFixed(3), served: served.toFixed(3) };
             });
+            
             if (!isValid) { showNotification("Compila tutti i campi!", 'error'); return; }
+            
             const history = this.getPriceHistory();
+            const isoDate = new Date(dateInp).toISOString();
+
             if (this.editingId) {
                 const idx = history.findIndex(h => h.id === this.editingId);
-                if (idx !== -1) history[idx].prices = pricesObj;
+                if (idx !== -1) {
+                    history[idx].prices = pricesObj;
+                    history[idx].date = isoDate; // Update date on edit
+                }
                 showNotification("Listino aggiornato!", 'success');
             } else {
-                history.push({ id: Date.now().toString(), date: new Date().toISOString(), prices: pricesObj });
+                history.push({ id: Date.now().toString(), date: isoDate, prices: pricesObj });
                 showNotification("Nuovo listino salvato!", 'success');
             }
             localStorage.setItem('polaris_price_history', JSON.stringify(history));
+            
             const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
             if(sorted.length > 0) localStorage.setItem('polaris_last_prices', JSON.stringify(sorted[0]));
-            this.closeModal(); this.render();
+            
+            this.closeModal(); 
+            this.render();
         } catch(e) { console.error(e); showNotification("Errore salvataggio.", 'error'); }
     },
     
@@ -582,6 +631,70 @@ const PrezziModule = {
     getCompetitors: function() { try { const d = localStorage.getItem('polaris_competitors'); return d ? JSON.parse(d) : null; } catch (e) { return null; } },
     normalizePriceEntry: function(e) { if(e.prices) return e; return { id: e.id||Date.now().toString(), date: e.date, prices: { benzina: this.calculateMargins(e.benzina), gasolio: this.calculateMargins(e.gasolio), dieselplus: this.calculateMargins(e.dieselPlus), hvo: this.calculateMargins(e.hvolution), adblue: this.calculateMargins(e.adblue, true) } }; },
     normalizeCompetitorEntry: function(e) { if(e.myoil && e.myoil.bz!==undefined) return e; return { date: e.date, notes:e.notes||'', myoil:{bz:e.myoil?.benzina||0, ds:e.myoil?.gasolio||0}, esso:{bz:e.esso?.benzina||0, ds:e.esso?.gasolio||0}, q8:{bz:e.q8?.benzina||0, ds:e.q8?.gasolio||0} }; },
-    calculateMargins: function(b, f=false) { const v=parseFloat(b)||0; if(f) return {base:v, self:v.toFixed(3), served:v.toFixed(3)}; return {base:v, self:(v+this.SURCHARGE_SELF).toFixed(3), served:(v+this.SURCHARGE_SELF+this.SURCHARGE_SERVED).toFixed(3)}; }
+    calculateMargins: function(b, f=false) { const v=parseFloat(b)||0; if(f) return {base:v, self:v.toFixed(3), served:v.toFixed(3)}; return {base:v, self:(v+this.SURCHARGE_SELF).toFixed(3), served:(v+this.SURCHARGE_SELF+this.SURCHARGE_SERVED).toFixed(3)}; },
+
+    // --- DATEPICKER LOGIC (Replicata per isolamento) ---
+    toggleDatepicker: function(e) {
+        e.stopPropagation();
+        const w = document.getElementById('custom-datepicker-prezzi');
+        if (w.classList.contains('show')) { w.classList.remove('show'); return; }
+        document.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+        w.classList.add('show');
+        const curDate = new Date(document.getElementById('inp-date-listino').value);
+        this.renderCalendar(curDate.getFullYear(), curDate.getMonth());
+    },
+
+    renderCalendar: function(y, m) {
+        const w = document.getElementById('custom-datepicker-prezzi');
+        const ms = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        const ds = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+        const fd = new Date(y, m, 1).getDay();
+        const afd = fd === 0 ? 6 : fd - 1;
+        const dim = new Date(y, m+1, 0).getDate();
+        
+        let html = `
+            <div class="datepicker-header">
+                <button type="button" class="datepicker-nav" onclick="PrezziModule.changeMonth(${m-1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-left" style="width:16px;"></i></button>
+                <div class="datepicker-title">${ms[m]} ${y}</div>
+                <button type="button" class="datepicker-nav" onclick="PrezziModule.changeMonth(${m+1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-right" style="width:16px;"></i></button>
+            </div>
+            <div class="datepicker-grid">
+                ${ds.map(d=>`<div class="datepicker-day-label">${d}</div>`).join('')}
+        `;
+        
+        for(let i=0; i<afd; i++) html+=`<div class="datepicker-day empty"></div>`;
+        
+        const sd = new Date(document.getElementById('inp-date-listino').value);
+        const today = new Date();
+        
+        for(let i=1; i<=dim; i++) {
+            let cls = 'datepicker-day';
+            if(i===today.getDate() && m===today.getMonth() && y===today.getFullYear()) cls+=' today';
+            if(i===sd.getDate() && m===sd.getMonth() && y===sd.getFullYear()) cls+=' selected';
+            html+=`<div class="${cls}" onclick="PrezziModule.selectDate(${y},${m},${i}); event.stopPropagation();">${i}</div>`;
+        }
+        
+        html+='</div>';
+        w.innerHTML = html;
+        lucide.createIcons();
+    },
+
+    changeMonth: function(m, y) {
+        if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; }
+        this.renderCalendar(y, m);
+    },
+
+    selectDate: function(y, m, d) {
+        const fmt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        document.getElementById('inp-date-listino').value = fmt;
+        document.getElementById('date-display-listino').innerText = this.formatDateIT(fmt);
+        document.getElementById('custom-datepicker-prezzi').classList.remove('show');
+    },
+
+    formatDateIT: function(iso) {
+        if(!iso) return '';
+        const d=new Date(iso);
+        return d.toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'});
+    }
 };
 /* FINE MODULO PREZZI */
