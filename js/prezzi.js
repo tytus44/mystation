@@ -13,7 +13,7 @@ const PrezziModule = {
     init: function() {
         this.currentPage = 1;
         this.render();
-        this.setupModalListeners();
+        // setupModalListeners rimosso: gestito globalmente
 
         // Listener globale per chiusura Datepicker
         document.addEventListener('click', (e) => {
@@ -367,37 +367,32 @@ const PrezziModule = {
 
     // --- MODALI ---
 
-openNewListinoModal: function(idToEdit = null) {
+    openNewListinoModal: function(idToEdit = null) {
         this.editingId = idToEdit;
         let title = idToEdit ? "Modifica Listino" : "Nuovo Listino Prezzi";
         let btnText = idToEdit ? "AGGIORNA" : "SALVA";
         let ex = idToEdit ? this.getPriceHistory().find(h => h.id === idToEdit) : null;
         
-        // Date default e Note
         let dateVal = ex ? ex.date.split('T')[0] : new Date().toISOString().split('T')[0];
         let notesVal = ex ? (ex.notes || '') : '';
 
-const bodyHTML = `
+        const bodyHTML = `
             <form id="form-prezzi">
                 <div class="price-input-grid" style="margin-bottom: 20px; align-items: end;">
                     <div>
                         <label>Data Listino</label>
                         <div class="datepicker-container" style="position: relative;">
                             <input type="date" id="inp-date-listino" value="${dateVal}" class="nav-link no-icon" style="position:absolute; opacity:0; pointer-events:none;">
-                            
-                            <button type="button" id="date-trigger-listino" class="dropdown-trigger" onclick="PrezziModule.toggleDatepicker(event)" 
-                                style="height: 46px; display: flex; align-items: center;">
+                            <button type="button" id="date-trigger-listino" class="dropdown-trigger" onclick="PrezziModule.toggleDatepicker(event)" style="height: 46px; display: flex; align-items: center;">
                                 <span id="date-display-listino">${this.formatDateIT(dateVal)}</span>
                                 <i data-lucide="calendar" style="width:16px;"></i>
                             </button>
-                            
                             <div id="custom-datepicker-prezzi" class="datepicker-wrapper"></div>
                         </div>
                     </div>
                     <div>
                         <label>Annotazioni</label>
-                        <input type="text" id="inp-notes" class="nav-link" value="${notesVal}" placeholder="..." 
-                            style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input); height: 46px;">
+                        <input type="text" id="inp-notes" class="nav-link" value="${notesVal}" placeholder="Es. Aumento accise..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input); height: 46px;">
                     </div>
                 </div>
 
@@ -418,7 +413,7 @@ const bodyHTML = `
                 </div>
             </form>
         `;
-        
+
         const footerHTML = `
             <div class="btn-group">
                 <button type="button" id="btn-cancel-modal" class="action-btn btn-cancel">ANNULLA</button>
@@ -426,7 +421,7 @@ const bodyHTML = `
             </div>
         `;
         
-        this.openModal(title, bodyHTML, footerHTML, '550px');
+        window.openModal(title, bodyHTML, footerHTML, '550px');
         this.attachInputListeners();
         
         if (ex) {
@@ -439,7 +434,7 @@ const bodyHTML = `
 
         setTimeout(() => {
             document.getElementById('btn-save-prices').addEventListener('click', () => this.saveListino());
-            document.getElementById('btn-cancel-modal').addEventListener('click', () => this.closeModal());
+            document.getElementById('btn-cancel-modal').addEventListener('click', () => window.closeModal());
         }, 0);
     },
 
@@ -479,7 +474,7 @@ const bodyHTML = `
             </div>
         `;
 
-        this.openModal('Rilevazione Concorrenza', bodyHTML, footerHTML, '600px');
+        window.openModal('Rilevazione Concorrenza', bodyHTML, footerHTML, '600px');
         this.attachInputListeners();
         
         if (lastComp) {
@@ -493,45 +488,13 @@ const bodyHTML = `
         
         setTimeout(() => {
             document.getElementById('btn-save-competitor').addEventListener('click', () => this.saveCompetitor());
-            document.getElementById('btn-cancel-comp').addEventListener('click', () => this.closeModal());
+            document.getElementById('btn-cancel-comp').addEventListener('click', () => window.closeModal());
         }, 0);
     },
 
     // --- HELPER MODALI E SETUP ---
     setupModalListeners: function() {
-        const modal = document.getElementById('modal-overlay');
-        const closeBtn = document.getElementById('modal-close');
-        if(closeBtn) closeBtn.addEventListener('click', () => { modal.classList.add('hidden'); this.editingId = null; });
-    },
-
-    openModal: function(title, bodyHTML, footerHTML = '', maxWidth = '600px') {
-        const modal = document.getElementById('modal-overlay');
-        const modalBox = document.querySelector('.modal-box');
-        const modalBody = document.getElementById('modal-body');
-        
-        document.getElementById('modal-title').innerText = title;
-        modalBody.innerHTML = bodyHTML;
-        
-        // Larghezza dinamica
-        modalBox.style.maxWidth = maxWidth;
-
-        const oldFooter = modalBox.querySelector('.modal-footer');
-        if (oldFooter) oldFooter.remove();
-
-        if (footerHTML) {
-            const footerContainer = document.createElement('div');
-            footerContainer.className = 'modal-footer';
-            footerContainer.innerHTML = footerHTML;
-            modalBox.appendChild(footerContainer);
-        }
-
-        modal.classList.remove('hidden');
-        lucide.createIcons();
-    },
-
-    closeModal: function() {
-        document.getElementById('modal-overlay').classList.add('hidden');
-        this.editingId = null;
+        // Rimosso, gestito globalmente
     },
 
     // --- HELPER GENERICI ---
@@ -544,6 +507,8 @@ const bodyHTML = `
     saveListino: function() {
         try {
             const dateInp = document.getElementById('inp-date-listino').value;
+            const notesInp = document.getElementById('inp-notes').value.trim();
+
             if (!dateInp) { showNotification("Inserisci una data valida!", 'error'); return; }
 
             const products = ['benzina', 'gasolio', 'dieselplus', 'hvo', 'adblue'];
@@ -566,11 +531,12 @@ const bodyHTML = `
                 const idx = history.findIndex(h => h.id === this.editingId);
                 if (idx !== -1) {
                     history[idx].prices = pricesObj;
-                    history[idx].date = isoDate; // Update date on edit
+                    history[idx].date = isoDate;
+                    history[idx].notes = notesInp;
                 }
                 showNotification("Listino aggiornato!", 'success');
             } else {
-                history.push({ id: Date.now().toString(), date: isoDate, prices: pricesObj });
+                history.push({ id: Date.now().toString(), date: isoDate, notes: notesInp, prices: pricesObj });
                 showNotification("Nuovo listino salvato!", 'success');
             }
             localStorage.setItem('polaris_price_history', JSON.stringify(history));
@@ -578,7 +544,7 @@ const bodyHTML = `
             const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
             if(sorted.length > 0) localStorage.setItem('polaris_last_prices', JSON.stringify(sorted[0]));
             
-            this.closeModal(); 
+            window.closeModal(); 
             this.render();
         } catch(e) { console.error(e); showNotification("Errore salvataggio.", 'error'); }
     },
@@ -590,7 +556,7 @@ const bodyHTML = `
             const h = JSON.parse(localStorage.getItem('polaris_competitors_history') || '[]'); h.push(data);
             localStorage.setItem('polaris_competitors_history', JSON.stringify(h));
             showNotification("Concorrenza aggiornata!", 'success');
-            this.closeModal(); this.render();
+            window.closeModal(); this.render();
         } catch(e) { console.error(e); showNotification("Errore salvataggio.", 'error'); }
     },
     
@@ -633,7 +599,7 @@ const bodyHTML = `
     normalizeCompetitorEntry: function(e) { if(e.myoil && e.myoil.bz!==undefined) return e; return { date: e.date, notes:e.notes||'', myoil:{bz:e.myoil?.benzina||0, ds:e.myoil?.gasolio||0}, esso:{bz:e.esso?.benzina||0, ds:e.esso?.gasolio||0}, q8:{bz:e.q8?.benzina||0, ds:e.q8?.gasolio||0} }; },
     calculateMargins: function(b, f=false) { const v=parseFloat(b)||0; if(f) return {base:v, self:v.toFixed(3), served:v.toFixed(3)}; return {base:v, self:(v+this.SURCHARGE_SELF).toFixed(3), served:(v+this.SURCHARGE_SELF+this.SURCHARGE_SERVED).toFixed(3)}; },
 
-    // --- DATEPICKER LOGIC (Replicata per isolamento) ---
+    // --- DATEPICKER LOGIC ---
     toggleDatepicker: function(e) {
         e.stopPropagation();
         const w = document.getElementById('custom-datepicker-prezzi');

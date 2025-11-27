@@ -1,7 +1,7 @@
 /* INIZIO MODULO VIRTUAL STATION */
 const VirtualStationModule = {
     ITEMS_PER_PAGE: 10,
-    chartInstances: {}, // Qui salviamo i riferimenti ai grafici attivi
+    chartInstances: {}, 
     currentPage: 1,
     currentFilter: 'month',
     editingId: null,
@@ -18,7 +18,7 @@ const VirtualStationModule = {
         this.currentPage = 1;
         this.currentFilter = `month-${new Date().getMonth()}`;
         this.render();
-        this.setupModalListeners();
+        // setupModalListeners rimosso: gestito globalmente
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
                 document.querySelectorAll('.dropdown-content.show').forEach(d => d.classList.remove('show'));
@@ -56,14 +56,14 @@ const VirtualStationModule = {
     deleteTurno: function(id) {
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="trash-2" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Eliminare questo turno?</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-del" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-del" class="action-btn btn-delete">ELIMINA</button></div>`;
-        this.openModal('Conferma', bodyHTML, footerHTML, '400px');
+        window.openModal('Conferma', bodyHTML, footerHTML, '400px');
         setTimeout(() => {
-            document.getElementById('btn-cancel-del').onclick = () => this.closeModal();
+            document.getElementById('btn-cancel-del').onclick = () => window.closeModal();
             document.getElementById('btn-confirm-del').onclick = () => {
                 const all = this.getTurni().filter(t => t.id !== id);
                 localStorage.setItem('polaris_turni', JSON.stringify(all));
                 window.showNotification("Turno eliminato", 'info');
-                this.closeModal();
+                window.closeModal();
                 this.render();
             };
         }, 0);
@@ -78,17 +78,17 @@ const VirtualStationModule = {
                 const json = JSON.parse(ev.target.result);
                 const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-triangle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Sovrascrivere i dati esistenti?</p></div>`;
                 const footerHTML = `<div class="btn-group"><button id="btn-cancel-imp" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-imp" class="action-btn btn-delete">IMPORTA</button></div>`;
-                this.openModal('Importazione', bodyHTML, footerHTML, '400px');
+                window.openModal('Importazione', bodyHTML, footerHTML, '400px');
                 setTimeout(() => {
                     document.getElementById('btn-cancel-imp').onclick = () => {
-                        this.closeModal();
+                        window.closeModal();
                         e.target.value = '';
                     };
                     document.getElementById('btn-confirm-imp').onclick = () => {
                         const data = Array.isArray(json) ? json : (json.turni || []);
                         localStorage.setItem('polaris_turni', JSON.stringify(data));
                         window.showNotification("Importazione riuscita", 'success');
-                        this.closeModal();
+                        window.closeModal();
                         this.render();
                         e.target.value = '';
                     };
@@ -109,22 +109,12 @@ const VirtualStationModule = {
         let turnoVal = ex ? ex.turno : 'Notte';
         const turniOptions = ['Notte', 'Mattina', 'Pausa', 'Pomeriggio', 'Weekend', 'Riepilogo Mensile'];
 
-        // Creazione HTML Prodotti con Logica AdBlue Esclusiva
+        // Creazione HTML Prodotti
         const productsHTML = this.products.map(p => {
             const isAdBlue = p.id === 'adblue';
-
-            // Campo Fai Da Te: Vuoto se AdBlue, altrimenti input
-            const fdtHtml = isAdBlue ?
-                `<div style="background:var(--bg-app); border-radius:var(--radius-input); opacity:0.3;"></div>` :
-                `<input type="number" step="1" class="price-square inp-fdt" data-prod="${p.id}" placeholder="0" style="width: 100%; height: 40px; font-size: 1rem;">`;
-
-            // Campo Servito: Sempre presente
+            const fdtHtml = isAdBlue ? `<div style="background:var(--bg-app); border-radius:var(--radius-input); opacity:0.3;"></div>` : `<input type="number" step="1" class="price-square inp-fdt" data-prod="${p.id}" placeholder="0" style="width: 100%; height: 40px; font-size: 1rem;">`;
             const servHtml = `<input type="number" step="1" class="price-square inp-servito" data-prod="${p.id}" placeholder="0" style="width: 100%; height: 40px; font-size: 1rem;">`;
-
-            // Campo Iperself: Vuoto se AdBlue, altrimenti input
-            const prepayHtml = isAdBlue ?
-                `<div style="background:var(--bg-app); border-radius:var(--radius-input); opacity:0.3;"></div>` :
-                `<input type="number" step="1" class="price-square inp-prepay" data-prod="${p.id}" placeholder="0" style="width: 100%; height: 40px; font-size: 1rem;">`;
+            const prepayHtml = isAdBlue ? `<div style="background:var(--bg-app); border-radius:var(--radius-input); opacity:0.3;"></div>` : `<input type="number" step="1" class="price-square inp-prepay" data-prod="${p.id}" placeholder="0" style="width: 100%; height: 40px; font-size: 1rem;">`;
 
             return `
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; align-items: center;">
@@ -176,15 +166,13 @@ const VirtualStationModule = {
             </form>`;
 
         const footerHTML = `<div class="btn-group"><button type="button" id="btn-cancel-turno" class="action-btn btn-cancel">ANNULLA</button><button type="button" id="btn-save-turno" class="action-btn btn-save">${btnText}</button></div>`;
-        this.openModal(title, bodyHTML, footerHTML, '600px');
+        window.openModal(title, bodyHTML, footerHTML, '600px');
         const selTurno = document.getElementById('inp-turno-val');
         this.updateInputState(turnoVal);
 
-        // Popolamento dati (Con controllo esistenza elemento)
         if (ex) {
             this.products.forEach(p => {
                 const pid = p.id;
-                // Nota: In inputsHTML alcuni input potrebbero non esistere (AdBlue Fdt/Prepay)
                 const inpPrepay = document.querySelector(`.inp-prepay[data-prod="${pid}"]`);
                 const inpServito = document.querySelector(`.inp-servito[data-prod="${pid}"]`);
                 const inpFdt = document.querySelector(`.inp-fdt[data-prod="${pid}"]`);
@@ -197,17 +185,14 @@ const VirtualStationModule = {
 
         setTimeout(() => {
             document.getElementById('btn-save-turno').addEventListener('click', () => this.saveTurno());
-            document.getElementById('btn-cancel-turno').addEventListener('click', () => this.closeModal());
+            document.getElementById('btn-cancel-turno').addEventListener('click', () => window.closeModal());
         }, 0);
     },
 
     toggleDatepicker: function(e) {
         e.stopPropagation();
         const wrapper = document.getElementById('custom-datepicker');
-        if (wrapper.classList.contains('show')) {
-            wrapper.classList.remove('show');
-            return;
-        }
+        if (wrapper.classList.contains('show')) { wrapper.classList.remove('show'); return; }
         document.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
         wrapper.classList.add('show');
         const curDate = new Date(document.getElementById('inp-date').value);
@@ -236,118 +221,48 @@ const VirtualStationModule = {
         lucide.createIcons();
     },
 
-    changeMonth: function(m, y) {
-        if (m < 0) {
-            m = 11;
-            y--;
-        } else if (m > 11) {
-            m = 0;
-            y++;
-        }
-        this.renderCalendar(y, m);
-    },
-
+    changeMonth: function(m, y) { if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; } this.renderCalendar(y, m); },
     selectDate: function(y, m, d) {
         const fmt = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         document.getElementById('inp-date').value = fmt;
         document.getElementById('date-display').innerText = this.formatDateIT(fmt);
         document.getElementById('custom-datepicker').classList.remove('show');
     },
-
-    formatDateIT: function(iso) {
-        if (!iso) return '';
-        const d = new Date(iso);
-        return d.toLocaleDateString('it-IT', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    },
-
-    selectTurno: function(val) {
-        document.getElementById('inp-turno-val').value = val;
-        document.getElementById('inp-turno-text').innerText = val;
-        document.getElementById('turno-list').classList.remove('show');
-        this.updateInputState(val);
-    },
-
+    formatDateIT: function(iso) { if (!iso) return ''; const d = new Date(iso); return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' }); },
+    selectTurno: function(val) { document.getElementById('inp-turno-val').value = val; document.getElementById('inp-turno-text').innerText = val; document.getElementById('turno-list').classList.remove('show'); this.updateInputState(val); },
     updateInputState: function(turnoType) {
         const inputsPrepay = document.querySelectorAll('.inp-prepay');
         const inputsServito = document.querySelectorAll('.inp-servito');
         const inputsFdt = document.querySelectorAll('.inp-fdt');
-
-        [...inputsPrepay, ...inputsServito, ...inputsFdt].forEach(i => {
-            i.disabled = false;
-            i.style.opacity = '1';
-            i.style.backgroundColor = 'var(--bg-app)';
-        });
-
+        [...inputsPrepay, ...inputsServito, ...inputsFdt].forEach(i => { i.disabled = false; i.style.opacity = '1'; i.style.backgroundColor = 'var(--bg-app)'; });
         if (turnoType === 'Notte' || turnoType === 'Pausa' || turnoType === 'Weekend') {
-            [...inputsServito, ...inputsFdt].forEach(i => {
-                i.disabled = true;
-                i.style.opacity = '0.5';
-                i.style.backgroundColor = 'var(--border-color)';
-                i.value = '';
-            });
+            [...inputsServito, ...inputsFdt].forEach(i => { i.disabled = true; i.style.opacity = '0.5'; i.style.backgroundColor = 'var(--border-color)'; i.value = ''; });
         } else if (turnoType === 'Mattina' || turnoType === 'Pomeriggio') {
-            inputsPrepay.forEach(i => {
-                i.disabled = true;
-                i.style.opacity = '0.5';
-                i.style.backgroundColor = 'var(--border-color)';
-                i.value = '';
-            });
+            inputsPrepay.forEach(i => { i.disabled = true; i.style.opacity = '0.5'; i.style.backgroundColor = 'var(--border-color)'; i.value = ''; });
         }
     },
-
     saveTurno: function() {
         const date = document.getElementById('inp-date').value;
         const turno = document.getElementById('inp-turno-val').value;
-        if (!date) {
-            showNotification("Inserisci una data", 'error');
-            return;
-        }
-
-        const prepay = {},
-            servito = {},
-            fdt = {};
-        
+        if (!date) { showNotification("Inserisci una data", 'error'); return; }
+        const prepay = {}, servito = {}, fdt = {};
         this.products.forEach(p => {
             const pid = p.id;
-            // Selettori sicuri: se l'input non esiste (es. AdBlue Fdt/Prepay), restituisce null
             const inpPrepay = document.querySelector(`.inp-prepay[data-prod="${pid}"]`);
             const inpServito = document.querySelector(`.inp-servito[data-prod="${pid}"]`);
             const inpFdt = document.querySelector(`.inp-fdt[data-prod="${pid}"]`);
-
-            // Se l'input esiste leggo il valore, altrimenti 0
             prepay[pid] = inpPrepay ? (parseFloat(inpPrepay.value) || 0) : 0;
             servito[pid] = inpServito ? (parseFloat(inpServito.value) || 0) : 0;
             fdt[pid] = inpFdt ? (parseFloat(inpFdt.value) || 0) : 0;
         });
-
         const allTurni = this.getTurni();
-        const newEntry = {
-            id: this.editingId || Date.now().toString(),
-            date: new Date(date).toISOString(),
-            turno: turno,
-            prepay,
-            servito,
-            fdt
-        };
-
-        if (this.editingId) {
-            const idx = allTurni.findIndex(t => t.id === this.editingId);
-            if (idx !== -1) allTurni[idx] = newEntry;
-            showNotification("Turno aggiornato", 'success');
-        } else {
-            allTurni.push(newEntry);
-            showNotification("Turno salvato", 'success');
-        }
-
+        const newEntry = { id: this.editingId || Date.now().toString(), date: new Date(date).toISOString(), turno: turno, prepay, servito, fdt };
+        if (this.editingId) { const idx = allTurni.findIndex(t => t.id === this.editingId); if (idx !== -1) allTurni[idx] = newEntry; showNotification("Turno aggiornato", 'success'); } 
+        else { allTurni.push(newEntry); showNotification("Turno salvato", 'success'); }
         localStorage.setItem('polaris_turni', JSON.stringify(allTurni));
-        this.closeModal();
+        window.closeModal();
         this.render();
     },
-
     attachMainListeners: function() {
         document.getElementById('btn-new-turno').addEventListener('click', () => this.openTurnoModal());
         document.getElementById('btn-vs-export').addEventListener('click', () => this.exportData());
@@ -356,156 +271,71 @@ const VirtualStationModule = {
         fileInp.addEventListener('change', (e) => this.importData(e));
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
-        if (btnPrev) btnPrev.addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-                this.render();
-            }
-        });
-        if (btnNext) btnNext.addEventListener('click', () => {
-            const tot = this.getFilteredTurni().length;
-            if (this.currentPage * this.ITEMS_PER_PAGE < tot) {
-                this.currentPage++;
-                this.render();
-            }
-        });
+        if (btnPrev) btnPrev.addEventListener('click', () => { if (this.currentPage > 1) { this.currentPage--; this.render(); } });
+        if (btnNext) btnNext.addEventListener('click', () => { const tot = this.getFilteredTurni().length; if (this.currentPage * this.ITEMS_PER_PAGE < tot) { this.currentPage++; this.render(); } });
     },
-
-    exportData: function() {
-        try {
-            const data = this.getTurni();
-            const a = document.createElement('a');
-            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-            a.download = "polaris_virtualstation.json";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        } catch (e) {
-            showNotification("Errore Export", 'error');
-        }
-    },
-
-    getTurni: function() {
-        try {
-            return JSON.parse(localStorage.getItem('polaris_turni') || '[]');
-        } catch (e) {
-            return [];
-        }
-    },
-
+    exportData: function() { try { const data = this.getTurni(); const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); a.download = "polaris_virtualstation.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { showNotification("Errore Export", 'error'); } },
+    getTurni: function() { try { return JSON.parse(localStorage.getItem('polaris_turni') || '[]'); } catch (e) { return []; } },
     getFilteredTurni: function() {
         const all = this.getTurni();
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
-
         return all.filter(t => {
             const d = new Date(t.date);
             const dTime = d.getTime();
             if (this.currentFilter === 'today') return dTime >= startOfDay;
             if (this.currentFilter === 'year') return dTime >= startOfYear;
-            if (this.currentFilter.startsWith('month-')) {
-                const mIdx = parseInt(this.currentFilter.split('-')[1]);
-                return d.getFullYear() === now.getFullYear() && d.getMonth() === mIdx;
-            }
+            if (this.currentFilter.startsWith('month-')) { const mIdx = parseInt(this.currentFilter.split('-')[1]); return d.getFullYear() === now.getFullYear() && d.getMonth() === mIdx; }
             return true;
         }).sort((a, b) => new Date(b.date) - new Date(a.date));
     },
-
-    setFilter: function(filter) {
-        this.currentFilter = filter;
-        this.currentPage = 1;
-        this.render();
-    },
-
+    setFilter: function(filter) { this.currentFilter = filter; this.currentPage = 1; this.render(); },
     calculateStats: function(turni) {
-        let liters = 0,
-            revenue = 0,
-            servitoLiters = 0;
+        let liters = 0, revenue = 0, servitoLiters = 0;
         const priceHistory = JSON.parse(localStorage.getItem('polaris_price_history') || '[]');
         priceHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        const SUR_SELF = 0.005,
-            SUR_SERV = 0.225;
-
+        const SUR_SELF = 0.005, SUR_SERV = 0.225;
         turni.forEach(t => {
             const tDate = new Date(t.date);
             const pObj = priceHistory.find(p => new Date(p.date) <= tDate) || priceHistory[priceHistory.length - 1];
-            const prices = pObj ? pObj.prices : {
-                benzina: { base: 0 },
-                gasolio: { base: 0 },
-                dieselplus: { base: 0 },
-                hvo: { base: 0 },
-                adblue: { base: 0 }
-            };
-
+            const prices = pObj ? pObj.prices : { benzina: { base: 0 }, gasolio: { base: 0 }, dieselplus: { base: 0 }, hvo: { base: 0 }, adblue: { base: 0 } };
             this.products.forEach(p => {
                 const k = p.id;
                 const pp = parseFloat(t.prepay?.[k] || 0);
                 const sv = parseFloat(t.servito?.[k] || 0);
                 const fd = parseFloat(t.fdt?.[k] || 0);
                 const tot = pp + sv + fd;
-
-                liters += tot;
-                servitoLiters += sv;
-
+                liters += tot; servitoLiters += sv;
                 const base = parseFloat(prices[k]?.base || 0);
                 if (base > 0) {
                     if (k === 'adblue') revenue += tot * base;
-                    else {
-                        revenue += (pp + fd) * (base + SUR_SELF);
-                        revenue += sv * (base + SUR_SERV);
-                    }
+                    else { revenue += (pp + fd) * (base + SUR_SELF); revenue += sv * (base + SUR_SERV); }
                 }
             });
         });
-
-        return {
-            liters: Math.round(liters),
-            revenue,
-            servitoPerc: liters > 0 ? ((servitoLiters / liters) * 100).toFixed(1) : 0
-        };
+        return { liters: Math.round(liters), revenue, servitoPerc: liters > 0 ? ((servitoLiters / liters) * 100).toFixed(1) : 0 };
     },
-
     renderTable: function(turni) {
         if (turni.length === 0) return '<p class="placeholder-message">Nessun turno trovato per il periodo.</p>';
         const start = (this.currentPage - 1) * this.ITEMS_PER_PAGE;
         const end = start + this.ITEMS_PER_PAGE;
         const pageItems = turni.slice(start, end);
-
         let html = `<table class="table-prices"><thead><tr><th>Data</th><th>Turno</th><th class="text-gasolio">Gasolio</th><th class="text-dieselplus">Diesel+</th><th class="text-adblue">AdBlue</th><th class="text-benzina">Benzina</th><th class="text-hvolution">HVO</th><th>Totale L.</th><th>Azioni</th></tr></thead><tbody>`;
-
         pageItems.forEach(t => {
             const d = new Date(t.date).toLocaleDateString();
             const sum = (k) => (parseFloat(t.prepay?.[k] || 0) + parseFloat(t.servito?.[k] || 0) + parseFloat(t.fdt?.[k] || 0));
-            const bz = sum('benzina'),
-                gs = sum('gasolio'),
-                dp = sum('dieselplus'),
-                hv = sum('hvolution'),
-                ad = sum('adblue');
+            const bz = sum('benzina'), gs = sum('gasolio'), dp = sum('dieselplus'), hv = sum('hvolution'), ad = sum('adblue');
             const tot = bz + gs + dp + hv + ad;
-
             html += `
             <tr style="border-bottom: 1px dashed var(--border-color);">
-                <td style="padding: 12px; font-weight:500;">${d}</td>
-                <td style="padding: 12px;">${t.turno}</td>
-                <td style="padding: 12px;">${Math.round(gs)}</td>
-                <td style="padding: 12px;">${Math.round(dp)}</td>
-                <td style="padding: 12px;">${Math.round(ad)}</td>
-                <td style="padding: 12px;">${Math.round(bz)}</td>
-                <td style="padding: 12px;">${Math.round(hv)}</td>
-                <td style="padding: 12px; font-weight:bold;">${Math.round(tot)}</td>
-                <td style="padding: 12px; text-align: right;">
-                    <button class="icon-btn btn-edit" onclick="VirtualStationModule.openTurnoModal('${t.id}')" title="Modifica"><i data-lucide="pencil" style="width:16px;"></i></button>
-                    <button class="icon-btn btn-delete" onclick="VirtualStationModule.deleteTurno('${t.id}')" title="Elimina"><i data-lucide="trash-2" style="width:16px;"></i></button>
-                </td>
+                <td style="padding: 12px; font-weight:500;">${d}</td><td style="padding: 12px;">${t.turno}</td><td style="padding: 12px;">${Math.round(gs)}</td><td style="padding: 12px;">${Math.round(dp)}</td><td style="padding: 12px;">${Math.round(ad)}</td><td style="padding: 12px;">${Math.round(bz)}</td><td style="padding: 12px;">${Math.round(hv)}</td><td style="padding: 12px; font-weight:bold;">${Math.round(tot)}</td>
+                <td style="padding: 12px; text-align: right;"><button class="icon-btn btn-edit" onclick="VirtualStationModule.openTurnoModal('${t.id}')" title="Modifica"><i data-lucide="pencil" style="width:16px;"></i></button><button class="icon-btn btn-delete" onclick="VirtualStationModule.deleteTurno('${t.id}')" title="Elimina"><i data-lucide="trash-2" style="width:16px;"></i></button></td>
             </tr>`;
         });
-
         html += '</tbody></table>';
         return html;
     },
-
     renderPagination: function(totalItems) {
         if (totalItems <= this.ITEMS_PER_PAGE) return '';
         return `
@@ -517,201 +347,33 @@ const VirtualStationModule = {
                 </div>
             </div>`;
     },
-
     renderCharts: function(turni) {
-        // CHART MODE
         const ctxMode = document.getElementById('chartMode');
         if (ctxMode) {
-            // DESTROY EXISTING INSTANCE
-            if (this.chartInstances.mode) {
-                this.chartInstances.mode.destroy();
-            }
-
-            let iperself = 0,
-                servito = 0,
-                fdt = 0,
-                prepay = 0;
-            turni.forEach(t => {
-                this.products.forEach(p => {
-                    prepay += parseFloat(t.prepay?.[p.id] || 0);
-                    servito += parseFloat(t.servito?.[p.id] || 0);
-                    fdt += parseFloat(t.fdt?.[p.id] || 0);
-                });
-            });
+            if (this.chartInstances.mode) { this.chartInstances.mode.destroy(); }
+            let iperself = 0, servito = 0, fdt = 0, prepay = 0;
+            turni.forEach(t => { this.products.forEach(p => { prepay += parseFloat(t.prepay?.[p.id] || 0); servito += parseFloat(t.servito?.[p.id] || 0); fdt += parseFloat(t.fdt?.[p.id] || 0); }); });
             iperself = prepay;
-
-            this.chartInstances.mode = new Chart(ctxMode, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Iperself', 'Servito', 'Fai Da Te'],
-                    datasets: [{
-                        data: [iperself, servito, fdt],
-                        backgroundColor: ['#6AD2FF', '#4318FF', '#b1e426'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                boxWidth: 40,
-                                boxHeight: 12,
-                                useBorderRadius: true,
-                                borderRadius: 20
-                            }
-                        }
-                    }
-                }
-            });
+            this.chartInstances.mode = new Chart(ctxMode, { type: 'doughnut', data: { labels: ['Iperself', 'Servito', 'Fai Da Te'], datasets: [{ data: [iperself, servito, fdt], backgroundColor: ['#6AD2FF', '#4318FF', '#b1e426'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 40, boxHeight: 12, useBorderRadius: true, borderRadius: 20 } } } } });
         }
-
-        // CHART PRODUCTS
         const ctxProd = document.getElementById('chartProducts');
         if (ctxProd) {
-            // DESTROY EXISTING INSTANCE
-            if (this.chartInstances.products) {
-                this.chartInstances.products.destroy();
-            }
-
+            if (this.chartInstances.products) { this.chartInstances.products.destroy(); }
             const data = this.products.map(p => turni.reduce((acc, t) => acc + (parseFloat(t.prepay?.[p.id] || 0) + parseFloat(t.servito?.[p.id] || 0) + parseFloat(t.fdt?.[p.id] || 0)), 0));
             const bgColors = ['rgba(255, 104, 0, 0.6)', 'rgba(255, 0, 56, 0.6)', 'rgba(72, 31, 255, 0.6)', 'rgba(34, 197, 94, 0.6)', 'rgba(0, 203, 237, 0.6)'];
-
-            this.chartInstances.products = new Chart(ctxProd, {
-                type: 'bar',
-                data: {
-                    labels: this.products.map(p => p.label),
-                    datasets: [{
-                        label: 'Litri',
-                        data: data,
-                        backgroundColor: bgColors,
-                        borderWidth: 0,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                borderDash: [5, 5]
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
+            this.chartInstances.products = new Chart(ctxProd, { type: 'bar', data: { labels: this.products.map(p => p.label), datasets: [{ label: 'Litri', data: data, backgroundColor: bgColors, borderWidth: 0, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } });
         }
-
-        // CHART TREND
         const ctxTrend = document.getElementById('chartTrend');
         if (ctxTrend) {
-            // DESTROY EXISTING INSTANCE
-            if (this.chartInstances.trend) {
-                this.chartInstances.trend.destroy();
-            }
-
+            if (this.chartInstances.trend) { this.chartInstances.trend.destroy(); }
             const currentYear = new Date().getFullYear();
             const monthly = Array(12).fill(0);
             const allTurni = this.getTurni().filter(t => new Date(t.date).getFullYear() === currentYear);
-
-            allTurni.forEach(t => {
-                const m = new Date(t.date).getMonth();
-                let tot = 0;
-                this.products.forEach(p => {
-                    tot += (parseFloat(t.prepay?.[p.id] || 0) + parseFloat(t.servito?.[p.id] || 0) + parseFloat(t.fdt?.[p.id] || 0));
-                });
-                monthly[m] += tot;
-            });
-
-            this.chartInstances.trend = new Chart(ctxTrend, {
-                type: 'line',
-                data: {
-                    labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
-                    datasets: [{
-                        label: 'Vendite Mensili',
-                        data: monthly,
-                        borderColor: '#4318FF',
-                        backgroundColor: 'rgba(67, 24, 255, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                boxWidth: 40,
-                                boxHeight: 12,
-                                useBorderRadius: true,
-                                borderRadius: 20
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            grid: {
-                                borderDash: [5, 5]
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
+            allTurni.forEach(t => { const m = new Date(t.date).getMonth(); let tot = 0; this.products.forEach(p => { tot += (parseFloat(t.prepay?.[p.id] || 0) + parseFloat(t.servito?.[p.id] || 0) + parseFloat(t.fdt?.[p.id] || 0)); }); monthly[m] += tot; });
+            this.chartInstances.trend = new Chart(ctxTrend, { type: 'line', data: { labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'], datasets: [{ label: 'Vendite Mensili', data: monthly, borderColor: '#4318FF', backgroundColor: 'rgba(67, 24, 255, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 40, boxHeight: 12, useBorderRadius: true, borderRadius: 20 } } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } });
         }
     },
-
-    setupModalListeners: function() {
-        const cb = document.getElementById('modal-close');
-        if (cb) cb.addEventListener('click', () => this.closeModal());
-    },
-
-    openModal: function(title, bodyHTML, footerHTML, maxWidth = '600px') {
-        const modal = document.getElementById('modal-overlay');
-        const modalBox = document.querySelector('.modal-box');
-        const modalBody = document.getElementById('modal-body');
-        document.getElementById('modal-title').innerText = title;
-        modalBody.innerHTML = bodyHTML;
-        modalBox.style.maxWidth = maxWidth;
-
-        const oldF = modalBox.querySelector('.modal-footer');
-        if (oldF) oldF.remove();
-
-        if (footerHTML) {
-            const f = document.createElement('div');
-            f.className = 'modal-footer';
-            f.innerHTML = footerHTML;
-            modalBox.appendChild(f);
-        }
-        modal.classList.remove('hidden');
-        lucide.createIcons();
-    },
-
-    closeModal: function() {
-        document.getElementById('modal-overlay').classList.add('hidden');
-        this.editingId = null;
-    }
+    setupModalListeners: function() { const cb = document.getElementById('modal-close'); if (cb) cb.addEventListener('click', () => window.closeModal()); },
+    // Rimossa funzione locale openModal/closeModal
 };
 /* FINE MODULO VIRTUAL STATION */

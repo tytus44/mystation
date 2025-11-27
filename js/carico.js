@@ -14,8 +14,9 @@ const CaricoModule = {
     init: function() {
         this.currentPage = 1;
         this.render();
-        this.setupModalListeners();
+        // Nota: Non serve più setupModalListeners locale, gestisce tutto applicazione.js
 
+        // Listener specifico per chiudere il datepicker se clicco fuori
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.datepicker-container')) {
                 document.querySelectorAll('.datepicker-wrapper.show').forEach(d => d.classList.remove('show'));
@@ -164,7 +165,8 @@ const CaricoModule = {
             </div>
         `;
 
-        this.openModal(title, bodyHTML, footerHTML);
+        // USO window.openModal CON LARGHEZZA ESPLICITA 600px
+        window.openModal(title, bodyHTML, footerHTML, '600px');
 
         if (ex) {
             const form = document.getElementById('form-carico');
@@ -183,32 +185,20 @@ const CaricoModule = {
         setTimeout(() => {
             this.setupStepperListeners();
             document.getElementById('btn-save-carico').addEventListener('click', () => this.saveEntry());
-            document.getElementById('btn-cancel-carico').addEventListener('click', () => this.closeModal());
+            document.getElementById('btn-cancel-carico').addEventListener('click', () => window.closeModal());
         }, 0);
     },
 
-    // NUOVA FUNZIONE: Gestisce la logica dei pulsanti +/-
     setupStepperListeners: function() {
         const buttons = document.querySelectorAll('.step-btn');
-        
         buttons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // Trova l'input fratello
                 const wrapper = btn.closest('.input-stepper');
                 const input = wrapper.querySelector('input');
-                
-                // Leggi step e direzione
                 const step = parseInt(btn.dataset.step);
                 const isPlus = btn.classList.contains('plus');
-                
                 let currentVal = parseFloat(input.value) || 0;
-                
-                if (isPlus) {
-                    currentVal += step;
-                } else {
-                    currentVal -= step;
-                }
-                
+                if (isPlus) currentVal += step; else currentVal -= step;
                 input.value = currentVal;
             });
         });
@@ -347,7 +337,7 @@ const CaricoModule = {
     saveEntry: function() {
         const date = document.getElementById('inp-date').value;
         const driver = document.getElementById('inp-driver').value;
-        if (!date) { showNotification("Data obbligatoria", 'error'); return; }
+        if (!date) { window.showNotification("Data obbligatoria", 'error'); return; }
         const entryData = { id: this.editingId || Date.now().toString(), date: new Date(date).toISOString(), driver: driver };
         let hasData = false;
         const form = document.getElementById('form-carico');
@@ -359,14 +349,21 @@ const CaricoModule = {
             entryData[pid] = { carico: qty, diff: diff };
             if (qty !== 0 || diff !== 0) hasData = true;
         });
-        if (!hasData) { showNotification("Inserisci almeno un valore", 'error'); return; }
+        if (!hasData) { window.showNotification("Inserisci almeno un valore", 'error'); return; }
         const entries = this.getEntries();
-        if (this.editingId) { const idx = entries.findIndex(e => e.id === this.editingId); if (idx !== -1) entries[idx] = entryData; showNotification("Carico aggiornato", 'success'); } 
-        else { entries.push(entryData); showNotification("Carico salvato", 'success'); }
+        if (this.editingId) { const idx = entries.findIndex(e => e.id === this.editingId); if (idx !== -1) entries[idx] = entryData; window.showNotification("Carico aggiornato", 'success'); } 
+        else { entries.push(entryData); window.showNotification("Carico salvato", 'success'); }
         localStorage.setItem('polaris_registro_carico', JSON.stringify(entries));
-        this.closeModal(); this.render();
+        window.closeModal(); 
+        this.render();
     },
-    deleteEntry: function(id) { if (!confirm("Eliminare questo carico?")) return; const entries = this.getEntries().filter(e => e.id !== id); localStorage.setItem('polaris_registro_carico', JSON.stringify(entries)); showNotification("Carico eliminato", 'info'); this.render(); },
+    deleteEntry: function(id) { 
+        if (!confirm("Eliminare questo carico?")) return; 
+        const entries = this.getEntries().filter(e => e.id !== id); 
+        localStorage.setItem('polaris_registro_carico', JSON.stringify(entries)); 
+        window.showNotification("Carico eliminato", 'info'); 
+        this.render(); 
+    },
 
     // --- UTILS & LISTENERS ---
     attachMainListeners: function() {
@@ -379,18 +376,31 @@ const CaricoModule = {
         if (btnPrev) btnPrev.addEventListener('click', () => { if (this.currentPage > 1) { this.currentPage--; this.render(); } });
         if (btnNext) btnNext.addEventListener('click', () => { const tot = this.getEntries().length; if (this.currentPage * this.ITEMS_PER_PAGE < tot) { this.currentPage++; this.render(); } });
     },
-    exportData: function() { try { const data = { entries: this.getEntries(), prevStock: this.getPrevStock() }; const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); a.download = "polaris_carico.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { showNotification("Errore Export", 'error'); } },
-    importData: function(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => { try { const json = JSON.parse(ev.target.result); const entries = json.entries || (Array.isArray(json) ? json : (json.registryEntries || [])).map(ent => this.normalizeEntry(ent)); const stock = json.prevStock || (json.previousYearStock || {}); if (confirm(`Trovati ${entries.length} carichi. Sovrascrivere?`)) { localStorage.setItem('polaris_registro_carico', JSON.stringify(entries)); localStorage.setItem('polaris_registro_stock_prev', JSON.stringify(stock)); showNotification("Importazione riuscita", 'success'); this.render(); } } catch (err) { console.error(err); showNotification("File non valido", 'error'); } }; r.readAsText(f); },
+    exportData: function() { try { const data = { entries: this.getEntries(), prevStock: this.getPrevStock() }; const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); a.download = "polaris_carico.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { window.showNotification("Errore Export", 'error'); } },
+    importData: function(e) { 
+        const f = e.target.files[0]; if (!f) return; 
+        const r = new FileReader(); 
+        r.onload = (ev) => { 
+            try { 
+                const json = JSON.parse(ev.target.result); 
+                const entries = json.entries || (Array.isArray(json) ? json : (json.registryEntries || [])).map(ent => this.normalizeEntry(ent)); 
+                const stock = json.prevStock || (json.previousYearStock || {}); 
+                if (confirm(`Trovati ${entries.length} carichi. Sovrascrivere?`)) { 
+                    localStorage.setItem('polaris_registro_carico', JSON.stringify(entries)); 
+                    localStorage.setItem('polaris_registro_stock_prev', JSON.stringify(stock)); 
+                    window.showNotification("Importazione riuscita", 'success'); 
+                    this.render(); 
+                } 
+            } catch (err) { console.error(err); window.showNotification("File non valido", 'error'); } 
+        }; 
+        r.readAsText(f); 
+    },
     
     // --- DATEPICKER ---
     toggleDatepicker: function(e) { e.stopPropagation(); const w = document.getElementById('custom-datepicker'); if (w.classList.contains('show')) { w.classList.remove('show'); return; } document.querySelectorAll('.show').forEach(el => el.classList.remove('show')); w.classList.add('show'); const curDate = new Date(document.getElementById('inp-date').value); this.renderCalendar(curDate.getFullYear(), curDate.getMonth()); },
     renderCalendar: function(y, m) { const w = document.getElementById('custom-datepicker'); const ms = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']; const ds = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']; const fd = new Date(y, m, 1).getDay(); const afd = fd === 0 ? 6 : fd - 1; const dim = new Date(y, m+1, 0).getDate(); let html = `<div class="datepicker-header"><button type="button" class="datepicker-nav" onclick="CaricoModule.changeMonth(${m-1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-left" style="width:16px;"></i></button><div class="datepicker-title">${ms[m]} ${y}</div><button type="button" class="datepicker-nav" onclick="CaricoModule.changeMonth(${m+1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-right" style="width:16px;"></i></button></div><div class="datepicker-grid">${ds.map(d=>`<div class="datepicker-day-label">${d}</div>`).join('')}`; for(let i=0; i<afd; i++) html+=`<div class="datepicker-day empty"></div>`; const sd = new Date(document.getElementById('inp-date').value); const today = new Date(); for(let i=1; i<=dim; i++) { let cls = 'datepicker-day'; if(i===today.getDate() && m===today.getMonth() && y===today.getFullYear()) cls+=' today'; if(i===sd.getDate() && m===sd.getMonth() && y===sd.getFullYear()) cls+=' selected'; html+=`<div class="${cls}" onclick="CaricoModule.selectDate(${y},${m},${i}); event.stopPropagation();">${i}</div>`; } html+='</div>'; w.innerHTML = html; lucide.createIcons(); },
     changeMonth: function(m, y) { if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; } this.renderCalendar(y, m); },
     selectDate: function(y,m,d) { const fmt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; document.getElementById('inp-date').value = fmt; document.getElementById('date-display').innerText = this.formatDateIT(fmt); document.getElementById('custom-datepicker').classList.remove('show'); },
-    formatDateIT: function(iso) { if(!iso) return ''; const d=new Date(iso); return d.toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}); },
-
-    setupModalListeners: function() { const cb = document.getElementById('modal-close'); if (cb) cb.addEventListener('click', () => this.closeModal()); },
-    openModal: function(title, bodyHTML, footerHTML) { const m = document.getElementById('modal-overlay'); const mb = document.querySelector('.modal-box'); const bdy = document.getElementById('modal-body'); document.getElementById('modal-title').innerText = title; bdy.innerHTML = bodyHTML; const of = mb.querySelector('.modal-footer'); if (of) of.remove(); if (footerHTML) { const f = document.createElement('div'); f.className = 'modal-footer'; f.innerHTML = footerHTML; mb.appendChild(f); } m.classList.remove('hidden'); lucide.createIcons(); },
-    closeModal: function() { document.getElementById('modal-overlay').classList.add('hidden'); this.editingId = null; }
+    formatDateIT: function(iso) { if(!iso) return ''; const d=new Date(iso); return d.toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}); }
 };
 /* FINE MODULO REGISTRO CARICO */

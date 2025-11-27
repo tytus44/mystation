@@ -9,7 +9,7 @@ const AmministrazioneModule = {
     init: function() {
         this.currentPage = 1;
         this.render();
-        this.setupModalListeners();
+        // setupModalListeners rimosso: gestito globalmente
     },
 
     render: function() {
@@ -137,8 +137,8 @@ const AmministrazioneModule = {
             // Modale NUOVO Cliente
             const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="nav-link" placeholder="Inserisci nome..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input);"></div></form>`;
             const footerHTML = `<div class="btn-group"><button type="button" id="btn-cancel-client" class="action-btn btn-cancel">ANNULLA</button><button type="button" id="btn-save-client" class="action-btn btn-save">SALVA</button></div>`;
-            this.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
-            setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => this.closeModal()); document.getElementById('inp-name').focus(); }, 0);
+            window.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
+            setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => window.closeModal()); document.getElementById('inp-name').focus(); }, 0);
         } else {
             // Modale GESTIONE Cliente
             const client = this.getClients().find(c => c.id === idToEdit);
@@ -207,11 +207,11 @@ const AmministrazioneModule = {
             
             const footerHTML = `<button type="button" id="btn-close-modal" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">CHIUDI</button>`;
             
-            this.openModal(client.name, bodyHTML, footerHTML, '800px');
+            window.openModal(client.name, bodyHTML, footerHTML, '800px');
             
             setTimeout(() => { 
                 document.getElementById('btn-add-tx').addEventListener('click', () => this.addTransaction(client.id)); 
-                document.getElementById('btn-close-modal').addEventListener('click', () => this.closeModal()); 
+                document.getElementById('btn-close-modal').addEventListener('click', () => window.closeModal()); 
             }, 0);
         }
     },
@@ -222,13 +222,13 @@ const AmministrazioneModule = {
         if (!client) return;
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-circle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="color:var(--text-main); margin-bottom:5px; font-weight:600;">Vuoi saldare il conto di <strong>${client.name}</strong>?</p><p style="font-size:0.9rem; color:var(--text-secondary);">Questa operazione cancellerà tutto lo storico transazioni.</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-saldo" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">ANNULLA</button><button id="btn-print-saldo" class="action-btn">STAMPA</button><button id="btn-confirm-saldo" class="action-btn btn-delete">AZZERA TUTTO</button></div>`;
-        this.openModal('Conferma Saldo', bodyHTML, footerHTML, '450px');
+        window.openModal('Conferma Saldo', bodyHTML, footerHTML, '450px');
         setTimeout(() => { document.getElementById('btn-cancel-saldo').onclick = () => this.openClientModal(clientId); document.getElementById('btn-print-saldo').onclick = () => this.printStatement(clientId); document.getElementById('btn-confirm-saldo').onclick = () => this.executeSaldo(clientId); }, 0);
     },
     executeSaldo: function(clientId) { const clients = this.getClients(); const idx = clients.findIndex(c => c.id === clientId); if (idx !== -1) { clients[idx].balance = 0; clients[idx].transactions = []; localStorage.setItem('polaris_clients', JSON.stringify(clients)); window.showNotification("Conto saldato e storico azzerato.", 'success'); this.openClientModal(clientId); this.render(); } },
 
     // --- AZIONI ---
-    saveNewClient: function() { const name = document.getElementById('inp-name').value.trim(); if (!name) { window.showNotification("Inserisci un nome", 'error'); return; } const clients = this.getClients(); clients.push({ id: Date.now().toString(), name: name, balance: 0, transactions: [] }); localStorage.setItem('polaris_clients', JSON.stringify(clients)); this.closeModal(); window.showNotification("Cliente creato", 'success'); this.render(); },
+    saveNewClient: function() { const name = document.getElementById('inp-name').value.trim(); if (!name) { window.showNotification("Inserisci un nome", 'error'); return; } const clients = this.getClients(); clients.push({ id: Date.now().toString(), name: name, balance: 0, transactions: [] }); localStorage.setItem('polaris_clients', JSON.stringify(clients)); window.closeModal(); window.showNotification("Cliente creato", 'success'); this.render(); },
     
     addTransaction: function(clientId) { 
         const desc = document.getElementById('tx-desc').value.trim(); 
@@ -244,22 +244,10 @@ const AmministrazioneModule = {
         const clientIdx = clients.findIndex(c => c.id === clientId); 
         if (clientIdx === -1) return; 
         
-        // Logica Importo:
-        // Se la descrizione è diversa da "Acconto", l'importo diventa negativo (addebito).
-        // Se è "Acconto", resta positivo.
         let finalAmount = Math.abs(amount);
+        if (desc.toLowerCase() !== 'acconto') { finalAmount = -finalAmount; }
 
-        if (desc.toLowerCase() !== 'acconto') {
-            finalAmount = -finalAmount;
-        }
-
-        const tx = { 
-            id: Date.now().toString(), 
-            date: new Date().toISOString(), 
-            description: desc, 
-            amount: finalAmount 
-        }; 
-        
+        const tx = { id: Date.now().toString(), date: new Date().toISOString(), description: desc, amount: finalAmount }; 
         clients[clientIdx].transactions.push(tx); 
         clients[clientIdx].balance += finalAmount; 
         
@@ -273,7 +261,7 @@ const AmministrazioneModule = {
     deleteTransaction: function(clientId, txId) {
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="trash-2" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Eliminare questa transazione?</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-del" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-del" class="action-btn btn-delete">ELIMINA</button></div>`;
-        this.openModal('Conferma Eliminazione', bodyHTML, footerHTML, '400px');
+        window.openModal('Conferma Eliminazione', bodyHTML, footerHTML, '400px');
         setTimeout(() => {
             document.getElementById('btn-cancel-del').onclick = () => this.openClientModal(clientId);
             document.getElementById('btn-confirm-del').onclick = () => {
@@ -294,14 +282,14 @@ const AmministrazioneModule = {
     deleteClient: function(id) {
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-triangle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Eliminare INTERO cliente e storico?</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-del" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-del" class="action-btn btn-delete">ELIMINA TUTTO</button></div>`;
-        this.openModal('Elimina Cliente', bodyHTML, footerHTML, '450px');
+        window.openModal('Elimina Cliente', bodyHTML, footerHTML, '450px');
         setTimeout(() => {
-            document.getElementById('btn-cancel-del').onclick = () => { if (this.editingClientId === id) this.openClientModal(id); else this.closeModal(); };
+            document.getElementById('btn-cancel-del').onclick = () => { if (this.editingClientId === id) this.openClientModal(id); else window.closeModal(); };
             document.getElementById('btn-confirm-del').onclick = () => {
                 const clients = this.getClients().filter(c => c.id !== id);
                 localStorage.setItem('polaris_clients', JSON.stringify(clients));
                 window.showNotification("Cliente eliminato", 'info');
-                this.closeModal(); this.render();
+                window.closeModal(); this.render();
             };
         }, 0);
     },
@@ -311,14 +299,14 @@ const AmministrazioneModule = {
         r.onload = (ev) => { try { const json = JSON.parse(ev.target.result); 
             const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-triangle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Sovrascrivere i dati esistenti?</p></div>`;
             const footerHTML = `<div class="btn-group"><button id="btn-cancel-imp" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-imp" class="action-btn btn-delete">IMPORTA</button></div>`;
-            this.openModal('Importazione', bodyHTML, footerHTML, '400px');
+            window.openModal('Importazione', bodyHTML, footerHTML, '400px');
             setTimeout(() => {
-                document.getElementById('btn-cancel-imp').onclick = () => { this.closeModal(); e.target.value = ''; };
+                document.getElementById('btn-cancel-imp').onclick = () => { window.closeModal(); e.target.value = ''; };
                 document.getElementById('btn-confirm-imp').onclick = () => {
                     const data = Array.isArray(json) ? json : (json.clients || []);
                     localStorage.setItem('polaris_clients', JSON.stringify(data));
                     window.showNotification("Importazione riuscita", 'success');
-                    this.closeModal(); this.render(); e.target.value = '';
+                    window.closeModal(); this.render(); e.target.value = '';
                 };
             }, 0);
         } catch(err) { window.showNotification("File non valido", 'error'); } }; r.readAsText(f);
@@ -328,8 +316,5 @@ const AmministrazioneModule = {
     printList: function() { const clients = this.getFilteredClients(); const w = window.open('', '_blank'); let rows = ''; for(let i=0; i<clients.length; i+=2) { const c1 = clients[i]; const c2 = clients[i+1]; const cell1 = c1 ? `<td>${c1.name}</td><td class="text-right">${c1.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; const cell2 = c2 ? `<td>${c2.name}</td><td class="text-right">${c2.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; rows += `<tr>${cell1}${cell2}</tr>`; } w.document.write(`<html><head><title>Lista Clienti</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"><style>body{font-family:'Montserrat',sans-serif;font-size:10pt;padding:20px}h2{text-align:center;margin-bottom:5px;text-transform:uppercase}p{text-align:center;margin-top:0;margin-bottom:20px;font-size:9pt;color:#666}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;font-size:9pt;vertical-align:middle}th{background-color:#f0f0f0;font-weight:600;text-align:left}.text-right{text-align:right}td:nth-child(1),td:nth-child(3){width:35%}td:nth-child(2),td:nth-child(4){width:15%;font-weight:bold}@media print{@page{margin:1cm}}</style></head><body><h2>Riepilogo Clienti a credito</h2><p>Data: ${new Date().toLocaleDateString('it-IT')}</p><table><thead><tr><th>Cliente</th><th class="text-right">Saldo</th><th>Cliente</th><th class="text-right">Saldo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=function(){window.print();window.close();}</script></body></html>`); w.document.close(); },
     attachMainListeners: function() { document.getElementById('search-client').addEventListener('input', (e) => { this.currentFilter = e.target.value; this.currentPage = 1; this.render(); const inp = document.getElementById('search-client'); inp.focus(); const val=inp.value; inp.value=''; inp.value=val; }); const btnClear = document.getElementById('btn-clear-search'); if(btnClear) btnClear.addEventListener('click', () => { this.currentFilter = ''; this.currentPage = 1; this.render(); document.getElementById('search-client').focus(); }); document.getElementById('btn-new-client').addEventListener('click', () => this.openClientModal()); document.getElementById('btn-print-list').addEventListener('click', () => this.printList()); const fi = document.getElementById('import-admin-input'); document.getElementById('btn-admin-import').addEventListener('click', () => fi.click()); fi.addEventListener('change', (e) => this.importData(e)); document.getElementById('btn-admin-export').addEventListener('click', () => this.exportData()); const btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next'); if(btnPrev) btnPrev.addEventListener('click', () => { if(this.currentPage>1) {this.currentPage--; this.render();} }); if(btnNext) btnNext.addEventListener('click', () => { if(this.currentPage*this.ITEMS_PER_PAGE < this.getFilteredClients().length) {this.currentPage++; this.render();} }); },
     exportData: function() { try { const data = this.getClients(); const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data)); a.download = "polaris_clienti.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { window.showNotification("Errore Export", 'error'); } },
-    setupModalListeners: function() { const cb = document.getElementById('modal-close'); if(cb) cb.addEventListener('click', () => this.closeModal()); },
-    openModal: function(title, bodyHTML, footerHTML, maxWidth='800px') { const m = document.getElementById('modal-overlay'); const mb = document.querySelector('.modal-box'); const bdy = document.getElementById('modal-body'); document.getElementById('modal-title').innerText = title; bdy.innerHTML = bodyHTML; mb.style.maxWidth = maxWidth; const of = mb.querySelector('.modal-footer'); if(of) of.remove(); if(footerHTML) { const f = document.createElement('div'); f.className = 'modal-footer'; f.innerHTML = footerHTML; mb.appendChild(f); } m.classList.remove('hidden'); lucide.createIcons(); },
-    closeModal: function() { document.getElementById('modal-overlay').classList.add('hidden'); this.editingClientId = null; }
 };
 /* FINE MODULO AMMINISTRAZIONE */
