@@ -268,12 +268,47 @@ window.AgendaModule = {
         }
     },
 
-    deleteTask: function(id) {
-        if(confirm("Eliminare questo task?")) {
-            let tasks = this.getTasks().filter(t => t.id !== id);
-            this.saveTasks(tasks);
-            if(this.editingId === id) this.resetForm();
-        }
+deleteTask: function(id) {
+        // Contenuto della modale di conferma
+        const bodyHTML = `
+            <div style="text-align:center; padding:10px;">
+                <i data-lucide="trash-2" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i>
+                <p style="font-weight:600; color:var(--text-main);">Eliminare questo task?</p>
+                <p style="font-size:0.9rem; color:var(--text-secondary);">L'azione è irreversibile.</p>
+            </div>
+        `;
+
+        const footerHTML = `
+            <div class="btn-group">
+                <button id="btn-cancel-del" class="action-btn btn-cancel">ANNULLA</button>
+                <button id="btn-confirm-del" class="action-btn btn-delete">ELIMINA</button>
+            </div>
+        `;
+
+        // Apre la modale piccola
+        window.openModal('Conferma Eliminazione', bodyHTML, footerHTML, '400px');
+
+        // Gestione Click
+        setTimeout(() => {
+            // Annulla: Torna alla lista Agenda
+            document.getElementById('btn-cancel-del').onclick = () => this.openMainModal();
+
+            // Conferma: Elimina e torna alla lista Agenda
+            document.getElementById('btn-confirm-del').onclick = () => {
+                let tasks = this.getTasks().filter(t => t.id !== id);
+                
+                // Salvataggio manuale senza render immediato (perché siamo sulla modale di conferma)
+                localStorage.setItem('polaris_agenda', JSON.stringify(tasks));
+                this.updateBadge();
+                
+                if (this.editingId === id) this.editingId = null;
+
+                window.showNotification("Task eliminato", 'info');
+                
+                // Riapre l'agenda aggiornata
+                this.openMainModal();
+            };
+        }, 50);
     },
 
     // --- DATEPICKER LOGIC ---
