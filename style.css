@@ -518,3 +518,67 @@ input[type=number] { -moz-appearance: textfield; }
     padding-top: 50px;
     font-size: 0.95rem;
 }
+
+/* =========================================
+   14. CUSTOM TOOLTIPS (Header)
+   ========================================= */
+
+/* Posizionamento relativo per il genitore del tooltip */
+[data-tooltip] {
+    position: relative;
+}
+
+/* Corpo del Tooltip (Il "Cuscino") */
+[data-tooltip]::after {
+    content: attr(data-tooltip); /* Prende il testo dall'attributo */
+    position: absolute;
+    top: 125%; /* Posizionato sotto il bottone */
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px); /* Centrato orizzontalmente */
+    
+    /* Stile "Pillow" Verde Acido */
+    background-color: var(--col-positive);
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    
+    padding: 6px 14px;
+    border-radius: 50px; /* Forma a pillola/cuscino */
+    box-shadow: 0 4px 15px rgba(177, 228, 38, 0.4); /* Glow verde */
+    pointer-events: none; /* Non cliccabile */
+    z-index: 1000;
+    
+    /* Stato Iniziale (Nascosto) */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Effetto rimbalzo */
+}
+
+/* Freccina (Triangolo sopra il tooltip) */
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    top: 115%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    
+    border: 6px solid transparent;
+    border-bottom-color: var(--col-positive); /* Colore freccia */
+    
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+/* Stato Hover (Visibile) */
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
