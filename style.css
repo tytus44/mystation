@@ -182,7 +182,7 @@ header {
     background: var(--col-destructive) !important; 
     color: #ffffff !important;
     box-shadow: 0 6px 15px rgba(255, 0, 56, 0.4) !important; 
-    border-color: transparent;
+    border-color: transparent !important;
 }
 
 /* --- ICON BUTTONS BASE (Cerchiati 40px) --- */
