@@ -9,7 +9,14 @@ const AmministrazioneModule = {
     init: function() {
         this.currentPage = 1;
         this.render();
-        // setupModalListeners rimosso: gestito globalmente
+        
+        // Listener per chiudere il datepicker cliccando fuori
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.datepicker-container')) {
+                const w = document.getElementById('custom-datepicker-admin');
+                if (w && w.classList.contains('show')) w.classList.remove('show');
+            }
+        });
     },
 
     render: function() {
@@ -34,8 +41,8 @@ const AmministrazioneModule = {
                 
                 <div class="toolbar-group" style="flex-grow: 1; max-width: 400px;">
                     <div style="position: relative; width: 100%;">
-                        <input type="text" id="search-client" class="nav-link" placeholder="Cerca cliente..." 
-                               style="width: 100%; border: 1px solid var(--border-color); padding-left: 35px; padding-right: 35px; border-radius: var(--radius-pill); justify-content: start;"
+                        <input type="text" id="search-client" class="form-input pill" placeholder="Cerca cliente..." 
+                               style="padding-left: 35px; padding-right: 35px;"
                                value="${this.currentFilter}">
                         <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; color: var(--text-secondary);"></i>
                         ${clearBtnHTML}
@@ -123,7 +130,7 @@ const AmministrazioneModule = {
             const lastTx = this.getLastTransaction(c); const lastDate = lastTx ? new Date(lastTx.date).toLocaleDateString() : '-';
             let lastAmount = '-';
             if (lastTx) { const amtClass = lastTx.amount > 0 ? 'text-success' : 'text-danger'; lastAmount = `<span class="${amtClass}">${lastTx.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</span>`; }
-            html += `<tr style="border-bottom: 1px dashed var(--border-color);"><td style="padding: 12px; font-weight: 600; color: var(--text-main);">${c.name}</td><td style="padding: 12px; text-align:right; font-weight:bold;" class="${balClass}">${c.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td><td style="padding: 12px; text-align:right; color: var(--text-secondary);">${lastDate}</td><td style="padding: 12px; text-align:right; font-weight:500;">${lastAmount}</td><td style="padding: 12px; text-align: right;"><button class="icon-btn btn-edit" onclick="AmministrazioneModule.openClientModal('${c.id}')" title="Gestisci"><i data-lucide="pencil" style="width:16px;"></i></button></td></tr>`;
+            html += `<tr style="border-bottom: 1px dashed var(--border-color);"><td style="padding: 12px; font-weight: 600; color: var(--text-main);">${c.name}</td><td style="padding: 12px; text-align:right; font-weight:bold;" class="${balClass}">${c.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td><td style="padding: 12px; text-align:right; color: var(--text-secondary);">${lastDate}</td><td style="padding: 12px; text-align:right; font-weight:500;">${lastAmount}</td><td style="padding: 12px; text-align: right;"><button class="icon-btn icon-btn-sm btn-edit" onclick="AmministrazioneModule.openClientModal('${c.id}')" title="Gestisci"><i data-lucide="pencil" style="width:16px;"></i></button></td></tr>`;
         });
         html += '</tbody></table>';
         return html;
@@ -135,7 +142,7 @@ const AmministrazioneModule = {
         this.editingClientId = idToEdit;
         if (!idToEdit) {
             // Modale NUOVO Cliente
-            const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="nav-link" placeholder="Inserisci nome..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input); justify-content: start;"></div></form>`;
+            const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="form-input" placeholder="Inserisci nome..."></div></form>`;
             const footerHTML = `<div class="btn-group"><button type="button" id="btn-cancel-client" class="action-btn btn-cancel">ANNULLA</button><button type="button" id="btn-save-client" class="action-btn btn-save">SALVA</button></div>`;
             window.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
             setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => window.closeModal()); document.getElementById('inp-name').focus(); }, 0);
@@ -146,6 +153,8 @@ const AmministrazioneModule = {
             const balClass = client.balance > 0 ? 'text-success' : (client.balance < 0 ? 'text-danger' : '');
             const txs = (client.transactions || []).sort((a, b) => new Date(b.date) - new Date(a.date));
             
+            const todayVal = new Date().toISOString().split('T')[0];
+
             const bodyHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:15px; background-color:var(--primary-light-bg); border-radius:var(--radius-input); flex-wrap: wrap; gap: 20px;">
                     <div>
@@ -156,31 +165,27 @@ const AmministrazioneModule = {
                         <button class="action-btn" onclick="AmministrazioneModule.printStatement('${client.id}')" title="Stampa Estratto">
                             <i data-lucide="printer" style="width:18px;"></i> STAMPA
                         </button>
-                        
-                        <button class="action-btn" onclick="document.getElementById('tx-desc').value='Acconto'; document.getElementById('tx-amount').focus();" title="Imposta Acconto">
-                            ACCONTO
-                        </button>
-
-                        <button class="action-btn btn-save" onclick="AmministrazioneModule.confirmSaldo('${client.id}')" title="Chiudi Conto">
-                            SALDO
-                        </button>
-                        
-                        <button class="action-btn btn-delete" onclick="AmministrazioneModule.deleteClient('${client.id}')" title="Elimina Cliente">
-                            <i data-lucide="trash-2" style="width:18px;"></i> ELIMINA
-                        </button>
+                        <button class="action-btn" onclick="document.getElementById('tx-desc').value='Acconto'; document.getElementById('tx-amount').focus();" title="Imposta Acconto">ACCONTO</button>
+                        <button class="action-btn btn-save" onclick="AmministrazioneModule.confirmSaldo('${client.id}')" title="Chiudi Conto">SALDO</button>
+                        <button class="action-btn btn-delete" onclick="AmministrazioneModule.deleteClient('${client.id}')" title="Elimina Cliente"><i data-lucide="trash-2" style="width:18px;"></i> ELIMINA</button>
                     </div>
                 </div>
 
                 <div style="border:1px solid var(--border-color); border-radius:var(--radius-input); padding:15px; margin-bottom:20px; background-color: var(--bg-app);">
                     <h4 style="margin-bottom:10px; font-size:0.9rem; color:var(--text-main); font-weight:600;">Nuova Transazione</h4>
-                    <div style="display:grid; grid-template-columns: 1fr 150px auto; gap:10px; align-items:center;">
+                    <div style="display:grid; grid-template-columns: 180px 1fr 130px auto; gap:10px; align-items:center;">
                         
-                        <input type="text" id="tx-desc" value="Carburante" placeholder="Descrizione" 
-                               style="width: 100%; height: 46px; padding: 0 15px; border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card); font-family:inherit;">
-                        
-                        <input type="number" step="0.01" id="tx-amount" placeholder="€ 0.00" 
-                               style="width: 100%; height: 46px; padding: 0 15px; border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card); font-family:inherit;">
-                        
+                        <div class="datepicker-container" style="position: relative;">
+                            <input type="date" id="tx-date" value="${todayVal}" class="form-input no-icon" style="position:absolute; opacity:0; pointer-events:none;">
+                            <button type="button" class="dropdown-trigger" onclick="AmministrazioneModule.toggleDatepicker(event)" style="height: 46px; display: flex; align-items: center; background:var(--bg-card);">
+                                <span id="tx-date-display">${this.formatDateIT(todayVal)}</span>
+                                <i data-lucide="calendar" style="width:16px;"></i>
+                            </button>
+                            <div id="custom-datepicker-admin" class="datepicker-wrapper"></div>
+                        </div>
+
+                        <input type="text" id="tx-desc" class="form-input" value="Carburante" placeholder="Descrizione" style="background:var(--bg-card);">
+                        <input type="number" step="0.01" id="tx-amount" class="form-input" placeholder="€ 0.00" style="background:var(--bg-card);">
                         <button id="btn-add-tx" class="action-btn btn-save" style="height: 46px;">AGGIUNGI</button>
                     </div>
                 </div>
@@ -188,22 +193,17 @@ const AmministrazioneModule = {
                 <div style="max-height:180px; overflow-y:auto; border-top:1px solid var(--border-color);">
                     <table class="table-prices">
                         <thead style="position:sticky; top:0; background:var(--bg-card); z-index:10;">
-                            <tr>
-                                <th>Data</th>
-                                <th>Descrizione</th>
-                                <th style="text-align:right;">Importo</th>
-                                <th style="text-align:right;">Azioni</th>
-                            </tr>
+                            <tr><th>Data</th><th>Descrizione</th><th style="text-align:right;">Importo</th><th style="text-align:right;">Azioni</th></tr>
                         </thead>
                         <tbody>
                             ${txs.length ? txs.map(t => `
                             <tr>
-                                <td style="font-size:0.85rem;">${new Date(t.date).toLocaleDateString()}</td>
+                                <td style="font-size:0.85rem;">${new Date(t.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })}</td>
                                 <td style="font-size:0.85rem;">${t.description}</td>
                                 <td style="text-align:right; font-weight:bold; font-size:0.85rem;" class="${t.amount > 0 ? 'text-success' : 'text-danger'}">${t.amount.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>
                                 <td style="text-align:right;">
-                                    <button class="icon-btn btn-edit" onclick="AmministrazioneModule.editTransaction('${client.id}', '${t.id}')" title="Modifica" style="width:28px; height:28px;"><i data-lucide="pencil" style="width:14px;"></i></button>
-                                    <button class="icon-btn btn-delete" onclick="AmministrazioneModule.deleteTransaction('${client.id}', '${t.id}')" title="Elimina" style="width:28px; height:28px;"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                                    <button class="icon-btn icon-btn-sm btn-edit" onclick="AmministrazioneModule.editTransaction('${client.id}', '${t.id}')" title="Modifica"><i data-lucide="pencil" style="width:14px;"></i></button>
+                                    <button class="icon-btn icon-btn-sm btn-delete" onclick="AmministrazioneModule.deleteTransaction('${client.id}', '${t.id}')" title="Elimina"><i data-lucide="trash-2" style="width:14px;"></i></button>
                                 </td>
                             </tr>`).join('') : '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); padding:20px;">Nessuna transazione registrata.</td></tr>'}
                         </tbody>
@@ -211,36 +211,30 @@ const AmministrazioneModule = {
                 </div>`;
             
             const footerHTML = `<button type="button" id="btn-close-modal" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">CHIUDI</button>`;
-            
-            window.openModal(client.name, bodyHTML, footerHTML, '800px');
-            
-            setTimeout(() => { 
-                document.getElementById('btn-add-tx').addEventListener('click', () => this.addTransaction(client.id)); 
-                document.getElementById('btn-close-modal').addEventListener('click', () => window.closeModal()); 
-            }, 0);
+            window.openModal(client.name, bodyHTML, footerHTML, '850px');
+            setTimeout(() => { document.getElementById('btn-add-tx').addEventListener('click', () => this.addTransaction(client.id)); document.getElementById('btn-close-modal').addEventListener('click', () => window.closeModal()); }, 0);
         }
     },
 
-    // --- CONFERMA SALDO ---
     confirmSaldo: function(clientId) {
         const client = this.getClients().find(c => c.id === clientId);
         if (!client) return;
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="alert-circle" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="color:var(--text-main); margin-bottom:5px; font-weight:600;">Vuoi saldare il conto di <strong>${client.name}</strong>?</p><p style="font-size:0.9rem; color:var(--text-secondary);">Questa operazione cancellerà tutto lo storico transazioni.</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-saldo" class="action-btn btn-cancel" style="background:var(--bg-app); color:var(--text-main); border:1px solid var(--border-color); box-shadow:none;">ANNULLA</button><button id="btn-print-saldo" class="action-btn">STAMPA</button><button id="btn-confirm-saldo" class="action-btn btn-delete">AZZERA TUTTO</button></div>`;
-        window.openModal('Conferma Saldo', bodyHTML, footerHTML, '450px');
+        window.openModal('Conferma Saldo', bodyHTML, footerHTML, '400px');
         setTimeout(() => { document.getElementById('btn-cancel-saldo').onclick = () => this.openClientModal(clientId); document.getElementById('btn-print-saldo').onclick = () => this.printStatement(clientId); document.getElementById('btn-confirm-saldo').onclick = () => this.executeSaldo(clientId); }, 0);
     },
     executeSaldo: function(clientId) { const clients = this.getClients(); const idx = clients.findIndex(c => c.id === clientId); if (idx !== -1) { clients[idx].balance = 0; clients[idx].transactions = []; localStorage.setItem('polaris_clients', JSON.stringify(clients)); window.showNotification("Conto saldato e storico azzerato.", 'success'); this.openClientModal(clientId); this.render(); } },
 
-    // --- AZIONI ---
     saveNewClient: function() { const name = document.getElementById('inp-name').value.trim(); if (!name) { window.showNotification("Inserisci un nome", 'error'); return; } const clients = this.getClients(); clients.push({ id: Date.now().toString(), name: name, balance: 0, transactions: [] }); localStorage.setItem('polaris_clients', JSON.stringify(clients)); window.closeModal(); window.showNotification("Cliente creato", 'success'); this.render(); },
     
     addTransaction: function(clientId) { 
+        const dateVal = document.getElementById('tx-date').value;
         const desc = document.getElementById('tx-desc').value.trim(); 
         const amountStr = document.getElementById('tx-amount').value; 
         const amount = parseFloat(amountStr); 
         
-        if (!desc || isNaN(amount) || amount === 0) { 
+        if (!dateVal || !desc || isNaN(amount) || amount === 0) { 
             window.showNotification("Dati non validi", 'error'); 
             return; 
         } 
@@ -252,7 +246,13 @@ const AmministrazioneModule = {
         let finalAmount = Math.abs(amount);
         if (desc.toLowerCase() !== 'acconto') { finalAmount = -finalAmount; }
 
-        const tx = { id: Date.now().toString(), date: new Date().toISOString(), description: desc, amount: finalAmount }; 
+        const tx = { 
+            id: Date.now().toString(), 
+            date: new Date(dateVal).toISOString(), 
+            description: desc, 
+            amount: finalAmount 
+        }; 
+        
         clients[clientIdx].transactions.push(tx); 
         clients[clientIdx].balance += finalAmount; 
         
@@ -320,59 +320,76 @@ const AmministrazioneModule = {
     printStatement: function(id) { 
         const client = this.getClients().find(c => c.id === id); 
         if (!client) return; 
-        
-        // Titolo dinamico per il file
         const docTitle = `Estratto conto - ${client.name}`;
-        
         const w = window.open('', '_blank'); 
-        w.document.write(`
-            <html>
-                <head>
-                    <title>${docTitle}</title> <style>
-                        body{font-family:sans-serif;padding:20px}
-                        table{width:100%;border-collapse:collapse;margin-top:20px}
-                        th,td{border:1px solid #ddd;padding:8px;text-align:left}
-                        th{background-color:#f2f2f2}
-                        .text-right{text-align:right}
-                    </style>
-                </head>
-                <body>
-                    <h2>Estratto Conto: ${client.name}</h2>
-                    <p>Data: ${new Date().toLocaleDateString()}</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Descrizione</th>
-                                <th class="text-right">Importo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${client.transactions.map(t=>`
-                                <tr>
-                                    <td>${new Date(t.date).toLocaleDateString()}</td>
-                                    <td>${t.description}</td>
-                                    <td class="text-right">${t.amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="2" class="text-right">SALDO FINALE</th>
-                                <th class="text-right">${client.balance.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <script>
-                        window.onload = function() { window.print(); };
-                    </script>
-                </body>
-            </html>
-        `); 
+        w.document.write(`<html><head><title>${docTitle}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2}.text-right{text-align:right}</style></head><body><h2>Estratto Conto: ${client.name}</h2><p>Data: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Data</th><th>Descrizione</th><th class="text-right">Importo</th></tr></thead><tbody>${client.transactions.map(t=>`<tr><td>${new Date(t.date).toLocaleDateString()}</td><td>${t.description}</td><td class="text-right">${t.amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2" class="text-right">SALDO FINALE</th><th class="text-right">${client.balance.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</th></tr></tfoot></table><script>window.onload = function() { window.print(); };</script></body></html>`); 
         w.document.close(); 
     },
     printList: function() { const clients = this.getFilteredClients(); const w = window.open('', '_blank'); let rows = ''; for(let i=0; i<clients.length; i+=2) { const c1 = clients[i]; const c2 = clients[i+1]; const cell1 = c1 ? `<td>${c1.name}</td><td class="text-right">${c1.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; const cell2 = c2 ? `<td>${c2.name}</td><td class="text-right">${c2.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; rows += `<tr>${cell1}${cell2}</tr>`; } w.document.write(`<html><head><title>Lista Clienti</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"><style>body{font-family:'Montserrat',sans-serif;font-size:10pt;padding:20px}h2{text-align:center;margin-bottom:5px;text-transform:uppercase}p{text-align:center;margin-top:0;margin-bottom:20px;font-size:9pt;color:#666}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;font-size:9pt;vertical-align:middle}th{background-color:#f0f0f0;font-weight:600;text-align:left}.text-right{text-align:right}td:nth-child(1),td:nth-child(3){width:35%}td:nth-child(2),td:nth-child(4){width:15%;font-weight:bold}@media print{@page{margin:1cm}}</style></head><body><h2>Riepilogo Clienti a credito</h2><p>Data: ${new Date().toLocaleDateString('it-IT')}</p><table><thead><tr><th>Cliente</th><th class="text-right">Saldo</th><th>Cliente</th><th class="text-right">Saldo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=function(){window.print();window.close();}</script></body></html>`); w.document.close(); },
     attachMainListeners: function() { document.getElementById('search-client').addEventListener('input', (e) => { this.currentFilter = e.target.value; this.currentPage = 1; this.render(); const inp = document.getElementById('search-client'); inp.focus(); const val=inp.value; inp.value=''; inp.value=val; }); const btnClear = document.getElementById('btn-clear-search'); if(btnClear) btnClear.addEventListener('click', () => { this.currentFilter = ''; this.currentPage = 1; this.render(); document.getElementById('search-client').focus(); }); document.getElementById('btn-new-client').addEventListener('click', () => this.openClientModal()); document.getElementById('btn-print-list').addEventListener('click', () => this.printList()); const fi = document.getElementById('import-admin-input'); document.getElementById('btn-admin-import').addEventListener('click', () => fi.click()); fi.addEventListener('change', (e) => this.importData(e)); document.getElementById('btn-admin-export').addEventListener('click', () => this.exportData()); const btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next'); if(btnPrev) btnPrev.addEventListener('click', () => { if(this.currentPage>1) {this.currentPage--; this.render();} }); if(btnNext) btnNext.addEventListener('click', () => { if(this.currentPage*this.ITEMS_PER_PAGE < this.getFilteredClients().length) {this.currentPage++; this.render();} }); },
     exportData: function() { try { const data = this.getClients(); const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data)); a.download = "polaris_clienti.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { window.showNotification("Errore Export", 'error'); } },
+
+    toggleDatepicker: function(e) {
+        e.stopPropagation();
+        const w = document.getElementById('custom-datepicker-admin');
+        if (w.classList.contains('show')) { w.classList.remove('show'); return; }
+        document.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+        w.classList.add('show');
+        const curDate = new Date(document.getElementById('tx-date').value);
+        this.renderCalendar(curDate.getFullYear(), curDate.getMonth());
+    },
+
+    renderCalendar: function(y, m) {
+        const w = document.getElementById('custom-datepicker-admin');
+        const ms = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        const ds = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+        const fd = new Date(y, m, 1).getDay();
+        const afd = fd === 0 ? 6 : fd - 1;
+        const dim = new Date(y, m+1, 0).getDate();
+        
+        let html = `
+            <div class="datepicker-header">
+                <button type="button" class="datepicker-nav" onclick="AmministrazioneModule.changeMonth(${m-1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-left" style="width:16px;"></i></button>
+                <div class="datepicker-title">${ms[m]} ${y}</div>
+                <button type="button" class="datepicker-nav" onclick="AmministrazioneModule.changeMonth(${m+1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-right" style="width:16px;"></i></button>
+            </div>
+            <div class="datepicker-grid">
+                ${ds.map(d=>`<div class="datepicker-day-label">${d}</div>`).join('')}
+        `;
+        
+        for(let i=0; i<afd; i++) html+=`<div class="datepicker-day empty"></div>`;
+        
+        const sd = new Date(document.getElementById('tx-date').value);
+        const today = new Date();
+        
+        for(let i=1; i<=dim; i++) {
+            let cls = 'datepicker-day';
+            if(i===today.getDate() && m===today.getMonth() && y===today.getFullYear()) cls+=' today';
+            if(i===sd.getDate() && m===sd.getMonth() && y===sd.getFullYear()) cls+=' selected';
+            html+=`<div class="${cls}" onclick="AmministrazioneModule.selectDate(${y},${m},${i}); event.stopPropagation();">${i}</div>`;
+        }
+        html+='</div>';
+        w.innerHTML = html;
+        lucide.createIcons();
+    },
+
+    changeMonth: function(m, y) {
+        if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; }
+        this.renderCalendar(y, m);
+    },
+
+    selectDate: function(y, m, d) {
+        const fmt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        document.getElementById('tx-date').value = fmt;
+        document.getElementById('tx-date-display').innerText = this.formatDateIT(fmt);
+        document.getElementById('custom-datepicker-admin').classList.remove('show');
+    },
+
+    formatDateIT: function(iso) {
+        if(!iso) return '';
+        const d=new Date(iso);
+        // MODIFICA: Rimossa la proprietà year: 'numeric'
+        return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
+    }
 };
 /* FINE MODULO AMMINISTRAZIONE */
