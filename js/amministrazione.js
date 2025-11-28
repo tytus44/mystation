@@ -35,7 +35,7 @@ const AmministrazioneModule = {
                 <div class="toolbar-group" style="flex-grow: 1; max-width: 400px;">
                     <div style="position: relative; width: 100%;">
                         <input type="text" id="search-client" class="nav-link" placeholder="Cerca cliente..." 
-                               style="width: 100%; border: 1px solid var(--border-color); padding-left: 35px; padding-right: 35px; border-radius: var(--radius-pill);"
+                               style="width: 100%; border: 1px solid var(--border-color); padding-left: 35px; padding-right: 35px; border-radius: var(--radius-pill); justify-content: start;"
                                value="${this.currentFilter}">
                         <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; color: var(--text-secondary);"></i>
                         ${clearBtnHTML}
@@ -135,7 +135,7 @@ const AmministrazioneModule = {
         this.editingClientId = idToEdit;
         if (!idToEdit) {
             // Modale NUOVO Cliente
-            const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="nav-link" placeholder="Inserisci nome..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input);"></div></form>`;
+            const bodyHTML = `<form id="form-client"><div style="margin-bottom: 20px;"><label>Nome Cliente</label><input type="text" id="inp-name" class="nav-link" placeholder="Inserisci nome..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input); justify-content: start;"></div></form>`;
             const footerHTML = `<div class="btn-group"><button type="button" id="btn-cancel-client" class="action-btn btn-cancel">ANNULLA</button><button type="button" id="btn-save-client" class="action-btn btn-save">SALVA</button></div>`;
             window.openModal('Nuovo Cliente', bodyHTML, footerHTML, '450px');
             setTimeout(() => { document.getElementById('btn-save-client').addEventListener('click', () => this.saveNewClient()); document.getElementById('btn-cancel-client').addEventListener('click', () => window.closeModal()); document.getElementById('inp-name').focus(); }, 0);
@@ -174,9 +174,14 @@ const AmministrazioneModule = {
                 <div style="border:1px solid var(--border-color); border-radius:var(--radius-input); padding:15px; margin-bottom:20px; background-color: var(--bg-app);">
                     <h4 style="margin-bottom:10px; font-size:0.9rem; color:var(--text-main); font-weight:600;">Nuova Transazione</h4>
                     <div style="display:grid; grid-template-columns: 1fr 150px auto; gap:10px; align-items:center;">
-                        <input type="text" id="tx-desc" class="nav-link" value="Carburante" placeholder="Descrizione" style="border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card);">
-                        <input type="number" step="0.01" id="tx-amount" class="nav-link" placeholder="€ 0.00" style="border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card);">
-                        <button id="btn-add-tx" class="action-btn btn-save" style="height: 100%;">AGGIUNGI</button>
+                        
+                        <input type="text" id="tx-desc" value="Carburante" placeholder="Descrizione" 
+                               style="width: 100%; height: 46px; padding: 0 15px; border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card); font-family:inherit;">
+                        
+                        <input type="number" step="0.01" id="tx-amount" placeholder="€ 0.00" 
+                               style="width: 100%; height: 46px; padding: 0 15px; border:1px solid var(--border-color); border-radius:var(--radius-input); background:var(--bg-card); font-family:inherit;">
+                        
+                        <button id="btn-add-tx" class="action-btn btn-save" style="height: 46px;">AGGIUNGI</button>
                     </div>
                 </div>
 
@@ -312,7 +317,60 @@ const AmministrazioneModule = {
         } catch(err) { window.showNotification("File non valido", 'error'); } }; r.readAsText(f);
     },
 
-    printStatement: function(id) { const client = this.getClients().find(c => c.id === id); if (!client) return; const w = window.open('', '_blank'); w.document.write(`<html><head><title>Estratto Conto</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background-color:#f2f2f2}.text-right{text-align:right}</style></head><body><h2>Estratto Conto: ${client.name}</h2><p>Data: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Data</th><th>Descrizione</th><th class="text-right">Importo</th></tr></thead><tbody>${client.transactions.map(t=>`<tr><td>${new Date(t.date).toLocaleDateString()}</td><td>${t.description}</td><td class="text-right">${t.amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2" class="text-right">SALDO FINALE</th><th class="text-right">${client.balance.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</th></tr></tfoot></table><script>window.print();</script></body></html>`); w.document.close(); },
+    printStatement: function(id) { 
+        const client = this.getClients().find(c => c.id === id); 
+        if (!client) return; 
+        
+        // Titolo dinamico per il file
+        const docTitle = `Estratto conto - ${client.name}`;
+        
+        const w = window.open('', '_blank'); 
+        w.document.write(`
+            <html>
+                <head>
+                    <title>${docTitle}</title> <style>
+                        body{font-family:sans-serif;padding:20px}
+                        table{width:100%;border-collapse:collapse;margin-top:20px}
+                        th,td{border:1px solid #ddd;padding:8px;text-align:left}
+                        th{background-color:#f2f2f2}
+                        .text-right{text-align:right}
+                    </style>
+                </head>
+                <body>
+                    <h2>Estratto Conto: ${client.name}</h2>
+                    <p>Data: ${new Date().toLocaleDateString()}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrizione</th>
+                                <th class="text-right">Importo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${client.transactions.map(t=>`
+                                <tr>
+                                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                                    <td>${t.description}</td>
+                                    <td class="text-right">${t.amount.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" class="text-right">SALDO FINALE</th>
+                                <th class="text-right">${client.balance.toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <script>
+                        window.onload = function() { window.print(); };
+                    </script>
+                </body>
+            </html>
+        `); 
+        w.document.close(); 
+    },
     printList: function() { const clients = this.getFilteredClients(); const w = window.open('', '_blank'); let rows = ''; for(let i=0; i<clients.length; i+=2) { const c1 = clients[i]; const c2 = clients[i+1]; const cell1 = c1 ? `<td>${c1.name}</td><td class="text-right">${c1.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; const cell2 = c2 ? `<td>${c2.name}</td><td class="text-right">${c2.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; rows += `<tr>${cell1}${cell2}</tr>`; } w.document.write(`<html><head><title>Lista Clienti</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"><style>body{font-family:'Montserrat',sans-serif;font-size:10pt;padding:20px}h2{text-align:center;margin-bottom:5px;text-transform:uppercase}p{text-align:center;margin-top:0;margin-bottom:20px;font-size:9pt;color:#666}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;font-size:9pt;vertical-align:middle}th{background-color:#f0f0f0;font-weight:600;text-align:left}.text-right{text-align:right}td:nth-child(1),td:nth-child(3){width:35%}td:nth-child(2),td:nth-child(4){width:15%;font-weight:bold}@media print{@page{margin:1cm}}</style></head><body><h2>Riepilogo Clienti a credito</h2><p>Data: ${new Date().toLocaleDateString('it-IT')}</p><table><thead><tr><th>Cliente</th><th class="text-right">Saldo</th><th>Cliente</th><th class="text-right">Saldo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=function(){window.print();window.close();}</script></body></html>`); w.document.close(); },
     attachMainListeners: function() { document.getElementById('search-client').addEventListener('input', (e) => { this.currentFilter = e.target.value; this.currentPage = 1; this.render(); const inp = document.getElementById('search-client'); inp.focus(); const val=inp.value; inp.value=''; inp.value=val; }); const btnClear = document.getElementById('btn-clear-search'); if(btnClear) btnClear.addEventListener('click', () => { this.currentFilter = ''; this.currentPage = 1; this.render(); document.getElementById('search-client').focus(); }); document.getElementById('btn-new-client').addEventListener('click', () => this.openClientModal()); document.getElementById('btn-print-list').addEventListener('click', () => this.printList()); const fi = document.getElementById('import-admin-input'); document.getElementById('btn-admin-import').addEventListener('click', () => fi.click()); fi.addEventListener('change', (e) => this.importData(e)); document.getElementById('btn-admin-export').addEventListener('click', () => this.exportData()); const btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next'); if(btnPrev) btnPrev.addEventListener('click', () => { if(this.currentPage>1) {this.currentPage--; this.render();} }); if(btnNext) btnNext.addEventListener('click', () => { if(this.currentPage*this.ITEMS_PER_PAGE < this.getFilteredClients().length) {this.currentPage++; this.render();} }); },
     exportData: function() { try { const data = this.getClients(); const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data)); a.download = "polaris_clienti.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { window.showNotification("Errore Export", 'error'); } },
