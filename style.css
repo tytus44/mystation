@@ -522,63 +522,58 @@ input[type=number] { -moz-appearance: textfield; }
 /* =========================================
    14. CUSTOM TOOLTIPS (Header)
    ========================================= */
-
-/* Posizionamento relativo per il genitore del tooltip */
-[data-tooltip] {
-    position: relative;
-}
-
-/* Corpo del Tooltip (Il "Cuscino") */
+[data-tooltip] { position: relative; }
 [data-tooltip]::after {
-    content: attr(data-tooltip); /* Prende il testo dall'attributo */
-    position: absolute;
-    top: 125%; /* Posizionato sotto il bottone */
-    left: 50%;
-    transform: translateX(-50%) translateY(-5px); /* Centrato orizzontalmente */
-    
-    /* Stile "Pillow" Verde Acido */
-    background-color: var(--col-positive);
-    color: #ffffff;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    
-    padding: 6px 14px;
-    border-radius: 50px; /* Forma a pillola/cuscino */
-    box-shadow: 0 4px 15px rgba(177, 228, 38, 0.4); /* Glow verde */
-    pointer-events: none; /* Non cliccabile */
-    z-index: 1000;
-    
-    /* Stato Iniziale (Nascosto) */
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Effetto rimbalzo */
-}
-
-/* Freccina (Triangolo sopra il tooltip) */
-[data-tooltip]::before {
-    content: '';
-    position: absolute;
-    top: 115%;
-    left: 50%;
+    content: attr(data-tooltip); position: absolute; top: 125%; left: 50%;
     transform: translateX(-50%) translateY(-5px);
-    
-    border: 6px solid transparent;
-    border-bottom-color: var(--col-positive); /* Colore freccia */
-    
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-    z-index: 1000;
+    background-color: var(--col-positive); color: #ffffff;
+    font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    padding: 6px 14px; border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(177, 228, 38, 0.4);
+    pointer-events: none; z-index: 1000; opacity: 0; visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+[data-tooltip]::before {
+    content: ''; position: absolute; top: 115%; left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    border: 6px solid transparent; border-bottom-color: var(--col-positive);
+    opacity: 0; visibility: hidden; transition: all 0.2s ease; z-index: 1000;
+}
+[data-tooltip]:hover::after, [data-tooltip]:hover::before {
+    opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
 }
 
-/* Stato Hover (Visibile) */
-[data-tooltip]:hover::after,
-[data-tooltip]:hover::before {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
+/* =========================================
+   15. FORM INPUTS (NUOVO STILE PULITO)
+   ========================================= */
+.form-input {
+    width: 100%;
+    height: 46px; /* Altezza standard per touch/click comodo */
+    padding: 0 20px; /* SPAZIO INTERNO RICHIESTO */
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-input);
+    background-color: transparent;
+    color: var(--text-main);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none; -webkit-appearance: none; /* Rimuove stile default browser */
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.1);
+}
+
+/* Variante Pillola (es. Barre di ricerca) */
+.form-input.pill {
+    border-radius: var(--radius-pill);
+}
+
+/* Fix per input date (no icona nativa) */
+.form-input.no-icon::-webkit-calendar-picker-indicator {
+    background: transparent; bottom: 0; color: transparent; cursor: pointer;
+    height: auto; left: 0; position: absolute; right: 0; top: 0; width: auto;
 }

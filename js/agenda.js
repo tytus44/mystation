@@ -74,13 +74,13 @@ window.AgendaModule = {
                     
                     <div style="margin-bottom: 15px;">
                         <label>Descrizione</label>
-                        <input type="text" id="inp-task-desc" class="nav-link" placeholder="Es. Bonifico..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input);">
+                        <input type="text" id="inp-task-desc" class="form-input" placeholder="Es. Bonifico..." >
                     </div>
                     
                     <div style="margin-bottom: 25px;">
                         <label>Scadenza</label>
                         <div class="datepicker-container" style="position: relative;">
-                            <input type="date" id="inp-task-date" class="nav-link no-icon" style="position:absolute; opacity:0; pointer-events:none;">
+                            <input type="date" id="inp-task-date" class="form-input no-icon" style="position:absolute; opacity:0; pointer-events:none;">
                             <button type="button" class="dropdown-trigger" onclick="window.AgendaModule.toggleDatepicker(event)">
                                 <span id="date-display-agenda">--</span>
                                 <i data-lucide="calendar" style="width:16px;"></i>
@@ -101,14 +101,12 @@ window.AgendaModule = {
             </div>
         `;
 
-        // Footer standard con pulsante CHIUDI
         const footerHTML = `
             <div class="btn-group">
                 <button class="action-btn" onclick="window.closeModal()">CHIUDI</button>
             </div>
         `;
 
-        // Larghezza 800px
         window.openModal('Agenda & Task', bodyHTML, footerHTML, '800px');
         
         // Setup iniziale
@@ -127,7 +125,6 @@ window.AgendaModule = {
 
         const tasks = this.getTasks();
         
-        // Ordina: Non completati (scaduti -> oggi -> futuri) -> Completati
         tasks.sort((a, b) => {
             if (a.completed === b.completed) return new Date(a.date) - new Date(b.date);
             return a.completed ? 1 : -1;
@@ -193,7 +190,6 @@ window.AgendaModule = {
         lucide.createIcons();
     },
 
-    // --- LOGICA FORM (ADD/EDIT) ---
     resetForm: function() {
         this.editingId = null;
         document.getElementById('form-title').innerHTML = `<i data-lucide="plus-circle" style="width: 16px; margin-right: 5px; vertical-align: text-bottom;"></i> Nuovo Task`;
@@ -201,7 +197,6 @@ window.AgendaModule = {
         document.getElementById('btn-save-task').innerText = 'SALVA';
         document.getElementById('btn-cancel-edit').style.display = 'none';
 
-        // Setta data oggi
         const today = new Date().toISOString().split('T')[0];
         this.setFormDate(today);
 
@@ -237,14 +232,12 @@ window.AgendaModule = {
         let tasks = this.getTasks();
 
         if (this.editingId) {
-            // Update
             const idx = tasks.findIndex(t => t.id === this.editingId);
             if (idx !== -1) {
                 tasks[idx].desc = desc;
                 tasks[idx].date = new Date(date).toISOString();
             }
         } else {
-            // Create
             tasks.push({
                 id: Date.now().toString(),
                 desc: desc,
@@ -258,7 +251,6 @@ window.AgendaModule = {
         this.resetForm();
     },
 
-    // --- AZIONI LISTA ---
     toggleComplete: function(id) {
         let tasks = this.getTasks();
         const idx = tasks.findIndex(t => t.id === id);
@@ -268,8 +260,7 @@ window.AgendaModule = {
         }
     },
 
-deleteTask: function(id) {
-        // Contenuto della modale di conferma
+    deleteTask: function(id) {
         const bodyHTML = `
             <div style="text-align:center; padding:10px;">
                 <i data-lucide="trash-2" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i>
@@ -285,33 +276,21 @@ deleteTask: function(id) {
             </div>
         `;
 
-        // Apre la modale piccola
         window.openModal('Conferma Eliminazione', bodyHTML, footerHTML, '400px');
 
-        // Gestione Click
         setTimeout(() => {
-            // Annulla: Torna alla lista Agenda
             document.getElementById('btn-cancel-del').onclick = () => this.openMainModal();
-
-            // Conferma: Elimina e torna alla lista Agenda
             document.getElementById('btn-confirm-del').onclick = () => {
                 let tasks = this.getTasks().filter(t => t.id !== id);
-                
-                // Salvataggio manuale senza render immediato (perché siamo sulla modale di conferma)
                 localStorage.setItem('polaris_agenda', JSON.stringify(tasks));
                 this.updateBadge();
-                
                 if (this.editingId === id) this.editingId = null;
-
                 window.showNotification("Task eliminato", 'info');
-                
-                // Riapre l'agenda aggiornata
                 this.openMainModal();
             };
         }, 50);
     },
 
-    // --- DATEPICKER LOGIC ---
     setFormDate: function(isoDate) {
         document.getElementById('inp-task-date').value = isoDate;
         document.getElementById('date-display-agenda').innerText = this.formatDateIT(isoDate);

@@ -14,9 +14,7 @@ const CaricoModule = {
     init: function() {
         this.currentPage = 1;
         this.render();
-        // Nota: Non serve più setupModalListeners locale, gestisce tutto applicazione.js
-
-        // Listener specifico per chiudere il datepicker se clicco fuori
+        
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.datepicker-container')) {
                 document.querySelectorAll('.datepicker-wrapper.show').forEach(d => d.classList.remove('show'));
@@ -100,7 +98,6 @@ const CaricoModule = {
         });
     },
 
-    // --- MODALE INSERIMENTO (CON STEPPER) ---
     openModalCarico: function(idToEdit = null) {
         this.editingId = idToEdit;
         let title = idToEdit ? "Modifica Carico" : "Nuovo Carico";
@@ -116,7 +113,7 @@ const CaricoModule = {
                     <div>
                         <label>Data Carico</label>
                         <div class="datepicker-container" style="position: relative;">
-                            <input type="date" id="inp-date" value="${dateVal}" class="nav-link no-icon" style="position:absolute; opacity:0; pointer-events:none;">
+                            <input type="date" id="inp-date" value="${dateVal}" class="form-input no-icon" style="position:absolute; opacity:0; pointer-events:none;">
                             <button type="button" id="date-trigger" class="dropdown-trigger" onclick="CaricoModule.toggleDatepicker(event)">
                                 <span id="date-display">${this.formatDateIT(dateVal)}</span>
                                 <i data-lucide="calendar" style="width:16px;"></i>
@@ -126,7 +123,7 @@ const CaricoModule = {
                     </div>
                     <div>
                         <label>Autista</label>
-                        <input type="text" id="inp-driver" class="nav-link" placeholder="Nome Autista" style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input);" value="${driverVal}">
+                        <input type="text" id="inp-driver" class="form-input" placeholder="Nome Autista" value="${driverVal}">
                     </div>
                 </div>
 
@@ -165,7 +162,6 @@ const CaricoModule = {
             </div>
         `;
 
-        // USO window.openModal CON LARGHEZZA ESPLICITA 600px
         window.openModal(title, bodyHTML, footerHTML, '600px');
 
         if (ex) {
@@ -181,7 +177,6 @@ const CaricoModule = {
             });
         }
 
-        // Attiva i listener per i pulsanti +/- e salvataggio
         setTimeout(() => {
             this.setupStepperListeners();
             document.getElementById('btn-save-carico').addEventListener('click', () => this.saveEntry());
@@ -204,7 +199,6 @@ const CaricoModule = {
         });
     },
 
-    // --- DATI E CALCOLI ---
     normalizeEntry: function(e) {
         const normalizeProd = (p) => {
             const data = p || { carico: 0, diff: 0 };
@@ -293,14 +287,14 @@ const CaricoModule = {
         this.render();
     },
 
-    // --- TABELLE ---
     renderSummaryRows: function(summary) {
         const prevStock = this.getPrevStock();
         return this.products.map(p => {
             const pid = p.id;
             const s = summary[pid];
             const stockVal = prevStock[pid] || 0;
-            return `<tr style="border-bottom: 1px dashed var(--border-color);"><td style="padding: 12px; font-weight: 600; color: ${p.color};">${p.label}</td><td style="padding: 12px;">${s.carico.toLocaleString()}</td><td style="padding: 12px;" class="text-success">${s.pos > 0 ? '+' + s.pos : '-'}</td><td style="padding: 12px;" class="text-danger">${s.neg < 0 ? s.neg : '-'}</td><td style="padding: 12px;"><input type="number" class="nav-link inp-prev-year" data-prod="${pid}" value="${stockVal}" style="width: 100px; border: 1px solid var(--border-color); padding: 5px; border-radius: 8px;" placeholder="0"></td><td style="padding: 12px; font-weight: bold;">${s.chiusura.toLocaleString()}</td></tr>`;
+            // FIX: form-input
+            return `<tr style="border-bottom: 1px dashed var(--border-color);"><td style="padding: 12px; font-weight: 600; color: ${p.color};">${p.label}</td><td style="padding: 12px;">${s.carico.toLocaleString()}</td><td style="padding: 12px;" class="text-success">${s.pos > 0 ? '+' + s.pos : '-'}</td><td style="padding: 12px;" class="text-danger">${s.neg < 0 ? s.neg : '-'}</td><td style="padding: 12px;"><input type="number" class="form-input inp-prev-year" data-prod="${pid}" value="${stockVal}" style="width: 100px; padding: 5px; height: 36px;" placeholder="0"></td><td style="padding: 12px; font-weight: bold;">${s.chiusura.toLocaleString()}</td></tr>`;
         }).join('');
     },
     renderTable: function(entries) {
@@ -333,7 +327,6 @@ const CaricoModule = {
         return `<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid var(--border-color);"><span style="font-size: 0.9rem; color: var(--text-secondary);">Pagina ${this.currentPage} di ${Math.ceil(totalItems / this.ITEMS_PER_PAGE)}</span><div style="display: flex; gap: 10px;"><button id="btn-prev" class="icon-btn"><i data-lucide="chevron-left"></i></button><button id="btn-next" class="icon-btn"><i data-lucide="chevron-right"></i></button></div></div>`;
     },
 
-    // --- SALVATAGGIO & ELIMINAZIONE ---
     saveEntry: function() {
         const date = document.getElementById('inp-date').value;
         const driver = document.getElementById('inp-driver').value;
@@ -365,7 +358,6 @@ const CaricoModule = {
         this.render(); 
     },
 
-    // --- UTILS & LISTENERS ---
     attachMainListeners: function() {
         document.getElementById('btn-new-carico').addEventListener('click', () => this.openModalCarico());
         document.getElementById('btn-carico-export').addEventListener('click', () => this.exportData());
@@ -396,7 +388,6 @@ const CaricoModule = {
         r.readAsText(f); 
     },
     
-    // --- DATEPICKER ---
     toggleDatepicker: function(e) { e.stopPropagation(); const w = document.getElementById('custom-datepicker'); if (w.classList.contains('show')) { w.classList.remove('show'); return; } document.querySelectorAll('.show').forEach(el => el.classList.remove('show')); w.classList.add('show'); const curDate = new Date(document.getElementById('inp-date').value); this.renderCalendar(curDate.getFullYear(), curDate.getMonth()); },
     renderCalendar: function(y, m) { const w = document.getElementById('custom-datepicker'); const ms = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']; const ds = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']; const fd = new Date(y, m, 1).getDay(); const afd = fd === 0 ? 6 : fd - 1; const dim = new Date(y, m+1, 0).getDate(); let html = `<div class="datepicker-header"><button type="button" class="datepicker-nav" onclick="CaricoModule.changeMonth(${m-1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-left" style="width:16px;"></i></button><div class="datepicker-title">${ms[m]} ${y}</div><button type="button" class="datepicker-nav" onclick="CaricoModule.changeMonth(${m+1}, ${y}); event.stopPropagation();"><i data-lucide="chevron-right" style="width:16px;"></i></button></div><div class="datepicker-grid">${ds.map(d=>`<div class="datepicker-day-label">${d}</div>`).join('')}`; for(let i=0; i<afd; i++) html+=`<div class="datepicker-day empty"></div>`; const sd = new Date(document.getElementById('inp-date').value); const today = new Date(); for(let i=1; i<=dim; i++) { let cls = 'datepicker-day'; if(i===today.getDate() && m===today.getMonth() && y===today.getFullYear()) cls+=' today'; if(i===sd.getDate() && m===sd.getMonth() && y===sd.getFullYear()) cls+=' selected'; html+=`<div class="${cls}" onclick="CaricoModule.selectDate(${y},${m},${i}); event.stopPropagation();">${i}</div>`; } html+='</div>'; w.innerHTML = html; lucide.createIcons(); },
     changeMonth: function(m, y) { if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; } this.renderCalendar(y, m); },

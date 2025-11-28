@@ -13,9 +13,7 @@ const PrezziModule = {
     init: function() {
         this.currentPage = 1;
         this.render();
-        // setupModalListeners rimosso: gestito globalmente
-
-        // Listener globale per chiusura Datepicker
+        
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.datepicker-container')) {
                 const w = document.getElementById('custom-datepicker-prezzi');
@@ -121,7 +119,6 @@ const PrezziModule = {
         lucide.createIcons();
         this.renderChart();
 
-        // Listeners
         document.getElementById('btn-open-listino').addEventListener('click', () => this.openNewListinoModal());
         document.getElementById('btn-open-competitor').addEventListener('click', () => this.openCompetitorModal());
         document.getElementById('btn-export').addEventListener('click', () => this.exportData());
@@ -130,7 +127,6 @@ const PrezziModule = {
         document.getElementById('btn-import').addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => this.importData(e));
 
-        // Listeners Tabella (Delegazione)
         const historyTable = document.querySelector('.table-prices tbody');
         if(historyTable) {
             historyTable.addEventListener('click', (e) => {
@@ -275,7 +271,7 @@ const PrezziModule = {
         return html;
     },
 
-    // --- GRAFICO (Linee Nette + Legenda Pillola) ---
+    // --- GRAFICO ---
     renderChart: function() {
         const ctx = document.getElementById('prezziChart');
         if (!ctx) return;
@@ -382,7 +378,7 @@ const PrezziModule = {
                     <div>
                         <label>Data Listino</label>
                         <div class="datepicker-container" style="position: relative;">
-                            <input type="date" id="inp-date-listino" value="${dateVal}" class="nav-link no-icon" style="position:absolute; opacity:0; pointer-events:none;">
+                            <input type="date" id="inp-date-listino" value="${dateVal}" class="form-input no-icon" style="position:absolute; opacity:0; pointer-events:none;">
                             <button type="button" id="date-trigger-listino" class="dropdown-trigger" onclick="PrezziModule.toggleDatepicker(event)" style="height: 46px; display: flex; align-items: center;">
                                 <span id="date-display-listino">${this.formatDateIT(dateVal)}</span>
                                 <i data-lucide="calendar" style="width:16px;"></i>
@@ -392,7 +388,7 @@ const PrezziModule = {
                     </div>
                     <div>
                         <label>Annotazioni</label>
-                        <input type="text" id="inp-notes" class="nav-link" value="${notesVal}" placeholder="Es. Aumento accise..." style="width:100%; border:1px solid var(--border-color); border-radius:var(--radius-input); height: 46px;">
+                        <input type="text" id="inp-notes" class="form-input" value="${notesVal}" placeholder="Es. Aumento accise..." style="height: 46px;">
                     </div>
                 </div>
 
@@ -490,11 +486,6 @@ const PrezziModule = {
             document.getElementById('btn-save-competitor').addEventListener('click', () => this.saveCompetitor());
             document.getElementById('btn-cancel-comp').addEventListener('click', () => window.closeModal());
         }, 0);
-    },
-
-    // --- HELPER MODALI E SETUP ---
-    setupModalListeners: function() {
-        // Rimosso, gestito globalmente
     },
 
     // --- HELPER GENERICI ---

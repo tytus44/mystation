@@ -18,7 +18,7 @@ const VirtualStationModule = {
         this.currentPage = 1;
         this.currentFilter = `month-${new Date().getMonth()}`;
         this.render();
-        // setupModalListeners rimosso: gestito globalmente
+        
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
                 document.querySelectorAll('.dropdown-content.show').forEach(d => d.classList.remove('show'));
@@ -52,7 +52,6 @@ const VirtualStationModule = {
         this.attachMainListeners();
     },
 
-    // --- MODALE DELETE ---
     deleteTurno: function(id) {
         const bodyHTML = `<div style="text-align:center; padding:10px;"><i data-lucide="trash-2" style="width:48px; height:48px; color:var(--col-destructive); margin-bottom:10px;"></i><p style="font-weight:600; color:var(--text-main);">Eliminare questo turno?</p></div>`;
         const footerHTML = `<div class="btn-group"><button id="btn-cancel-del" class="action-btn btn-cancel">ANNULLA</button><button id="btn-confirm-del" class="action-btn btn-delete">ELIMINA</button></div>`;
@@ -131,7 +130,7 @@ const VirtualStationModule = {
                     <div>
                         <label>Data</label>
                         <div class="datepicker-container" style="position: relative;">
-                            <input type="date" id="inp-date" value="${dateVal}" class="nav-link no-icon" style="position:absolute; opacity:0; pointer-events:none;">
+                            <input type="date" id="inp-date" value="${dateVal}" class="form-input no-icon" style="position:absolute; opacity:0; pointer-events:none;">
                             <button type="button" id="date-trigger" class="dropdown-trigger" onclick="VirtualStationModule.toggleDatepicker(event)">
                                 <span id="date-display">${this.formatDateIT(dateVal)}</span>
                                 <i data-lucide="calendar" style="width:16px;"></i>
@@ -373,7 +372,6 @@ const VirtualStationModule = {
             this.chartInstances.trend = new Chart(ctxTrend, { type: 'line', data: { labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'], datasets: [{ label: 'Vendite Mensili', data: monthly, borderColor: '#4318FF', backgroundColor: 'rgba(67, 24, 255, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 40, boxHeight: 12, useBorderRadius: true, borderRadius: 20 } } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } });
         }
     },
-    setupModalListeners: function() { const cb = document.getElementById('modal-close'); if (cb) cb.addEventListener('click', () => window.closeModal()); },
-    // Rimossa funzione locale openModal/closeModal
+    // Rimossa funzione locale openModal/closeModal/setupModalListeners
 };
 /* FINE MODULO VIRTUAL STATION */
