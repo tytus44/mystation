@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalModal(); // Gestione chiusura modale
 
     // INIZIALIZZAZIONE AGENDA
-    // Controlliamo se il modulo è stato caricato e lo avviamo
     if (typeof window.AgendaModule !== 'undefined') {
         console.log("--> Applicazione: Avvio AgendaModule...");
         window.AgendaModule.init();
@@ -31,8 +30,14 @@ function initNavigation() {
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             navLinks.forEach(l => l.classList.remove('active'));
-            e.target.classList.add('active');
-            const sectionName = e.target.getAttribute('data-section');
+            
+            // MODIFICA IMPORTANTE: Usiamo e.currentTarget invece di e.target
+            // e.currentTarget si riferisce sempre al bottone, anche se clicchiamo sull'icona interna
+            const btn = e.currentTarget;
+            
+            btn.classList.add('active');
+            const sectionName = btn.getAttribute('data-section');
+            
             loadSection(sectionName);
         });
     });
@@ -64,6 +69,7 @@ function loadSection(sectionName) {
             postRenderAction = () => { if (typeof AmministrazioneModule !== 'undefined') AmministrazioneModule.init(); };
             break;
         default:
+            console.warn("Sezione non trovata:", sectionName);
             contentHTML = `<h2>Sezione non trovata</h2>`;
     }
 
@@ -124,7 +130,7 @@ function exportGeneralBackup() {
                 priceHistory: JSON.parse(localStorage.getItem('polaris_price_history') || '[]'),
                 lastPrices: JSON.parse(localStorage.getItem('polaris_last_prices') || 'null'),
                 competitors: JSON.parse(localStorage.getItem('polaris_competitors') || 'null'),
-                agenda: JSON.parse(localStorage.getItem('polaris_agenda') || '[]'), // BACKUP AGENDA
+                agenda: JSON.parse(localStorage.getItem('polaris_agenda') || '[]'),
                 theme: localStorage.getItem('polaris_theme')
             }
         };
@@ -165,7 +171,7 @@ function importGeneralBackup(e) {
                     if(d.priceHistory) localStorage.setItem('polaris_price_history', JSON.stringify(d.priceHistory));
                     if(d.lastPrices) localStorage.setItem('polaris_last_prices', JSON.stringify(d.lastPrices));
                     if(d.competitors) localStorage.setItem('polaris_competitors', JSON.stringify(d.competitors));
-                    if(d.agenda) localStorage.setItem('polaris_agenda', JSON.stringify(d.agenda)); // RIPRISTINO AGENDA
+                    if(d.agenda) localStorage.setItem('polaris_agenda', JSON.stringify(d.agenda));
                     if(d.theme) localStorage.setItem('polaris_theme', d.theme);
                     
                     window.closeModal();
@@ -322,3 +328,4 @@ window.showNotification = function(message, type = 'info') {
     // Apre modale piccola
     window.openModal('', bodyHTML, footerHTML, '400px');
 };
+/* FINE APPLICAZIONE */

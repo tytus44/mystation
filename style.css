@@ -88,24 +88,50 @@ header {
 .header-left { display: flex; align-items: center; gap: 15px; min-width: 150px; }
 .logo-img { height: 42px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 .app-title { font-weight: 700; font-size: 1.4rem; letter-spacing: -0.5px; color: var(--text-main); }
-.header-center { display: flex; gap: 8px; }
+.header-center { display: flex; gap: 12px; }
 .header-right { display: flex; gap: 12px; min-width: 150px; justify-content: flex-end; }
 
 /* =========================================
    4. COMPONENTI UI (BOTTONI & NAV)
    ========================================= */
+
+/* --- LINK MENU PRINCIPALE (Icone Circolari Fisse) --- */
 .nav-link {
     background: transparent; border: none;
-    font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 0.9rem;
-    cursor: pointer; padding: 10px 24px; color: var(--text-secondary);
-    transition: all 0.3s ease; border-radius: var(--radius-pill);
-}
-.nav-link:hover { color: var(--primary-color); background-color: var(--primary-light-bg); }
-.nav-link.active {
-    color: var(--text-inverse); background: var(--primary-gradient);
-    font-weight: 600; box-shadow: var(--shadow-glow); transform: translateY(-1px);
+    cursor: pointer; color: var(--text-secondary);
+    transition: all 0.3s ease; 
+    
+    /* Forma Circolare Fissa */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    width: 48px; 
+    height: 48px; 
+    border-radius: 50%;
+    padding: 0; 
 }
 
+/* Icona interna */
+.nav-link i {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+.nav-link:hover { 
+    color: var(--primary-color); 
+    background-color: var(--primary-light-bg); 
+    transform: translateY(-2px);
+}
+
+.nav-link.active {
+    color: var(--text-inverse); 
+    background: var(--primary-gradient);
+    box-shadow: var(--shadow-glow); 
+    transform: translateY(-2px);
+}
+
+/* --- Action Buttons (Base) --- */
 .action-btn {
     background-color: var(--primary-light-bg);
     color: var(--primary-color);
@@ -121,6 +147,7 @@ header {
     color: var(--text-inverse); box-shadow: var(--shadow-glow);
 }
 
+/* --- Pulsante Sistema (Header) --- */
 .btn-system {
     display: flex; align-items: center; gap: 6px;
     background: transparent; border: 1px solid var(--border-color);
@@ -133,6 +160,7 @@ header {
 }
 .btn-system:hover i, .btn-system.active i { color: #ffffff; }
 
+/* --- Varianti Semantiche --- */
 .btn-secondary {
     background-color: var(--bg-card);
     color: var(--text-secondary);
@@ -157,14 +185,14 @@ header {
     border-color: transparent;
 }
 
-/* ICON BUTTONS BASE */
+/* --- ICON BUTTONS BASE (Cerchiati 40px) --- */
 .icon-btn {
     background: var(--bg-card); border: 1px solid var(--border-color);
     cursor: pointer; color: var(--text-secondary);
     transition: all 0.2s; display: flex; align-items: center; justify-content: center;
     width: 40px; height: 40px; border-radius: 50%;
     box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    position: relative;
+    position: relative; 
 }
 .icon-btn:hover { 
     background-color: var(--col-positive); 
@@ -173,26 +201,24 @@ header {
     transform: translateY(-2px); 
 }
 
-/* --- NUOVA CLASSE: Icon Button Small (Stile Tabella) --- 
-   Replica esattamente i pulsanti delle tabelle: 
-   32px, sfondo grigino, nessun bordo visibile.
-*/
+/* --- ICON BUTTON SMALL (Stile Tabella/Lista - 32px) --- */
 .icon-btn-sm {
     width: 32px; 
     height: 32px;
-    background-color: var(--bg-app); /* Grigino */
-    border: 1px solid transparent;   /* Bordo trasparente */
+    background-color: var(--bg-app); 
+    border: 1px solid transparent;   
     box-shadow: none;
 }
 
-/* HOVER EDIT (Verde) - Globale per icon-btn */
+/* HOVER EDIT (Verde) - Globale */
 .icon-btn.btn-edit:hover { 
     background-color: var(--col-positive); 
     color: #ffffff; 
-    border-color: transparent;
+    border-color: var(--col-positive); 
     box-shadow: 0 4px 10px rgba(177, 228, 38, 0.4);
 }
-/* HOVER DELETE (Rosso) - Globale per icon-btn */
+
+/* HOVER DELETE (Rosso) - Globale */
 .icon-btn.btn-delete:hover { 
     background-color: var(--col-destructive); 
     color: #ffffff; 
@@ -273,7 +299,7 @@ body.dark-mode .card-header i { background-color: rgba(117, 81, 255, 0.2); color
 .table-prices th:last-child, .table-prices td:last-child { text-align: right; }
 .table-prices td { padding: 12px; border-bottom: 1px dashed var(--border-color); vertical-align: middle; font-size: 0.95rem; color: var(--text-main); }
 
-/* Applico icon-btn-sm anche all'interno delle tabelle esistenti per uniformità */
+/* Stile bottoni dentro la tabella */
 .table-prices .icon-btn {
     width: 32px; height: 32px; border-radius: 50%; margin-left: 5px;
     background-color: var(--bg-app); border: 1px solid transparent; display: inline-flex;
