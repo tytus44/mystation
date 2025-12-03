@@ -32,16 +32,24 @@ const CaricoModule = {
         const summary = this.calculateAnnualSummary(entries);
         const stats = this.calculateTopStats(entries);
 
+        // MODIFICA: Toolbar centralizzata, sequenza corretta e icone per altezza standard
         container.innerHTML = `
-            <div class="toolbar-container">
-                <div class="toolbar-group">
-                    <input type="file" id="import-carico-input" style="display: none;" accept=".json">
-                    <button id="btn-carico-import" class="action-btn">Importa</button>
-                    <button id="btn-carico-export" class="action-btn">Esporta</button>
-                </div>
-                <div class="toolbar-group">
-                    <button id="btn-new-carico" class="action-btn">Nuovo Carico</button>
-                </div>
+            <div class="card" style="padding: 25px; margin-bottom: 24px; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                
+                <button id="btn-new-carico" class="action-btn">
+                    <i data-lucide="plus-circle"></i> Nuovo Carico
+                </button>
+
+                <input type="file" id="import-carico-input" style="display: none;" accept=".json">
+                
+                <button id="btn-carico-import" class="action-btn">
+                    <i data-lucide="upload"></i> Importa
+                </button>
+                
+                <button id="btn-carico-export" class="action-btn">
+                    <i data-lucide="download"></i> Esporta
+                </button>
+
             </div>
 
             <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 24px;">

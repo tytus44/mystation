@@ -2,8 +2,8 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polaris - Gestione Stazione</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Polaris Station Management</title>
     
     <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
     
@@ -11,95 +11,167 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-        <div class="header-left">
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <aside id="sidebar-left" class="sidebar sidebar-left">
+        <div class="sidebar-header">
+            <img src="img/logo.png" alt="Logo" class="sidebar-logo">
+            <span class="app-title">Polaris</span>
+        </div>
+        
+        <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-menu">
+            <button class="sidebar-link active" data-section="home">
+                <i data-lucide="house"></i> <span>Home</span>
+            </button>
+            <button class="sidebar-link" data-section="virtualstation">
+                <i data-lucide="monitor-dot"></i> <span>Virtualstation</span>
+            </button>
+            <button class="sidebar-link" data-section="carico">
+                <i data-lucide="truck"></i> <span>Registro di carico</span>
+            </button>
+            <button class="sidebar-link" data-section="prezzi">
+                <i data-lucide="tags"></i> <span>Gestione prezzi</span>
+            </button>
+            <button class="sidebar-link" data-section="amministrazione">
+                <i data-lucide="users"></i> <span>Amministrazione</span>
+            </button>
+            <button class="sidebar-link" data-section="strumenti">
+                <i data-lucide="rocket"></i> <span>Strumenti</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">Polaris v1.2</span>
+        </div>
+    </aside>
+
+    <aside id="sidebar-right" class="sidebar sidebar-right">
+        
+        <div class="dropdown-header-label" style="padding-left: 0; margin-top: 10px;">Sistema</div>
+        
+        <nav class="sidebar-menu">
+            <button class="sidebar-link" id="action-sync-now">
+                <i data-lucide="refresh-cw"></i> <span>Sincronizza Cloud</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="dropdown-header-label" style="padding-left: 0;">Dati & Report</div>
+
+        <nav class="sidebar-menu">
+            <button class="sidebar-link" id="action-print-report">
+                <i data-lucide="printer"></i> <span>Report Giornaliero</span>
+            </button>
+            <button class="sidebar-link" id="action-export">
+                <i data-lucide="download"></i> <span>Backup Dati</span>
+            </button>
+            <button class="sidebar-link" id="action-import">
+                <i data-lucide="upload"></i> <span>Ripristina Dati</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-menu">
+            <button class="sidebar-link" id="btn-cloud-login" style="color: var(--primary-color);">
+                <i data-lucide="cloud"></i> <span>Accedi / Cloud</span>
+            </button>
+            <button class="sidebar-link" id="action-logout" style="color: var(--col-destructive); display: none;">
+                <i data-lucide="log-out"></i> <span>Esci da Google</span>
+            </button>
+        </nav>
+    </aside>
+
+    <header>
+        <div class="header-left" id="left-sidebar-trigger" title="Apri Menu">
             <img src="img/logo.png" alt="Logo Polaris" class="logo-img">
             <span class="app-title">Polaris</span>
         </div>
 
-        <nav class="header-center">
-            <button class="nav-link active" data-section="home" data-tooltip="Home">
-                <i data-lucide="house"></i>
-            </button>
-            
-            <button class="nav-link" data-section="virtualstation" data-tooltip="VirtualStation">
-                <i data-lucide="monitor-dot"></i>
-            </button>
-            
-            <button class="nav-link" data-section="carico" data-tooltip="Registro di Carico">
-                <i data-lucide="truck"></i>
-            </button>
-            
-            <button class="nav-link" data-section="prezzi" data-tooltip="Gestione Prezzi">
-                <i data-lucide="tags"></i>
-            </button>
-            
-            <button class="nav-link" data-section="amministrazione" data-tooltip="Amministrazione">
-                <i data-lucide="handshake"></i>
-            </button>
-        </nav>
+        <div class="header-center">
+            <div class="search-bar-container">
+                <i data-lucide="search" class="search-icon-left"></i>
+                <input type="text" id="global-search-input" placeholder="Cerca clienti, autisti, prodotti..." autocomplete="off">
+                <button id="global-search-clear" class="search-clear-btn hidden">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        </div>
 
         <div class="header-right">
-            <button class="icon-btn" id="btn-agenda" data-tooltip="Agenda">
-                <i data-lucide="book-open"></i>
-            </button>
-
-            <button class="icon-btn" id="btn-apps" data-tooltip="Strumenti">
-                <i data-lucide="rocket"></i>
+            <button class="icon-btn" id="btn-fullscreen" data-tooltip="Schermo Intero">
+                <i data-lucide="maximize"></i>
             </button>
 
             <button class="icon-btn" id="btn-theme" data-tooltip="Cambia Tema">
                 <i data-lucide="moon"></i>
             </button>
 
-            <button class="icon-btn" id="btn-fullscreen" data-tooltip="Fullscreen">
-                <i data-lucide="maximize"></i>
+            <button class="icon-btn" id="btn-agenda" data-tooltip="Agenda Task">
+                <i data-lucide="book-open"></i>
             </button>
 
-            <div class="dropdown">
-                <button class="btn-system" id="btn-settings-trigger">
-                    Sistema <i data-lucide="chevron-down" style="width:14px;"></i>
-                </button>
-                
-                <div class="dropdown-content dropdown-right" id="settings-dropdown">
-                    <div class="dropdown-item" id="action-export">
-                        <i data-lucide="download"></i> Esporta Backup
-                    </div>
-                    <div class="dropdown-item" id="action-import">
-                        <i data-lucide="upload"></i> Importa Backup
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" id="action-print-report">
-                        <i data-lucide="printer"></i> Stampa Report
-                    </div>
-                </div>
-            </div>
+            <button class="icon-btn" id="btn-toggle-right-sidebar" style="overflow: hidden; padding: 0; position: relative;">
+                 <i data-lucide="user" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;"></i>
+                 <img id="user-avatar" src="" alt="User" style="display: none; width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; background: var(--bg-card);">
+                 <div id="sync-badge" class="notification-badge" style="display:none; background-color: var(--col-positive); z-index: 3;"></div>
+            </button>
         </div>
     </header>
     
     <input type="file" id="input-general-import" style="display: none;" accept=".json">
-    <main id="main-content">
-        </main>
+    
+    <main id="main-content"></main>
+    
     <div id="modal-overlay" class="modal-overlay hidden">
         <div class="modal-box">
             <div class="modal-header">
                 <h3 id="modal-title">Titolo Modale</h3>
                 <button id="modal-close"><i data-lucide="x"></i></button>
             </div>
-            
-            <div id="modal-body" class="modal-body">
-                </div>
-            
-            </div>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
     </div>
-    <div class="notification-overlay"></div>
+
+    <nav class="bottom-nav mobile-nav">
+        <button class="nav-link active" data-section="home">
+            <i data-lucide="house"></i>
+            <span class="nav-label">Home</span>
+        </button>
+        
+        <button class="nav-link" data-section="virtualstation">
+            <i data-lucide="monitor-dot"></i>
+            <span class="nav-label">Station</span>
+        </button>
+        
+        <button class="nav-link" data-section="carico">
+            <i data-lucide="truck"></i>
+            <span class="nav-label">Carico</span>
+        </button>
+        
+        <button class="nav-link" data-section="prezzi">
+            <i data-lucide="tags"></i>
+            <span class="nav-label">Prezzi</span>
+        </button>
+        
+        <button class="nav-link" id="mobile-menu-trigger">
+            <i data-lucide="menu"></i>
+            <span class="nav-label">Menu</span>
+        </button>
+    </nav>
+
     <script src="js/prezzi.js"></script>
     <script src="js/virtualstation.js"></script>
     <script src="js/carico.js"></script>
@@ -107,8 +179,8 @@
     <script src="js/home.js"></script>
     <script src="js/strumenti.js"></script>
     <script src="js/agenda.js"></script>
+    <script src="js/cloud.js"></script>
     
     <script src="js/applicazione.js"></script>
-    </body>
-
+</body>
 </html>

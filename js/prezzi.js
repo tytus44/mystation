@@ -31,21 +31,34 @@ const PrezziModule = {
         const competitors = this.getCompetitors();
         const history = this.getPriceHistory().sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Date per i footer
         const listinoDate = currentPrice ? new Date(currentPrice.date).toLocaleDateString() : '-';
         const compDate = competitors ? new Date(competitors.date).toLocaleDateString() : '-';
 
         container.innerHTML = `
-            <div class="toolbar-container">
-                <div class="toolbar-group">
-                    <input type="file" id="import-file-input" style="display: none;" accept=".json">
-                    <button id="btn-import" class="action-btn">Importa</button>
-                    <button id="btn-export" class="action-btn">Esporta</button>
-                </div>
-                <div class="toolbar-group">
-                    <button id="btn-open-listino" class="action-btn">Nuovo Listino</button>
-                    <button id="btn-open-competitor" class="action-btn">Concorrenza</button>
-                </div>
+            <div class="card" style="padding: 25px; margin-bottom: 24px; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                
+                <button id="btn-open-listino" class="action-btn">
+                    <i data-lucide="tag"></i> Nuovo Listino
+                </button>
+                
+                <button id="btn-open-competitor" class="action-btn">
+                    <i data-lucide="crosshair"></i> Concorrenza
+                </button>
+
+                <button id="btn-print-history" class="action-btn">
+                    <i data-lucide="printer"></i> Stampa Storico
+                </button>
+
+                <input type="file" id="import-file-input" style="display: none;" accept=".json">
+                
+                <button id="btn-import" class="action-btn">
+                    <i data-lucide="upload"></i> Importa
+                </button>
+                
+                <button id="btn-export" class="action-btn">
+                    <i data-lucide="download"></i> Esporta
+                </button>
+
             </div>
 
             <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); margin-bottom: 24px;">
@@ -119,8 +132,10 @@ const PrezziModule = {
         lucide.createIcons();
         this.renderChart();
 
+        // Listeners
         document.getElementById('btn-open-listino').addEventListener('click', () => this.openNewListinoModal());
         document.getElementById('btn-open-competitor').addEventListener('click', () => this.openCompetitorModal());
+        document.getElementById('btn-print-history').addEventListener('click', () => this.printHistory());
         document.getElementById('btn-export').addEventListener('click', () => this.exportData());
         
         const fileInput = document.getElementById('import-file-input');
@@ -142,6 +157,81 @@ const PrezziModule = {
         const btnNext = document.getElementById('btn-next-page');
         if(btnPrev) btnPrev.addEventListener('click', () => { if (this.currentPage > 1) { this.currentPage--; this.render(); } });
         if(btnNext) btnNext.addEventListener('click', () => { if (this.currentPage * this.ITEMS_PER_PAGE < history.length) { this.currentPage++; this.render(); } });
+    },
+
+    // --- NUOVA FUNZIONE DI STAMPA STORICO ---
+    printHistory: function() {
+        const history = this.getPriceHistory().sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (history.length === 0) {
+            window.showNotification("Nessun dato da stampare.", "error");
+            return;
+        }
+
+        let rows = '';
+        history.forEach(item => {
+            // MODIFICA: Rimossa visualizzazione orario
+            const d = new Date(item.date).toLocaleDateString();
+            const getVal = (prod) => item.prices[prod]?.self || '-';
+            
+            rows += `
+                <tr>
+                    <td>${d}</td>
+                    <td class="text-right">${getVal('benzina')}</td>
+                    <td class="text-right">${getVal('gasolio')}</td>
+                    <td class="text-right">${getVal('dieselplus')}</td>
+                    <td class="text-right">${getVal('hvo')}</td>
+                    <td class="text-right">${getVal('adblue')}</td>
+                    <td>${item.notes || ''}</td>
+                </tr>
+            `;
+        });
+
+        const w = window.open('', '_blank');
+        w.document.write(`
+            <html>
+            <head>
+                <title>Storico Listini Prezzi</title>
+                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+                <style>
+                    body { font-family: 'Montserrat', sans-serif; padding: 40px; color: #333; font-size: 12px; }
+                    h1 { text-align: center; text-transform: uppercase; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.5rem; }
+                    p { text-align: center; color: #666; margin-bottom: 30px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                    th { background-color: #f0f0f0; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+                    .text-right { text-align: right; }
+                    @media print { 
+                        @page { margin: 1cm; size: landscape; }
+                        body { padding: 0; } 
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Storico Variazioni Prezzi</h1>
+                <p>Generato il: ${new Date().toLocaleDateString()} - Prezzi Self Service</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data Variazione</th>
+                            <th class="text-right">Benzina</th>
+                            <th class="text-right">Gasolio</th>
+                            <th class="text-right">Diesel+</th>
+                            <th class="text-right">HVO</th>
+                            <th class="text-right">AdBlue</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+                <script>
+                    window.onload = function() { window.print(); };
+                </script>
+            </body>
+            </html>
+        `);
+        w.document.close();
     },
 
     // --- HELPER TABELLE ---
@@ -244,7 +334,8 @@ const PrezziModule = {
         `;
 
         pageItems.forEach(item => {
-            const d = new Date(item.date).toLocaleDateString() + ' ' + new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            // MODIFICA: Rimossa visualizzazione orario anche nella tabella
+            const d = new Date(item.date).toLocaleDateString();
             const getVal = (prod) => item.prices[prod]?.self || '-';
 
             html += `

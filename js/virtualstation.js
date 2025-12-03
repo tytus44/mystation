@@ -16,7 +16,10 @@ const VirtualStationModule = {
 
     init: function() {
         this.currentPage = 1;
-        this.currentFilter = `month-${new Date().getMonth()}`;
+        // Default filter: mese corrente
+        if(this.currentFilter === 'month') {
+             this.currentFilter = `month-${new Date().getMonth()}`;
+        }
         this.render();
         
         document.addEventListener('click', (e) => {
@@ -41,11 +44,68 @@ const VirtualStationModule = {
             monthBtnLabel = months[idx];
         }
 
+        // MODIFICA: Toolbar centralizzata in una Card con sequenza personalizzata
         container.innerHTML = `
-            <div class="toolbar-container"><div class="toolbar-group"><input type="file" id="import-vs-input" style="display: none;" accept=".json"><button id="btn-vs-import" class="action-btn">Importa</button><button id="btn-vs-export" class="action-btn">Esporta</button></div><div class="toolbar-group"><button class="action-btn ${this.currentFilter === 'today' ? 'active' : ''}" onclick="VirtualStationModule.setFilter('today')">Oggi</button><div class="dropdown" id="month-dropdown-container"><button class="action-btn ${this.currentFilter.startsWith('month-') ? 'active' : ''}" onclick="document.getElementById('month-dropdown').classList.toggle('show'); event.stopPropagation();">${monthBtnLabel} <i data-lucide="chevron-down" style="width:16px; margin-left:5px;"></i></button><div id="month-dropdown" class="dropdown-content">${months.map((m, i) => `<div class="dropdown-item ${this.currentFilter === `month-${i}` ? 'active' : ''}" onclick="VirtualStationModule.setFilter('month-${i}')">${m}</div>`).join('')}</div></div><button class="action-btn ${this.currentFilter === 'year' ? 'active' : ''}" onclick="VirtualStationModule.setFilter('year')">Anno</button></div><div class="toolbar-group"><button id="btn-new-turno" class="action-btn">Nuovo Turno</button></div></div>
-            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 24px;"><div class="card"><div class="card-header"><span class="card-title">Litri Venduti</span><i data-lucide="droplets"></i></div><div class="card-body"><h2 style="color: var(--primary-color); font-size: 2rem; font-weight: 700;">${stats.liters.toLocaleString('it-IT')} L</h2><p style="color: var(--text-secondary); font-size: 0.9rem;">Nel periodo selezionato</p></div></div><div class="card"><div class="card-header"><span class="card-title">Fatturato Stimato</span><i data-lucide="euro"></i></div><div class="card-body"><h2 style="color: var(--col-gasolio); font-size: 2rem; font-weight: 700;">€ ${stats.revenue.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2><p style="color: var(--text-secondary); font-size: 0.9rem;">Calcolato su storico prezzi</p></div></div><div class="card"><div class="card-header"><span class="card-title">% Servito</span><i data-lucide="user-check"></i></div><div class="card-body"><h2 style="color: var(--col-hvolution); font-size: 2rem; font-weight: 700;">${stats.servitoPerc}%</h2><p style="color: var(--text-secondary); font-size: 0.9rem;">Incidenza sul totale</p></div></div></div>
-            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); margin-bottom: 24px;"><div class="card"><div class="card-header"><span class="card-title">Modalità Servizio</span><i data-lucide="pie-chart"></i></div><div class="card-body" style="height: 300px;"><canvas id="chartMode"></canvas></div></div><div class="card"><div class="card-header"><span class="card-title">Vendite per Prodotto</span><i data-lucide="bar-chart-2"></i></div><div class="card-body" style="height: 300px;"><canvas id="chartProducts"></canvas></div></div><div class="card"><div class="card-header"><span class="card-title">Andamento Anno</span><i data-lucide="trending-up"></i></div><div class="card-body" style="height: 300px;"><canvas id="chartTrend"></canvas></div></div></div>
-            <div class="card"><div class="card-header"><span class="card-title">Storico Turni</span><i data-lucide="history"></i></div><div class="card-body"><div style="overflow-x: auto;">${this.renderTable(turni)}</div>${this.renderPagination(turni.length)}</div></div>
+            <div class="card" style="padding: 25px; margin-bottom: 24px; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                
+                <button id="btn-new-turno" class="action-btn" title="Nuovo Turno">
+                    <i data-lucide="plus-circle"></i> <span class="btn-label">Nuovo Turno</span>
+                </button>
+
+                <button class="action-btn ${this.currentFilter === 'today' ? 'active' : ''}" onclick="VirtualStationModule.setFilter('today')" title="Oggi">
+                    <i data-lucide="calendar-clock"></i> <span class="btn-label">Oggi</span>
+                </button>
+                
+                <div class="dropdown" id="month-dropdown-container">
+                    <button class="action-btn ${this.currentFilter.startsWith('month-') ? 'active' : ''}" onclick="document.getElementById('month-dropdown').classList.toggle('show'); event.stopPropagation();" title="Seleziona Mese">
+                         <span class="btn-label">${monthBtnLabel}</span> <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div id="month-dropdown" class="dropdown-content">
+                        ${months.map((m, i) => `<div class="dropdown-item ${this.currentFilter === `month-${i}` ? 'active' : ''}" onclick="VirtualStationModule.setFilter('month-${i}')">${m}</div>`).join('')}
+                    </div>
+                </div>
+                
+                <button class="action-btn ${this.currentFilter === 'year' ? 'active' : ''}" onclick="VirtualStationModule.setFilter('year')" title="Anno Corrente">
+                    <i data-lucide="calendar-range"></i> <span class="btn-label">Anno</span>
+                </button>
+
+                <input type="file" id="import-vs-input" style="display: none;" accept=".json">
+                
+                <button id="btn-vs-import" class="action-btn" title="Importa">
+                    <i data-lucide="upload"></i> <span class="btn-label">Importa</span>
+                </button>
+                
+                <button id="btn-vs-export" class="action-btn" title="Esporta">
+                    <i data-lucide="download"></i> <span class="btn-label">Esporta</span>
+                </button>
+
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 24px;">
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Litri Venduti</span><i data-lucide="droplets"></i></div>
+                    <div class="card-body"><h2 style="color: var(--primary-color); font-size: 2rem; font-weight: 700;">${stats.liters.toLocaleString('it-IT')} L</h2><p style="color: var(--text-secondary); font-size: 0.9rem;">Nel periodo selezionato</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Fatturato Stimato</span><i data-lucide="euro"></i></div>
+                    <div class="card-body"><h2 style="color: var(--col-gasolio); font-size: 2rem; font-weight: 700;">€ ${stats.revenue.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2><p style="color: var(--text-secondary); font-size: 0.9rem;">Calcolato su storico prezzi</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">% Servito</span><i data-lucide="user-check"></i></div>
+                    <div class="card-body"><h2 style="color: var(--col-hvolution); font-size: 2rem; font-weight: 700;">${stats.servitoPerc}%</h2><p style="color: var(--text-secondary); font-size: 0.9rem;">Incidenza sul totale</p></div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); margin-bottom: 24px;">
+                <div class="card"><div class="card-header"><span class="card-title">Modalità Servizio</span><i data-lucide="pie-chart"></i></div><div class="card-body" style="height: 300px;"><canvas id="chartMode"></canvas></div></div>
+                <div class="card"><div class="card-header"><span class="card-title">Vendite per Prodotto</span><i data-lucide="bar-chart-2"></i></div><div class="card-body" style="height: 300px;"><canvas id="chartProducts"></canvas></div></div>
+                <div class="card"><div class="card-header"><span class="card-title">Andamento Anno</span><i data-lucide="trending-up"></i></div><div class="card-body" style="height: 300px;"><canvas id="chartTrend"></canvas></div></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span class="card-title">Storico Turni</span><i data-lucide="history"></i></div>
+                <div class="card-body"><div style="overflow-x: auto;">${this.renderTable(turni)}</div>${this.renderPagination(turni.length)}</div>
+            </div>
         `;
         lucide.createIcons();
         this.renderCharts(turni);
@@ -371,7 +431,6 @@ const VirtualStationModule = {
             allTurni.forEach(t => { const m = new Date(t.date).getMonth(); let tot = 0; this.products.forEach(p => { tot += (parseFloat(t.prepay?.[p.id] || 0) + parseFloat(t.servito?.[p.id] || 0) + parseFloat(t.fdt?.[p.id] || 0)); }); monthly[m] += tot; });
             this.chartInstances.trend = new Chart(ctxTrend, { type: 'line', data: { labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'], datasets: [{ label: 'Vendite Mensili', data: monthly, borderColor: '#4318FF', backgroundColor: 'rgba(67, 24, 255, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 40, boxHeight: 12, useBorderRadius: true, borderRadius: 20 } } }, scales: { y: { grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } } } });
         }
-    },
-    // Rimossa funzione locale openModal/closeModal/setupModalListeners
+    }
 };
 /* FINE MODULO VIRTUAL STATION */

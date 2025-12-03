@@ -2,7 +2,6 @@
 const AmministrazioneModule = {
     ITEMS_PER_PAGE: 10,
     currentPage: 1,
-    currentFilter: '',
     editingClientId: null,
     sort: { column: 'name', direction: 'asc' },
 
@@ -23,36 +22,31 @@ const AmministrazioneModule = {
         const container = document.getElementById('amministrazione-content');
         if (!container) return;
 
-        const clients = this.getFilteredClients();
+        const clients = this.getFilteredClients(); // Gestisce solo l'ordinamento ora
         const stats = this.calculateStats(clients);
 
-        const clearBtnHTML = this.currentFilter ? 
-            `<button id="btn-clear-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: none; background-color: var(--text-secondary); color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; padding: 0; opacity: 0.8;">
-                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-            </button>` : '';
-
+        // MODIFICA: Toolbar centralizzata in una Card, senza ricerca
         container.innerHTML = `
-            <div class="toolbar-container">
-                <div class="toolbar-group">
-                    <input type="file" id="import-admin-input" style="display: none;" accept=".json">
-                    <button id="btn-admin-import" class="action-btn">Importa</button>
-                    <button id="btn-admin-export" class="action-btn">Esporta</button>
-                </div>
+            <div class="card" style="padding: 25px; margin-bottom: 24px; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
                 
-                <div class="toolbar-group" style="flex-grow: 1; max-width: 400px;">
-                    <div style="position: relative; width: 100%;">
-                        <input type="text" id="search-client" class="form-input pill" placeholder="Cerca cliente..." 
-                               style="padding-left: 35px; padding-right: 35px;"
-                               value="${this.currentFilter}">
-                        <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; color: var(--text-secondary);"></i>
-                        ${clearBtnHTML}
-                    </div>
-                </div>
+                <button id="btn-new-client" class="action-btn">
+                    <i data-lucide="plus-circle"></i> Nuovo Cliente
+                </button>
+                
+                <button id="btn-print-list" class="action-btn">
+                    <i data-lucide="printer"></i> Stampa Lista
+                </button>
 
-                <div class="toolbar-group">
-                    <button id="btn-print-list" class="action-btn">Stampa Lista</button>
-                    <button id="btn-new-client" class="action-btn">Nuovo Cliente</button>
-                </div>
+                <input type="file" id="import-admin-input" style="display: none;" accept=".json">
+                
+                <button id="btn-admin-import" class="action-btn">
+                    <i data-lucide="upload"></i> Importa
+                </button>
+                
+                <button id="btn-admin-export" class="action-btn">
+                    <i data-lucide="download"></i> Esporta
+                </button>
+
             </div>
 
             <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 24px;">
@@ -95,9 +89,11 @@ const AmministrazioneModule = {
     // --- DATI & CALCOLI ---
     getClients: function() { try { return JSON.parse(localStorage.getItem('polaris_clients') || '[]'); } catch (e) { return []; } },
     getLastTransaction: function(client) { if (!client.transactions || client.transactions.length === 0) return null; return [...client.transactions].sort((a, b) => new Date(b.date) - new Date(a.date))[0]; },
+    
     getFilteredClients: function() {
-        let clients = this.getClients(); const q = this.currentFilter.toLowerCase();
-        if (q) clients = clients.filter(c => c.name.toLowerCase().includes(q));
+        // RIMOSSO: Filtro ricerca locale (gestito dalla Global Search)
+        let clients = this.getClients(); 
+        
         const { column, direction } = this.sort; const dir = direction === 'asc' ? 1 : -1;
         clients.sort((a, b) => {
             let valA, valB;
@@ -113,12 +109,13 @@ const AmministrazioneModule = {
         });
         return clients;
     },
+
     calculateStats: function(clients) { let credit = 0, debit = 0; clients.forEach(c => { if (c.balance > 0) credit += c.balance; else debit += c.balance; }); return { totalCredit: credit, totalDebit: Math.abs(debit), clientCount: clients.length }; },
     handleSort: function(col) { if (this.sort.column === col) { this.sort.direction = this.sort.direction === 'asc' ? 'desc' : 'asc'; } else { this.sort.column = col; this.sort.direction = 'asc'; } this.render(); },
 
     // --- TABELLA ---
     renderTable: function(clients) {
-        if (clients.length === 0) return '<p class="placeholder-message">Nessun cliente trovato.</p>';
+        if (clients.length === 0) return '<p class="placeholder-message">Nessun cliente registrato.</p>';
         const start = (this.currentPage - 1) * this.ITEMS_PER_PAGE; const end = start + this.ITEMS_PER_PAGE; const pageItems = clients.slice(start, end);
         const th = (label, col, align = 'left') => {
             const isActive = this.sort.column === col; const icon = isActive ? (this.sort.direction === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'; const color = isActive ? 'var(--text-main)' : 'var(--text-secondary)';
@@ -326,7 +323,17 @@ const AmministrazioneModule = {
         w.document.close(); 
     },
     printList: function() { const clients = this.getFilteredClients(); const w = window.open('', '_blank'); let rows = ''; for(let i=0; i<clients.length; i+=2) { const c1 = clients[i]; const c2 = clients[i+1]; const cell1 = c1 ? `<td>${c1.name}</td><td class="text-right">${c1.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; const cell2 = c2 ? `<td>${c2.name}</td><td class="text-right">${c2.balance.toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>` : `<td></td><td></td>`; rows += `<tr>${cell1}${cell2}</tr>`; } w.document.write(`<html><head><title>Lista Clienti</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"><style>body{font-family:'Montserrat',sans-serif;font-size:10pt;padding:20px}h2{text-align:center;margin-bottom:5px;text-transform:uppercase}p{text-align:center;margin-top:0;margin-bottom:20px;font-size:9pt;color:#666}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:6px 8px;font-size:9pt;vertical-align:middle}th{background-color:#f0f0f0;font-weight:600;text-align:left}.text-right{text-align:right}td:nth-child(1),td:nth-child(3){width:35%}td:nth-child(2),td:nth-child(4){width:15%;font-weight:bold}@media print{@page{margin:1cm}}</style></head><body><h2>Riepilogo Clienti a credito</h2><p>Data: ${new Date().toLocaleDateString('it-IT')}</p><table><thead><tr><th>Cliente</th><th class="text-right">Saldo</th><th>Cliente</th><th class="text-right">Saldo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=function(){window.print();window.close();}</script></body></html>`); w.document.close(); },
-    attachMainListeners: function() { document.getElementById('search-client').addEventListener('input', (e) => { this.currentFilter = e.target.value; this.currentPage = 1; this.render(); const inp = document.getElementById('search-client'); inp.focus(); const val=inp.value; inp.value=''; inp.value=val; }); const btnClear = document.getElementById('btn-clear-search'); if(btnClear) btnClear.addEventListener('click', () => { this.currentFilter = ''; this.currentPage = 1; this.render(); document.getElementById('search-client').focus(); }); document.getElementById('btn-new-client').addEventListener('click', () => this.openClientModal()); document.getElementById('btn-print-list').addEventListener('click', () => this.printList()); const fi = document.getElementById('import-admin-input'); document.getElementById('btn-admin-import').addEventListener('click', () => fi.click()); fi.addEventListener('change', (e) => this.importData(e)); document.getElementById('btn-admin-export').addEventListener('click', () => this.exportData()); const btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next'); if(btnPrev) btnPrev.addEventListener('click', () => { if(this.currentPage>1) {this.currentPage--; this.render();} }); if(btnNext) btnNext.addEventListener('click', () => { if(this.currentPage*this.ITEMS_PER_PAGE < this.getFilteredClients().length) {this.currentPage++; this.render();} }); },
+    attachMainListeners: function() { 
+        document.getElementById('btn-new-client').addEventListener('click', () => this.openClientModal()); 
+        document.getElementById('btn-print-list').addEventListener('click', () => this.printList()); 
+        const fi = document.getElementById('import-admin-input'); 
+        document.getElementById('btn-admin-import').addEventListener('click', () => fi.click()); 
+        fi.addEventListener('change', (e) => this.importData(e)); 
+        document.getElementById('btn-admin-export').addEventListener('click', () => this.exportData()); 
+        const btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next'); 
+        if(btnPrev) btnPrev.addEventListener('click', () => { if(this.currentPage>1) {this.currentPage--; this.render();} }); 
+        if(btnNext) btnNext.addEventListener('click', () => { if(this.currentPage*this.ITEMS_PER_PAGE < this.getFilteredClients().length) {this.currentPage++; this.render();} }); 
+    },
     exportData: function() { try { const data = this.getClients(); const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data)); a.download = "polaris_clienti.json"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { window.showNotification("Errore Export", 'error'); } },
 
     toggleDatepicker: function(e) {
@@ -388,7 +395,6 @@ const AmministrazioneModule = {
     formatDateIT: function(iso) {
         if(!iso) return '';
         const d=new Date(iso);
-        // MODIFICA: Rimossa la proprietà year: 'numeric'
         return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
     }
 };
